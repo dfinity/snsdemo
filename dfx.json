@@ -1,0 +1,35 @@
+{
+  "canisters": {
+    "snsdemo_backend": {
+      "main": "src/snsdemo_backend/main.mo",
+      "type": "motoko"
+    },
+    "snsdemo_frontend": {
+      "dependencies": [
+        "snsdemo_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/snsdemo_frontend/src/index.html"
+      },
+      "source": [
+        "src/snsdemo_frontend/assets",
+        "dist/snsdemo_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.11.0",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
