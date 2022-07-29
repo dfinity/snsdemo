@@ -1,0 +1,16 @@
+set -euo pipefail
+echo "Checking that we have a network..."
+while test -z "${DFX_NETWORK:-}"; do
+	read -rp "Which network would you like to use?  " DFX_NETWORK
+done
+export DFX_NETWORK
+
+echo "Checking that we have an SNS..."
+while test -z "${SNS_WASM:-}"; do
+  SNS_WASM="$(jq -r '.wasm_canister[env.DFX_NETWORK]' canister_ids.json)"
+  test -z "${SNS_WASM:-}" || break
+  echo
+  echo "Please populate canister_ids.json with the wasm_canister ID."
+  read -rp "Press enter to continue... "
+  echo
+done
