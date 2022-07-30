@@ -100,3 +100,12 @@ echo "See SNS's in the frontend dapp:"
   echo "See: ${url}/#/launchpad"
   read -rp "Press enter to continue... "
 )
+
+echo "Install quill"
+command -v sns-quill ||
+(
+    git clone git@github.com:dfinity/sns-quill.git
+    cd sns-quill
+    make release
+    install /home/max/dfn/snsdemo/sns-quill/target/release/sns-quill "$HOME/.local/bin/"
+)
