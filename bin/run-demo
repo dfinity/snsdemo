@@ -1,9 +1,12 @@
 set -euo pipefail
+
+
 echo "Checking that we have a network..."
 while test -z "${DFX_NETWORK:-}"; do
 	read -rp "Which network would you like to use?  " DFX_NETWORK
 done
 export DFX_NETWORK
+
 
 echo "Checking that we have an nns-dapp dir..."
 while true ; do
@@ -11,6 +14,7 @@ test -e "${ND_DIR:-}/dfx.json" && break || {
   read -rp "Where is the nns-repo?  " ND_DIR
 }
 done
+
 
 echo "Checking that we have network config"
 jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
@@ -28,6 +32,7 @@ while test -z "${SNS_WASM:-}"; do
   echo
 done
 
+
 echo "Deleting existing identities..."
 for ((i=1; i<5; i++)) ; do
     id="ident-$i"
@@ -39,6 +44,7 @@ for ((i=1; i<5; i++)) ; do
       [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
     fi
 done
+
 
 echo "Creating identities..."
 for ((i=1; i<5; i++)) ; do
@@ -52,12 +58,37 @@ for ((i=1; i<5; i++)) ; do
     fi
 done
 
+
 echo "Getting cycles for ident-1"
 dfx identity use ident-1
 export WALLET_CANISTER="$(dfx identity --network $DFX_NETWORK get-wallet)"
 dfx wallet --network $DFX_NETWORK balance
 : TODO: check cycles and loop if needed.
 
+
 echo "Deploying dapp"
 npm ci
-dfx deploy --network "$DFX_NETWORK"
+dfx deploy --network $DFX_NETWORK --with-cycles 1000000000000
+export DAPP_NAME=smiley_dapp_assets
+echo "See: $(jq -r '.networks[env.DFX_NETWORK].config.HOST' dfx.json | awk -F '://' -v canister_id="$(jq -r .[env.DAPP_NAME][env.DFX_NETWORK] canister_ids.json)" '{print $1 FS canister_id "." $2}')"
+read -rp "Press enter to continue... "
+DAPP_FRONTEND="$(jq -r .smiley_dapp_assets[env.DFX_NETWORK] canister_ids.json)"
+DAPP_BACKEND="$(jq -r .smiley_dapp[env.DFX_NETWORK] canister_ids.json)"
+export DAPP_FRONTEND
+export DAPP_BACKEND
+
+
+set dfx canister --network "$DFX_NETWORK" call smiley_dapp getBackgroundColor '()'
+echo "Querying the canister:"
+echo "  ${*}"
+"${@}"
+read -rp "Press enter to continue... "
+
+
+echo "Current list of SNSs:"
+(
+    cd "$ND_DIR"
+    dfx canister --network $DFX_NETWORK call wasm_canister list_deployed_snses '(record {} )'
+)
+read -rp "Press enter to continue... "
+
