@@ -92,3 +92,11 @@ echo "Current list of SNSs:"
 )
 read -rp "Press enter to continue... "
 
+echo "See SNS's in the frontend dapp:"
+(
+  cd "$ND_DIR"
+  export DAPP_NAME=nns-dapp
+  url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST' dfx.json | awk -F '://' -v canister_id="$(jq -r .[env.DAPP_NAME][env.DFX_NETWORK] canister_ids.json)" '{print $1 FS canister_id "." $2}')"
+  echo "See: ${url}/#/launchpad"
+  read -rp "Press enter to continue... "
+)
