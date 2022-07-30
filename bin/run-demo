@@ -5,6 +5,19 @@ while test -z "${DFX_NETWORK:-}"; do
 done
 export DFX_NETWORK
 
+echo "Checking that we have an nns-dapp dir..."
+while true ; do
+test -e "${ND_DIR:-}/dfx.json" && break || {
+  read -rp "Which directory would you like to use for nns data?  " ND_DIR
+}
+done
+
+echo "Checking that we have network config"
+jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
+  jq -s '.[0] * .[1]' dfx.json <( cd "$ND_DIR" ; jq '{networks: .networks}' dfx.json ) > dfx.json.new && mv dfx.json.new dfx.json
+}
+
+
 echo "Checking that we have an SNS..."
 while test -z "${SNS_WASM:-}"; do
   SNS_WASM="$(jq -r '.wasm_canister[env.DFX_NETWORK]' canister_ids.json)"
@@ -14,3 +27,35 @@ while test -z "${SNS_WASM:-}"; do
   read -rp "Press enter to continue... "
   echo
 done
+
+echo "Deleting existing identities..."
+for ((i=1; i<5; i++)) ; do
+    id="ident-$i"
+    id_dir="$HOME/.config/dfx/identity/$id"
+    if test -d "$id_dir"
+    then
+      read -rp "Delete identity $id? [y/N] " del_id
+      del_id="$(echo "${del_id:-N}" | tr A-Z a-z)"
+      [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
+    fi
+done
+
+echo "Creating identities..."
+for ((i=1; i<5; i++)) ; do
+    id="ident-$i"
+    id_dir="$HOME/.config/dfx/identity/$id"
+    if test -d "$id_dir"
+    then
+      echo "Identity $id already exists"
+    else
+      dfx identity new "$id" --disable-encryption
+    fi
+done
+
+echo "Getting cycles for ident-1"
+dfx identity use ident-1
+export WALLET_CANISTER="$(dfx identity --network $DFX_NETWORK get-wallet)"
+dfx wallet --network $DFX_NETWORK balance
+: TODO: check cycles and loop if needed.
+
+

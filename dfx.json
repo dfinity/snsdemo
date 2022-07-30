@@ -1,19 +1,19 @@
 {
   "canisters": {
-    "snsdemo_backend": {
-      "main": "src/snsdemo_backend/main.mo",
+    "smiley_dapp": {
+      "main": "src/smiley_dapp/main.mo",
       "type": "motoko"
     },
-    "snsdemo_frontend": {
+    "smiley_dapp_assets": {
       "dependencies": [
-        "snsdemo_backend"
+        "smiley_dapp"
       ],
       "frontend": {
-        "entrypoint": "src/snsdemo_frontend/src/index.html"
+        "entrypoint": "src/smiley_dapp_assets/src/index.html"
       },
       "source": [
-        "src/snsdemo_frontend/assets",
-        "dist/snsdemo_frontend/"
+        "src/smiley_dapp_assets/assets",
+        "dist/smiley_dapp_assets/"
       ],
       "type": "assets"
     }
@@ -29,6 +29,20 @@
     "local": {
       "bind": "127.0.0.1:8000",
       "type": "ephemeral"
+    },
+    "nnsdapp": {
+      "providers": ["http://[2a00:fb01:400:42:5000:d1ff:fefe:987e]:8080"],
+      "type": "persistent"
+    },
+    "small12": {
+      "config": {
+        "BUILD": "dev",
+        "FETCH_ROOT_KEY": true,
+        "REDIRECT_TO_LEGACY": "prod",
+        "HOST": "https://small12.dfinity.network"
+      },
+       "providers": ["http://[2a00:fb01:400:42:5000:54ff:fef3:eb8]:8080"], 
+      "type": "persistent"
     }
   },
   "version": 1
