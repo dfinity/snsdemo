@@ -27,21 +27,108 @@
   "dfx": "0.11.0",
   "networks": {
     "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
+      "bind": "127.0.0.1:8080",
+      "type": "ephemeral",
+      "config": {
+        "BUILD": "dev",
+        "FETCH_ROOT_KEY": true,
+        "REDIRECT_TO_LEGACY": "svelte",
+        "ENABLE_NEW_SPAWN_FEATURE": true,
+        "ENABLE_SNS_NEURONS": true,
+        "HOST": "http://localhost:8080"
+      }
     },
     "nnsdapp": {
-      "providers": ["http://[2a00:fb01:400:42:5000:d1ff:fefe:987e]:8080"],
+      "providers": [
+        "http://[2a00:fb01:400:42:5000:d1ff:fefe:987e]:8080"
+      ],
       "type": "persistent"
     },
     "small12": {
       "config": {
         "BUILD": "dev",
         "FETCH_ROOT_KEY": true,
-        "REDIRECT_TO_LEGACY": "prod",
-        "HOST": "https://small12.dfinity.network"
+        "REDIRECT_TO_LEGACY": "both",
+        "HOST": "https://small12.dfinity.network",
+        "ENABLE_NEW_SPAWN_FEATURE": true,
+        "ENABLE_SNS_NEURONS": true
       },
-       "providers": ["http://[2a00:fb01:400:42:5000:54ff:fef3:eb8]:8080"], 
+      "providers": [
+        "http://[2a00:fb01:400:42:5000:54ff:fef3:eb8]:8080"
+      ],
+      "type": "persistent"
+    },
+    "mainnet": {
+      "config": {
+        "BUILD": "release",
+        "FETCH_ROOT_KEY": false,
+        "REDIRECT_TO_LEGACY": "prod",
+        "ENABLE_NEW_SPAWN_FEATURE": true,
+        "ENABLE_SNS_NEURONS": false,
+        "HOST": "https://ic0.app",
+        "OWN_CANISTER_ID": "qoctq-giaaa-aaaaa-aaaea-cai",
+        "OWN_CANISTER_URL": "https://nns.ic0.app",
+        "IDENTITY_SERVICE_URL": "https://identity.ic0.app/"
+      },
+      "providers": [
+        "https://ic0.app/"
+      ],
+      "type": "persistent"
+    },
+    "staging": {
+      "config": {
+        "BUILD": "dev",
+        "FETCH_ROOT_KEY": true,
+        "REDIRECT_TO_LEGACY": "prod",
+        "ENABLE_NEW_SPAWN_FEATURE": true,
+        "ENABLE_SNS_NEURONS": false,
+        "HOST": "https://nnsdapp.dfinity.network"
+      },
+      "providers": [
+        "http://[2a00:fb01:400:42:5000:d1ff:fefe:987e]:8080"
+      ],
+      "type": "persistent"
+    },
+    "testnet": {
+      "config": {
+        "BUILD": "dev",
+        "FETCH_ROOT_KEY": true,
+        "REDIRECT_TO_LEGACY": "prod",
+        "ENABLE_NEW_SPAWN_FEATURE": true,
+        "ENABLE_SNS_NEURONS": true,
+        "HOST": "https://nnsdapp.dfinity.network"
+      },
+      "providers": [
+        "http://[2a00:fb01:400:42:5000:d1ff:fefe:987e]:8080"
+      ],
+      "type": "persistent"
+    },
+    "small11": {
+      "config": {
+        "BUILD": "dev",
+        "FETCH_ROOT_KEY": true,
+        "REDIRECT_TO_LEGACY": "both",
+        "ENABLE_NEW_SPAWN_FEATURE": true,
+        "ENABLE_SNS_NEURONS": true,
+        "HOST": "https://small11.dfinity.network"
+      },
+      "providers": [
+        "http://[2a00:fb01:400:42:5000:eeff:feae:ab37]:8080"
+      ],
+      "type": "persistent"
+    },
+    "small06": {
+      "config": {
+        "BUILD": "dev",
+        "FETCH_ROOT_KEY": true,
+        "REDIRECT_TO_LEGACY": "both",
+        "ENABLE_NEW_SPAWN_FEATURE": true,
+        "ENABLE_SNS_NEURONS": true,
+        "HOST": "https://small06.dfinity.network"
+      },
+      "providers": [
+        "http://[2a00:fb01:400:42:5000:caff:fed1:b2e7]:8080"
+      ],
       "type": "persistent"
     }
   },

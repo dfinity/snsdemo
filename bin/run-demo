@@ -8,7 +8,7 @@ export DFX_NETWORK
 echo "Checking that we have an nns-dapp dir..."
 while true ; do
 test -e "${ND_DIR:-}/dfx.json" && break || {
-  read -rp "Which directory would you like to use for nns data?  " ND_DIR
+  read -rp "Where is the nns-repo?  " ND_DIR
 }
 done
 
@@ -58,4 +58,6 @@ export WALLET_CANISTER="$(dfx identity --network $DFX_NETWORK get-wallet)"
 dfx wallet --network $DFX_NETWORK balance
 : TODO: check cycles and loop if needed.
 
-
+echo "Deploying dapp"
+npm ci
+dfx deploy --network "$DFX_NETWORK"
