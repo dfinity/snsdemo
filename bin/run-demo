@@ -127,16 +127,20 @@ echo -e "\nGetting front end neuron IDs..."
   url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST' dfx.json | awk -F '://' -v canister_id="$(jq -r .[env.DAPP_NAME][env.DFX_NETWORK] canister_ids.json)" '{print $1 FS canister_id "." $2}')"
   echo "nns-dapp url: ${url}/#/neurons"
 )
-echo "Please stake 900 ICP in the nns-dapp, as user 10000, with a dissolve delay of 8 years."
-read -rp "Please enter the neuron principal: " FRONTEND_NEURON_1
-echo "Thank you.  This neuron represents the public voting majority on the IC."
+while test -z "${NNS_MAJORITY_NEURON:-}" ; do
+  echo "Please stake 900 ICP in the nns-dapp, as user 10000, with a dissolve delay of 8 years."
+  read -rp "Please enter the neuron principal: " NNS_MAJORITY_NEURON
+  echo "Thank you.  This neuron represents the public voting majority on the IC."
+done
 echo
 
-echo "Please stake 10 ICP in the nns-dapp, as user 10001, with a dissolve delay of 8 years."
-read -rp "Please enter the neuron principal: " FRONTEND_NEURON_2
-echo "Please add a hotkey for the developer principal: " $(dfx --identity ident-1 identity get-principal)
-read -rp "Please press enter to continue... "
-echo "Thank you.  This neuron enables the developer to make proposals."
+while test -z "${DEVELOPER_NEURON:-}" ; do
+  echo "Please stake 10 ICP in the nns-dapp, as user 10001, with a dissolve delay of 8 years."
+  read -rp "Please enter the neuron principal: " DEVELOPER_NEURON
+  echo "Please add a hotkey for the developer principal: " $(dfx --identity ident-1 identity get-principal)
+  read -rp "Please press enter to continue... "
+  echo "Thank you.  This neuron enables the developer to make proposals."
+done
 echo
 
 
