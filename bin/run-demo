@@ -1,5 +1,6 @@
 set -euo pipefail
 
+test -f canister_ids.json || echo '{}' > canister_ids.json
 
 echo "Checking that we have a network..."
 while test -z "${DFX_NETWORK:-}"; do
@@ -21,46 +22,8 @@ jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
   jq -s '.[0] * .[1]' dfx.json <( cd "$ND_DIR" ; jq '{networks: .networks}' dfx.json ) > dfx.json.new && mv dfx.json.new dfx.json
 }
 
-
-echo "Checking that we have an SNS..."
-while test -z "${SNS_WASM:-}"; do
-  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
-  test -z "${SNS_WASM:-}" || break
-  echo
-  echo "Please populate canister_ids.json with the sns-wasm ID."
-  read -rp "Press enter to continue... "
-  echo
-done
-
-echo "Adding the sns-wasm and did files to dfx.json"
-/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/sns/cli
-/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/nns
-
-#echo "Deleting existing identities..."
-#for ((i=1; i<5; i++)) ; do
-#    id="ident-$i"
-#    id_dir="$HOME/.config/dfx/identity/$id"
-#    if test -d "$id_dir"
-#    then
-#      read -rp "Delete identity $id? [y/N] " del_id
-#      del_id="$(echo "${del_id:-N}" | tr A-Z a-z)"
-#      [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
-#    fi
-#done
-
-
 echo "Creating identities..."
 /home/max/dfn/nns-dapp/branches/sns-demo-materials/e2e-tests/scripts/create-dfx-identites.sh
-#for ((i=1; i<5; i++)) ; do
-#    id="ident-$i"
-#    id_dir="$HOME/.config/dfx/identity/$id"
-#    if test -d "$id_dir"
-#    then
-#      echo "Identity $id already exists"
-#    else
-#      dfx identity new "$id" --disable-encryption
-#    fi
-#done
 for ((i=1; i<5; i++)) ; do
   dfx --identity "ident-$i" wallet --network $DFX_NETWORK balance
 done
@@ -77,7 +40,8 @@ dfx wallet --network $DFX_NETWORK balance
 echo "Deploying dapp"
 dfx canister --network "$DFX_NETWORK" call smiley_dapp getBackgroundColor '()' || {
   npm ci
-  dfx deploy --network $DFX_NETWORK --with-cycles 1000000000000
+  dfx deploy --network $DFX_NETWORK --with-cycles 1000000000000 smiley_dapp 
+  dfx deploy --network $DFX_NETWORK --with-cycles 1000000000000 smiley_dapp_assets
 }
 
 echo "Getting dapp info..."
@@ -95,6 +59,19 @@ echo "  ${*}"
 "${@}"
 read -rp "Press enter to continue... "
 
+
+echo "Adding the sns-wasm and did files to dfx.json"
+/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/sns/cli
+/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/nns
+echo "Checking that we have an SNS..."
+while test -z "${SNS_WASM:-}"; do
+  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
+  test -z "${SNS_WASM:-}" || break
+  echo
+  echo "Please populate canister_ids.json with the sns-wasm ID."
+  read -rp "Press enter to continue... "
+  echo
+done
 
 echo "Current list of SNSs:"
 dfx canister --network $DFX_NETWORK call sns-wasm list_deployed_snses '(record {} )'

@@ -1,0 +1,22 @@
+set -euo pipefail
+echo "Checking that we have a network..."
+while test -z "${DFX_NETWORK:-}"; do
+	read -rp "Which network would you like to use?  " DFX_NETWORK
+done
+export DFX_NETWORK
+
+echo "Deleting existing identities..."
+for ((i=1; i<5; i++)) ; do
+    id="ident-$i"
+    id_dir="$HOME/.config/dfx/identity/$id"
+    if test -d "$id_dir"
+    then
+      read -rp "Delete identity $id? [y/N] " del_id
+      del_id="$(echo "${del_id:-N}" | tr A-Z a-z)"
+      [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
+    fi
+done
+
+echo "Deleting smiley canister IDs"
+rm -f canister_ids.json
+git checkout dfx.json
