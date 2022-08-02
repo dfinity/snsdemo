@@ -16,6 +16,36 @@
         "dist/smiley_dapp_assets/"
       ],
       "type": "assets"
+    },
+    "sns_governance": {
+      "candid": "./candid/sns_governance.did"
+    },
+    "sns_ledger": {
+      "candid": "./candid/sns_ledger.did"
+    },
+    "sns_root": {
+      "candid": "./candid/sns_root.did"
+    },
+    "sns_swap": {
+      "candid": "./candid/sns_swap.did"
+    },
+    "governance": {
+      "candid": "./candid/governance.did"
+    },
+    "lifeline": {
+      "candid": "./candid/lifeline.did"
+    },
+    "registry": {
+      "candid": "./candid/registry.did"
+    },
+    "root": {
+      "candid": "./candid/root.did"
+    },
+    "sns-wasm": {
+      "candid": "./candid/sns-wasm.did"
+    },
+    "tokens": {
+      "candid": "./candid/tokens.did"
     }
   },
   "defaults": {

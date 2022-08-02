@@ -24,39 +24,47 @@ jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
 
 echo "Checking that we have an SNS..."
 while test -z "${SNS_WASM:-}"; do
-  SNS_WASM="$(jq -r '.wasm_canister[env.DFX_NETWORK]' canister_ids.json)"
+  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
   test -z "${SNS_WASM:-}" || break
   echo
-  echo "Please populate canister_ids.json with the wasm_canister ID."
+  echo "Please populate canister_ids.json with the sns-wasm ID."
   read -rp "Press enter to continue... "
   echo
 done
 
+echo "Adding the sns-wasm and did files to dfx.json"
+/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/sns/cli
+/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/nns
 
-echo "Deleting existing identities..."
-for ((i=1; i<5; i++)) ; do
-    id="ident-$i"
-    id_dir="$HOME/.config/dfx/identity/$id"
-    if test -d "$id_dir"
-    then
-      read -rp "Delete identity $id? [y/N] " del_id
-      del_id="$(echo "${del_id:-N}" | tr A-Z a-z)"
-      [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
-    fi
-done
+#echo "Deleting existing identities..."
+#for ((i=1; i<5; i++)) ; do
+#    id="ident-$i"
+#    id_dir="$HOME/.config/dfx/identity/$id"
+#    if test -d "$id_dir"
+#    then
+#      read -rp "Delete identity $id? [y/N] " del_id
+#      del_id="$(echo "${del_id:-N}" | tr A-Z a-z)"
+#      [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
+#    fi
+#done
 
 
 echo "Creating identities..."
+/home/max/dfn/nns-dapp/branches/sns-demo-materials/e2e-tests/scripts/create-dfx-identites.sh
+#for ((i=1; i<5; i++)) ; do
+#    id="ident-$i"
+#    id_dir="$HOME/.config/dfx/identity/$id"
+#    if test -d "$id_dir"
+#    then
+#      echo "Identity $id already exists"
+#    else
+#      dfx identity new "$id" --disable-encryption
+#    fi
+#done
 for ((i=1; i<5; i++)) ; do
-    id="ident-$i"
-    id_dir="$HOME/.config/dfx/identity/$id"
-    if test -d "$id_dir"
-    then
-      echo "Identity $id already exists"
-    else
-      dfx identity new "$id" --disable-encryption
-    fi
+  dfx --identity "ident-$i" wallet --network $DFX_NETWORK balance
 done
+
 
 
 echo "Getting cycles for ident-1"
@@ -89,10 +97,7 @@ read -rp "Press enter to continue... "
 
 
 echo "Current list of SNSs:"
-(
-    cd "$ND_DIR"
-    dfx canister --network $DFX_NETWORK call wasm_canister list_deployed_snses '(record {} )'
-)
+dfx canister --network $DFX_NETWORK call sns-wasm list_deployed_snses '(record {} )'
 read -rp "Press enter to continue... "
 
 echo "See SNS's in the frontend dapp:"
@@ -129,12 +134,68 @@ echo
 
 echo "Please stake 10 ICP in the nns-dapp, as user 10001, with a dissolve delay of 8 years."
 read -rp "Please enter the neuron principal: " FRONTEND_NEURON_2
-echo "Please add a hotkey fr the developer principal: " $(dfx --identity ident-1 identity get-principal)
+echo "Please add a hotkey for the developer principal: " $(dfx --identity ident-1 identity get-principal)
 read -rp "Please press enter to continue... "
 echo "Thank you.  This neuron enables the developer to make proposals."
 echo
 
-read -rp "Please send 10 ICP to: $(dfx --identity ident-3 identity get-principal) (Press enter when done) "
-read -rp "Please send 10 ICP to: $(dfx --identity ident-4 identity get-principal) (Press enter when done) "
+
+for magic in cf36661f8287be559ffccd4876617f953d76f1bb1c34e83229b0caaf713557b4 14ad11c9263b2977bd8d186956a2fa136a2614e7364bbae9fdc076e87b702b6e
+do
+  read -rp "Please send 10 ICP to $magic (Press enter when done) "
+done
 
 
+#for DFX_ID in ident-3 ident-4 ; do
+#  (
+#    export DFX_ID
+#    WALLET_ADDRESS="$(jq -r '.identities[env.DFX_ID][env.DFX_NETWORK]' "${HOME}/.config/dfx/identity/$DFX_ID/wallets.json")"
+#    read -rp "Please send 10 ICP to ${DFX_ID} at ${WALLET_ADDRESS} (Press enter when done) "
+#  )
+#done
+
+clear
+read -rp "Ready to start the demo.  Pless enter to proceed... "
+clear
+
+echo "First, the smiley-face team needs to decide on parameters for the decentralisation."
+echo "We will use a pre-populated configuration..."
+: TODO - create a configuration
+: TODO - prompt the user for key details
+read -rp "Press enter to have a look... "
+$EDITOR sns_init.yml
+echo
+
+echo "Next, the smiley-face team needs to create a governance system (SNS) that implements those decisions."
+SNS_WASM_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id sns-wasm 2>/dev/null)"
+read -rp "Press enter to continue... "
+  echo "Creating SNS"
+  set -- --init-config-file sns_init.yml
+  echo sns "${@}"
+  : We actually run with some flags to point at the testnet.
+  sns deploy --network "$DFX_NETWORK" --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" "${@}" |
+    tee /dev/stderr >sns_creation.idl
+
+  echo "Populate canister_ids.json"
+  if test -e canister_ids.json; then
+    EXISTING_CANISTER_IDS="canister_ids.$(date -Iseconds)"
+    cp canister_ids.json "$EXISTING_CANISTER_IDS"
+  else
+    echo "{}" >canister_ids.json
+  fi
+  sed -n ':a;/^[(]/bb;d;ba;:b;p;n;bb' <sns_creation.idl |
+    idl2json |
+    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {(env.DFX_NETWORK): (.value[0])} }) | add' |
+    jq -s '.[0] * .[1]' - canister_ids.json >canister_ids.json.new
+  mv canister_ids.json.new canister_ids.json
+echo
+
+
+echo "The SNS should be listed:"
+dfx canister --network $DFX_NETWORK call sns-wasm list_deployed_snses '(record {} )'
+read -rp "Press enter to continue... "
+echo
+
+: TODO Are the governance canister IDs included here?
+echo "If we examine the SNS we see management canisters but no dapps:"
+dfx canister --network $DFX_NETWORK call sns_root list_sns_canisters '(record {} )'
