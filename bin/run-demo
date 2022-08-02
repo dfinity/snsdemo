@@ -200,6 +200,33 @@ dfx canister --network $DFX_NETWORK call sns-wasm list_deployed_snses '(record {
 read -rp "Press enter to continue... "
 echo
 
-: TODO Are the governance canister IDs included here?
+echo "The neurons from the configuration file are listed:"
+set dfx canister --network $DFX_NETWORK call sns_governance list_neurons '(record { of_principal=null; limit=100: nat32; start_page_at=null  } )'
+echo "${@}"
+"${@}"
+read -rp "Press enter to continue... "
+echo
+
 echo "If we examine the SNS we see management canisters but no dapps:"
 dfx canister --network $DFX_NETWORK call sns_root list_sns_canisters '(record {} )'
+read -rp "Press enter to continue... "
+echo
+
+echo "We hand over ownership of the canisters to the SNS:"
+(
+set -eux
+SNS_ROOT="$(jq -r .sns_root[env.DFX_NETWORK] canister_ids.json)"
+DAPP_FRONTEND="$(jq -r .smiley_dapp_assets[env.DFX_NETWORK] canister_ids.json)"
+DAPP_BACKEND="$(jq -r .smiley_dapp[env.DFX_NETWORK] canister_ids.json)"
+for CANISTER in "$DAPP_FRONTEND" "$DAPP_BACKEND" ; do
+        dfx canister --network $DFX_NETWORK status $CANISTER
+        dfx canister --network $DFX_NETWORK update-settings $CANISTER --add-controller $SNS_ROOT
+        dfx canister --network $DFX_NETWORK update-settings $CANISTER --remove-controller $WALLET_CANISTER
+        dfx canister --network $DFX_NETWORK update-settings $CANISTER --remove-controller $PRINCIPAL
+        dfx canister --network $DFX_NETWORK call sns_root register_dapp_canister "(record {canister_id = opt principal \"${CANISTER}\" } )"
+done
+set +x
+)
+dfx canister --network $DFX_NETWORK call sns_root list_sns_canisters '(record {} )'
+read -rp "Press enter to continue... "
+echo
