@@ -1,0 +1,10 @@
+set -euo pipefail
+set "sns init-config-file new"
+read -rp "${@}"
+${@}
+read -rp "Created sns_init.yaml"
+$EDITOR sns_init.yaml
+set "sns init-config-file validate"
+read -rp "${@}"
+${@}
+read -rp "cp sns_init.yml sns_init.yaml"

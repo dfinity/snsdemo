@@ -40,25 +40,6 @@ esay "Surrender control of the dapp to the SNS"
 ./bin/sns-handover
 
 esay "Start the sale"
-cat <<EOF
-    "nns-governance": {
-      "type": "custom",
-      "candid": "target/ic/governance.did",
-      "wasm": "target/ic/governance-canister_test.wasm",
-      "build": "./e2e-tests/scripts/nns-canister-download && ./e2e-tests/scripts/nns-canister-build",
-      "remote": {
-        "id": {
-          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-          "mainnet": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-          "testnet": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-          "small06": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-          "small11": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-          "small12": "rrkah-fqaaa-aaaaa-aaaaq-cai",
-          "staging": "rrkah-fqaaa-aaaaa-aaaaq-cai"
-        }
-      }
-    },
-EOF
-read -rp "Add governance to dfx.json"
+./bin/add-governance-to-dfx
 $ND_DIR/scripts/sns/swap/start_swap
 

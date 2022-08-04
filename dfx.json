@@ -16,6 +16,83 @@
         "dist/smiley_dapp_assets/"
       ],
       "type": "assets"
+    },
+    "sns_governance": {
+      "candid": "./candid/sns_governance.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "sns_ledger": {
+      "candid": "./candid/sns_ledger.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "sns_root": {
+      "candid": "./candid/sns_root.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "sns_swap": {
+      "candid": "./candid/sns_swap.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "governance": {
+      "candid": "./candid/governance.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "lifeline": {
+      "candid": "./candid/lifeline.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "registry": {
+      "candid": "./candid/registry.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "root": {
+      "candid": "./candid/root.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "sns-wasm": {
+      "candid": "./candid/sns-wasm.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "tokens": {
+      "candid": "./candid/tokens.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
+    "nns-governance": {
+      "type": "custom",
+      "candid": "target/ic/governance.did",
+      "wasm": "target/ic/governance-canister_test.wasm",
+      "build": "./e2e-tests/scripts/nns-canister-download && ./e2e-tests/scripts/nns-canister-build",
+      "remote": {
+        "id": {
+          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "mainnet": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "testnet": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small06": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small11": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small12": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "staging": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        }
+      }
     }
   },
   "defaults": {
