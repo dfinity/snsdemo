@@ -2,25 +2,9 @@ set -euo pipefail
 
 test -f canister_ids.json || echo '{}' > canister_ids.json
 
-echo "Checking that we have a network..."
-while test -z "${DFX_NETWORK:-}"; do
-	read -rp "Which network would you like to use?  " DFX_NETWORK
-done
-export DFX_NETWORK
-
-
-echo "Checking that we have an nns-dapp dir..."
-while true ; do
-test -e "${ND_DIR:-}/dfx.json" && break || {
-  read -rp "Where is the nns-repo?  " ND_DIR
-}
-done
-
-
-echo "Checking that we have network config"
-jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
-  jq -s '.[0] * .[1]' dfx.json <( cd "$ND_DIR" ; jq '{networks: .networks}' dfx.json ) > dfx.json.new && mv dfx.json.new dfx.json
-}
+: Check that vars are defined:
+: $DFX_NETWORK
+: $ND_DIR
 
 echo "Creating identities..."
 /home/max/dfn/nns-dapp/branches/sns-demo-materials/e2e-tests/scripts/create-dfx-identites.sh

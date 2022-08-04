@@ -1,3 +1,7 @@
+echo "FUTURE: dfx start --clean --with-nns"
+echo "PLACEHOLDER: Use '$DFX_NETWORK' testnet with an nns set up"
+
+
 set -euo pipefail
 
 test -f canister_ids.json || echo '{}' > canister_ids.json
