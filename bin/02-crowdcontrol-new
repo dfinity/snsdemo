@@ -39,3 +39,7 @@ while test -z "${DEVELOPER_NEURON:-}" ; do
 done
 echo
 
+cat <<EOF>.neurons
+export DEVELOPER_NEURON=$DEVELOPER_NEURON
+export NNS_MAJORITY_NEURON=$NNS_MAJORITY_NEURON
+EOF

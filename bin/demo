@@ -1,0 +1,27 @@
+set -euxo pipefail
+
+echo "Cleaning up..."
+./bin/00-cleanup
+read -rp "Press enter to continue..."
+clear
+
+echo "User can create a dapp"
+cat <<EOF
+Please run in another terminal:
+
+dfx stop
+dfx start --clean
+
+EOF
+read -rp "Press enter to continue..."
+
+set dfx deploy
+echo "${@}"
+"${@}"
+
+
+echo "Now we want to simulate decentralisation."
+read -rp "Press enter to continue..."
+./bin/01-make-network
+
+./bin/create-dapp

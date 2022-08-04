@@ -31,6 +31,7 @@ test -e "${ND_DIR:-}/dfx.json" && break || {
 	echo PLEASE RERUN AFTER:
 	echo export ND_DIR=???
 	exit 1
+}
 done
 
 echo "Checking that we have network config"
