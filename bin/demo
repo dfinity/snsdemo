@@ -1,27 +1,64 @@
 set -euxo pipefail
 
-echo "Cleaning up..."
+if test -f .demo-env
+then . .demo-env
+fi
+
+esay() {
+  echo -- "${@}"
+  say "${@}"
+}
+
+esay "Cleaning up..."
 ./bin/00-cleanup
-read -rp "Press enter to continue..."
+clear
+read -rp "Press enter to start..."
 clear
 
-echo "User can create a dapp"
-cat <<EOF
-Please run in another terminal:
-
-dfx stop
-dfx start --clean
-
-EOF
-read -rp "Press enter to continue..."
-
-set dfx deploy
-echo "${@}"
-"${@}"
-
-
-echo "Now we want to simulate decentralisation."
-read -rp "Press enter to continue..."
+esay "First the developer needs a testnet.  This doesn't work on localhost yet"
+read -rp "FUTURE: dfx start --clean --with-nns"
 ./bin/01-make-network
 
+esay "The developer needs to install tooling for the sns"
+read -rp "FUTURE: dfx install-plugin sns"
+
+esay "They also need to create users to represent the voting public"
+read -rp "FUTURE: dfx crowdcontrol new"
+./bin/02-crowdcontrol-new
+
+esay "They need to deploy their dapp to the testnet if they haven't done so already"
+read -rp "dfx deploy --all"
 ./bin/create-dapp
+
+esay "Next configure the SNS"
+./bin/configure-sns
+
+esay "Deploy the SNS"
+./bin/sns-deploy
+
+esay "Surrender control of the dapp to the SNS"
+./bin/sns-handover
+
+esay "Start the sale"
+cat <<EOF
+    "nns-governance": {
+      "type": "custom",
+      "candid": "target/ic/governance.did",
+      "wasm": "target/ic/governance-canister_test.wasm",
+      "build": "./e2e-tests/scripts/nns-canister-download && ./e2e-tests/scripts/nns-canister-build",
+      "remote": {
+        "id": {
+          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "mainnet": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "testnet": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small06": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small11": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small12": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "staging": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        }
+      }
+    },
+EOF
+read -rp "Add governance to dfx.json"
+$ND_DIR/scripts/sns/swap/start_swap
+

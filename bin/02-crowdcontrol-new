@@ -1,4 +1,6 @@
 set -euo pipefail
+. .demo-env
+
 
 test -f canister_ids.json || echo '{}' > canister_ids.json
 

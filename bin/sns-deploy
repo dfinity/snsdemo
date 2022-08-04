@@ -1,9 +1,9 @@
+. .demo-env || true
+
 echo "Next, the smiley-face team needs to create a governance system (SNS) that implements those decisions."
 SNS_WASM_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id sns-wasm 2>/dev/null)"
-read -rp "Press enter to continue... "
-  echo "Creating SNS"
+read -rp "sns deploy"
   set -- --init-config-file sns_init.yml
-  echo sns "${@}"
   : We actually run with some flags to point at the testnet.
   sns deploy --network "$DFX_NETWORK" --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" "${@}" |
     tee /dev/stderr >sns_creation.idl

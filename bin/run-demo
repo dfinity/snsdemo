@@ -2,6 +2,10 @@ set -euo pipefail
 
 test -f canister_ids.json || echo '{}' > canister_ids.json
 
+if test -f .demo-env
+then . .demo-env
+fi
+
 echo "Checking that we have a network..."
 while test -z "${DFX_NETWORK:-}"; do
 	read -rp "Which network would you like to use?  " DFX_NETWORK

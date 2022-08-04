@@ -1,3 +1,4 @@
+. .demo-env
 echo "FUTURE: dfx start --clean --with-nns"
 echo "PLACEHOLDER: Use '$DFX_NETWORK' testnet with an nns set up"
 
@@ -19,23 +20,26 @@ echo "Adding the sns-wasm and did files to dfx.json"
 /home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/sns/cli
 /home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/nns
 echo "Checking that we have an SNS..."
-while test -z "${SNS_WASM:-}"; do
-  # Check whether it is set locally...
-  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
-  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
-  test -z "${SNS_WASM:-}" || break
-  # Look in ND_DIR
-  jq -s '.[1] * .[0]' <(jq -r '{"sns-wasm":{(env.DFX_NETWORK): .wasm_canister[env.DFX_NETWORK]}}' $ND_DIR/canister_ids.json) canister_ids.json > canister_ids.new
-  mv canister_ids.new canister_ids.json
-  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
-  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
-  test -z "${SNS_WASM:-}" || break
 
-  echo
-  echo "Please populate canister_ids.json with the sns-wasm ID."
-  read -rp "Press enter to continue... "
-  echo
-done
+cp "$ND_DIR/canister_ids.json" canister_ids.json
+
+#while test -z "${SNS_WASM:-}"; do
+#  # Check whether it is set locally...
+#  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' 
+#  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
+#  test -z "${SNS_WASM:-}" || break
+#  # Look in ND_DIR
+#  jq -s '.[1] * .[0]' <(jq -r '{"sns-wasm":{(env.DFX_NETWORK): .wasm_canister[env.DFX_NETWORK]}}' $ND_DIR/canister_ids.json) canister_ids.json > canister_ids.new
+#  mv canister_ids.new canister_ids.json
+#  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
+#  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
+#  test -z "${SNS_WASM:-}" || break
+#
+#  echo
+#  echo "Please populate canister_ids.json with the sns-wasm ID."
+#  read -rp "Press enter to continue... "
+#  echo
+#done
 
 echo "Current list of SNSs:"
 dfx canister --network $DFX_NETWORK call sns-wasm list_deployed_snses '(record {} )'
