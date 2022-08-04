@@ -1,4 +1,4 @@
-set -euxo pipefail
+set -euo pipefail
 
 if test -f .demo-env
 then . .demo-env
