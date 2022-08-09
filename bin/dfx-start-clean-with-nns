@@ -27,7 +27,7 @@ echo "Adding the sns-wasm and did files to dfx.json"
 /home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/nns
 echo "Checking that we have an SNS..."
 
-cp "$ND_DIR/canister_ids.json" canister_ids.json
+( cd "$ND_DIR" && get fetch && git show origin/testnets:testnets/canister_ids.json ) > canister_ids.json
 
 #while test -z "${SNS_WASM:-}"; do
 #  # Check whether it is set locally...
