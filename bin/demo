@@ -38,12 +38,25 @@ esay "Deploy the SNS"
 ./bin/sns-deploy
 
 esay "Surrender control of the dapp to the SNS"
+read -rp "sns handover "
 ./bin/sns-handover
+
+esay "Propose to list the dapp"
+: "Note: This may become a new-edit-validate-deploy path."
+read -rp "sns propose-to-list "
+./bin/sns-propose-to-list
 
 esay "Start the sale"
 read -rp "FUTURE sns start-sale"
+bin/sns-start-swap
 
-$ND_DIR/scripts/sns/swap/start_swap
+esay "Now you need to invest"
+read -rp "Open the nns-dapp or OpenChat and invest."
+bin/demo-invest
+
+esay "Finalize the sale"
+read -rp "FUTURE sns start-sale"
+bin/sns-start-swap
 
 echo
 echo FIN

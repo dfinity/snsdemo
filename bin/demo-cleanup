@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -euo pipefail
 cp .demo-init .demo-env || true
 . .demo-env || true
