@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -euo pipefail
 . .demo-env
 
 read -rp "sns handover smiley_dapp smiley_dapp_assets"

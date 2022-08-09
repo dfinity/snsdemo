@@ -41,12 +41,8 @@ esay "Surrender control of the dapp to the SNS"
 read -rp "sns handover "
 ./bin/sns-handover
 
-esay "Propose to list the dapp"
+esay "Propose to start the sale"
 : "Note: This may become a new-edit-validate-deploy path."
-read -rp "sns propose-to-list "
-./bin/sns-propose-to-list
-
-esay "Start the sale"
 read -rp "sns start-swap "
 bin/sns-start-swap
 

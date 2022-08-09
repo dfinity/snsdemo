@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+. .demo-env || true
+
+./bin/dfx-url --network "$DFX_NETWORK" nns-dapp --open
