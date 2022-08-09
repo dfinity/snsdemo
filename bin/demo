@@ -17,7 +17,7 @@ clear
 
 esay "First the developer needs a testnet.  This doesn't work on localhost yet"
 read -rp "FUTURE: dfx start --clean --with-nns"
-./bin/01-make-network
+./bin/dfx-start-clean-with-nns
 
 esay "The developer needs to install tooling for the sns"
 read -rp "FUTURE: dfx install-plugin sns"
