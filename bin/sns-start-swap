@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-$ND_DIR/scripts/sns/swap/start_swap --title "$USER $(date -I minute)" "${@}"
+. .demo-env
+
+$ND_DIR/scripts/sns/swap/start_swap --title "$USER $(date -Iminute)" --proposer "$PROPOSER_NEURON_ID" "${@}"

@@ -47,6 +47,12 @@
       "wasm": "",
       "type": "custom"
     },
+    "nns-governance": {
+      "candid": "./candid/governance.did",
+      "build": "",
+      "wasm": "",
+      "type": "custom"
+    },
     "lifeline": {
       "candid": "./candid/lifeline.did",
       "build": "",
