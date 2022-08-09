@@ -1,9 +1,5 @@
 {
   "canisters": {
-    "smiley_dapp": {
-      "main": "src/smiley_dapp/main.mo",
-      "type": "motoko"
-    },
     "smiley_dapp_assets": {
       "dependencies": [
         "smiley_dapp"
@@ -16,6 +12,10 @@
         "dist/smiley_dapp_assets/"
       ],
       "type": "assets"
+    },
+    "smiley_dapp": {
+      "main": "src/smiley_dapp/main.mo",
+      "type": "motoko"
     },
     "sns_governance": {
       "candid": "./candid/sns_governance.did",

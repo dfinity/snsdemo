@@ -1,7 +1,47 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-canister_name="${1:-smiley_dapp_assets}"
+print_help() {
+cat <<"EOF"
 
-: Placeholder command: Opens a dapp
-xdg-open http://$(dfx canister id "$canister_name").localhost:8080
+# Proposal
+Each network should have a URL for the frontend, in addition to "provider".
+
+Motivation:  As soon as there is a proxy, the provider is probably no longer the URL a user visits.
+
+# Proposal
+The default URL of a canister should be the canister_id subdomain of the network frontend URL, however a canister should be able to override that in dfx.json at .canisters.$CANISTER_NAME.frontend.$NETWORK_NAME = "SOME_URL"
+
+# Proposal
+
+There should be a tool that prints the canister URL for a given network.
+
+# Proposal
+A frontend URL provided in DFX.JSON should support these variables:
+
+- DFX_NETWORK
+- DFX_NETWORK_FRONTEND
+- DFX_NETWORK_FRONTEND_PROTOCOL
+- DFX_NETWORK_FRONTEND_ORIGIN
+- DFX_NETWORK_FRONTEND_PATH
+- CANISTER_ID
+- CANISTER_NAME
+
+Thus the default is: "${DFX_NETWORK_FRONTEND_PROTOCOL}://${CANISTER_ID}.${DFX_NETWORK_FRONTEND_ORIGIN}${DFX_NETWORK_FRONTEND_PATH}"
+
+EOF
+}
+
+[[ "${1:-}" != "--help" ]] || {
+  print_help
+  exit 0
+}
+
+. .demo-env
+
+CANISTER_NAME="${1:-$(jq -r '.canisters | keys_unsorted | .[0]' dfx.json)}"
+export CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id "$CANISTER_NAME")"
+url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' dfx.json)"
+
+echo "$url"
+xdg-open "$url"

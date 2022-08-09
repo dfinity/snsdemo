@@ -47,7 +47,7 @@ read -rp "sns propose-to-list "
 ./bin/sns-propose-to-list
 
 esay "Start the sale"
-read -rp "FUTURE sns start-sale"
+read -rp "sns start-swap "
 bin/sns-start-swap
 
 esay "Now you need to invest"
@@ -55,8 +55,16 @@ read -rp "Open the nns-dapp or OpenChat and invest."
 bin/demo-invest
 
 esay "Finalize the sale"
-read -rp "FUTURE sns start-sale"
-bin/sns-start-swap
+read -rp "sns finalize-swap "
+bin/sns-finalize-swap
+
+esay "The user should have neurons now"
+read -rp "See the dapp in nns-dapp... "
+./bin/demo-see-sns-in-nns
+
+read -rp "See the dapp in nns-openchat... "
+./bin/demo-see-sns-in-oc
+
 
 echo
 echo FIN

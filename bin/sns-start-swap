@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+$ND_DIR/scripts/sns/swap/start_swap "${@}"
