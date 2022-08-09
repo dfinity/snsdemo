@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
 . .demo-env
 
 echo "FUTURE: dfx start --clean --with-nns"

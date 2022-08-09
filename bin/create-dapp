@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -euo pipefail
 . .demo-env
 
@@ -12,7 +13,8 @@ jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
 }
 
 
-: Why is this needed???
+: "Why is this needed???"
+: "Ah, it's an out-of-control webpack plugin.  These can probably be deleted now."
 export SNS_LEDGER_CANISTER_ID=111
 export SNS_GOVERNANCE_CANISTER_ID=111
 export SNS_ROOT_CANISTER_ID=111

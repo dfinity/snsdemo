@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
 . .demo-env || true
 
 echo "Next, the smiley-face team needs to create a governance system (SNS) that implements those decisions."

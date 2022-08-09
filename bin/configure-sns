@@ -1,4 +1,6 @@
+#!/usr/bin/env bash
 set -euo pipefail
+
 set "sns init-config-file new"
 read -rp "${@}"
 ${@}

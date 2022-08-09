@@ -1,2 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+canister_name="${1:-smiley_dapp_assets}"
+
 : Placeholder command: Opens a dapp
-xdg-open http://$(dfx canister id smiley_dapp_assets).localhost:8080
+xdg-open http://$(dfx canister id "$canister_name").localhost:8080

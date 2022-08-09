@@ -1,4 +1,5 @@
-#set -euxo pipefail
+#!/usr/bin/env bash
+set -euxo pipefail
 . .demo-env
 
 read -rp "sns handover smiley_dapp smiley_dapp_assets"
@@ -12,10 +13,10 @@ WALLET_CANISTER="$(dfx identity --network "$DFX_NETWORK" get-wallet)"
 
 
 for CANISTER in "$DAPP_FRONTEND" "$DAPP_BACKEND" ; do
-        dfx canister --network $DFX_NETWORK status $CANISTER
-        dfx canister --network $DFX_NETWORK update-settings $CANISTER --add-controller $SNS_ROOT
-        dfx canister --network $DFX_NETWORK update-settings $CANISTER --remove-controller $WALLET_CANISTER
-        dfx canister --network $DFX_NETWORK update-settings $CANISTER --remove-controller $PRINCIPAL
-        dfx canister --network $DFX_NETWORK call sns_root register_dapp_canister "(record {canister_id = opt principal \"${CANISTER}\" } )"
+        dfx canister --network $DFX_NETWORK status $CANISTER || true
+        dfx canister --network $DFX_NETWORK update-settings $CANISTER --add-controller $SNS_ROOT || true
+        dfx canister --network $DFX_NETWORK update-settings $CANISTER --remove-controller $WALLET_CANISTER || true
+        dfx canister --network $DFX_NETWORK update-settings $CANISTER --remove-controller $PRINCIPAL || true
+        dfx canister --network $DFX_NETWORK call sns_root register_dapp_canister "(record {canister_id = opt principal \"${CANISTER}\" } )" || true
 done
 dfx canister --network $DFX_NETWORK call sns_root list_sns_canisters '(record {} )'
