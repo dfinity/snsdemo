@@ -40,6 +40,7 @@ esay "Surrender control of the dapp to the SNS"
 ./bin/sns-handover
 
 esay "Start the sale"
+read -rp "FUTURE sns start-sale"
 ./bin/add-governance-to-dfx
 $ND_DIR/scripts/sns/swap/start_swap
 
