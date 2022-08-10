@@ -14,11 +14,11 @@ for ((i=1; i<5; i++)) ; do
       [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
     fi
 done
+rm .neurons
 
 echo "Deleting smiley canister IDs"
 rm -f canister_ids.json
 git checkout dfx.json
-
 
 echo "Checking that we have a network..."
 while test -z "${DFX_NETWORK:-}"; do
