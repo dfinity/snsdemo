@@ -44,4 +44,3 @@ export CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id "$CANISTER_NAME")
 url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' dfx.json)"
 
 echo "$url"
-xdg-open "$url"
