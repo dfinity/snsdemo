@@ -4,7 +4,7 @@ set -euo pipefail
 . .demo-env || true
 
 echo "Next, the smiley-face team needs to create a governance system (SNS) that implements those decisions."
-SNS_WASM_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id sns-wasm 2>/dev/null)"
+SNS_WASM_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id nns-sns-wasm 2>/dev/null)"
 read -rp "sns deploy"
   set -- --init-config-file sns_init.yml
   : We actually run with some flags to point at the testnet.

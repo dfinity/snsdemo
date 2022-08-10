@@ -22,7 +22,7 @@ jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
   jq -s '.[0] * .[1]' dfx.json <( cd "$ND_DIR" ; jq '{networks: .networks}' dfx.json ) > dfx.json.new && mv dfx.json.new dfx.json
 }
 
-echo "Adding the sns-wasm and did files to dfx.json"
+echo "Adding the nns-sns-wasm and did files to dfx.json"
 /home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/sns/cli
 /home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/nns
 echo "Checking that we have an SNS..."
@@ -31,24 +31,24 @@ echo "Checking that we have an SNS..."
 
 #while test -z "${SNS_WASM:-}"; do
 #  # Check whether it is set locally...
-#  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' 
+#  SNS_WASM="$(jq -r '.["nns-sns-wasm"][env.DFX_NETWORK]' 
 #  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
 #  test -z "${SNS_WASM:-}" || break
 #  # Look in ND_DIR
-#  jq -s '.[1] * .[0]' <(jq -r '{"sns-wasm":{(env.DFX_NETWORK): .["nns-sns-wasm"][env.DFX_NETWORK]}}' $ND_DIR/canister_ids.json) canister_ids.json > canister_ids.new
+#  jq -s '.[1] * .[0]' <(jq -r '{"nns-sns-wasm":{(env.DFX_NETWORK): .["nns-sns-wasm"][env.DFX_NETWORK]}}' $ND_DIR/canister_ids.json) canister_ids.json > canister_ids.new
 #  mv canister_ids.new canister_ids.json
-#  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
+#  SNS_WASM="$(jq -r '.["nns-sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
 #  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
 #  test -z "${SNS_WASM:-}" || break
 #
 #  echo
-#  echo "Please populate canister_ids.json with the sns-wasm ID."
+#  echo "Please populate canister_ids.json with the nns-sns-wasm ID."
 #  read -rp "Press enter to continue... "
 #  echo
 #done
 
 #echo "Current list of SNSs:"
-#dfx canister --network $DFX_NETWORK call sns-wasm list_deployed_snses '(record {} )'
+#dfx canister --network $DFX_NETWORK call nns-sns-wasm list_deployed_snses '(record {} )'
 #read -rp "Press enter to continue... "
 
 #echo "See SNS's in the frontend dapp:"
