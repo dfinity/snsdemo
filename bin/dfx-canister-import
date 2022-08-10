@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+cd "$(dirname "$(realpath "$0")")/.."
+
+help_text() {
+	cat <<-EOF
+
+	Imports candid files from a remote project.
+
+	Polyfill for: `dfx import`
+
+	Flags:
+	--help
+	  Prints this help text and exits.
+
+	--prefix
+	  A prefix to add to imported canister names.
+
+	EOF
+}
+
+unset CANISTER_NAME_PREFIX
+while (($# > 0)); do
+  arg="$1"
+  shift 1
+  case "$arg" in
+  --help)
+    help_text
+    exit 0
+    ;;
+  --prefix)
+    CANISTER_NAME_PREFIX="${1}" ; shift 1
+    ;;
+  *)
+    REMOTE_DFX="${arg}"
+    CANISTER_NAME="${1:---all}" ; shift 1 || true
+    ;;
+  esac
+done
+
+REMOTE_DFX_DIR="${REMOTE_DFX%dfx.json}"
+COPY_OF_REMOTE_DFX="$(mktemp)"
+COPY_OF_LOCAL_DFX="$(mktemp)"
+LOCAL_CANDID_DIR="candid"
+
+copy_from_anywhere() {
+  if test -f "$1" || test -L "$1"
+  then cat "$1" > "$2"
+  else curl -SL "$1" > "$2"
+  fi
+}
+import_canister() {
+  (
+    set -euxo pipefail
+    export CANISTER_NAME="$1"
+    export LOCAL_CANISTER_NAME="${CANISTER_NAME_PREFIX:-}${CANISTER_NAME}"
+    export source_did_path="$REMOTE_DFX_DIR/$(jq -r '.canisters[env.CANISTER_NAME].candid' "$COPY_OF_REMOTE_DFX/dfx.json")"
+    export target_did_path="$LOCAL_CANDID_DIR/${LOCAL_CANISTER_NAME}.did"
+    mkdir -p "$LOCAL_CANDID_DIR"
+    copy_from_anywhere "$source_did_path" "$target_did_path"
+    cat <<<$( jq '.canisters[env.LOCAL_CANISTER_NAME] = {candid: (env.target_did_path), build: "", wasm: "", type: "custom"}' "$COPY_OF_LOCAL_DFX" ) > "$COPY_OF_LOCAL_DFX"
+  )
+}
+
+cp dfx.json "$COPY_OF_LOCAL_DFX"
+copy_from_anywhere "$REMOTE_DFX" "$COPY_OF_REMOTE_DFX"
+if [[ "$CANISTER_NAME" == "--all" ]]
+then
+    for canister_name in $(jq -r '.canisters | keys | .[]' "$COPY_OF_REMOTE_DFX") ; do
+      import_canister "$canister_name"
+    done
+else import_canister "$CANISTER_NAME"
+fi
+
+cp "$COPY_OF_LOCAL_DFX" dfx.json
+rm "$COPY_OF_REMOTE_DFX"
+echo OK
