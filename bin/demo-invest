@@ -2,4 +2,4 @@
 set -euo pipefail
 . .demo-env || true
 
-./bin/dfx-url --network "$DFX_NETWORK" nns-dapp --open
+echo "$(./bin/dfx-url nns-dapp)/#/project/$(jq -r '.sns_root[env.DFX_NETWORK]' canister_ids.json)"
