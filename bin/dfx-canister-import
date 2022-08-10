@@ -68,6 +68,7 @@ import_canister() {
     export CANISTER_NAME="$1"
     export LOCAL_CANISTER_NAME="${CANISTER_NAME_PREFIX:-}${CANISTER_NAME}"
     export source_did_path="$REMOTE_DFX_DIR/$(jq -r '.canisters[env.CANISTER_NAME].candid' "$COPY_OF_REMOTE_DFX")"
+    export source_did_path="$(echo "$source_did_path" | sed -E 's_([^:])/+_\1/_g;:a;s_[^/]*\/\.\.\/__g;ta')"
     export target_did_path="$LOCAL_CANDID_DIR/${LOCAL_CANISTER_NAME}.did"
     mkdir -p "$LOCAL_CANDID_DIR"
     copy_from_anywhere "$source_did_path" "$target_did_path"
