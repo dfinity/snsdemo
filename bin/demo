@@ -24,8 +24,8 @@ esay "The developer needs to install did files for the NNS and SNS"
 read -rp "dfx canister import "
 ./bin/dfx-canister-import --prefix nns- https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json --all
 ./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/ic/master/rs/sns/cli/dfx.json --all
-./bin/dfx-canister-import https://github.com/dfinity/nns-dapp/blob/main/dfx.json nns-dapp
-./bin/dfx-canister-import https://github.com/dfinity/nns-dapp/blob/main/dfx.json internet_identity
+./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json nns-dapp
+./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json internet_identity
 
 esay "The developer needs to install the sns binary"
 read -rp "FUTURE: dfx install-plugin sns"
