@@ -18,7 +18,7 @@ rm .neurons
 
 echo "Deleting smiley canister IDs"
 rm -f canister_ids.json
-git checkout dfx.json
+cp dfx.json.original dfx.json
 
 echo "Checking that we have a network..."
 while test -z "${DFX_NETWORK:-}"; do
