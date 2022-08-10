@@ -1,61 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 . .demo-env
 
 echo "FUTURE: dfx start --clean --with-nns"
 echo "PLACEHOLDER: Use '$DFX_NETWORK' testnet with an nns set up"
-echo "             We still need to get the did files"
-
-
-
-set -euo pipefail
-
-test -f canister_ids.json || echo '{}' > canister_ids.json
 
 : Checking that variables are set...
 : $DFX_NETWORK
 : $ND_DIR
 
-echo "Checking that we have network config"
+echo "Getting dfx.json network entries..."
 jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
   jq -s '.[0] * .[1]' dfx.json <( cd "$ND_DIR" ; jq '{networks: .networks}' dfx.json ) > dfx.json.new && mv dfx.json.new dfx.json
 }
 
-echo "Adding the nns-sns-wasm and did files to dfx.json"
-/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/sns/cli
-/home/max/dfn/ic-gitlab/rs/sns/cli/import-dfx /home/max/dfn/ic-gitlab/rs/nns
-echo "Checking that we have an SNS..."
-
+echo "Getting canister IDs"
 ( cd "$ND_DIR" && git fetch && git show origin/testnets:testnets/canister_ids.json ) > canister_ids.json
-
-#while test -z "${SNS_WASM:-}"; do
-#  # Check whether it is set locally...
-#  SNS_WASM="$(jq -r '.["nns-sns-wasm"][env.DFX_NETWORK]' 
-#  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
-#  test -z "${SNS_WASM:-}" || break
-#  # Look in ND_DIR
-#  jq -s '.[1] * .[0]' <(jq -r '{"nns-sns-wasm":{(env.DFX_NETWORK): .["nns-sns-wasm"][env.DFX_NETWORK]}}' $ND_DIR/canister_ids.json) canister_ids.json > canister_ids.new
-#  mv canister_ids.new canister_ids.json
-#  SNS_WASM="$(jq -r '.["nns-sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
-#  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
-#  test -z "${SNS_WASM:-}" || break
-#
-#  echo
-#  echo "Please populate canister_ids.json with the nns-sns-wasm ID."
-#  read -rp "Press enter to continue... "
-#  echo
-#done
-
-#echo "Current list of SNSs:"
-#dfx canister --network $DFX_NETWORK call nns-sns-wasm list_deployed_snses '(record {} )'
-#read -rp "Press enter to continue... "
-
-#echo "See SNS's in the frontend dapp:"
-#(
-#  cd "$ND_DIR"
-#  export DAPP_NAME=nns-dapp
-#  url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST' dfx.json | awk -F '://' -v canister_id="$(jq -r .[env.DAPP_NAME][env.DFX_NETWORK] canister_ids.json)" '{print $1 FS canister_id "." $2}')"
-#  echo "See: ${url}/#/launchpad"
-#  read -rp "Press enter to continue... "
-#)
