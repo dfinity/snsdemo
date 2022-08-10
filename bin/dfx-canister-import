@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -euo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
 
 help_text() {
@@ -7,14 +7,27 @@ help_text() {
 
 	Imports candid files from a remote project.
 
-	Polyfill for: `dfx import`
+	Polyfill for: "dfx canister import"
+
+	Usage: dfx canister import [--prefix <CANISTER_NAME_PREFIX>] <URL|PATH_TO_REMOTE_DFX> <CANISTER_NAME>
+
+	Arguments:
+	<URL|PATH_TO_REMOTE_DFX>
+	  The location of a remote dfx.json file.
+	  Example: To import the NNS canisters, use: https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json
+
+	<CANISTER_NAME>
+	  The name of the canister to import.  If "--all" is given, all canisters will be imported.
 
 	Flags:
 	--help
 	  Prints this help text and exits.
 
-	--prefix
+	--prefix <CANISTER_NAME_PREFIX>
 	  A prefix to add to imported canister names.
+
+	  Example: If the prefix is "foo-" and a remote canister is called "bar"
+	           then the canister will be called "foo-bar" in the local dfx.json.
 
 	EOF
 }
