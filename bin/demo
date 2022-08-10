@@ -39,7 +39,7 @@ read -rp "dfx deploy --all"
 ./bin/create-dapp
 
 esay "Next configure the SNS"
-./bin/configure-sns
+./bin/sns-configure
 
 esay "Deploy the SNS"
 ./bin/sns-deploy
