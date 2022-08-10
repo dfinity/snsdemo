@@ -52,8 +52,13 @@ esay "Propose to start the sale"
 : "Note: This may become a new-edit-validate-deploy path."
 read -rp "sns start-swap "
 bin/sns-start-swap
+
 esay "Please vote on the proposal"
-rread -rp "Press enter when the proposal has passed ... "
+read -rp "Press enter when the proposal has passed ... "
+
+esay "Start the sale by making tokens available"
+read -rp "refresh_sns_tokens "
+dfx canister --network "$DFX_NETWORK" call sns_swap refresh_sns_tokens '(record {})'
 
 esay "Now you need to invest"
 read -rp "Open the nns-dapp or OpenChat and invest."
