@@ -52,6 +52,8 @@ esay "Propose to start the sale"
 : "Note: This may become a new-edit-validate-deploy path."
 read -rp "sns start-swap "
 bin/sns-start-swap
+esay "Please vote on the proposal"
+rread -rp "Press enter when the proposal has passed ... "
 
 esay "Now you need to invest"
 read -rp "Open the nns-dapp or OpenChat and invest."
