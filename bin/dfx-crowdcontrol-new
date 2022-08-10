@@ -11,7 +11,7 @@ test -f canister_ids.json || echo '{}' > canister_ids.json
 : $ND_DIR
 
 echo "Creating identities..."
-/home/max/dfn/nns-dapp/branches/sns-demo-materials/e2e-tests/scripts/create-dfx-identites.sh
+./bin/create-dfx-identites.sh
 for ((i=1; i<5; i++)) ; do
   dfx --identity "ident-$i" wallet --network $DFX_NETWORK balance
 done
