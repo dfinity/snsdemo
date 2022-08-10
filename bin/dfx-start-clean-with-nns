@@ -35,7 +35,7 @@ echo "Checking that we have an SNS..."
 #  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
 #  test -z "${SNS_WASM:-}" || break
 #  # Look in ND_DIR
-#  jq -s '.[1] * .[0]' <(jq -r '{"sns-wasm":{(env.DFX_NETWORK): .wasm_canister[env.DFX_NETWORK]}}' $ND_DIR/canister_ids.json) canister_ids.json > canister_ids.new
+#  jq -s '.[1] * .[0]' <(jq -r '{"sns-wasm":{(env.DFX_NETWORK): .["nns-sns-wasm"][env.DFX_NETWORK]}}' $ND_DIR/canister_ids.json) canister_ids.json > canister_ids.new
 #  mv canister_ids.new canister_ids.json
 #  SNS_WASM="$(jq -r '.["sns-wasm"][env.DFX_NETWORK]' canister_ids.json)"
 #  [[ "${SNS_WASM:-}" != "null" ]] || unset SNS_WASM
