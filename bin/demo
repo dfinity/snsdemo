@@ -16,7 +16,7 @@ clear
 read -rp "Press enter to start..."
 clear
 
-esay "First the developer needs a testnet.  This doesn't work on localhost yet"
+esay "First the developer needs a testnet."
 read -rp "FUTURE: dfx start --clean --with-nns"
 ./bin/dfx-start-clean-with-nns
 
