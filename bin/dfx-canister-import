@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$(realpath "$0")")/.."
+
+help_text() {
+  cat <<-EOF
+
+	Imports candid files from a remote project.
+
+	Polyfill for: "dfx canister import"
+
+	Usage: dfx canister import [--prefix <CANISTER_NAME_PREFIX>] <URL|PATH_TO_REMOTE_DFX> <CANISTER_NAME>
+
+	Arguments:
+	<URL|PATH_TO_REMOTE_DFX>
+	  The location of a remote dfx.json file.
+	  Example: To import the NNS canisters, use: https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json
+
+	<CANISTER_NAME>
+	  The name of the canister to import.  If "--all" is given, all canisters will be imported.
+
+	Flags:
+	--help
+	  Prints this help text and exits.
+
+	--prefix <CANISTER_NAME_PREFIX>
+	  A prefix to add to imported canister names.
+
+	  Example: If the prefix is "foo-" and a remote canister is called "bar"
+	           then the canister will be called "foo-bar" in the local dfx.json.
+
+	EOF
+}
+
+unset CANISTER_NAME_PREFIX
+while (($# > 0)); do
+  arg="$1"
+  shift 1
+  case "$arg" in
+  --help)
+    help_text
+    exit 0
+    ;;
+  --prefix)
+    CANISTER_NAME_PREFIX="${1}"
+    shift 1
+    ;;
+  *)
+    REMOTE_DFX="${arg}"
+    CANISTER_NAME="${1:---all}"
+    shift 1 || true
+    ;;
+  esac
+done
+
+REMOTE_DFX_DIR="${REMOTE_DFX%dfx.json}"
+COPY_OF_REMOTE_DFX="$(mktemp)"
+COPY_OF_LOCAL_DFX="$(mktemp)"
+LOCAL_CANDID_DIR="candid"
+
+copy_from_anywhere() {
+  if test -f "$1" || test -L "$1"; then
+    cat "$1" >"$2"
+  else
+    curl -SL "$1" >"$2"
+  fi
+}
+import_canister() {
+  (
+    set -euxo pipefail
+    export canister_name="$1"
+    export local_canister_name="${CANISTER_NAME_PREFIX:-}${canister_name}"
+    export source_did_path="$REMOTE_DFX_DIR/$(jq -r '.canisters[env.canister_name].candid' "$COPY_OF_REMOTE_DFX")"
+    export source_did_path="$(echo "$source_did_path" | sed -E 's_([^:])/+_\1/_g;:a;s_[^/]*\/\.\.\/__g;ta')"
+    export target_did_path="$LOCAL_CANDID_DIR/${local_canister_name}.did"
+    mkdir -p "$LOCAL_CANDID_DIR"
+    copy_from_anywhere "$source_did_path" "$target_did_path"
+    cat <<<"$(jq '.canisters[env.local_canister_name] = {candid: (env.target_did_path), build: "", wasm: "", type: "custom"}' "$COPY_OF_LOCAL_DFX")" >"$COPY_OF_LOCAL_DFX"
+  )
+}
+
+cp dfx.json "$COPY_OF_LOCAL_DFX"
+copy_from_anywhere "$REMOTE_DFX" "$COPY_OF_REMOTE_DFX"
+if [[ "$CANISTER_NAME" == "--all" ]]; then
+  for canister_name in $(jq -r '.canisters | keys | .[]' "$COPY_OF_REMOTE_DFX"); do
+    import_canister "$canister_name"
+  done
+else
+  import_canister "$CANISTER_NAME"
+fi
+
+cp "$COPY_OF_LOCAL_DFX" dfx.json
+rm "$COPY_OF_REMOTE_DFX"
+echo OK

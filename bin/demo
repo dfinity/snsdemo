@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if test -f .demo-env
-then . .demo-env
+if test -f .demo-env; then
+  . .demo-env
 fi
 
 esay() {
@@ -16,11 +16,18 @@ clear
 read -rp "Press enter to start..."
 clear
 
-esay "First the developer needs a testnet.  This doesn't work on localhost yet"
+esay "First the developer needs a testnet."
 read -rp "FUTURE: dfx start --clean --with-nns"
 ./bin/dfx-start-clean-with-nns
 
-esay "The developer needs to install tooling for the sns"
+esay "The developer needs to install did files for the NNS and SNS"
+read -rp "dfx canister import "
+./bin/dfx-canister-import --prefix nns- https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json --all
+./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/ic/master/rs/sns/cli/dfx.json --all
+./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json nns-dapp
+./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json internet_identity
+
+esay "The developer needs to install the sns binary"
 read -rp "FUTURE: dfx install-plugin sns"
 
 esay "They also need to create users to represent the voting public"
@@ -32,7 +39,7 @@ read -rp "dfx deploy --all"
 ./bin/create-dapp
 
 esay "Next configure the SNS"
-./bin/configure-sns
+./bin/sns-configure
 
 esay "Deploy the SNS"
 ./bin/sns-deploy
@@ -41,14 +48,17 @@ esay "Surrender control of the dapp to the SNS"
 read -rp "sns handover "
 ./bin/sns-handover
 
-esay "Propose to list the dapp"
+esay "Propose to start the sale"
 : "Note: This may become a new-edit-validate-deploy path."
-read -rp "sns propose-to-list "
-./bin/sns-propose-to-list
-
-esay "Start the sale"
 read -rp "sns start-swap "
 bin/sns-start-swap
+
+esay "Please vote on the proposal"
+read -rp "Press enter when the proposal has passed ... "
+
+esay "Start the sale by making tokens available"
+read -rp "refresh_sns_tokens "
+dfx canister --network "$DFX_NETWORK" call sns_swap refresh_sns_tokens '(record {})'
 
 esay "Now you need to invest"
 read -rp "Open the nns-dapp or OpenChat and invest."
@@ -64,7 +74,6 @@ read -rp "See the dapp in nns-dapp... "
 
 read -rp "See the dapp in nns-openchat... "
 ./bin/demo-see-sns-in-oc
-
 
 echo
 echo FIN
