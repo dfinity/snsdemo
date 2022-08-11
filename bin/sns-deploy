@@ -6,9 +6,7 @@ set -euo pipefail
 echo "Next, the smiley-face team needs to create a governance system (SNS) that implements those decisions."
 SNS_WASM_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id nns-sns-wasm 2>/dev/null)"
 read -rp "sns deploy"
-set -- --init-config-file sns_init.yml
-: We actually run with some flags to point at the testnet.
-sns deploy --network "$DFX_NETWORK" --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" "${@}" |
+sns deploy --network "$DFX_NETWORK" --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" --init-config-file sns_init.yaml |
   tee /dev/stderr >sns_creation.idl
 
 echo "Populate canister_ids.json"
