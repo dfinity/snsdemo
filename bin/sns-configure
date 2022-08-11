@@ -9,4 +9,16 @@ $EDITOR sns_init.yaml
 set sns init-config-file validate
 read -rp "${*}"
 "${@}" || true
-read -rp "cp sns_init.yml sns_init.yaml"
+
+TOKEN_SYMBOL="$(
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  echo
+)"
+TOKEN_NAME="${USER^}'s awesome $TOKEN_SYMBOL"
+
+read -rp "Use one we prepared..."
+sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g" sns_init.yml >sns_init.yaml
