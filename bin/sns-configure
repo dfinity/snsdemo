@@ -18,7 +18,7 @@ TOKEN_SYMBOL="$(
   tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
   echo
 )"
-TOKEN_NAME="${USER^}'s awesome $TOKEN_SYMBOL"
+TOKEN_NAME="${USER}'s awesome $TOKEN_SYMBOL"
 
 read -rp "Use one we prepared..."
 sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g" sns_init.yml >sns_init.yaml
