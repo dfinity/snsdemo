@@ -1,0 +1,47 @@
+name: CI Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+
+  formatting:
+    runs-on: ubuntu-20.04
+    env:
+      DFX_NETWORK: mainnet
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install shfmt
+        run: sudo snap install --classic shfmt
+
+      - name: Format shell scripts
+        run: ./scripts/fmt-sh
+
+      - name: Commit Formatting changes - will not trigger rebuild
+        uses: EndBug/add-and-commit@v7.2.0
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          add: .
+          author_name: Formatting Committer
+          author_email: "<nobody@example.com>"
+          message: "Updating frontend formatting"
+          # do not pull: if this branch is behind, then we might as well let
+          # the pushing fail
+          pull_strategy: "NO-PULL"
+
+  shell-checks:
+    needs: formatting
+    name: ShellCheck
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      env:
+        SHELLCHECK_OPTS: -e SC1090 -e SC2119 -e SC1091
