@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-set "sns init-config-file new"
-read -rp "${@}"
-${@}
+set sns init-config-file new
+read -rp "${*}"
+"${@}"
 read -rp "Created sns_init.yaml"
-$EDITOR sns_init.yaml
-set "sns init-config-file validate"
-read -rp "${@}"
-${@} || true
-read -rp "cp sns_init.yml sns_init.yaml"
+test -z "${EDITOR:-}" || $EDITOR sns_init.yaml
+set sns init-config-file validate
+read -rp "${*}"
+"${@}" || true
+
+TOKEN_SYMBOL="$(
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  echo
+)"
+TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
+
+read -rp "Use one we prepared..."
+sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g" sns_init.yml >sns_init.yaml

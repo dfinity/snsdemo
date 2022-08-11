@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if test -f .demo-env
-then . .demo-env
+if test -f .demo-env; then
+  . .demo-env
 fi
 
 esay() {
@@ -74,7 +74,6 @@ read -rp "See the dapp in nns-dapp... "
 
 read -rp "See the dapp in nns-openchat... "
 ./bin/demo-see-sns-in-oc
-
 
 echo
 echo FIN

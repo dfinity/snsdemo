@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cp .demo-init .demo-env || true
-if test -e .neurons
-then cat .neurons >> .demo-env
+if test -e .neurons; then
+  cat .neurons >>.demo-env
 fi
 . .demo-env || true
 
 echo "Deleting existing identities..."
-for ((i=1; i<5; i++)) ; do
-    id="ident-$i"
-    id_dir="$HOME/.config/dfx/identity/$id"
-    if test -d "$id_dir"
-    then
-      read -rp "Delete identity $id? [y/N] " del_id
-      del_id="$(echo "${del_id:-N}" | tr A-Z a-z)"
-      [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
-    fi
+for ((i = 1; i < 5; i++)); do
+  id="ident-$i"
+  id_dir="$HOME/.config/dfx/identity/$id"
+  if test -d "$id_dir"; then
+    read -rp "Delete identity $id? [y/N] " del_id
+    del_id="$(echo "${del_id:-N}" | tr '[:upper:]' '[:lower:]')"
+    [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
+  fi
 done
 
 echo "Deleting smiley canister IDs"
@@ -24,23 +23,24 @@ cp dfx.json.original dfx.json
 
 echo "Checking that we have a network..."
 while test -z "${DFX_NETWORK:-}"; do
-        echo PLEASE RERUN AFTER:
-	echo export DFX_NETWORK=???
-	exit 1
+  echo PLEASE RERUN AFTER:
+  echo export DFX_NETWORK=???
+  exit 1
 done
 
-
 echo "Checking that we have an nns-dapp dir..."
-while true ; do
-test -e "${ND_DIR:-}/dfx.json" && break || {
-	echo PLEASE RERUN AFTER:
-	echo export ND_DIR=???
-	exit 1
-}
+while true; do
+  test -e "${ND_DIR:-}/dfx.json" && break || {
+    echo PLEASE RERUN AFTER:
+    echo export ND_DIR=???
+    exit 1
+  }
 done
 
 echo "Checking that we have network config"
 jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
-  jq -s '.[0] * .[1]' dfx.json <( cd "$ND_DIR" ; jq '{networks: .networks}' dfx.json ) > dfx.json.new && mv dfx.json.new dfx.json
+  jq -s '.[0] * .[1]' dfx.json <(
+    cd "$ND_DIR"
+    jq '{networks: .networks}' dfx.json
+  ) >dfx.json.new && mv dfx.json.new dfx.json
 }
-

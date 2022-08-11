@@ -41,10 +41,10 @@ max_participant_icp_e8s: 5000000000
 min_icp_e8s: 100000000
 min_participant_icp_e8s: 100000000
 min_participants: 1
-name: "Car Pedal Dusting Robot"
+name: "Car Pedal TOKEN_SYMBOL Robot"
 neuron_minimum_stake_e8s: 1000000
 proposal_reject_cost_e8s: 100000000
-token_name: "Wonderful Wizard"
-token_symbol: WOWZER
+token_name: "TOKEN_NAME"
+token_symbol: TOKEN_SYMBOL
 transaction_fee_e8s: 10000
 url: https://nns.ic0.app

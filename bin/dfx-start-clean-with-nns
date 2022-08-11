@@ -5,14 +5,17 @@ set -euo pipefail
 echo "FUTURE: dfx start --clean --with-nns"
 echo "PLACEHOLDER: Use '$DFX_NETWORK' testnet with an nns set up"
 
-: Checking that variables are set...
-: $DFX_NETWORK
-: $ND_DIR
+: "Checking that variables are set..."
+: "$DFX_NETWORK"
+: "$ND_DIR"
 
 echo "Getting dfx.json network entries..."
 jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
-  jq -s '.[0] * .[1]' dfx.json <( cd "$ND_DIR" ; jq '{networks: .networks}' dfx.json ) > dfx.json.new && mv dfx.json.new dfx.json
+  jq -s '.[0] * .[1]' dfx.json <(
+    cd "$ND_DIR"
+    jq '{networks: .networks}' dfx.json
+  ) >dfx.json.new && mv dfx.json.new dfx.json
 }
 
 echo "Getting canister IDs"
-( cd "$ND_DIR" && git fetch && git show origin/testnets:testnets/canister_ids.json ) | jq 'del(.sns_root,.sns_ledger,.sns_swap,.sns_governance)' > canister_ids.json
+(cd "$ND_DIR" && git fetch && git show origin/testnets:testnets/canister_ids.json) | jq 'del(.sns_root,.sns_ledger,.sns_swap,.sns_governance)' >canister_ids.json

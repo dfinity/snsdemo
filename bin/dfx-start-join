@@ -3,11 +3,11 @@ set -euo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
 
 help_text() {
-	cat <<-EOF
+  cat <<-EOF
 
 	Joins an existing locally running dfx server.
 
-	Polyfill for: `dfx start --join`
+	Polyfill for: $(dfx start --join)
 
 	Flags:
 	--help
@@ -15,7 +15,6 @@ help_text() {
 
 	EOF
 }
-
 
 while (($# > 0)); do
   arg="$1"
@@ -35,7 +34,6 @@ while (($# > 0)); do
   esac
 done
 
-
 : Find the locally running dfx server
 # TODO: Handle the case where there is none running.
 # OS-dependent:
@@ -45,5 +43,5 @@ DFX_SERVER_DIR="$(realpath "/proc/$(pgrep -n icx-proxy)/cwd")"
 
 : Link
 [[ "$(realpath .dfx)" == "$(realpath "$DFX_SERVER_DIR")/.dfx" ]] || {
-	ln -s "$(realpath "$DFX_SERVER_DIR")/.dfx" .dfx
+  ln -s "$(realpath "$DFX_SERVER_DIR")/.dfx" .dfx
 }
