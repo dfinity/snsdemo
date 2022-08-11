@@ -3,8 +3,7 @@ set -euo pipefail
 
 . .demo-env
 
-
-test -f canister_ids.json || echo '{}' > canister_ids.json
+test -f canister_ids.json || echo '{}' >canister_ids.json
 
 : Check that vars are defined:
 : $DFX_NETWORK
@@ -12,11 +11,9 @@ test -f canister_ids.json || echo '{}' > canister_ids.json
 
 echo "Creating identities..."
 ./bin/create-dfx-identites.sh
-for ((i=1; i<5; i++)) ; do
+for ((i = 1; i < 5; i++)); do
   dfx --identity "ident-$i" wallet --network $DFX_NETWORK balance
 done
-
-
 
 echo "Set ident-1 as the default"
 dfx identity use ident-1
@@ -27,14 +24,14 @@ echo -e "\nGetting front end neuron IDs..."
   url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST' dfx.json | awk -F '://' -v canister_id="$(jq -r .[env.DAPP_NAME][env.DFX_NETWORK] canister_ids.json)" '{print $1 FS canister_id "." $2}')"
   echo "nns-dapp url: ${url}/#/neurons"
 )
-while test -z "${NNS_MAJORITY_NEURON:-}" ; do
+while test -z "${NNS_MAJORITY_NEURON:-}"; do
   echo "Please stake 900 ICP in the nns-dapp, as user 10000, with a dissolve delay of 8 years."
   read -rp "Please enter the neuron principal: " NNS_MAJORITY_NEURON
   echo "Thank you.  This neuron represents the public voting majority on the IC."
 done
 echo
 
-while test -z "${DEVELOPER_NEURON:-}" ; do
+while test -z "${DEVELOPER_NEURON:-}"; do
   echo "Please stake 10 ICP in the nns-dapp, as user 10001, with a dissolve delay of 8 years."
   read -rp "Please enter the neuron principal: " DEVELOPER_NEURON
   echo "Please add a hotkey for the developer principal: " $(dfx --identity ident-1 identity get-principal)
@@ -43,7 +40,7 @@ while test -z "${DEVELOPER_NEURON:-}" ; do
 done
 echo
 
-cat <<EOF | tee -a .demo-env > .neurons
+cat <<EOF | tee -a .demo-env >.neurons
 export DEVELOPER_NEURON=$DEVELOPER_NEURON
 export PROPOSER_NEURON_ID="$DEVELOPER_NEURON"
 export NNS_MAJORITY_NEURON=$NNS_MAJORITY_NEURON

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 print_help() {
-cat <<"EOF"
+  cat <<"EOF"
 
 # Proposal
 Each network should have a URL for the frontend, in addition to "provider".
