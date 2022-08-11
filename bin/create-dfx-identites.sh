@@ -1,9 +1,9 @@
 #!/bin/bash
+set -euo pipefail
 
-DFX_DIR="$HOME/.config/dfx/"
 DFX_IDENT_DIR="$HOME/.config/dfx/identity"
 
-cd "$(dirname $0)"
+cd "$(dirname "$0")"
 
 for I in {1..4}; do
   echo "Creating dfx identity 'ident-$I' at $DFX_IDENT_DIR/ident-$I/identity.pem"

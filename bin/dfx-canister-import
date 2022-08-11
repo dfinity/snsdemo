@@ -68,14 +68,14 @@ copy_from_anywhere() {
 import_canister() {
   (
     set -euxo pipefail
-    export CANISTER_NAME="$1"
-    export LOCAL_CANISTER_NAME="${CANISTER_NAME_PREFIX:-}${CANISTER_NAME}"
-    export source_did_path="$REMOTE_DFX_DIR/$(jq -r '.canisters[env.CANISTER_NAME].candid' "$COPY_OF_REMOTE_DFX")"
+    export canister_name="$1"
+    export local_canister_name="${CANISTER_NAME_PREFIX:-}${canister_name}"
+    export source_did_path="$REMOTE_DFX_DIR/$(jq -r '.canisters[env.canister_name].candid' "$COPY_OF_REMOTE_DFX")"
     export source_did_path="$(echo "$source_did_path" | sed -E 's_([^:])/+_\1/_g;:a;s_[^/]*\/\.\.\/__g;ta')"
-    export target_did_path="$LOCAL_CANDID_DIR/${LOCAL_CANISTER_NAME}.did"
+    export target_did_path="$LOCAL_CANDID_DIR/${local_canister_name}.did"
     mkdir -p "$LOCAL_CANDID_DIR"
     copy_from_anywhere "$source_did_path" "$target_did_path"
-    cat <<<$(jq '.canisters[env.LOCAL_CANISTER_NAME] = {candid: (env.target_did_path), build: "", wasm: "", type: "custom"}' "$COPY_OF_LOCAL_DFX") >"$COPY_OF_LOCAL_DFX"
+    cat <<<"$(jq '.canisters[env.local_canister_name] = {candid: (env.target_did_path), build: "", wasm: "", type: "custom"}' "$COPY_OF_LOCAL_DFX")" >"$COPY_OF_LOCAL_DFX"
   )
 }
 

@@ -12,7 +12,7 @@ for ((i = 1; i < 5; i++)); do
   id_dir="$HOME/.config/dfx/identity/$id"
   if test -d "$id_dir"; then
     read -rp "Delete identity $id? [y/N] " del_id
-    del_id="$(echo "${del_id:-N}" | tr A-Z a-z)"
+    del_id="$(echo "${del_id:-N}" | tr '[:upper:]' '[:lower:]')"
     [[ "$del_id" != "y" ]] || rm -fr "$id_dir"
   fi
 done

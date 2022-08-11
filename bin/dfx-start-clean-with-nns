@@ -5,9 +5,9 @@ set -euo pipefail
 echo "FUTURE: dfx start --clean --with-nns"
 echo "PLACEHOLDER: Use '$DFX_NETWORK' testnet with an nns set up"
 
-: Checking that variables are set...
-: $DFX_NETWORK
-: $ND_DIR
+: "Checking that variables are set..."
+: "$DFX_NETWORK"
+: "$ND_DIR"
 
 echo "Getting dfx.json network entries..."
 jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
