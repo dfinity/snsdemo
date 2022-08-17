@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# TODO: verify that the network is empty
+
+
+NNS_URL="$(dfx-network-subnet-dashboard)"
+SUBNET="$(dfx-network-subnet-list | head -n1)"
+CACHE_DIR=~/.cache/dfinity
+WASM_DIR=~/.cache/dfinity/wasms
+
+mkdir -p "$WASM_DIR"
+bin/dfx-nns-wasm-download --download-dir "$WASM_DIR"
+
+
+: Create the NNS
+ic-nns-init --url http://localhost:45819 \
+  --initialize-ledger-with-test-accounts 5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087 \
+  --wasm-dir "$WASM_DIR"  \
+  --registry-local-store-dir ./.dfx/state/replicated_state/ic_registry_local_store
+
+: Configure the NNS canisters
+: ... CMC ... set exchange rate
+ic-admin  \
+   --nns-url "$NNS_URL" propose-xdr-icp-conversion-rate  \
+   --test-neuron-proposer  \
+   --summary-file ./README.md  \
+   --xdr-permyriad-per-icp 1234567
+
+: ... CMC ... set authorized subnets
+# Note: For multiple subnets use --subnets several times.
+ic-admin --nns-url "$NNS_URL" propose-to-set-authorized-subnetworks --test-neuron-proposer --proposal-title 'Set Cycles Minting Canister Authorized Subnets' --proposal-url "https://nowhere.local" --summary 'Some summary' --subnets "$SUBNET"
+
+
+: SNS is not installed correctly so:
+dfx deploy --network "$DFX_NETWORK" nns-sns-wasm --argument '( record { sns_subnet_ids = vec { '"$SNS_SUBNETS"' }; access_controls_enabled = false; } )' --no-wallet
+
+
+    echo "SNS wasm/management canister installed at: $SNS_WASM_CANISTER_ID"
+    echo "Uploading wasms to the wasm canister"
+    for canister in root governance ledger swap; do
+      sns add-sns-wasm-for-tests \
+        --network "$DFX_NETWORK" \
+        --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" \
+        --wasm-file "$(CANISTER="sns_$canister" jq -r '.canisters[env.CANISTER].wasm' dfx.json)" "$canister"
+    done
+
