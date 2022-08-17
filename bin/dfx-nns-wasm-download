@@ -103,20 +103,22 @@ get_binary() {
 # Downloads wasm files.
 get_wasm() {
   local FILENAME
-  FILENAME="$1" ; shift 1
+  FILENAME="$1"
+  shift 1
   if test -e "$DOWNLOAD_DIR/$FILENAME" && test -n "${NO_CLOBBER:-}"; then
     echo "Already downloaded $FILENAME"
   else
-	  local TMP_FILE
-	  TMP_FILE="$(mktemp)"
-	  curl "https://download.dfinity.systems/ic/${IC_COMMIT}/canisters/${FILENAME}.gz" | gunzip >"$TMP_FILE"
-	  install -m 644 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
-	  rm "$TMP_FILE"
+    local TMP_FILE
+    TMP_FILE="$(mktemp)"
+    curl "https://download.dfinity.systems/ic/${IC_COMMIT}/canisters/${FILENAME}.gz" | gunzip >"$TMP_FILE"
+    install -m 644 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
+    rm "$TMP_FILE"
   fi
   (
     cd "$DOWNLOAD_DIR"
-    while (( $# > 0 )) ; do
-      LINK_NAME="$1" ; shift 1
+    while (($# > 0)); do
+      LINK_NAME="$1"
+      shift 1
       rm -f "$LINK_NAME"
       ln -s "$FILENAME" "$LINK_NAME"
     done
@@ -126,18 +128,18 @@ get_wasm() {
 get_binary ic-nns-init
 get_binary sns
 
-get_wasm registry-canister.wasm			nns-registry.wasm
-get_wasm governance-canister_test.wasm		nns-governance.wasm governance-canister.wasm
-get_wasm ledger-canister_notify-method.wasm	nns-ledger.wasm
-get_wasm root-canister.wasm			nns-root.wasm
-get_wasm cycles-minting-canister.wasm		nns-cmc.wasm
-get_wasm lifeline.wasm				nns-lifeline.wasm
-get_wasm sns-wasm-canister.wasm			nns-sns-wasm.wasm
+get_wasm registry-canister.wasm nns-registry.wasm
+get_wasm governance-canister_test.wasm nns-governance.wasm governance-canister.wasm
+get_wasm ledger-canister_notify-method.wasm nns-ledger.wasm
+get_wasm root-canister.wasm nns-root.wasm
+get_wasm cycles-minting-canister.wasm nns-cmc.wasm
+get_wasm lifeline.wasm nns-lifeline.wasm
+get_wasm sns-wasm-canister.wasm nns-sns-wasm.wasm
 get_wasm genesis-token-canister.wasm
 get_wasm identity-canister.wasm
 get_wasm nns-ui-canister.wasm
 
-get_wasm ic-icrc1-ledger.wasm			sns_ledger.wasm
-get_wasm sns-root-canister.wasm			sns_root.wasm
-get_wasm sns-governance-canister.wasm		sns_governance.wasm
-get_wasm sns-swap-canister.wasm			sns_swap.wasm
+get_wasm ic-icrc1-ledger.wasm sns_ledger.wasm
+get_wasm sns-root-canister.wasm sns_root.wasm
+get_wasm sns-governance-canister.wasm sns_governance.wasm
+get_wasm sns-swap-canister.wasm sns_swap.wasm

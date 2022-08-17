@@ -12,59 +12,56 @@ WASM_DIR=~/.cache/dfinity/wasms
 export PATH="$PATH:$WASM_DIR" # We currently also download binaries to here.
 
 [[ "$(jq -r '.networks.local.replica.subnet_type' dfx.json)" == "system" ]] || (
-	echo "To install NNS on a dfx replica, subnet type must be set to system."
-	read -rp 'Change local subnet type to system? y/N' change
-	if [[ "$(echo "${change:-N}" | tr '[:upper:]' '[:lower:]')" == "y" ]]
-	then
-		cat <<<"$(jq '.networks.local.replica.subnet_type="system"' dfx.json)" > dfx.json
-		echo "Please run 'dfx start --clean' again to load the changes"
-		read -rp "Press enter to continue... "
-	else
-		exit 1
-	fi
+  echo "To install NNS on a dfx replica, subnet type must be set to system."
+  read -rp 'Change local subnet type to system? y/N' change
+  if [[ "$(echo "${change:-N}" | tr '[:upper:]' '[:lower:]')" == "y" ]]; then
+    cat <<<"$(jq '.networks.local.replica.subnet_type="system"' dfx.json)" >dfx.json
+    echo "Please run 'dfx start --clean' again to load the changes"
+    read -rp "Press enter to continue... "
+  else
+    exit 1
+  fi
 )
 
 mkdir -p "$WASM_DIR"
 export WASM_DIR
 
 bin/dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
-for canister in nns-sns-wasm sns_governance sns_ledger sns_root sns_swap ; do
-	(
-		export canister
-		cat <<<"$(jq '.canisters[(env.canister)].wasm=(env.WASM_DIR + "/" + env.canister + ".wasm")' dfx.json)">dfx.json
-	)
+for canister in nns-sns-wasm sns_governance sns_ledger sns_root sns_swap; do
+  (
+    export canister
+    cat <<<"$(jq '.canisters[(env.canister)].wasm=(env.WASM_DIR + "/" + env.canister + ".wasm")' dfx.json)" >dfx.json
+  )
 done
 
 : Create the NNS
 ic-nns-init --url "$NNS_URL" \
   --initialize-ledger-with-test-accounts 5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087 \
   --wasm-dir "$WASM_DIR"
-  #--registry-local-store-dir ./.dfx/state/replicated_state/ic_registry_local_store
+#--registry-local-store-dir ./.dfx/state/replicated_state/ic_registry_local_store
 
 : Configure the NNS canisters
 : ... CMC ... set exchange rate
-ic-admin  \
-   --nns-url "$NNS_URL" propose-xdr-icp-conversion-rate  \
-   --test-neuron-proposer  \
-   --summary-file ./README.md  \
-   --xdr-permyriad-per-icp 1234567
+ic-admin \
+  --nns-url "$NNS_URL" propose-xdr-icp-conversion-rate \
+  --test-neuron-proposer \
+  --summary-file ./README.md \
+  --xdr-permyriad-per-icp 1234567
 
 : ... CMC ... set authorized subnets
 # Note: For multiple subnets use --subnets several times.
 ic-admin --nns-url "$NNS_URL" propose-to-set-authorized-subnetworks --test-neuron-proposer --proposal-title 'Set Cycles Minting Canister Authorized Subnets' --proposal-url "https://nowhere.local" --summary 'Some summary' --subnets "$SUBNET"
-
 
 : SNS is not installed correctly so:
 : TODO: Install it correctly
 dfx deploy --network "$DFX_NETWORK" nns-sns-wasm --argument '( record { sns_subnet_ids = vec { principal "'"$SNS_SUBNETS"'" }; access_controls_enabled = false; } )' --no-wallet
 
 SNS_WASM_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id nns-sns-wasm)"
-    echo "SNS wasm/management canister installed at: $SNS_WASM_CANISTER_ID"
-    echo "Uploading wasms to the wasm canister"
-    for canister in root governance ledger swap; do
-      sns add-sns-wasm-for-tests \
-        --network "$DFX_NETWORK" \
-        --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" \
-        --wasm-file "$(CANISTER="sns_$canister" jq -r '.canisters[env.CANISTER].wasm' dfx.json)" "$canister"
-    done
-
+echo "SNS wasm/management canister installed at: $SNS_WASM_CANISTER_ID"
+echo "Uploading wasms to the wasm canister"
+for canister in root governance ledger swap; do
+  sns add-sns-wasm-for-tests \
+    --network "$DFX_NETWORK" \
+    --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" \
+    --wasm-file "$(CANISTER="sns_$canister" jq -r '.canisters[env.CANISTER].wasm' dfx.json)" "$canister"
+done

@@ -19,13 +19,14 @@ clear
 esay "First the developer needs a testnet."
 case "$DFX_NETWORK" in
 local)
-	echo "In a new terminal, please run:"
-	read -rp "pkill -9 dfx && dfx start --clean "
-	read -rp "dfx nns install"
-	./bin/dfx-nns-install
-	;;
+  echo "In a new terminal, please run:"
+  read -rp "pkill -9 dfx && dfx start --clean "
+  read -rp "dfx nns install"
+  ./bin/dfx-nns-install
+  ;;
 *)
-	./bin/dfx-start-clean-with-nns
+  ./bin/dfx-start-clean-with-nns
+  ;;
 esac
 
 esay "The developer needs to install did files for the NNS and SNS"
