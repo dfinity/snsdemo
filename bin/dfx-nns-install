@@ -28,7 +28,12 @@ mkdir -p "$WASM_DIR"
 export WASM_DIR
 
 bin/dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
-cat <<<"$(jq '.canisters["nns-sns-wasm"].wasm=(env.WASM_DIR + "/nns-sns-wasm.wasm")' dfx.json)">dfx.json
+for canister in nns-sns-wasm sns_governance sns_ledger sns_root sns_swap ; do
+	(
+		export canister
+		cat <<<"$(jq '.canisters[(env.canister)].wasm=(env.WASM_DIR + "/" + env.canister + ".wasm")' dfx.json)">dfx.json
+	)
+done
 
 : Create the NNS
 ic-nns-init --url "$NNS_URL" \
