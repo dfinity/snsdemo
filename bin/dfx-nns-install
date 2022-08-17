@@ -8,13 +8,27 @@ NNS_URL="$(dfx-network-subnet-dashboard)"
 SUBNET="$(dfx-network-subnet-list | head -n1)"
 CACHE_DIR=~/.cache/dfinity
 WASM_DIR=~/.cache/dfinity/wasms
+export PATH="$PATH:$WASM_DIR" # We currently also download binaries to here.
+
+[[ "$(jq -r '.networks.local.replica.subnet_type' dfx.json)" == "system" ]] || (
+	echo "To install NNS on a dfx replica, subnet type must be set to system."
+	read -rp 'Change local subnet type to system? y/N' change
+	if [[ "$(echo "${change:-N}" | tr '[:upper:]' '[:lower:]')" == "y" ]]
+	then
+		cat <<<"$(jq '.networks.local.replica.subnet_type="system"' dfx.json)" > dfx.json
+		echo "Please run 'dfx start --clean' again to load the changes"
+		read -rp "Press enter to continue... "
+	else
+		exit 1
+	fi
+)
 
 mkdir -p "$WASM_DIR"
-bin/dfx-nns-wasm-download --download-dir "$WASM_DIR"
+bin/dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
 
 
 : Create the NNS
-ic-nns-init --url http://localhost:45819 \
+ic-nns-init --url "$NNS_URL" \
   --initialize-ledger-with-test-accounts 5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087 \
   --wasm-dir "$WASM_DIR"  \
   --registry-local-store-dir ./.dfx/state/replicated_state/ic_registry_local_store

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
 
 # Notes regarding the IC_COMMIT - from the build config:
 # - We apply a patch to customise the code; if you change the hash, please check on the
@@ -112,18 +113,21 @@ get_wasm() {
 	  install -m 644 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
 	  rm "$TMP_FILE"
   fi
-  while (( $# > 0 )) ; do
-    LINK_NAME="$1" ; shift 1
-    rm -f "$LINK_NAME"
-    ln -s "$FILENAME" "$LINK_NAME"
-  done
+  (
+    cd "$DOWNLOAD_DIR"
+    while (( $# > 0 )) ; do
+      LINK_NAME="$1" ; shift 1
+      rm -f "$LINK_NAME"
+      ln -s "$FILENAME" "$LINK_NAME"
+    done
+  )
 }
 
 get_binary ic-nns-init
 get_binary sns
 
 get_wasm registry-canister.wasm			nns-registry.wasm
-get_wasm governance-canister_test.wasm		nns-governance.wasm
+get_wasm governance-canister_test.wasm		nns-governance.wasm governance-canister.wasm
 get_wasm ledger-canister_notify-method.wasm	nns-ledger.wasm
 get_wasm root-canister.wasm			nns-root.wasm
 get_wasm cycles-minting-canister.wasm		nns-cmc.wasm
