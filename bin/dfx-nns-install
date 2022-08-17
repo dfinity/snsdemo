@@ -25,8 +25,10 @@ export PATH="$PATH:$WASM_DIR" # We currently also download binaries to here.
 )
 
 mkdir -p "$WASM_DIR"
-bin/dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
+export WASM_DIR
 
+bin/dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
+cat <<<"$(jq '.canisters["nns-sns-wasm"].wasm=(env.WASM_DIR + "/nns-sns-wasm.wasm")' dfx.json)">dfx.json
 
 : Create the NNS
 ic-nns-init --url "$NNS_URL" \
@@ -48,9 +50,10 @@ ic-admin --nns-url "$NNS_URL" propose-to-set-authorized-subnetworks --test-neuro
 
 
 : SNS is not installed correctly so:
-dfx deploy --network "$DFX_NETWORK" nns-sns-wasm --argument '( record { sns_subnet_ids = vec { '"$SNS_SUBNETS"' }; access_controls_enabled = false; } )' --no-wallet
+: TODO: Install it correctly
+dfx deploy --network "$DFX_NETWORK" nns-sns-wasm --argument '( record { sns_subnet_ids = vec { principal "'"$SNS_SUBNETS"'" }; access_controls_enabled = false; } )' --no-wallet
 
-
+SNS_WASM_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id nns-sns-wasm)"
     echo "SNS wasm/management canister installed at: $SNS_WASM_CANISTER_ID"
     echo "Uploading wasms to the wasm canister"
     for canister in root governance ledger swap; do
