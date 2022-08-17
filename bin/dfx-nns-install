@@ -7,7 +7,6 @@ DFX_NETWORK=local
 NNS_URL="$(dfx-network-subnet-dashboard)"
 SUBNET="$(dfx-network-subnet-list | head -n1)"
 SNS_SUBNETS="$SUBNET"
-CACHE_DIR=~/.cache/dfinity
 WASM_DIR=~/.cache/dfinity/wasms
 export PATH="$PATH:$WASM_DIR" # We currently also download binaries to here.
 
