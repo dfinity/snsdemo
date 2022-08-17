@@ -3,9 +3,10 @@ set -euo pipefail
 
 # TODO: verify that the network is empty
 
-
+DFX_NETWORK=local
 NNS_URL="$(dfx-network-subnet-dashboard)"
 SUBNET="$(dfx-network-subnet-list | head -n1)"
+SNS_SUBNETS="$SUBNET"
 CACHE_DIR=~/.cache/dfinity
 WASM_DIR=~/.cache/dfinity/wasms
 export PATH="$PATH:$WASM_DIR" # We currently also download binaries to here.
@@ -30,8 +31,8 @@ bin/dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
 : Create the NNS
 ic-nns-init --url "$NNS_URL" \
   --initialize-ledger-with-test-accounts 5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087 \
-  --wasm-dir "$WASM_DIR"  \
-  --registry-local-store-dir ./.dfx/state/replicated_state/ic_registry_local_store
+  --wasm-dir "$WASM_DIR"
+  #--registry-local-store-dir ./.dfx/state/replicated_state/ic_registry_local_store
 
 : Configure the NNS canisters
 : ... CMC ... set exchange rate
