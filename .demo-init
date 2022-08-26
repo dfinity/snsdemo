@@ -1,3 +1,0 @@
-export PATH="$PWD/bin/:$PATH"
-export DFX_NETWORK=small06
-export ND_DIR=/home/max/dfn/nns-dapp/branches/testnet-environments
