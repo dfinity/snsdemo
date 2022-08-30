@@ -72,6 +72,7 @@ read -rp "FUTURE: dfx crowdcontrol new"
 esay "They need to deploy their dapp to the testnet if they haven't done so already"
 read -rp "dfx deploy --all"
 ./bin/create-dapp
+cat canister_ids.json
 
 esay "Next configure the SNS"
 ./bin/sns-configure
