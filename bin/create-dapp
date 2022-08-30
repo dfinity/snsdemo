@@ -29,10 +29,10 @@ dfx deploy --network "$DFX_NETWORK" --with-cycles 1000000000000 smiley_dapp_asse
 
 echo "Getting dapp info..."
 export DAPP_NAME=smiley_dapp_assets
-echo "See: $(jq -r '.networks[env.DFX_NETWORK].config.HOST' dfx.json | awk -F '://' -v canister_id="$(jq -r '.[env.DAPP_NAME][env.DFX_NETWORK]' canister_ids.json)" '{print $1 FS canister_id "." $2}')"
+export DAPP_FRONTEND="$(dfx canister --network "$DFX_NETWORK" id smiley_dapp_assets)"
+export DAPP_BACKEND="$(dfx canister --network "$DFX_NETWORK" id smiley_dapp)"
+echo "See: $(jq -r '.networks[env.DFX_NETWORK].config.HOST' dfx.json | awk -F '://' -v canister_id="$DAPP_FRONTEND" '{print $1 FS canister_id "." $2}')"
 read -rp "Press enter to continue... "
-DAPP_FRONTEND="$(jq -r .smiley_dapp_assets[env.DFX_NETWORK] canister_ids.json)"
-DAPP_BACKEND="$(jq -r .smiley_dapp[env.DFX_NETWORK] canister_ids.json)"
 export DAPP_FRONTEND
 export DAPP_BACKEND
 

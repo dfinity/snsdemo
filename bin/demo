@@ -13,6 +13,8 @@ esay() {
 esay "Cleaning up..."
 ./bin/demo-cleanup
 clear
+echo DFX_NETWORK=$DFX_NETWORK
+command -v dfx
 read -rp "Press enter to start..."
 clear
 
@@ -38,7 +40,12 @@ esay "The developer needs a testnet."
 case "$DFX_NETWORK" in
 local)
   echo "In a new terminal, please run:"
-  read -rp "pkill -9 dfx && dfx start --clean "
+  #read -rp "pkill -9 dfx && dfx start --clean "
+  #read -rp "dfx nns install"
+  pkill dfx || true
+  pkill icx-proxy || true
+  sleep 1
+  dfx start --clean --background 2>/dev/null >/dev/null
   read -rp "dfx nns install"
   dfx nns install
   ;;
