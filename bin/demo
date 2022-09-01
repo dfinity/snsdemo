@@ -44,8 +44,9 @@ local)
   pkill dfx || true
   pkill icx-proxy || true
   sleep 1
+  read -rp "dfx start --clean --background "
   dfx start --clean --background 2>/dev/null >/dev/null
-  read -rp "dfx nns install"
+  read -rp "dfx nns install "
   dfx nns install
   ;;
 *)
