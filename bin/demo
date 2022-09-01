@@ -24,8 +24,6 @@ wc -l dfx.json
   read -rp 'Change local subnet type to system? Y/n' change
   if [[ "$(echo "${change:-y}" | tr '[:upper:]' '[:lower:]')" == "y" ]]; then
     cat <<<"$(jq '.networks.local.replica.subnet_type="system"' dfx.json)" >dfx.json
-    echo "Please run 'dfx start --clean' again to load the changes"
-    read -rp "Press enter to continue... "
   else
     exit 1
   fi
@@ -39,9 +37,10 @@ wc -l dfx.json
 esay "The developer needs a testnet."
 case "$DFX_NETWORK" in
 local)
-  echo "In a new terminal, please run:"
+  #echo "In a new terminal, please run:"
   #read -rp "pkill -9 dfx && dfx start --clean "
   #read -rp "dfx nns install"
+  dfx stop || true
   pkill dfx || true
   pkill icx-proxy || true
   sleep 1
