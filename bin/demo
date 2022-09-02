@@ -10,6 +10,14 @@ esay() {
   say "${@}"
 }
 
+if [[ "${1:-}" == "--fast" ]]
+then
+	touch bin/read
+	chmod +x bin/read
+else
+	rm -f bin/read
+fi
+
 esay "Cleaning up..."
 ./bin/demo-cleanup
 clear
