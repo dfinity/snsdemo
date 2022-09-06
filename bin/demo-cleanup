@@ -6,7 +6,7 @@ if test -e .neurons; then
 fi
 . .demo-env || true
 
-echo "Deleting existing identities..."
+echo "Deleting existing test identities: ident-1, ident-2, ..."
 for ((i = 1; i < 5; i++)); do
   id="ident-$i"
   id_dir="$HOME/.config/dfx/identity/$id"

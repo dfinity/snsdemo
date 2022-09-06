@@ -31,7 +31,7 @@ wc -l dfx.json
   echo "To install NNS on a dfx replica, subnet type must be set to system."
   read -rp 'Change local subnet type to system? Y/n' change
   if [[ "$(echo "${change:-y}" | tr '[:upper:]' '[:lower:]')" == "y" ]]; then
-    cat <<<"$(jq '.networks.local.replica.subnet_type="system"' dfx.json)" >dfx.json
+    bin/demo-system-subnet
   else
     exit 1
   fi
@@ -65,13 +65,11 @@ esac
 
 esay "The developer needs to install did files for the NNS and SNS"
 read -rp "dfx canister import "
-./bin/dfx-canister-import --prefix nns- https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json --all
+bin/dfx-nns-import
+#./bin/dfx-canister-import --prefix nns- https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json --all
 ./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/ic/master/rs/sns/cli/dfx.json --all
-./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json nns-dapp
-./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json internet_identity
-
-esay "The developer needs to install the sns binary"
-read -rp "FUTURE: dfx install-plugin sns"
+#./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json nns-dapp
+#./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json internet_identity
 
 esay "They also need to create users to represent the voting public"
 read -rp "FUTURE: dfx crowdcontrol new"

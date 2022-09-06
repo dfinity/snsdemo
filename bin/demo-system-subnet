@@ -1,0 +1,1 @@
+cat <<<"$(jq '.networks.local.replica.subnet_type="system"' dfx.json)" >dfx.json
