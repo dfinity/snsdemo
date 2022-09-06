@@ -16,7 +16,7 @@ jobs:
         run: |
           mkdir dfn
           cd dfn
-          git clone git@github.com:dfinity/sdk.git
+          git clone https://github.com/dfinity/sdk.git
           cd sdk
           mkdir branches
           for branch in ic-nns-install-part2 ericswanson/sdk-676-nns-sns-import ; do
