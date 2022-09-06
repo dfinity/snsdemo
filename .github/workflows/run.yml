@@ -1,4 +1,4 @@
-name: CI Checks
+name: Run non-interactive demo
 
 on:
   push:
@@ -7,39 +7,9 @@ on:
   pull_request:
 
 jobs:
-
-  stepwise:
+  tiptoe:
     runs-on: ubuntu-20.04
-    env:
-      DFX_NETWORK: mainnet
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install sdk branches
-        run: |
-          mkdir dfn
-          cd dfn
-          git clone git@github.com:dfinity/sdk.git
-          cd sdk
-          mkdir branches
-          for branch in ic-nns-install-part2 ericswanson/sdk-676-nns-sns-import ; do
-          ( git worktree add "branches/$branch" "$branch"
-            cd "branches/$branch"
-            cargo build
-          )
-          done
-
-       - name: Set path
-         run: |
-           echo $PWD/dfn/sdk/branches/ic-nns-install-part2/target/debug/ >>> $GITHUB_ENV
-           echo $PWD/bin/ >>> $GITHUB_ENV
-
-       - name: Set up environment variables
-         run: cp .demo-init-local .demo-env
-
-       - name: Start dfx server
-         run: dfx start --clean --background
-       - name: Install NNS
-         run: dfx nns install
