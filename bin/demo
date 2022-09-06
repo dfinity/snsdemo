@@ -10,12 +10,11 @@ esay() {
   say "${@}"
 }
 
-if [[ "${1:-}" == "--fast" ]]
-then
-	touch bin/read
-	chmod +x bin/read
+if [[ "${1:-}" == "--fast" ]]; then
+  touch bin/read
+  chmod +x bin/read
 else
-	rm -f bin/read
+  rm -f bin/read
 fi
 
 esay "Cleaning up..."
@@ -38,9 +37,8 @@ wc -l dfx.json
 )
 wc -l dfx.json
 
-cat <<<$(grep -v '"dfx"' dfx.json)>dfx.json
+cat <<<$(grep -v '"dfx"' dfx.json) >dfx.json
 wc -l dfx.json
-
 
 esay "The developer needs a testnet."
 case "$DFX_NETWORK" in

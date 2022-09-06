@@ -9,10 +9,9 @@ read -rp "sns deploy"
 sns deploy --network "$DFX_NETWORK" --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" --init-config-file sns_init.yaml |
   tee /dev/stderr >sns_creation.idl
 
-
 cat canister_ids.json
 read -rp "Canisters look OK?  "
-cat <<"EOF">/dev/null
+cat <<"EOF" >/dev/null
 echo "Populate canister_ids.json"
 if test -e canister_ids.json; then
   EXISTING_CANISTER_IDS="canister_ids.$(date -Iseconds)"
