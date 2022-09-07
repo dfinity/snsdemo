@@ -44,6 +44,8 @@ while (($# > 0)); do
   esac
 done
 
+cd "$(dirname "$(realpath "$0")")/.."
+patch -p1 < bin/test-readme.patch
 # We really do want backticks.
 # shellcheck disable=SC2016
 sed <README.md -En '/```bash/,/```/{/```/b;p}' | modify_auth | bash -euxo pipefail
