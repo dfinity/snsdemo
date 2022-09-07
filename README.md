@@ -8,10 +8,6 @@ Clone this project:
 git clone https://github.com/dfinity/snsdemo.git
 cd snsdemo
 ```
-Let's remember this location, and use the included tools:
-```bash
-export SNSDEMO="$PWD"
-```
 
 ## Project contents
 Before we get started, let's have a quick look at this repo.  It contains a simple toy application and some scripts to help you through this tutorial.  Have a look at dfx.json and the src directory.  If you wish, you can have a look at the toy dapp:
@@ -34,7 +30,7 @@ git clone https://github.com/dfinity/sdk.git
 pushd sdk
 command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
 cargo build
-cp target/debug/dfx "$SNSDEMO/bin/"
+cp target/debug/dfx "../bin/"
 popd
 ```
 Also, to use the non-production build, it is important to remove the `dfx` version from `dfx.json`, otherwise your calls to dfx will simply be redirected to a normal production build and new functionality will not work.  You can do this with:
