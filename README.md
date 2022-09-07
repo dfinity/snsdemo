@@ -23,7 +23,12 @@ command -v cargo || echo "Please install rust before proceeding: https://www.rus
 cargo build
 cp target/debug/dfx "$SNSDEMO/bin/"
 ```
-
+Now we should now be able to see the help pages for the NNS commands:
+```bash
+dfx nns --help
+dfx nns install --help
+dfx nns import --help
+```
 
 
 
