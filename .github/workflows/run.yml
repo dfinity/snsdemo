@@ -27,20 +27,19 @@ jobs:
           cd dfn
           git clone https://github.com/dfinity/sdk.git
           cd sdk
-      - name: Get cached sdk-nns-install binary
+          echo SDK_COMMIT=$(git rev-parse HEAD) >>> $GITHUB_ENV
+      - name: Get cached sdk binary
         id: sdk_nns_install_cache
         uses: actions/cache@v2
         with:
           path: |
             $PWD/dfn/sdk/target/debug/
-          key: "dfx-${{ env.IC_COMMIT }}-v001"
-
-      - name: Install sdk-nns-install binary
+          key: "dfx-${{ env.SDK_COMMIT }}-v001"
+      - name: Build sdk-nns-install binary
         if: steps.sdk_nns_install_cache.outputs.cache-hit != 'true'
         run: |
             cd $PWD/dfn/sdk
             cargo build
-
       - name: Install sdk
         run: |
           mkdir -p bin
