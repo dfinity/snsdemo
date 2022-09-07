@@ -92,3 +92,24 @@ You should see something like this:
 SNIP
 
 ![image](docs/images/dfx-nns-install-tail.png)
+
+Let's see what we have.
+
+### Internet Identity
+Click on the `internet_identity` URL printed in the terminal.  This is a login service for dapps, similar to "login with google" but without the advertising.  Check that you can create an identity and log in.  You won't see much after you have logged in but you will have an identity that you can use on your testnet.
+
+The local installation differs from production to make it more useful for automated testing.
+* The captcha is always "a".
+* No hardware key is needed to log in.
+This is of course tremendously insecure but very useful for testing.
+
+If you wish, you can add a login service to the toy dapp using `internet_identity`.
+
+### NNS Dapp
+Click on the `nns-dapp` URL.  You should be able to log in with your new identity.
+
+The NNS Dapp acts as a wallet.  You will need toy ICP tokens to test with.  Note that at the bottom of the menu there is a "Get ICPs" button with which you can award yourself ICP.  Free ICP are limited but you can make yourself a millionaire.
+
+To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.
+
+Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
