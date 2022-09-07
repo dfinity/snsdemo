@@ -15,6 +15,7 @@ jobs:
 
       - name: Clone sdk
         run: |
+          cd "$HOME"
           git clone https://github.com/dfinity/sdk.git
           cd sdk
           echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
@@ -23,8 +24,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            $PWD/sdk/target/debug/
-          key: "dfx-${{ env.SDK_COMMIT }}-v002"
+            $HOME/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v003"
       - name: Build sdk-nns-install binary
         if: steps.sdk_nns_install_cache.outputs.cache-hit != 'true'
         run: |
@@ -46,8 +47,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            $PWD/sdk/target/debug/
-          key: "dfx-${{ env.SDK_COMMIT }}-v002"
+            $HOME/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v003"
       - name: Run the README code parts
         run: bin/test-readme
   named_steps:
@@ -67,8 +68,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            $PWD/sdk/target/debug/
-          key: "dfx-${{ env.SDK_COMMIT }}-v002"
+            $HOME/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v003"
       - name: Install sdk
         run: |
           mkdir -p bin
