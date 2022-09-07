@@ -48,6 +48,7 @@ Now we should now be able to see the help pages for the NNS commands:
 ## Start a local testnet
 Make sure that your `$HOME/.config/dfx/networks.json` has the following configuration for the "local" network:
 ```bash
+cat <<EOF>"$HOME/.config/dfx/networks.json"
 {
   "local": {
     "bind": "127.0.0.1:8080",
@@ -57,6 +58,7 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
     }
   }
 }
+EOF
 ```
 Note:
 * The "old" method of configuring networks is in `dfx.json`.  The old method is deprecated but still works and

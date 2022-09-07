@@ -7,6 +7,14 @@ on:
   pull_request:
 
 jobs:
+  readme:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run the README code parts
+        run: bin/test-readme
   tiptoe:
     runs-on: ubuntu-20.04
     steps:
