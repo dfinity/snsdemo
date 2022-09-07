@@ -42,7 +42,7 @@ jobs:
         run: |
           mkdir -p bin
           cp sdk/target/debug/dfx bin/dfx
-          echo $PWD/bin/ >> $GITHUB_ENV
+          echo PATH="$PWD/bin/:$PATH" >> $GITHUB_ENV
 
 #
 #       - name: Set path
