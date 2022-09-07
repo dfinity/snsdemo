@@ -13,11 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Show directories
-        run: |
-          echo HOME=$HOME
-          echo HERE=$PWD
-
       - name: Clone sdk
         run: |
           git clone https://github.com/dfinity/sdk.git
@@ -33,7 +28,7 @@ jobs:
       - name: Build sdk-nns-install binary
         if: steps.sdk_nns_install_cache.outputs.cache-hit != 'true'
         run: |
-            cd $HOME/sdk
+            cd sdk
             cargo build
   readme:
     needs: build_sdk
