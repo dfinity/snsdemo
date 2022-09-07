@@ -7,15 +7,7 @@ on:
   pull_request:
 
 jobs:
-  readme:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Run the README code parts
-        run: bin/test-readme
-  named_steps:
+  build_sdk:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -38,6 +30,45 @@ jobs:
         run: |
             cd $PWD/sdk
             cargo build
+  readme:
+    needs: build_sdk
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Clone sdk
+        run: |
+          git clone https://github.com/dfinity/sdk.git
+          cd sdk
+          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
+      - name: Get cached sdk binary
+        id: sdk_nns_install_cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            $PWD/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v002"
+      - name: Run the README code parts
+        run: bin/test-readme
+  named_steps:
+    needs: build_sdk
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Clone sdk
+        run: |
+          git clone https://github.com/dfinity/sdk.git
+          cd sdk
+          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
+      - name: Get cached sdk binary
+        id: sdk_nns_install_cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            $PWD/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v002"
       - name: Install sdk
         run: |
           mkdir -p bin
