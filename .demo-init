@@ -1,0 +1,8 @@
+export PATH="$PWD/bin/:$PATH"
+export DFX_NETWORK=local
+export ND_DIR=/home/max/dfn/nns-dapp/branches/testnet-environments
+
+
+#export DEVELOPER_NEURON=10663871910438830245
+#export PROPOSER_NEURON_ID="10663871910438830245"
+#export NNS_MAJORITY_NEURON=11218757476532089926
