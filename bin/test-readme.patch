@@ -1,5 +1,5 @@
 diff --git a/README.md b/README.md
-index 0e5c835..d5c4b4c 100644
+index e4b1afc..4a93cfa 100644
 --- a/README.md
 +++ b/README.md
 @@ -5,8 +5,9 @@ Welcome to the world of the Network Nervous System.  In this tutorial we will sh
@@ -14,7 +14,15 @@ index 0e5c835..d5c4b4c 100644
  ```
  
  ## Project contents
-@@ -26,12 +27,14 @@ After this tutorial is complete we hope that you will experiment using the same
+@@ -15,6 +16,7 @@ Before we get started, let's have a quick look at this repo.  It contains a simp
+ ```bash
+ npm ci
+ dfx start --background
++sleep 1
+ dfx deploy
+ echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
+ ```
+@@ -27,12 +29,14 @@ After this tutorial is complete we hope that you will experiment using the same
  ## Install dfx
  This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
@@ -29,7 +37,7 @@ index 0e5c835..d5c4b4c 100644
  ```
  Also, to use the non-production build, it is important to remove the `dfx` version from `dfx.json`, otherwise your calls to dfx will simply be redirected to a normal production build and new functionality will not work.  You can do this with:
  ```
-@@ -48,6 +51,7 @@ Now we should now be able to see the help pages for the NNS commands:
+@@ -49,6 +53,7 @@ Now we should now be able to see the help pages for the NNS commands:
  ## Start a local testnet
  Make sure that your `$HOME/.config/dfx/networks.json` has the following configuration for the "local" network:
  ```bash
@@ -37,7 +45,7 @@ index 0e5c835..d5c4b4c 100644
  {
    "local": {
      "bind": "127.0.0.1:8080",
-@@ -57,6 +61,7 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
+@@ -58,6 +63,7 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
      }
    }
  }
@@ -45,3 +53,13 @@ index 0e5c835..d5c4b4c 100644
  ```
  Note:
  * The "old" method of configuring networks is in `dfx.json`.  The old method is deprecated but still works and
+@@ -79,7 +85,9 @@ Note:
+ Now you can start your local testnet:
+ ```bash
+ ./bin/dfx stop
++sleep 1
+ ./bin/dfx start --clean --background
++sleep 1
+ ```
+ You should see something like this:
+ 
