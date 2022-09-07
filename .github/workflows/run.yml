@@ -15,7 +15,7 @@ jobs:
 
       - name: Run the README code parts
         run: bin/test-readme
-  tiptoe:
+  named_steps:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -27,34 +27,29 @@ jobs:
           cd dfn
           git clone https://github.com/dfinity/sdk.git
           cd sdk
-          for branch in ic-nns-install-part2 ; do
-            git worktree add "branches/$branch" "$branch"
-            echo "${branch}_commit=$(git )"
-          done
       - name: Get cached sdk-nns-install binary
         id: sdk_nns_install_cache
         uses: actions/cache@v2
         with:
           path: |
-            $PWD/dfn/sdk/branches/ic-nns-install-part2/target/debug/
+            $PWD/dfn/sdk/target/debug/
           key: "dfx-${{ env.IC_COMMIT }}-v001"
 
       - name: Install sdk-nns-install binary
         if: steps.sdk_nns_install_cache.outputs.cache-hit != 'true'
         run: |
-            cd $PWD/dfn/sdk/branches/ic-nns-install-part2
+            cd $PWD/dfn/sdk
             cargo build
 
       - name: Install sdk
         run: |
           mkdir -p bin
-          cp dfn/sdk/branches/ic-nns-install-part2/target/debug/dfx bin/dfx
+          cp dfn/sdk/target/debug/dfx bin/dfx
           echo $PWD/bin/ >>> $GITHUB_ENV
 
 #
 #       - name: Set path
 #         run: |
-#           echo $PWD/dfn/sdk/branches/ic-nns-install-part2/target/debug/ >>> $GITHUB_ENV
 #           echo $PWD/bin/ >>> $GITHUB_ENV
 #
 #       - name: Set up environment variables
