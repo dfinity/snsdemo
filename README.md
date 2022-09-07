@@ -77,6 +77,7 @@ Note:
 
 Now you can start your local testnet:
 ```bash
+./bin/dfx stop
 ./bin/dfx start --clean --background
 ```
 You should see something like this:
