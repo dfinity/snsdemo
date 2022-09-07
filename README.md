@@ -10,9 +10,10 @@ cd snsdemo
 ```
 
 ## Project contents
-Before we get started, let's have a quick look at this repo.  It contains a simple toy application and some scripts to help you through this tutorial.  Have a look at dfx.json and the src directory.  If you wish, you can have a look at the toy dapp:
+Before we get started, let's have a quick look at this repo.  It contains a simple toy application and some scripts to help you through this tutorial.  Have a look at dfx.json and the src directory.  Then let's deploy it:
 
 ```bash
+npm ci
 dfx start --background
 dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
