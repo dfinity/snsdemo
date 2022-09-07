@@ -59,6 +59,8 @@ function cleanup {
 }
 trap cleanup EXIT
 
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+
 patch -p1 <bin/test-readme.patch
 # We really do want backticks.
 # shellcheck disable=SC2016
