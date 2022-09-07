@@ -27,7 +27,7 @@ jobs:
           cd dfn
           git clone https://github.com/dfinity/sdk.git
           cd sdk
-          echo SDK_COMMIT=$(git rev-parse HEAD) >>> $GITHUB_ENV
+          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
       - name: Get cached sdk binary
         id: sdk_nns_install_cache
         uses: actions/cache@v2
@@ -44,7 +44,7 @@ jobs:
         run: |
           mkdir -p bin
           cp dfn/sdk/target/debug/dfx bin/dfx
-          echo $PWD/bin/ >>> $GITHUB_ENV
+          echo $PWD/bin/ >> $GITHUB_ENV
 
 #
 #       - name: Set path
