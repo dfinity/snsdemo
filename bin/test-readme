@@ -56,6 +56,7 @@ fi
 # We make changes to the README.  Better undo any changes.
 function cleanup {
   git checkout README.md
+  dfx stop
 }
 trap cleanup EXIT
 
