@@ -16,7 +16,7 @@ jobs:
       - name: Show directories
         run: |
           echo HOME=$HOME
-          echo PWD=$PWD
+          echo HERE=$PWD
 
       - name: Clone sdk
         run: |
