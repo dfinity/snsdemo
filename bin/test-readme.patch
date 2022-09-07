@@ -1,17 +1,35 @@
 diff --git a/README.md b/README.md
-index 0e5c835..74a12d3 100644
+index 0e5c835..d5c4b4c 100644
 --- a/README.md
 +++ b/README.md
-@@ -5,8 +5,6 @@ Welcome to the world of the Network Nervous System.  In this tutorial we will sh
+@@ -5,8 +5,9 @@ Welcome to the world of the Network Nervous System.  In this tutorial we will sh
  ## Setup
  Clone this project:
  ```bash
 -git clone https://github.com/dfinity/snsdemo.git
 -cd snsdemo
++dfx stop
++pkill dfx || true
++pkill icx-proxy || true
  ```
  
  ## Project contents
-@@ -48,6 +46,7 @@ Now we should now be able to see the help pages for the NNS commands:
+@@ -26,12 +27,14 @@ After this tutorial is complete we hope that you will experiment using the same
+ ## Install dfx
+ This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
+ ```bash
++test -d sdk || {
+ git clone https://github.com/dfinity/sdk.git
+ pushd sdk
+ command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
+ cargo build
+ cp target/debug/dfx "../bin/"
+ popd
++}
+ ```
+ Also, to use the non-production build, it is important to remove the `dfx` version from `dfx.json`, otherwise your calls to dfx will simply be redirected to a normal production build and new functionality will not work.  You can do this with:
+ ```
+@@ -48,6 +51,7 @@ Now we should now be able to see the help pages for the NNS commands:
  ## Start a local testnet
  Make sure that your `$HOME/.config/dfx/networks.json` has the following configuration for the "local" network:
  ```bash
@@ -19,7 +37,7 @@ index 0e5c835..74a12d3 100644
  {
    "local": {
      "bind": "127.0.0.1:8080",
-@@ -57,6 +56,7 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
+@@ -57,6 +61,7 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
      }
    }
  }

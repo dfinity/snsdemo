@@ -24,6 +24,12 @@ modify_auth() {
   esac
 }
 
+# We make changes to the README.  Better undo any changes.
+function cleanup {
+  git checkout README.md
+}
+trap cleanup EXIT
+
 while (($# > 0)); do
   arg="$1"
   shift 1
@@ -45,6 +51,13 @@ while (($# > 0)); do
 done
 
 cd "$(dirname "$(realpath "$0")")/.."
+if git diff | grep -q .
+then
+{
+    echo "ERROR: Refusing to test unclean repo."
+    exit 1
+     } >&2
+fi
 patch -p1 < bin/test-readme.patch
 # We really do want backticks.
 # shellcheck disable=SC2016
