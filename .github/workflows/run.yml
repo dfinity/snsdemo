@@ -73,14 +73,20 @@ jobs:
         run: |
           cp sdk/target/debug/dfx bin/dfx
           echo PATH="$PWD/bin/:$PATH" >> $GITHUB_ENV
+      - name: Start the server
+        run: |
+          dfx start --background
+          sleep 5
       - name: Build and deploy smiley dapp
         run: |
           npm ci
-          dfx start --background
-          sleep 5
           dfx deploy
           echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
+      - name: Restart the server
+        run: |
           dfx stop
+          sleep 1
+          dfx start --clean
       - name: SNS help commands exist
         run: |
           ./bin/dfx nns --help
