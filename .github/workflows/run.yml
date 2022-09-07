@@ -13,6 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Show directories
+        run: |
+          echo HOME=$HOME
+          echo PWD=$PWD
+
       - name: Clone sdk
         run: |
           cd "$HOME"
@@ -29,7 +34,7 @@ jobs:
       - name: Build sdk-nns-install binary
         if: steps.sdk_nns_install_cache.outputs.cache-hit != 'true'
         run: |
-            cd $PWD/sdk
+            cd $HOME/sdk
             cargo build
   readme:
     needs: build_sdk
@@ -74,7 +79,7 @@ jobs:
         run: |
           mkdir -p bin
           cp sdk/target/debug/dfx bin/dfx
-          echo PATH="$PWD/bin/:$PATH" >> $GITHUB_ENV
+          echo PATH="$HOME/bin/:$PATH" >> $GITHUB_ENV
 
 #
 #       - name: Set path
