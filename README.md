@@ -11,7 +11,6 @@ cd snsdemo
 Let's remember this location, and use the included tools:
 ```bash
 export SNSDEMO="$PWD"
-export PATH="$SNSDEMO/bin:$PATH"
 ```
 
 ## Project contents
@@ -26,7 +25,7 @@ Open the URL printed by that last line and you should see the smiley dapp:
 
 ![image](docs/images/smiley.png)
 
-After this turorial is complete we hope that you will experiment using the same commands with your own projects.
+After this tutorial is complete we hope that you will experiment using the same commands with your own projects.
 
 ## Install dfx
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
@@ -45,9 +44,9 @@ cat <<<$(jq 'del(.dfx)' dfx.json.original) >dfx.json
 
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
-dfx nns --help
-dfx nns install --help
-dfx nns import --help
+./bin/dfx nns --help
+./bin/dfx nns install --help
+./bin/dfx nns import --help
 ```
 
 ## Start a local testnet
@@ -63,9 +62,26 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
   }
 }
 ```
+Note:
+* The "old" method of configuring networks is in `dfx.json`.  The old method is deprecated but still works and
+  will be supported until Spring 2023.  The above is equivalent to including this in your `dfx.json`:
+  ```
+  {
+    "networks": {
+        "local": {
+            "bind": "127.0.0.1:8080",
+            "type": "ephemeral",
+            "replica": {
+                "subnet_type": "system"
+            }
+        }
+    }
+  }
+  ```
+
 Now you can start your local testnet:
 ```bash
-dfx start --clean --background
+./bin/dfx start --clean --background
 ```
 You should see something like this:
 
@@ -82,7 +98,7 @@ Some things to note:
 The NNS is the decentralization mechanism for the Internet Computer.  Normally it is run on many computers and the only way of making changes to it is by submitting proposals and letting neuron holders vote on the proposals.  For you to be able to experiment by yourself, we will install a test version that allows you to make changes locally by yourself. 
 
 ```bash
-dfx nns install
+./bin/dfx nns install
 ```
 
 You should see something like this:
