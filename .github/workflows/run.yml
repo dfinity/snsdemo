@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  tiptoe:
+  build_sdk:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -15,38 +15,70 @@ jobs:
 
       - name: Clone sdk
         run: |
-          mkdir dfn
-          cd dfn
+          cd "$HOME"
           git clone https://github.com/dfinity/sdk.git
           cd sdk
-          for branch in ic-nns-install-part2 ; do
-            git worktree add "branches/$branch" "$branch"
-            echo "${branch}_commit=$(git )"
-          done
-      - name: Get cached sdk-nns-install binary
+          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
+      - name: Get cached sdk binary
         id: sdk_nns_install_cache
         uses: actions/cache@v2
         with:
           path: |
-            $PWD/dfn/sdk/branches/ic-nns-install-part2/target/debug/
-          key: "dfx-${{ env.IC_COMMIT }}-v001"
-
-      - name: Install sdk-nns-install binary
+            $HOME/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v003"
+      - name: Build sdk-nns-install binary
         if: steps.sdk_nns_install_cache.outputs.cache-hit != 'true'
         run: |
-            cd $PWD/dfn/sdk/branches/ic-nns-install-part2
+            cd $PWD/sdk
             cargo build
+  readme:
+    needs: build_sdk
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Clone sdk
+        run: |
+          git clone https://github.com/dfinity/sdk.git
+          cd sdk
+          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
+      - name: Get cached sdk binary
+        id: sdk_nns_install_cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            $HOME/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v003"
+      - name: Run the README code parts
+        run: bin/test-readme
+  named_steps:
+    needs: build_sdk
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
+      - name: Clone sdk
+        run: |
+          git clone https://github.com/dfinity/sdk.git
+          cd sdk
+          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
+      - name: Get cached sdk binary
+        id: sdk_nns_install_cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            $HOME/sdk/target/debug/
+          key: "dfx-${{ env.SDK_COMMIT }}-v003"
       - name: Install sdk
         run: |
           mkdir -p bin
-          cp dfn/sdk/branches/ic-nns-install-part2/target/debug/dfx bin/dfx
-          echo $PWD/bin/ >>> $GITHUB_ENV
+          cp sdk/target/debug/dfx bin/dfx
+          echo PATH="$PWD/bin/:$PATH" >> $GITHUB_ENV
 
 #
 #       - name: Set path
 #         run: |
-#           echo $PWD/dfn/sdk/branches/ic-nns-install-part2/target/debug/ >>> $GITHUB_ENV
 #           echo $PWD/bin/ >>> $GITHUB_ENV
 #
 #       - name: Set up environment variables

@@ -20,7 +20,7 @@ fi
 esay "Cleaning up..."
 ./bin/demo-cleanup
 clear
-echo DFX_NETWORK=$DFX_NETWORK
+echo DFX_NETWORK="$DFX_NETWORK"
 command -v dfx
 read -rp "Press enter to start..."
 clear
@@ -37,7 +37,7 @@ wc -l dfx.json
 )
 wc -l dfx.json
 
-cat <<<$(grep -v '"dfx"' dfx.json) >dfx.json
+cat <<<"$(grep -v '"dfx"' dfx.json)" >dfx.json
 wc -l dfx.json
 
 esay "The developer needs a testnet."
