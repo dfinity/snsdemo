@@ -27,12 +27,7 @@ After this tutorial is complete we hope that you will experiment using the same 
 ## Install dfx
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
 ```bash
-git clone https://github.com/dfinity/sdk.git
-pushd sdk
-command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
-cargo build
-cp target/debug/dfx "../bin/"
-popd
+DFX_VERSION=0.12.0-beta.2 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 ```
 Also, to use the non-production build, it is important to remove the `dfx` version from `dfx.json`, otherwise your calls to dfx will simply be redirected to a normal production build and new functionality will not work.  You can do this with:
 ```
