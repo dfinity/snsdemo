@@ -41,9 +41,9 @@ index e4b1afc..4a93cfa 100644
 @@ -79,7 +85,9 @@ Note:
  Now you can start your local testnet:
  ```bash
- ./bin/dfx stop
+ dfx stop
 +sleep 1
- ./bin/dfx start --clean --background
+ dfx start --clean --background
 +sleep 1
  ```
  You should see something like this:

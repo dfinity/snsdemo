@@ -36,9 +36,9 @@ cat <<<$(jq 'del(.dfx)' dfx.json.original) >dfx.json
 
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
-./bin/dfx nns --help
-./bin/dfx nns install --help
-./bin/dfx nns import --help
+dfx nns --help
+dfx nns install --help
+dfx nns import --help
 ```
 
 ## Start a local testnet
@@ -73,8 +73,8 @@ Note:
 
 Now you can start your local testnet:
 ```bash
-./bin/dfx stop
-./bin/dfx start --clean --background
+dfx stop
+dfx start --clean --background
 ```
 You should see something like this:
 
@@ -91,7 +91,7 @@ Some things to note:
 The NNS is the decentralization mechanism for the Internet Computer.  Normally it is run on many computers and the only way of making changes to it is by submitting proposals and letting neuron holders vote on the proposals.  For you to be able to experiment by yourself, we will install a test version that allows you to make changes locally by yourself. 
 
 ```bash
-./bin/dfx nns install
+dfx nns install
 ```
 
 You should see something like this:
