@@ -122,3 +122,99 @@ The NNS Dapp acts as a wallet.  You will need toy ICP tokens to test with.  Note
 To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.
 
 Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
+
+### Import did files
+To interact with the back end governance canisters you will need the API definitions.  So far the commands have not altered the local project at all, but now we will add information about the NNS to the local project:
+```
+dfx nns import
+```
+You look in your dfx.json you should see the NNS canisters listed and you should have did files.  For example:
+```
+jq '.canisters["nns-sns-wasm"]' dfx.json
+ls candid/nns-sns-wasm.did
+```
+
+## Decentralize the Smiley Dapp
+Now we will hand over control of the local Smiley Dapp to the community; the community of just you, the reader, but the process is the same for handing over control of a real dapp on mainnet to the community at large.
+
+### Redeploy the smiley dapp
+We deployed the smiley dapp before but then wiped the network.  Let's recreate it:
+```
+npm ci
+dfx deploy --with-cycles 1000000000000 smiley_dapp
+dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
+```
+
+### Install sns
+The sns functionality is not yet integrated in dfx; this is work in progress.  We will take a shortcut.  Get the sns binary:
+```bash
+$HOME/.cache/dfinity/versicp "ons/$(dfx --version | awk '{print $2}')/sns" ./bin/
+```
+
+### Configure an SNS
+You will need to decide some things such as token name and token parameters.  To do this:
+```
+./bin/sns init-config-file new
+```
+This will create a configuration file:
+```
+ls sns_init.yaml
+```
+Open it in an editor.  You will see some blanks that need to be filled in with your SNS parameters.  Fill them in.
+
+You can check whether your entries are complete and valid by running:
+```
+sns init-config-file validate
+```
+If you just want a random config that works, run:
+```
+./bin/sns-configure
+```
+
+### Create an SNS
+Creating an SNS is expensive; the price is set at 50 trillion cycles.  Make sure that your wallet has at least that much:
+```
+dfx wallet balance
+```
+If you need more, you can buy yourself some in the canisters tab of the NNS UI, by adding your wallet canister and sending it cycles.
+
+Now, you can deploy:
+```
+./bin/sns deploy
+```
+
+You should be able to see the SNS canisters in your dfx.json:
+```
+jq '.canisters' dfx.json
+```
+### Hand over control
+You need to transfer control of the smiley face canisters to the SNS.
+
+Placeholder:
+```
+./bin/sns-handover
+```
+
+### Neurons
+In the NNS UI, make sure that you have a large neuron so that you can passs proposals.
+
+### Propose to start the SNS
+```
+bin/sns-start-swap
+```
+In the NNS Dapp UI go to the launchpad.
+
+You should see a proposal.
+* You may need to refresh
+
+Vote for the proposal to pass.
+
+### Invest
+Once the proposal has passed, refresh the launchpad. You should now see an opportunity to invest.
+
+Buy tokens in the SNS.  If you buy enough, the SNS will complete immediately which is better for testing than waiting for the proposal time window to close.
+
+### Finalize the SNS
+```
+bin/sns-finalize-swap
+```
