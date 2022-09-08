@@ -7,84 +7,11 @@ on:
   pull_request:
 
 jobs:
-  build_sdk:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Clone sdk
-        run: |
-          cd "$HOME"
-          git clone https://github.com/dfinity/sdk.git
-          cd sdk
-          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
-      - name: Get cached sdk binary
-        id: sdk_nns_install_cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            $HOME/sdk/target/debug/
-          key: "dfx-${{ env.SDK_COMMIT }}-v003"
-      - name: Build sdk-nns-install binary
-        if: steps.sdk_nns_install_cache.outputs.cache-hit != 'true'
-        run: |
-            cd $PWD/sdk
-            cargo build
   readme:
     needs: build_sdk
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Clone sdk
-        run: |
-          git clone https://github.com/dfinity/sdk.git
-          cd sdk
-          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
-      - name: Get cached sdk binary
-        id: sdk_nns_install_cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            $HOME/sdk/target/debug/
-          key: "dfx-${{ env.SDK_COMMIT }}-v003"
       - name: Run the README code parts
         run: bin/test-readme
-  named_steps:
-    needs: build_sdk
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Clone sdk
-        run: |
-          git clone https://github.com/dfinity/sdk.git
-          cd sdk
-          echo SDK_COMMIT=$(git rev-parse HEAD) >> $GITHUB_ENV
-      - name: Get cached sdk binary
-        id: sdk_nns_install_cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            $HOME/sdk/target/debug/
-          key: "dfx-${{ env.SDK_COMMIT }}-v003"
-      - name: Install sdk
-        run: |
-          mkdir -p bin
-          cp sdk/target/debug/dfx bin/dfx
-          echo PATH="$PWD/bin/:$PATH" >> $GITHUB_ENV
-
-#
-#       - name: Set path
-#         run: |
-#           echo $PWD/bin/ >>> $GITHUB_ENV
-#
-#       - name: Set up environment variables
-#         run: cp .demo-init-local .demo-env
-#
-#       - name: Start dfx server
-#         run: dfx start --clean --background
-#       - name: Install NNS
-#         run: dfx nns install
