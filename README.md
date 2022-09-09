@@ -187,10 +187,12 @@ Now, you can deploy:
 ./bin/sns deploy --init-config-file sns_init.yaml
 ```
 
+TOFIX: The sns command used to save canister IDs; this is no longer the case?  Or is an old sns bundled?  Some updates are necessary, to be sure, as the location of the canister ids has changed.  But we need that info, otherwise the user's hard-earned money has just disappeared into the ether; it is not gone, just really hard to find.
 You should be able to see the SNS canisters in your dfx.json:
 ```
 jq '.canisters' dfx.json
 ```
+
 Your wallet will also feel a lot lighter:
 ```
 dfx wallet balance
