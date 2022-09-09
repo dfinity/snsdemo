@@ -150,7 +150,7 @@ TODO: Can we print the subdomain-based canister URLs please?
 ### Install sns
 The sns functionality is not yet integrated in dfx; this is work in progress.  We will take a shortcut.  Get the sns binary:
 ```bash
-"$HOME/.cache/dfinity/versions/$(dfx --version | awk '{print $2}')/sns" ./bin/
+cp "$HOME/.cache/dfinity/versions/$(dfx --version | awk '{print $2}')/sns" ./bin/
 ```
 
 ### Configure an SNS
