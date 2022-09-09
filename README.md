@@ -13,8 +13,8 @@ cd snsdemo
 Before we get started, let's have a quick look at this repo.  It contains a simple toy application and some scripts to help you through this tutorial.  Have a look at dfx.json and the src directory.  Then let's deploy it:
 
 ```bash
+dfx start --host 127.0.0.1:8080 --background
 npm ci
-dfx start --background
 dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
