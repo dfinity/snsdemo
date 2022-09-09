@@ -158,6 +158,8 @@ You will need to decide some things such as token name and token parameters.  To
 ```
 ./bin/sns init-config-file new
 ```
+TODO: This should print the location of the file it has created.
+
 This will create a configuration file:
 ```
 ls sns_init.yaml
