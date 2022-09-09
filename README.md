@@ -148,7 +148,7 @@ dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
 ### Install sns
 The sns functionality is not yet integrated in dfx; this is work in progress.  We will take a shortcut.  Get the sns binary:
 ```bash
-$HOME/.cache/dfinity/versicp "ons/$(dfx --version | awk '{print $2}')/sns" ./bin/
+"$HOME/.cache/dfinity/versions/$(dfx --version | awk '{print $2}')/sns" ./bin/
 ```
 
 ### Configure an SNS
