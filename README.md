@@ -172,7 +172,7 @@ You can check whether your entries are complete and valid by running:
 ```
 If you just want a random config that works, run:
 ```
-./bin/sns-configure
+./bin/sns-configure-random
 ```
 
 ### Create an SNS
