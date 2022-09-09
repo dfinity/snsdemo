@@ -184,7 +184,7 @@ If you need more, you can buy yourself some in the canisters tab of the NNS UI, 
 
 Now, you can deploy:
 ```
-./bin/sns deploy
+./bin/sns deploy --init-config-file sns_init.yaml
 ```
 
 You should be able to see the SNS canisters in your dfx.json:
