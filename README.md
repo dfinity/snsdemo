@@ -74,7 +74,7 @@ Note:
 Now you can start your local testnet:
 ```bash
 dfx stop
-dfx start --clean --background
+dfx start --clean --host 127.0.0.1:8080 --background
 ```
 You should see something like this:
 
