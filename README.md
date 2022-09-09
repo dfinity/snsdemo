@@ -191,6 +191,11 @@ You should be able to see the SNS canisters in your dfx.json:
 ```
 jq '.canisters' dfx.json
 ```
+Your wallet will also feel a lot lighter:
+```
+dfx wallet balance
+```
+
 ### Hand over control
 You need to transfer control of the smiley face canisters to the SNS.
 
