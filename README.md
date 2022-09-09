@@ -168,7 +168,7 @@ Open it in an editor.  You will see some blanks that need to be filled in with y
 
 You can check whether your entries are complete and valid by running:
 ```
-sns init-config-file validate
+./bin/sns init-config-file validate
 ```
 If you just want a random config that works, run:
 ```
