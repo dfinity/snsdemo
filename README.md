@@ -42,6 +42,7 @@ echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
 <!---
 ```bash
+say Smiley deployed
 read -rp "Click the link and check that you see the clock or smiley. OK?  "
 ```
 -->
@@ -155,6 +156,7 @@ dfx nns install
 ```
 <!---
 ```bash
+say NNS dapp setup
 read -rp "Log in to the nns and check that the launchpad is there. OK?  "
 read -rp "Create a neuron with 500M ICP and an 8 year dissolve delay. OK?  "
 read -rp "Add this principal as a hotkey: $(dfx identity get-principal)  OK? "
