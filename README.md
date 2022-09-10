@@ -65,7 +65,8 @@ This dfx functionality has not been released yet, so you will need a special bui
 pushd ..
 test -d sdk || git clone https://github.com/dfinity/sdk.git
 pushd sdk
-git switch tutorial
+git fetch
+git reset --hard origin/tutorial
 command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
 cargo build
 ./target/debug/dfx cache install
