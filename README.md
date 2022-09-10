@@ -82,8 +82,7 @@ Note that the above does not change your default dfx.  To use the custom dfx loc
 ```bash
 export DFX_VERSION="$(../sdk/target/debug/dfx --version | awk '{print $2}')"
 cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
-popd
- ```
+```
 
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
