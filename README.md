@@ -4,13 +4,25 @@ Welcome to the world of the Network Nervous System.  In this tutorial we will sh
 
 ## Setup
 Clone this project:
+<!---
+The comments like this are not displayed in Markdown; they contain code for automated testing.
+```
+# We will use the current directory for testing, but make sure it is clean.
+if false ; then
+```
+-->
 ```bash
 git clone https://github.com/dfinity/snsdemo.git
 cd snsdemo
 ```
 <!---
 ```
-git clean -dfx
+else
+  git clean -dfx
+  dfx stop
+  pkill dfx || true
+  pkill icx-proxy || true
+fi
 ```
 -->
 
