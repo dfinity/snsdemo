@@ -30,7 +30,11 @@ fi
 Before we get started, let's have a quick look at this repo.  It contains a simple toy application and some scripts to help you through this tutorial.  Have a look at dfx.json and the src directory.  Then let's deploy it:
 
 ```bash
+: Start the server
 dfx start --host 127.0.0.1:8080 --background
+: If we ask, we should be awarded a starting balance to play with.
+dfx wallet balance
+: Now we can build and deploy the dapp:
 npm ci
 dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
