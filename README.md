@@ -183,6 +183,8 @@ To interact with the back end governance canisters you will need the API definit
 ```bash
 dfx nns import
 dfx sns import
+: The above are not complete so you will temporarily also need:
+cat <<<"$(jq '.canisters["nns-sns-wasm"].remote.id.local = "qjdve-lqaaa-aaaaa-aaaeq-cai"' dfx.json)" > dfx.json
 ```
 You look in your dfx.json you should see the NNS canisters listed and you should have did files.  For example:
 ```bash
@@ -225,10 +227,8 @@ Open it in an editor.  You will see some blanks that need to be filled in with y
 You can check whether your entries are complete and valid by running:
 <!---
 ```bash
-# The validation is expected to fail.  We should however make sure that the command is there:
-if true ; then
-  ./bin/sns init-config-file validate --help
-else
+# The validation is expected to fail.  Validation is exercised soon though...
+if false
 ```
 -->
 ```bash
