@@ -56,20 +56,32 @@ After this tutorial is complete we hope that you will experiment using the same 
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
 <!---
 ```bash
-dfx --version | grep 0.12.0-beta.2 || {
+dfx cache list 2>&1 | grep -q "$(../sdk/target/debug/dfx --version | awk '{print $2}')" || {
 ```
 -->
-```bash
-DFX_VERSION=0.12.0-beta.2 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
+ ```bash
+pushd ..
+git clone https://github.com/dfinity/sdk.git
+pushd sdk
+git-switch tutorial
+command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
+cargo build
+./target/debug/dfx cache install
+popd -2
 ```
 <!---
 ```bash
 }
 ```
-Also, to use the non-production build, it is important to remove the `dfx` version from `dfx.json`, otherwise your calls to dfx will simply be redirected to a normal production build and new functionality will not work.  You can do this with:
+-->
+
+Note that the above does not change your default dfx.  To use the custom dfx locally we need to specify it in dfx.json:
 ```bash
-cat <<<$(jq 'del(.dfx)' dfx.json.original) >dfx.json
-```
+export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
+cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
+popd
+ ```
 
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
