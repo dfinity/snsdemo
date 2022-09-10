@@ -217,12 +217,26 @@ ls sns_init.yaml
 Open it in an editor.  You will see some blanks that need to be filled in with your SNS parameters.  Fill them in.
 
 You can check whether your entries are complete and valid by running:
+<!---
+```bash
+# The validation is expected to fail.  We should however make sure that the command is there:
+if true ; do
+  ./bin/sns init-config-file validate --help
+else
+```
+-->
 ```bash
 ./bin/sns init-config-file validate
 ```
+<!---
+```bash
+fi
+```
+-->
 If you just want a random config that works, run:
 ```bash
 ./bin/sns-configure-random
+./bin/sns init-config-file validate
 ```
 
 ### Create an SNS
