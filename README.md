@@ -25,7 +25,7 @@ echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
 <!---
 ```
-git clean -dfx
+read -rp "Click the link and check that you see the clock or smiley. OK?  "
 ```
 -->
 
