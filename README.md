@@ -8,6 +8,11 @@ Clone this project:
 git clone https://github.com/dfinity/snsdemo.git
 cd snsdemo
 ```
+<!---
+```
+git clean -dfx
+```
+-->
 
 ## Project contents
 Before we get started, let's have a quick look at this repo.  It contains a simple toy application and some scripts to help you through this tutorial.  Have a look at dfx.json and the src directory.  Then let's deploy it:
@@ -187,11 +192,25 @@ Now, you can deploy:
 ./bin/sns deploy --init-config-file sns_init.yaml
 ```
 
+Visit
+
 TOFIX: The sns command used to save canister IDs; this is no longer the case?  Or is an old sns bundled?  Some updates are necessary, to be sure, as the location of the canister ids has changed.  But we need that info, otherwise the user's hard-earned money has just disappeared into the ether; it is not gone, just really hard to find.
-You should be able to see the SNS canisters in your dfx.json:
+
+- Also, maybe refuse to do `bin/sns deploy` unless the sns did files are installed, or install them if not present?
+- Then the canister IDs could be added as remotes?  Maybe refuse to proceed if there are already remotes in place?
+- What if the local did files are out of date/out of sync with prod?  Prod could differ from the local environment.
+
+
+BROKEN: You should be able to see the SNS canisters in your dfx.json:
 ```
 jq '.canisters' dfx.json
 ```
+WORKAROUND:
+```
+dfx 
+```
+
+
 
 Your wallet will also feel a lot lighter:
 ```
