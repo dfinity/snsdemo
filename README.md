@@ -36,7 +36,7 @@ dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
 <!---
-```
+```bash
 read -rp "Click the link and check that you see the clock or smiley. OK?  "
 ```
 -->
@@ -50,7 +50,7 @@ After this tutorial is complete we hope that you will experiment using the same 
 ## Install dfx
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
 <!---
-```
+```bash
 dfx --version | grep 0.12.0-beta.2 || {
 ```
 -->
