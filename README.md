@@ -79,7 +79,7 @@ popd -2
 
 Note that the above does not change your default dfx.  To use the custom dfx locally we need to specify it in dfx.json:
 ```bash
-export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
+export DFX_VERSION="$(../sdk/target/debug/dfx --version | awk '{print $2}')"
 cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
 popd
  ```
