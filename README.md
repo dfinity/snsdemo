@@ -136,6 +136,13 @@ The NNS is the decentralization mechanism for the Internet Computer.  Normally i
 ```bash
 dfx nns install
 ```
+<!---
+```bash
+read -rp "Log in to the nns and check that the launchpad is there. OK?  "
+read -rp "Create a neuron with 500M ICP and an 8 year dissolve delay. OK?  "
+read -rp "Add this principal as a hotkey: $(dfx identity get-principal)  OK? "
+```
+-->
 
 You should see something like this:
 
