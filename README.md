@@ -37,8 +37,17 @@ After this tutorial is complete we hope that you will experiment using the same 
 
 ## Install dfx
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
+<!---
+```
+dfx --version | grep 0.12.0-beta.2 || {
+```
+-->
 ```bash
 DFX_VERSION=0.12.0-beta.2 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+```
+<!---
+```
+}
 ```
 Also, to use the non-production build, it is important to remove the `dfx` version from `dfx.json`, otherwise your calls to dfx will simply be redirected to a normal production build and new functionality will not work.  You can do this with:
 ```
