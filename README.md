@@ -255,15 +255,19 @@ If you need more, you can buy yourself some in the canisters tab of the NNS UI, 
 Now, you can deploy:
 ```bash
 ./bin/sns deploy --init-config-file sns_init.yaml
+: As sns is not integrated into dfx we need to do this as well:
+cat <<<"$(jq -s '.[0] * .[1]' .dfx/local/canister_ids.json  canister_ids.json)" > .dfx/local/canister_ids.json
 ```
 
 Visit
-
-TOFIX: The sns command used to save canister IDs; this is no longer the case?  Or is an old sns bundled?  Some updates are necessary, to be sure, as the location of the canister ids has changed.  But we need that info, otherwise the user's hard-earned money has just disappeared into the ether; it is not gone, just really hard to find.
-
-- Also, maybe refuse to do `bin/sns deploy` unless the sns did files are installed, or install them if not present?
+<!---
+TODO:
+- Refuse to do `bin/sns deploy` unless the sns did files are installed.
+- Likewise refuse if the canister ID is not defined.
+- Add the local NNS canister IDs are remotes?
 - Then the canister IDs could be added as remotes?  Maybe refuse to proceed if there are already remotes in place?
 - What if the local did files are out of date/out of sync with prod?  Prod could differ from the local environment.
+-->
 
 
 BROKEN: You should be able to see the SNS canisters in your dfx.json:
