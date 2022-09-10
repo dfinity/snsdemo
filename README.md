@@ -179,9 +179,10 @@ To be able to make decisions in your local testnet you will need a neuron with h
 Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
 
 ### Import did files
-To interact with the back end governance canisters you will need the API definitions.  So far the commands have not altered the local project at all, but now we will add information about the NNS to the local project:
+To interact with the back end governance canisters you will need the API definitions.  So far the commands have not altered the local project at all, but now we will add information about the NNS and SNS to the local project:
 ```bash
 dfx nns import
+dfx sns import
 ```
 You look in your dfx.json you should see the NNS canisters listed and you should have did files.  For example:
 ```bash
@@ -225,7 +226,7 @@ You can check whether your entries are complete and valid by running:
 <!---
 ```bash
 # The validation is expected to fail.  We should however make sure that the command is there:
-if true ; do
+if true ; then
   ./bin/sns init-config-file validate --help
 else
 ```
