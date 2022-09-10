@@ -14,14 +14,6 @@ index e4b1afc..4a93cfa 100644
  ```
  
  ## Project contents
-@@ -15,6 +16,7 @@ Before we get started, let's have a quick look at this repo.  It contains a simp
- ```bash
- npm ci
- dfx start --background
-+sleep 1
- dfx deploy
- echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
- ```
 @@ -49,6 +53,7 @@ Now we should now be able to see the help pages for the NNS commands:
  ## Start a local testnet
  Make sure that your `$HOME/.config/dfx/networks.json` has the following configuration for the "local" network:
@@ -38,13 +30,3 @@ index e4b1afc..4a93cfa 100644
  ```
  Note:
  * The "old" method of configuring networks is in `dfx.json`.  The old method is deprecated but still works and
-@@ -79,7 +85,9 @@ Note:
- Now you can start your local testnet:
- ```bash
- dfx stop
-+sleep 1
- dfx start --clean --background
-+sleep 1
- ```
- You should see something like this:
- 
