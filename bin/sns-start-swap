@@ -3,7 +3,7 @@ set -euo pipefail
 
 . .demo-env
 
-"$ND_DIR/scripts/sns/swap/start_swap" --title "$USER $(date +'%Y%m%dT%H%M')" --proposer "$PROPOSER_NEURON_ID" | tee ,start-swap.idl
+"$ND_DIR/scripts/sns/swap/start_swap" --title "$USER $(date +'%Y%m%dT%H%M')" --proposer "$DEVELOPER_NEURON_ID" | tee ,start-swap.idl
 
 PROPOSAL_ID="$(idl2json <,start-swap.idl | jq -r '.command[0].MakeProposal.proposal_id[0].id')"
 echo "$(./bin/dfx-url nns-dapp)/#/proposal/$PROPOSAL_ID"

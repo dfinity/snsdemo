@@ -80,6 +80,7 @@ popd -2
 
 Note that the above does not change your default dfx.  To use the custom dfx locally we need to specify it in dfx.json:
 ```bash
+export DFX_WARNING=-version_check
 export DFX_VERSION="$(../sdk/target/debug/dfx --version | awk '{print $2}')"
 cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
 ```
@@ -199,6 +200,7 @@ dfx nns import
 dfx sns import
 : The above are not complete so you will temporarily also need:
 cat <<<"$(jq '.canisters["nns-sns-wasm"].remote.id.local = "qjdve-lqaaa-aaaaa-aaaeq-cai"' dfx.json)" > dfx.json
+cat <<<"$(jq '.canisters["nns-governance"].remote.id.local = "rrkah-fqaaa-aaaaa-aaaaq-cai"' dfx.json)" > dfx.json
 ```
 You look in your dfx.json you should see the NNS canisters listed and you should have did files.  For example:
 ```bash
@@ -242,7 +244,7 @@ You can check whether your entries are complete and valid by running:
 <!---
 ```bash
 # The validation is expected to fail.  Validation is exercised soon though...
-if false
+if false ; then
 ```
 -->
 ```bash
@@ -286,14 +288,8 @@ TODO:
 
 BROKEN: You should be able to see the SNS canisters in your dfx.json:
 ```bash
-jq '.canisters' dfx.json
+jq '.canisters' dfx.json | grep sns_
 ```
-WORKAROUND:
-```bash
-dfx 
-```
-
-
 
 Your wallet will also feel a lot lighter:
 ```bash
@@ -301,19 +297,57 @@ dfx wallet balance
 ```
 
 ### Hand over control
-You need to transfer control of the smiley face canisters to the SNS.
-
-Placeholder:
+You are the current controller of the smiley dapp.  You can check that like this:
 ```bash
-./bin/sns-handover
+dfx canister info smiley_dapp
+```
+The controller should match your identity:
+```bash
+dfx identity get-principal
 ```
 
+You need to transfer control of the smiley face canisters to the SNS.
+```bash
+./bin/sns-handover
+``
+
 ### Neurons
-In the NNS UI, make sure that you have a large neuron so that you can passs proposals.
+In the NNS UI, make sure that you have a large neuron so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will suffice.
+
+You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice and the dissolve delay can be zero.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
+
+Create the neuron:
+- Log in to the nns-dapp: <http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080/>
+- Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
+- Go to the neurons tab and create a neuron.  Give it 5 ICP and no dissolve delay.
+- Make a note of the neuron ID:
+  ```bash
+  DEVELOPER_NEURON_ID=INSERT_VALUE_HERE
+  ```
+
+Add your principal:
+- Make a note of your neuron ID:
+  ```bash
+  read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
+  echo DEVELOPER_NEURON_ID=$DEVELOPER_NEURON_ID >> .demo-env
+  ```
+- In the nns-dapp, click on your neuron to see the neuron details.
+- Scroll down to "Hotkeys" and add your command line principal as a hotkey.
+
+<!---
+```bash
+say NNS dapp setup
+read -rp "Add this as a hotkey to the developer neuron: $(dfx identity get-principal)   OK?"
+```
+-->
+
+
 
 ### Propose to start the SNS
+The community takes some responsibility for which SNS's are created, so it gets to vote on the creation:
+
 ```bash
-bin/sns-start-swap
+bin/dfx-sns-swap-start --title "$USER $(date +'%Y%m%dT%H%M')" --proposer "$DEVELOPER_NEURON_ID"
 ```
 In the NNS Dapp UI go to the launchpad.
 
