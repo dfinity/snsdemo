@@ -23,6 +23,12 @@ npm ci
 dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
+<!---
+```
+git clean -dfx
+```
+-->
+
 Open the URL printed by that last line and you should see the smiley dapp:
 
 ![image](docs/images/smiley.png)
