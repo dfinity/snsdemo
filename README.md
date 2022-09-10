@@ -63,6 +63,12 @@ dfx nns import --help
 
 ## Start a local testnet
 Make sure that your `$HOME/.config/dfx/networks.json` has the following configuration for the "local" network:
+<!---
+```
+mv "$HOME/.config/dfx/networks.json" "$HOME/.config/dfx/networks.json.$(date +%s)"
+cat <<EOF>"$HOME/.config/dfx/networks.json"
+```
+-->
 ```bash
 {
   "local": {
@@ -74,6 +80,11 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
   }
 }
 ```
+<!---
+```
+EOF
+```
+-->
 Note:
 * The "old" method of configuring networks is in `dfx.json`.  The old method is deprecated but still works and
   will be supported until Spring 2023.  The above is equivalent to including this in your `dfx.json`:
