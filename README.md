@@ -19,7 +19,7 @@ cd snsdemo
 ```bash
 else
   git clean -dfx
-  dfx stop
+  dfx stop || true
   pkill dfx || true
   pkill icx-proxy || true
 fi
