@@ -85,6 +85,11 @@ export DFX_VERSION="$(../sdk/target/debug/dfx --version | awk '{print $2}')"
 cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
 ```
 
+And:
+```bash
+cp "$HOME/.cache/dfinity/versions/$DFX_VERSION/sns" ./bin/
+```
+
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
 dfx nns --help
@@ -136,7 +141,7 @@ Note:
 Now you can start your local testnet:
 ```bash
 dfx stop
-dfx start --clean --host 127.0.0.1:8080 --background
+nohup dfx start --clean --host 127.0.0.1:8080 --background &
 ```
 You should see something like this:
 
