@@ -166,7 +166,6 @@ dfx nns install
 say NNS dapp setup
 read -rp "Log in to the nns and check that the launchpad is there. OK?  "
 read -rp "Create a neuron with 500M ICP and an 8 year dissolve delay. OK?  "
-read -rp "Add this principal as a hotkey: $(dfx identity get-principal)  OK? "
 ```
 -->
 
@@ -321,6 +320,12 @@ In the NNS UI, make sure that you have a large neuron so that you can pass propo
 You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice and the dissolve delay can be zero.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
 
 Create the neuron:
+<!---
+```bash
+say Create a developer neuron
+read -rp "Create a small neuron,  OK?"
+```
+-->
 - Log in to the nns-dapp: <http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080/>
 - Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
 - Go to the neurons tab and create a neuron.  Give it 5 ICP and an 8 year dissolve delay.
@@ -350,9 +355,22 @@ read -rp "Add this as a hotkey to the developer neuron: $(dfx identity get-princ
 ### Propose to start the SNS
 The community takes some responsibility for which SNS's are created, so it gets to vote on the creation:
 
+<!---
+```bash
+{
+```
+-->
 ```bash
 bin/dfx-sns-swap-start --title "$USER $(date +'%Y%m%dT%H%M')" --proposer "$DEVELOPER_NEURON_ID"
 ```
+<!---
+```bash
+} > ,start-swap.idl
+PROPOSAL_ID="$(idl2json <,start-swap.idl | jq -r '.command[0].MakeProposal.proposal_id[0].id')"
+read -rp "Vote for the proposal $PROPOSAL_ID OK?  "
+```
+-->
+
 In the NNS Dapp UI go to the launchpad.
 
 You should see a proposal.
@@ -361,9 +379,13 @@ You should see a proposal.
 Vote for the proposal to pass.  As you have a huge neuron - your private network is not decentralized - your vote should be enough to pass the proposal.  If you watch the top of th eproposal status, it should change to "Executed" after no more than 30 seconds.
 
 ### Invest
-Return to the launchpad and hit refresh.  You should now see that your SNS is open for investment.
+Return to the launchpad and hit refresh.  You should now see the SNS move into the "Current Launches" section.  If you click on it, you will be able to read details about the project.
 
-Buy tokens in the SNS.  If you buy enough, the SNS will complete immediately which is better for testing than waiting for the proposal time window to close.
+Run this, then hit refresh:
+```bash
+dfx canister call sns_swap refresh_sns_tokens '(record {})'
+```
+You should now be able to invest.  If you use the default SNS configuration you can buy all 50 ICP and so complete the sale immediately.  This is convenient for testing but in a real SNS you may wish to limit the stake so that no investor has excessive influence over the project.
 
 ### Finalize the SNS
 ```bash
