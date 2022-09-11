@@ -323,17 +323,17 @@ You will also need a small neuron to represent yourself, the developer.  5 ICP s
 Create the neuron:
 - Log in to the nns-dapp: <http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080/>
 - Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
-- Go to the neurons tab and create a neuron.  Give it 5 ICP and no dissolve delay.
-
-  ```bash
-  DEVELOPER_NEURON_ID=INSERT_VALUE_HERE
-  ```
-
-Add your principal:
+- Go to the neurons tab and create a neuron.  Give it 5 ICP and an 8 year dissolve delay.
 - Make a note of your neuron ID:
   ```bash
   read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
   echo DEVELOPER_NEURON_ID=$DEVELOPER_NEURON_ID >> .demo-env
+  ```
+
+Add your principal as a hotkey:
+- Get your command line principal:
+  ```bash
+  dfx identity get-principal
   ```
 - In the nns-dapp, click on your neuron to see the neuron details.
 - Scroll down to "Hotkeys" and add your command line principal as a hotkey.
@@ -358,10 +358,10 @@ In the NNS Dapp UI go to the launchpad.
 You should see a proposal.
 * You may need to refresh
 
-Vote for the proposal to pass.
+Vote for the proposal to pass.  As you have a huge neuron - your private network is not decentralized - your vote should be enough to pass the proposal.  If you watch the top of th eproposal status, it should change to "Executed" after no more than 30 seconds.
 
 ### Invest
-Once the proposal has passed, refresh the launchpad. You should now see an opportunity to invest.
+Return to the launchpad and hit refresh.  You should now see that your SNS is open for investment.
 
 Buy tokens in the SNS.  If you buy enough, the SNS will complete immediately which is better for testing than waiting for the proposal time window to close.
 
