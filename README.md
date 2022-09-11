@@ -387,6 +387,12 @@ dfx canister call sns_swap refresh_sns_tokens '(record {})'
 ```
 You should now be able to invest.  If you use the default SNS configuration you can buy all 50 ICP.  This is convenient for testing but in a real SNS you may wish to limit the stake so that no investor has excessive influence over the project.
 
+<!---
+```bash
+read -rp "Invest 50 ICP.  OK?  "
+```
+-->
+
 ### Finalize the swap
 ```bash
 bin/sns-finalize-swap
