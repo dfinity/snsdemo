@@ -285,8 +285,6 @@ TODO:
 - What if the local did files are out of date/out of sync with prod?  Prod could differ from the local environment.
 -->
 
-
-BROKEN: You should be able to see the SNS canisters in your dfx.json:
 ```bash
 jq '.canisters' dfx.json | grep sns_
 ```
@@ -309,7 +307,13 @@ dfx identity get-principal
 You need to transfer control of the smiley face canisters to the SNS.
 ```bash
 ./bin/sns-handover
-``
+```
+
+Now compare the canister controller with the SNS root.  You should find that they are the same:
+```bash
+dfx canister id sns_root
+dfx canister info smiley_dapp
+```
 
 ### Neurons
 In the NNS UI, make sure that you have a large neuron so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will suffice.
@@ -320,7 +324,7 @@ Create the neuron:
 - Log in to the nns-dapp: <http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080/>
 - Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
 - Go to the neurons tab and create a neuron.  Give it 5 ICP and no dissolve delay.
-- Make a note of the neuron ID:
+
   ```bash
   DEVELOPER_NEURON_ID=INSERT_VALUE_HERE
   ```
