@@ -376,16 +376,17 @@ In the NNS Dapp UI go to the launchpad.
 You should see a proposal.
 * You may need to refresh
 
-Vote for the proposal to pass.  As you have a huge neuron - your private network is not decentralized - your vote should be enough to pass the proposal.  If you watch the top of th eproposal status, it should change to "Executed" after no more than 30 seconds.
+Vote for the proposal to pass.  As you have a huge neuron - your private network is not decentralized - your vote should be enough to pass the proposal.  If you watch the top of the proposal status, it should change to "Executed" after no more than 30 seconds.
 
 ### Invest
 Return to the launchpad and hit refresh.  You should now see the SNS move into the "Current Launches" section.  If you click on it, you will be able to read details about the project.
 
-Run this, then hit refresh:
+Note the sale start time.  Wait until then, then hit refresh.  You should now see an interface to buy SNS tokens.  If yo don't, run this:
 ```bash
 dfx canister call sns_swap refresh_sns_tokens '(record {})'
 ```
-You should now be able to invest.  If you use the default SNS configuration you can buy all 50 ICP.  This is convenient for testing but in a real SNS you may wish to limit the stake so that no investor has excessive influence over the project.
+
+Buy some tokens.  The sale will be complete when either the maximum investment has been reached or the sale end time is reached.  If you use the default SNS configuration you can buy all 50 ICP.  This is convenient for testing but in a real SNS you may wish to limit the stake so that no investor has excessive influence over the project.
 
 <!---
 ```bash
