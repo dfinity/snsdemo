@@ -227,12 +227,6 @@ dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
 TODO: Can we just use `dfx deploy` here?   The other canisters SHOULD not be deployed; they are remote, right?
 TODO: Can we print the subdomain-based canister URLs please?
 
-### Install sns
-The sns functionality is not yet integrated in dfx; this is work in progress.  We will take a shortcut.  Get the sns binary:
-```bash
-cp "$HOME/.cache/dfinity/versions/$(dfx --version | awk '{print $2}')/sns" ./bin/
-```
-
 ### Configure an SNS
 You will need to decide some things such as token name and token parameters.  To do this:
 ```bash
