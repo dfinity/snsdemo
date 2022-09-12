@@ -41,10 +41,10 @@ while (($# > 0)); do
     exit 0
     ;;
   --dry-run)
-    COMMAND=cat
+    COMMAND="cat"
     ;;
   --ssh)
-    AUTH=ssh
+    AUTH="ssh"
     ;;
   *)
     {
