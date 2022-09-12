@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-. .demo-env
 
-read -rp "sns handover smiley_dapp smiley_dapp_assets"
+DFX_NETWORK="${DFX_NETWORK:-local}"
 
-SNS_ROOT="$(jq -r .sns_root[env.DFX_NETWORK] canister_ids.json)"
-DAPP_BACKEND="$(jq -r .smiley_dapp[env.DFX_NETWORK] canister_ids.json)"
-DAPP_FRONTEND="$(jq -r .smiley_dapp_assets[env.DFX_NETWORK] canister_ids.json)"
+SNS_ROOT="$(dfx canister --network "$DFX_NETWORK" id sns_root)"
+DAPP_BACKEND="$(dfx canister --network "$DFX_NETWORK" id smiley_dapp)"
+DAPP_FRONTEND="$(dfx canister --network "$DFX_NETWORK" id smiley_dapp_assets)"
 
-PRINCIPAL=$(dfx identity --network "$DFX_NETWORK" get-principal)
-WALLET_CANISTER="$(dfx identity --network "$DFX_NETWORK" get-wallet)"
+PRINCIPAL=$(dfx identity get-principal)
+WALLET_CANISTER="$(dfx identity get-wallet)"
 
 for CANISTER in "$DAPP_FRONTEND" "$DAPP_BACKEND"; do
   dfx canister --network "$DFX_NETWORK" status "$CANISTER" || true

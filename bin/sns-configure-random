@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TOKEN_SYMBOL="$(
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  echo
+)"
+TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
+
+sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g" sns_init.yml >sns_init.yaml

@@ -4,20 +4,49 @@ Welcome to the world of the Network Nervous System.  In this tutorial we will sh
 
 ## Setup
 Clone this project:
+<!---
+The comments like this are not displayed in Markdown; they contain code for automated testing.
+```bash
+# We will use the current directory for testing, but make sure it is clean.
+if false ; then
+```
+-->
 ```bash
 git clone https://github.com/dfinity/snsdemo.git
 cd snsdemo
 ```
+<!---
+```bash
+else
+  git clean -dfx
+  dfx stop || true
+  pkill dfx || true
+  pkill icx-proxy || true
+fi
+```
+-->
 
 ## Project contents
 Before we get started, let's have a quick look at this repo.  It contains a simple toy application and some scripts to help you through this tutorial.  Have a look at dfx.json and the src directory.  Then let's deploy it:
 
 ```bash
+: Start the server
+dfx start --host 127.0.0.1:8080 --background
+sleep 2
+: If we ask, we should be awarded a starting balance to play with.
+dfx wallet balance
+: Now we can build and deploy the dapp:
 npm ci
-dfx start --background
 dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
+<!---
+```bash
+say Smiley deployed
+read -rp "Click the link and check that you see the clock or smiley. OK?  "
+```
+-->
+
 Open the URL printed by that last line and you should see the smiley dapp:
 
 ![image](docs/images/smiley.png)
@@ -26,12 +55,39 @@ After this tutorial is complete we hope that you will experiment using the same 
 
 ## Install dfx
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
+<!---
 ```bash
-DFX_VERSION=0.12.0-beta.2 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+dfx cache list 2>&1 | grep -q "$(../sdk/target/debug/dfx --version | awk '{print $2}' || echo "UNDEFINED")" || {
 ```
-Also, to use the non-production build, it is important to remove the `dfx` version from `dfx.json`, otherwise your calls to dfx will simply be redirected to a normal production build and new functionality will not work.  You can do this with:
+-->
+This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
+ ```bash
+pushd ..
+test -d sdk || git clone https://github.com/dfinity/sdk.git
+pushd sdk
+git fetch
+git reset --hard origin/tutorial
+command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
+cargo build
+./target/debug/dfx cache install
+popd -2
 ```
-cat <<<$(jq 'del(.dfx)' dfx.json.original) >dfx.json
+<!---
+```bash
+}
+```
+-->
+
+Note that the above does not change your default dfx.  To use the custom dfx locally we need to specify it in dfx.json:
+```bash
+export DFX_WARNING=-version_check
+export DFX_VERSION="$(../sdk/target/debug/dfx --version | awk '{print $2}')"
+cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
+```
+
+And:
+```bash
+cp "$HOME/.cache/dfinity/versions/$DFX_VERSION/sns" ./bin/
 ```
 
 Now we should now be able to see the help pages for the NNS commands:
@@ -43,6 +99,12 @@ dfx nns import --help
 
 ## Start a local testnet
 Make sure that your `$HOME/.config/dfx/networks.json` has the following configuration for the "local" network:
+<!---
+```bash
+mv "$HOME/.config/dfx/networks.json" "$HOME/.config/dfx/networks.json.$(date +%s)"
+cat <<EOF>"$HOME/.config/dfx/networks.json"
+```
+-->
 ```bash
 {
   "local": {
@@ -54,6 +116,11 @@ Make sure that your `$HOME/.config/dfx/networks.json` has the following configur
   }
 }
 ```
+<!---
+```bash
+EOF
+```
+-->
 Note:
 * The "old" method of configuring networks is in `dfx.json`.  The old method is deprecated but still works and
   will be supported until Spring 2023.  The above is equivalent to including this in your `dfx.json`:
@@ -74,7 +141,8 @@ Note:
 Now you can start your local testnet:
 ```bash
 dfx stop
-dfx start --clean --background
+nohup dfx start --clean --host 127.0.0.1:8080 --background &
+sleep 10
 ```
 You should see something like this:
 
@@ -93,6 +161,13 @@ The NNS is the decentralization mechanism for the Internet Computer.  Normally i
 ```bash
 dfx nns install
 ```
+<!---
+```bash
+say NNS dapp setup
+read -rp "Log in to the nns and check that the launchpad is there. OK?  "
+read -rp "Create a neuron with 500M ICP and an 8 year dissolve delay. OK?  "
+```
+-->
 
 You should see something like this:
 
@@ -124,12 +199,16 @@ To be able to make decisions in your local testnet you will need a neuron with h
 Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
 
 ### Import did files
-To interact with the back end governance canisters you will need the API definitions.  So far the commands have not altered the local project at all, but now we will add information about the NNS to the local project:
-```
+To interact with the back end governance canisters you will need the API definitions.  So far the commands have not altered the local project at all, but now we will add information about the NNS and SNS to the local project:
+```bash
 dfx nns import
+dfx sns import
+: The above are not complete so you will temporarily also need:
+cat <<<"$(jq '.canisters["nns-sns-wasm"].remote.id.local = "qjdve-lqaaa-aaaaa-aaaeq-cai"' dfx.json)" > dfx.json
+cat <<<"$(jq '.canisters["nns-governance"].remote.id.local = "rrkah-fqaaa-aaaaa-aaaaq-cai"' dfx.json)" > dfx.json
 ```
 You look in your dfx.json you should see the NNS canisters listed and you should have did files.  For example:
-```
+```bash
 jq '.canisters["nns-sns-wasm"]' dfx.json
 ls candid/nns-sns-wasm.did
 ```
@@ -139,82 +218,183 @@ Now we will hand over control of the local Smiley Dapp to the community; the com
 
 ### Redeploy the smiley dapp
 We deployed the smiley dapp before but then wiped the network.  Let's recreate it:
-```
+```bash
 npm ci
 dfx deploy --with-cycles 1000000000000 smiley_dapp
 dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
 ```
-
-### Install sns
-The sns functionality is not yet integrated in dfx; this is work in progress.  We will take a shortcut.  Get the sns binary:
-```bash
-"$HOME/.cache/dfinity/versions/$(dfx --version | awk '{print $2}')/sns" ./bin/
-```
+TODO: Can we just use `dfx deploy` here?   The other canisters SHOULD not be deployed; they are remote, right?
+TODO: Can we print the subdomain-based canister URLs please?
 
 ### Configure an SNS
 You will need to decide some things such as token name and token parameters.  To do this:
-```
+```bash
 ./bin/sns init-config-file new
 ```
+TODO: This should print the location of the file it has created.
+
 This will create a configuration file:
-```
+```bash
 ls sns_init.yaml
 ```
 Open it in an editor.  You will see some blanks that need to be filled in with your SNS parameters.  Fill them in.
 
 You can check whether your entries are complete and valid by running:
+<!---
+```bash
+# The validation is expected to fail.  Validation is exercised soon though...
+if false ; then
 ```
-sns init-config-file validate
+-->
+```bash
+./bin/sns init-config-file validate
 ```
+<!---
+```bash
+fi
+```
+-->
 If you just want a random config that works, run:
-```
-./bin/sns-configure
+```bash
+./bin/sns-configure-random
+./bin/sns init-config-file validate
 ```
 
 ### Create an SNS
 Creating an SNS is expensive; the price is set at 50 trillion cycles.  Make sure that your wallet has at least that much:
-```
+```bash
 dfx wallet balance
 ```
 If you need more, you can buy yourself some in the canisters tab of the NNS UI, by adding your wallet canister and sending it cycles.
 
 Now, you can deploy:
-```
-./bin/sns deploy
+```bash
+./bin/sns deploy --init-config-file sns_init.yaml
+: As sns is not integrated into dfx we need to do this as well:
+cat <<<"$(jq -s '.[0] * .[1]' .dfx/local/canister_ids.json  canister_ids.json)" > .dfx/local/canister_ids.json
 ```
 
-You should be able to see the SNS canisters in your dfx.json:
+Visit
+<!---
+TODO:
+- Refuse to do `bin/sns deploy` unless the sns did files are installed.
+- Likewise refuse if the canister ID is not defined.
+- Add the local NNS canister IDs are remotes?
+- Then the canister IDs could be added as remotes?  Maybe refuse to proceed if there are already remotes in place?
+- What if the local did files are out of date/out of sync with prod?  Prod could differ from the local environment.
+-->
+
+```bash
+jq '.canisters' dfx.json | grep sns_
 ```
-jq '.canisters' dfx.json
+
+Your wallet will also feel a lot lighter:
+```bash
+dfx wallet balance
 ```
+
 ### Hand over control
-You need to transfer control of the smiley face canisters to the SNS.
-
-Placeholder:
+You are the current controller of the smiley dapp.  You can check that like this:
+```bash
+dfx canister info smiley_dapp
 ```
+The controller should match your identity:
+```bash
+dfx identity get-principal
+```
+
+You need to transfer control of the smiley face canisters to the SNS.
+```bash
 ./bin/sns-handover
 ```
 
+Now compare the canister controller with the SNS root.  You should find that they are the same:
+```bash
+dfx canister id sns_root
+dfx canister info smiley_dapp
+```
+
 ### Neurons
-In the NNS UI, make sure that you have a large neuron so that you can passs proposals.
+In the NNS UI, make sure that you have a large neuron so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will suffice.
+
+You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice and the dissolve delay can be zero.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
+
+Create the neuron:
+<!---
+```bash
+say Create a developer neuron
+read -rp "Create a small neuron,  OK?"
+```
+-->
+- Log in to the nns-dapp: <http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080/>
+- Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
+- Go to the neurons tab and create a neuron.  Give it 5 ICP and an 8 year dissolve delay.
+- Make a note of your neuron ID:
+  ```bash
+  read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
+  echo DEVELOPER_NEURON_ID=$DEVELOPER_NEURON_ID >> .demo-env
+  ```
+
+Add your principal as a hotkey:
+- Get your command line principal:
+  ```bash
+  dfx identity get-principal
+  ```
+- In the nns-dapp, click on your neuron to see the neuron details.
+- Scroll down to "Hotkeys" and add your command line principal as a hotkey.
+
+<!---
+```bash
+say NNS dapp setup
+read -rp "Add this as a hotkey to the developer neuron: $(dfx identity get-principal)   OK?"
+```
+-->
+
+
 
 ### Propose to start the SNS
+The community takes some responsibility for which SNS's are created, so it gets to vote on the creation:
+
+<!---
+```bash
+{
 ```
-bin/sns-start-swap
+-->
+```bash
+bin/dfx-sns-swap-start --title "$USER $(date +'%Y%m%dT%H%M')" --proposer "$DEVELOPER_NEURON_ID"
 ```
+<!---
+```bash
+} > ,start-swap.idl
+PROPOSAL_ID="$(idl2json <,start-swap.idl | jq -r '.command[0].MakeProposal.proposal_id[0].id')"
+read -rp "Vote for the proposal $PROPOSAL_ID OK?  "
+```
+-->
+
 In the NNS Dapp UI go to the launchpad.
 
 You should see a proposal.
 * You may need to refresh
 
-Vote for the proposal to pass.
+Vote for the proposal to pass.  As you have a huge neuron - your private network is not decentralized - your vote should be enough to pass the proposal.  If you watch the top of the proposal status, it should change to "Executed" after no more than 30 seconds.
 
 ### Invest
-Once the proposal has passed, refresh the launchpad. You should now see an opportunity to invest.
+Return to the launchpad and hit refresh.  You should now see the SNS move into the "Current Launches" section.  If you click on it, you will be able to read details about the project.
 
-Buy tokens in the SNS.  If you buy enough, the SNS will complete immediately which is better for testing than waiting for the proposal time window to close.
-
-### Finalize the SNS
+Note the sale start time.  Wait until then, then hit refresh.  You should now see an interface to buy SNS tokens.  If yo don't, run this:
+```bash
+dfx canister call sns_swap refresh_sns_tokens '(record {})'
 ```
+
+Buy some tokens.  The sale will be complete when either the maximum investment has been reached or the sale end time is reached.  If you use the default SNS configuration you can buy all 50 ICP.  This is convenient for testing but in a real SNS you may wish to limit the stake so that no investor has excessive influence over the project.
+
+<!---
+```bash
+read -rp "Invest 50 ICP.  OK?  "
+```
+-->
+
+### Finalize the swap
+```bash
 bin/sns-finalize-swap
 ```

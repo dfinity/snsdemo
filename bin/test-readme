@@ -11,6 +11,9 @@ print_help() {
 	--help
 	  Prints this help text.
 
+	--dry-run
+	  Prints the commands without executing them.
+
 	--ssh)
 	  Clones from github via ssh instead of https.
 	EOF
@@ -24,6 +27,11 @@ modify_auth() {
   esac
 }
 
+COMMAND=execute_bash
+execute_bash() {
+  bash -euxo pipefail "${@}"
+}
+
 while (($# > 0)); do
   arg="$1"
   shift 1
@@ -32,8 +40,11 @@ while (($# > 0)); do
     print_help
     exit 0
     ;;
+  --dry-run)
+    COMMAND="cat"
+    ;;
   --ssh)
-    AUTH=ssh
+    AUTH="ssh"
     ;;
   *)
     {
@@ -59,9 +70,11 @@ function cleanup {
 }
 trap cleanup EXIT
 
-sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 
 patch -p1 <bin/test-readme.patch
 # We really do want backticks.
 # shellcheck disable=SC2016
-sed <README.md -En '/```bash/,/```/{/```/b;p}' | modify_auth | bash -euxo pipefail
+sed <README.md -En '/```bash/,/```/{/```/b;p}' | sed -E '/EOF/,/EOF/b;s/.*/&\nsleep 1/g' | modify_auth >,README.sh
+
+"$COMMAND" ,README.sh

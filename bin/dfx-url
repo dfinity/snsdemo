@@ -40,7 +40,7 @@ EOF
 . .demo-env
 
 CANISTER_NAME="${1:-$(jq -r '.canisters | keys_unsorted | .[0]' dfx.json)}"
-CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id "$CANISTER_NAME")"
+CANISTER_ID="$(dfx canister --network "${DFX_NETWORK:-local}" id "$CANISTER_NAME")"
 export CANISTER_ID
 url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' dfx.json)"
 
