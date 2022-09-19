@@ -61,7 +61,7 @@ dfx cache list 2>&1 | grep -q "$(../sdk/target/debug/dfx --version | awk '{print
 ```
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
- ```bash
+```bash
 pushd ..
 test -d sdk || git clone https://github.com/dfinity/sdk.git
 pushd sdk
