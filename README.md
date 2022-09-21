@@ -23,7 +23,7 @@ pkill icx-proxy || true
 ```
 
 ```bash
-if true ; then # skip first deployment
+if false ; then # skip first deployment
 else
 ```
 -->
@@ -98,6 +98,7 @@ echo OK
 And:
 ```bash
 cp "$HOME/.cache/dfinity/versions/$DFX_VERSION/sns" ./bin/
+export PATH="$PWD/bin:$PATH"
 ```
 
 Now we should now be able to see the help pages for the NNS commands:
