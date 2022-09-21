@@ -24,5 +24,6 @@
       "packtool": ""
     }
   },
-  "version": 1
+  "version": 1,
+  "dfx": "0.9.1-424-gde061793"
 }

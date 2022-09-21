@@ -70,6 +70,8 @@ git checkout tutorial2
 git reset --hard origin/tutorial2
 command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
 cargo build
+export DFX_WARNING=-version_check
+export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
 popd -2
 ../sdk/target/debug/dfx cache install
 ```
@@ -81,8 +83,6 @@ popd -2
 
 Note that the above does not change your default dfx.  To use the custom dfx locally we need to specify it in dfx.json:
 ```bash
-export DFX_WARNING=-version_check
-export DFX_VERSION="$(../sdk/target/debug/dfx --version | awk '{print $2}')"
 cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
 ```
 
