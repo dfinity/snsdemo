@@ -70,8 +70,8 @@ git checkout tutorial2
 git reset --hard origin/tutorial2
 command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
 cargo build
-./target/debug/dfx cache install
 popd -2
+../sdk/target/debug/dfx cache install
 ```
 <!---
 ```bash
