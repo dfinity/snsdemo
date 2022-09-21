@@ -61,9 +61,6 @@ This dfx functionality has not been released yet, so you will need a special bui
 ```bash
 fi # Skip first deployment
 ```
-```bash
-dfx cache list 2>&1 | grep -q "$(../sdk/target/debug/dfx --version | awk '{print $2}' || echo "UNDEFINED")" || {
-```
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
@@ -80,11 +77,6 @@ export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
 popd
 popd
 ```
-<!---
-```bash
-}
-```
--->
 
 Note that the above does not change your default dfx.  To use the custom dfx locally we need to specify it in dfx.json:
 ```bash
