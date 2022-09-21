@@ -72,7 +72,6 @@ trap cleanup EXIT
 
 command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 
-patch -p1 <bin/test-readme.patch
 # We really do want backticks.
 # shellcheck disable=SC2016
 sed <README.md -En '/```bash/,/```/{/```/b;p}' | sed -E '/EOF/,/EOF/b;s/.*/&\nsleep 1/g' | modify_auth >,README.sh
