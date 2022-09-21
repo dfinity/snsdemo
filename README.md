@@ -8,7 +8,7 @@ Clone this project:
 The comments like this are not displayed in Markdown; they contain code for automated testing.
 ```bash
 # We will use the current directory for testing, but make sure it is clean.
-if false ; then
+if true ; then
 ```
 -->
 ```bash
