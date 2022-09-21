@@ -12,9 +12,8 @@ if false ; then
 ```
 -->
 ```bash
-dfx stop
-pkill dfx || true
-pkill icx-proxy || true
+git clone https://github.com/dfinity/snsdemo.git
+cd snsdemo
 ```
 <!---
 ```bash
