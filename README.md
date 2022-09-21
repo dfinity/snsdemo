@@ -82,7 +82,7 @@ popd -2
 
 Note that the above does not change your default dfx.  To use the custom dfx locally we need to specify it in dfx.json:
 ```bash
-cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
+jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 ../sdk/target/debug/dfx cache install
 ```
 
