@@ -79,7 +79,8 @@ command -v cargo || echo "Please install rust before proceeding: https://www.rus
 cargo build
 export DFX_WARNING=-version_check
 export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
-popd -2
+popd
+popd
 ```
 <!---
 ```bash
