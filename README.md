@@ -98,6 +98,7 @@ echo OK
 And:
 ```bash
 cp "$HOME/.cache/dfinity/versions/$DFX_VERSION/sns" ./bin/
+cp "$HOME/.cache/dfinity/versions/$DFX_VERSION/dfx" ./bin/
 export PATH="$PWD/bin:$PATH"
 ```
 
