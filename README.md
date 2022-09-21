@@ -8,21 +8,18 @@ Clone this project:
 The comments like this are not displayed in Markdown; they contain code for automated testing.
 ```bash
 # We will use the current directory for testing, but make sure it is clean.
-if true ; then
 ```
 -->
-```bash
+```sh
 git clone https://github.com/dfinity/snsdemo.git
 cd snsdemo
 ```
 <!---
 ```bash
-else
-  git clean -dfx
-  dfx stop || true
-  pkill dfx || true
-  pkill icx-proxy || true
-fi
+git clean -dfx
+dfx stop || true
+pkill dfx || true
+pkill icx-proxy || true
 ```
 
 ```bash
