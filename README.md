@@ -83,7 +83,7 @@ Note that the above does not change your default dfx.  To use the custom dfx loc
 pwd
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 cat dfx.json
-dfx cache list | grep -qw "$DFX_VERSION" || ../sdk/target/debug/dfx cache install
+dfx cache list 2>&1 | grep -qw "$DFX_VERSION" || ../sdk/target/debug/dfx cache install
 echo OK
 ```
 
