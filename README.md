@@ -24,6 +24,10 @@ else
   pkill icx-proxy || true
 fi
 ```
+
+```bash
+if false ; then # skip first deployment
+```
 -->
 
 ## Project contents
@@ -57,6 +61,9 @@ After this tutorial is complete we hope that you will experiment using the same 
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
 <!---
 ```bash
+fi # Skip first deployment
+```
+```bash
 dfx cache list 2>&1 | grep -q "$(../sdk/target/debug/dfx --version | awk '{print $2}' || echo "UNDEFINED")" || {
 ```
 -->
@@ -84,6 +91,7 @@ Note that the above does not change your default dfx.  To use the custom dfx loc
 ```bash
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 ../sdk/target/debug/dfx cache install
+echo OK
 ```
 
 And:
