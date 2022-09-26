@@ -3,17 +3,16 @@ set -euo pipefail
 
 if test -f .demo-env; then
   . .demo-env
-    printf "This is your \$DFX_NETWORK: %s\n" "$DFX_NETWORK"
-    printf "This is your \$DEVELOPER_NEURON: %s\n" "$DEVELOPER_NEURON"
-    printf "This is your \$PROPOSER_NEURON_ID: %s\n" "$PROPOSER_NEURON_ID"
-    printf "This is your \$NNS_MAJORITY_NEURON: %s\n" "$NNS_MAJORITY_NEURON"
-    read -rp "--- Are these correct values? Press ctrl+c to restart with correct values ---"
+  printf "This is your \$DFX_NETWORK: %s\n" "$DFX_NETWORK"
+  printf "This is your \$DEVELOPER_NEURON: %s\n" "$DEVELOPER_NEURON"
+  printf "This is your \$PROPOSER_NEURON_ID: %s\n" "$PROPOSER_NEURON_ID"
+  printf "This is your \$NNS_MAJORITY_NEURON: %s\n" "$NNS_MAJORITY_NEURON"
+  read -rp "--- Are these correct values? Press ctrl+c to restart with correct values ---"
 else
   echo "No .demo-env detected. Please populate the values in the newly created file"
-  printf "export PATH=\"\$PWD/bin/:\$PATH\"\nexport DFX_NETWORK=local\nexport ND_DIR=\n\nexport DEVELOPER_NEURON=\nexport PROPOSER_NEURON_ID=\nexport NNS_MAJORITY_NEURON=" > .demo-env
+  printf "export PATH=\"\$PWD/bin/:\$PATH\"\nexport DFX_NETWORK=local\nexport ND_DIR=\n\nexport DEVELOPER_NEURON=\nexport PROPOSER_NEURON_ID=\nexport NNS_MAJORITY_NEURON=" >.demo-env
   exit
 fi
-
 
 SHOULD_SPEAK=false
 esay() {
@@ -55,7 +54,7 @@ wc -l dfx.json
 
 if test -n $DFX_VERSION; then
   echo "Setting the dfx version to $DFX_VERSION in dfx.json"
-  cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
+  cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" >dfx.json
 fi
 
 esay "The developer needs a testnet."
