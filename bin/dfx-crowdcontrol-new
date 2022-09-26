@@ -39,9 +39,3 @@ while test -z "${DEVELOPER_NEURON:-}"; do
   echo "Thank you.  This neuron enables the developer to make proposals."
 done
 echo
-
-cat <<EOF | tee -a .demo-env >.neurons
-export DEVELOPER_NEURON=$DEVELOPER_NEURON
-export PROPOSER_NEURON_ID="$DEVELOPER_NEURON"
-export NNS_MAJORITY_NEURON=$NNS_MAJORITY_NEURON
-EOF

@@ -3,11 +3,24 @@ set -euo pipefail
 
 if test -f .demo-env; then
   . .demo-env
+    printf "This is your \$DFX_NETWORK: %s\n" "$DFX_NETWORK"
+    printf "This is your \$DEVELOPER_NEURON: %s\n" "$DEVELOPER_NEURON"
+    printf "This is your \$PROPOSER_NEURON_ID: %s\n" "$PROPOSER_NEURON_ID"
+    printf "This is your \$NNS_MAJORITY_NEURON: %s\n" "$NNS_MAJORITY_NEURON"
+    read -rp "--- Are these correct values? Press ctrl+c to restart with correct values ---"
+else
+  echo "No .demo-env detected. Please populate the values in the newly created file"
+  printf "export PATH=\"\$PWD/bin/:\$PATH\"\nexport DFX_NETWORK=local\nexport ND_DIR=\n\nexport DEVELOPER_NEURON=\nexport PROPOSER_NEURON_ID=\nexport NNS_MAJORITY_NEURON=" > .demo-env
+  exit
 fi
 
+
+SHOULD_SPEAK=false
 esay() {
   echo -- "${@}"
-  say "${@}"
+  if $SHOULD_SPEAK; then
+    say "${@}"
+  fi
 }
 
 if [[ "${1:-}" == "--fast" ]]; then
@@ -40,6 +53,11 @@ wc -l dfx.json
 cat <<<"$(grep -v '"dfx"' dfx.json)" >dfx.json
 wc -l dfx.json
 
+if test -n $DFX_VERSION; then
+  echo "Setting the dfx version to $DFX_VERSION in dfx.json"
+  cat <<<"$(jq '.dfx=(env.DFX_VERSION)' dfx.json)" > dfx.json
+fi
+
 esay "The developer needs a testnet."
 case "$DFX_NETWORK" in
 local)
@@ -57,22 +75,19 @@ local)
   ;;
 *)
   # The testnet SHOULD already be fully set up.
-  read -rp "dfx nns install"
+  read -rp "\$DFX_NETWORK is $DFX_NETWORK. Press enter when this testnet has the NNS subnet ready."
+  ./bin/dfx-start-clean-with-nns
   ;;
 esac
-
-esay "The developer needs to install did files for the NNS and SNS"
-read -rp "dfx canister import "
-dfx nns import
-#bin/dfx-nns-import
-#./bin/dfx-canister-import --prefix nns- https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json --all
-./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/ic/master/rs/sns/cli/dfx.json --all
-#./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json nns-dapp
-#./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/nns-dapp/main/dfx.json internet_identity
 
 esay "They also need to create users to represent the voting public"
 read -rp "FUTURE: dfx crowdcontrol new"
 ./bin/dfx-crowdcontrol-new
+
+esay "The developer needs to install did files for the NNS and SNS"
+read -rp "dfx canister import "
+$DFX_BIN nns --network $DFX_NETWORK import
+./bin/dfx-canister-import https://raw.githubusercontent.com/dfinity/ic/master/rs/sns/cli/dfx.json --all
 
 esay "They need to deploy their dapp to the testnet if they haven't done so already"
 read -rp "dfx deploy --all"

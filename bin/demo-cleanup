@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cp .demo-init .demo-env || true
-if test -e .neurons; then
-  cat .neurons >>.demo-env
-fi
 . .demo-env || true
 
 echo "Deleting existing test identities: ident-1, ident-2, ..."
