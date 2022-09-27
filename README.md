@@ -215,15 +215,17 @@ TODO: Can we print the subdomain-based canister URLs please?
 ### Configure an SNS
 You will need to decide some things such as token name and token parameters.  To do this:
 ```bash
-./bin/sns init-config-file new
+dfx sns config create
 ```
-TODO: This should print the location of the file it has created.
 
 This will create a configuration file:
 ```bash
-ls sns_init.yaml
+ls sns.yml
 ```
 Open it in an editor.  You will see some blanks that need to be filled in with your SNS parameters.  Fill them in.
+
+- A logo is provided in the local directory, so you can enter "logo.svg" if you wish.
+- For the token distribution, you can uncomment the example.
 
 You can check whether your entries are complete and valid by running:
 <!---
@@ -233,7 +235,7 @@ if false ; then
 ```
 -->
 ```bash
-./bin/sns init-config-file validate
+dfx sns config validate
 ```
 <!---
 ```bash

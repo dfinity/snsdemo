@@ -89,11 +89,12 @@
       "candid": "candid/nns-sns-wasm.did",
       "remote": {
         "id": {
-          "elocal": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+          "elocal": "qaa6y-5yaaa-aaaaa-aaafa-cai",
+          "local": "qjdve-lqaaa-aaaaa-aaaeq-cai"
         }
       },
       "type": "custom",
-      "wasm": "/home/max/dfn/nns-dapp/branches/tutorial2/nns-dapp_local_v2.wasm"
+      "wasm": ""
     },
     "smiley_dapp": {
       "main": "src/smiley_dapp/main.mo",
@@ -111,6 +112,30 @@
         "dist/smiley_dapp_assets/"
       ],
       "type": "assets"
+    },
+    "sns_governance": {
+      "build": "",
+      "candid": "candid/sns_governance.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_ledger": {
+      "build": "",
+      "candid": "candid/sns_ledger.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_root": {
+      "build": "",
+      "candid": "candid/sns_root.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_swap": {
+      "build": "",
+      "candid": "candid/sns_swap.did",
+      "type": "custom",
+      "wasm": ""
     }
   },
   "defaults": {

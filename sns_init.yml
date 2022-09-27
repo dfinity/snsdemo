@@ -1,50 +1,144 @@
-description: 'We''ve been making video game games since 2006, we''re based in Toronto,
-  Canada and launched in December 2011. And we''ve had our first video game show on
-  the internet in 2012, but didn''t quite have the excitement of The Sims.
+---
+# It holds that 100000000 e8s = 1 SNS token.
+#
+#
+# SNS LEDGER
+#
+# Fee of a ledger transaction.
+# Default value = 10000
+#
+transaction_fee_e8s: 10000
+#
+# The name of the token issued by the SNS ledger.
+# This field has no default, a value must be provided by the user.
+# Must be a string with a length between 4 and 255 characters.
+#
+# Example: InternetComputerProtocol
+#
+token_name: TOKEN_NAME
+#
+# The symbol of the token issued by the SNS Ledger.
+# This field has no default, a value must be provided by the user.
+# Must be a string with a length between 3 and 10 characters.
+#
+# Example: ICP
+#
+token_symbol: TOKEN_SYMBOL
+#
+#
+# SNS GOVERNANCE
+#
+# The cost of making a proposal that is not adopted in e8s.
+# Default value = 100000000
+#
+proposal_reject_cost_e8s: 100000000
+#
+# The minimum amount of SNS Token e8s an SNS Ledger account must have to stake a neuron.
+# Default value = 100000000
+#
+neuron_minimum_stake_e8s: 100000000
+#
+# The minimum dissolve_delay in seconds a neuron must have to be able to cast votes on proposals.
+# Default value = 15778800
+#
+neuron_minimum_dissolve_delay_to_vote_seconds: 15778800
+#
+# Path to the SNS Project logo on the local filesystem. The path is relative
+# to the running sns binary, so an absolute path to the logo file is recommended.
+# Must have less than 341334 characters, roughly 256Kb.
+#
+logo: "logo.svg"
+#
+# Url to the dapp controlled by the SNS project.
+# Must be a string of max length = 512.
+#
+url: "http://sgymv-uiaaa-aaaaa-aaaia-cai.localhost:8080/"
+#
+# Name of the SNS project. This may differ from the name of the associated token name.
+# Must be a string of max length = 255.
+#
+name: "Food factory"
+#
+# Description of the SNS project.
+# Must be a string of max length = 2000.
+#
+description: "This is my awesome project"
+#
+# If the decentralization sale fails, control of the dapp canister(s) is set to these
+# principal IDs. In most use cases, this is set to the original set of controller(s) of the dapp.
+# This field has no default, a value must be provided by the user.
+#
+fallback_controller_principal_ids: ["hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe"]
+#
+#
+# SNS INITIAL TOKEN DISTRIBUTION
+#
+# This field sets the initial token distribution. Initially, there is only support for
+# the FractionalDeveloperVotingPower strategy. This strategy configures how SNS tokens and neurons
+# are distributed in four "buckets": developer tokens that are given to the original developers of
+# the dapp, airdrop tokens that can be given to any other principals that should have tokens at
+# genesis, treasury tokens that are owned by the SNS governance canister, and sale tokens which
+# are sold in an initial decentralization sale but parts of which can also be reserved for future
+# sales.
+# All developer and airdrop tokens are distributed to the defined principals at genesis in a basket
+# of neurons called the developer neurons and the airdrop neurons, respectively.
+# If only parts of the sale tokens are sold in the initial decentralization sale, the developer
+# neurons are restricted by a voting power multiplier. This voting power multiplier is calculated as
+# `swap_distribution.initial_swap_amount_e8s / swap_distribution.total_e8s`.
 
-  It''s been a rough few years for us. We''ve been in competition on ICDevs for video
-  game development for two years now and now, with some help from Valve, we''re starting
-  a campaign for a new game you just can''t get by with your first purchase. All of
-  which means we are back at it… which means we''re not talking about ICDevs!
-
-  We are looking forward to the next step in our journey as we push to bring you more
-  exclusive new games and content.
-
-  The New Year of ICDevs
-
-  As always, we are so proud to announce that we''re not talking about ICDevs anymore,
-  because we have to, we want to give you a great surprise. With all the momentum
-  we''ve gathered and all these people behind us, we have to make sure we take care
-  off ICDevs as a way to fund more games, more content, and more people.
-
-  Unfortunately, you didn''t know. On the ICDevs website, there is an email'
-fallback_controller_principal_ids:
-- hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe
+# As more of the swap funds are swapped in future rounds, the voting power
+# multiplier will approach 1.0.
+# The initial token distribution must satisfy the following preconditions to be valid:
+#    - developer_distribution.developer_neurons.stake_e8s.sum <= u64:MAX
+#    - developer_neurons.developer_neurons.stake_e8s.sum <= swap_distribution.total_e8s
+#    - airdrop_distribution.airdrop_neurons.stake_e8s.sum <= u64:MAX
+#    - swap_distribution.initial_swap_amount_e8s > 0
+#    - swap_distribution.initial_swap_amount_e8s <= swap_distribution.total_e8s
+#    - swap_distribution.total_e8s >= developer_distribution.developer_neurons.stake_e8s.sum
+#
+# - developer_distribution has one field:
+#    - developer_neurons: A list of NeuronDistributions that specify the neuron's stake,
+#      controlling principal, a unique memo, and dissolve delay. These neurons will be
+#      available at genesis in PreInitializationSwap mode. The voting power multiplier
+#      is applied to these neurons.
+#
+# - treasury_distribution has one field:
+#    - total_e8s: The total amount of tokens in the treasury bucket.
+#
+# - swap_distribution has two fields:
+#    - total_e8s: The total amount of tokens in the sale bucket. initial_swap_amount_e8s will be
+#      deducted from this total.
+#    - initial_swap_amount_e8s: The initial amount of tokens deposited in the sale canister for
+#      the initial token sale.
+#
+# - airdrop_distribution has one field:
+#    - airdrop_neurons: A list of NeuronDistributions that specify the neuron's stake and
+#      controlling principal. These neurons will be available at genesis in PreInitializationSwap
+#      mode. No voting power multiplier is applied to these neurons.
+#
+# Example:
 initial_token_distribution:
   FractionalDeveloperVotingPower:
-    airdrop_distribution:
-      airdrop_neurons:
-      - controller: w3i5o-5ylvd-cmm42-pw66i-n6qcw-fw3q7-kk5la-4edui-ozozq-5qq3j-dae
-        stake_e8s: 100000000
     developer_distribution:
       developer_neurons:
-      - controller: dktcs-d43lz-rosn2-wnwsj-kef34-6kl3i-ux7qb-ka6xr-biref-ykeaj-sqe
-        stake_e8s: 100000000
-    swap_distribution:
-      initial_swap_amount_e8s: 200000000
-      total_e8s: 1000000000
+        - controller: x4vjn-rrapj-c2kqe-a6m2b-7pzdl-ntmc4-riutz-5bylw-2q2bh-ds5h2-lae
+          stake_e8s: 1500000000
+          memo: 0
+          dissolve_delay_seconds: 15780000 # 6 months
+        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
+          stake_e8s: 1500000000
+          memo: 1
+          dissolve_delay_seconds: 31560000 # 1 year
     treasury_distribution:
-      total_e8s: 1000000000
-logo: logo.svg
-max_icp_e8s: 5000000000
-max_participant_icp_e8s: 5000000000
-min_icp_e8s: 100000000
-min_participant_icp_e8s: 100000000
-min_participants: 1
-name: "Car Pedal TOKEN_SYMBOL Robot"
-neuron_minimum_stake_e8s: 1000000
-proposal_reject_cost_e8s: 100000000
-token_name: "TOKEN_NAME"
-token_symbol: TOKEN_SYMBOL
-transaction_fee_e8s: 10000
-url: https://nns.ic0.app
+      total_e8s: 5000000000
+    swap_distribution:
+      total_e8s: 6000000000
+      initial_swap_amount_e8s: 3000000000
+    airdrop_distribution:
+      airdrop_neurons:
+        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
+          stake_e8s: 500000000
+          memo: 0
+          dissolve_delay_seconds: 15780000 # 6 months
+#
+# initial_token_distribution: ~
