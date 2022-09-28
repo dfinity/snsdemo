@@ -245,7 +245,7 @@ fi
 If you just want a random config that works, run:
 ```bash
 ./bin/sns-configure-random
-./bin/sns init-config-file validate
+dfx sns config validate
 ```
 
 ### Create an SNS
@@ -257,9 +257,7 @@ If you need more, you can buy yourself some in the canisters tab of the NNS UI, 
 
 Now, you can deploy:
 ```bash
-./bin/sns deploy --init-config-file sns_init.yaml
-: As sns is not integrated into dfx we need to do this as well:
-cat <<<"$(jq -s '.[0] * .[1]' .dfx/local/canister_ids.json  canister_ids.json)" > .dfx/local/canister_ids.json
+dfx sns deploy
 ```
 
 Visit
