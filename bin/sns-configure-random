@@ -11,4 +11,4 @@ TOKEN_SYMBOL="$(
 )"
 TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
 
-sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g" sns_init.yml >sns_init.yaml
+sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g" sns_init.yml >sns.yml
