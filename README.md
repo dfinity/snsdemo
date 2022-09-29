@@ -261,6 +261,8 @@ Now, you can deploy:
 dfx sns deploy
 ```
 
+Please note the canister IDs and add them to: `.dfx/local/canister_ids.json`  This step will be automated in future.
+
 Visit
 <!---
 TODO:
