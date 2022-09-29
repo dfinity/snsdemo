@@ -7,7 +7,10 @@
 # Fee of a ledger transaction.
 # Default value = 10000
 #
+
 transaction_fee_e8s: 10000
+
+
 #
 # The name of the token issued by the SNS ledger.
 # This field has no default, a value must be provided by the user.
