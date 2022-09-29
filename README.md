@@ -208,8 +208,9 @@ We deployed the smiley dapp before but then wiped the network.  Let's recreate i
 npm ci
 dfx deploy --with-cycles 1000000000000 smiley_dapp
 dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
+echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
-TODO: Can we just use `dfx deploy` here?   The other canisters SHOULD not be deployed; they are remote, right?
+Note: We cannot use `dfx deploy` here because that will try to deploy NNS and SNS wasms.
 TODO: Can we print the subdomain-based canister URLs please?
 
 ### Configure an SNS
