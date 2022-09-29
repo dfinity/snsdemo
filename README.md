@@ -261,20 +261,13 @@ Now, you can deploy:
 dfx sns deploy
 ```
 
-Please note the canister IDs and add them to: `.dfx/local/canister_ids.json`  This step will be automated in future.
-
-Visit
-<!---
-TODO:
-- Refuse to do `bin/sns deploy` unless the sns did files are installed.
-- Likewise refuse if the canister ID is not defined.
-- Add the local NNS canister IDs are remotes?
-- Then the canister IDs could be added as remotes?  Maybe refuse to proceed if there are already remotes in place?
-- What if the local did files are out of date/out of sync with prod?  Prod could differ from the local environment.
--->
+Please note the canister IDs and add them to: `.dfx/local/canister_ids.json`  This step will be automated in future.  Verify that you can get teh canister IDs with:
 
 ```bash
-jq '.canisters' dfx.json | grep sns_
+dfx canister id sns_root
+dfx canister id sns_governance
+dfx canister id sns_ledger
+dfx canister id sns_swap
 ```
 
 Your wallet will also feel a lot lighter:
