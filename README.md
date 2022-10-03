@@ -72,6 +72,7 @@ git checkout tutorial3
 git reset --hard origin/tutorial3
 command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
 cargo build
+./target/debug/dfx cache install
 export DFX_WARNING=-version_check
 export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
 popd
