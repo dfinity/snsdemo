@@ -85,9 +85,13 @@ jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 cat dfx.json
 ../sdk/target/debug/dfx cache install
 ```
-And we need an sns cli that can install the index canister.  Please build from the ic repo branch `sns-index-canister-cli` and install with e.g.:
-```bash
-cp -f /home/max/dfn/ic-gitlab/rs/target/debug/sns $(dfx cache show)/sns
+And we need an sns cli that can install the index canister.  Please build from the ic repo branch `sns-index-canister-cli` with e.g.:
+```
+max@sinkpad:~/dfn/ic-gitlab/rs/sns/cli $ cargo build
+```
+and install with e.g.:
+```
+max@sinkpad:~/dfn/snsdemo/branches/tutorial3 $ cp -f /home/max/dfn/ic-gitlab/rs/target/debug/sns $(dfx cache show)/sns
 ```
 
 
