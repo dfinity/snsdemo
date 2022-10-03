@@ -297,9 +297,9 @@ dfx canister info smiley_dapp
 ```
 
 ### Neurons
-In the NNS UI, make sure that you have a large neuron so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will suffice.
+In the NNS UI, make sure that you have a large neuron with a long dissolve delay so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will suffice.
 
-You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice and the dissolve delay can be zero.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
+You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
 
 Create the neuron:
 <!---
