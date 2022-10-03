@@ -64,8 +64,18 @@ fi # Skip first deployment
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
-export DFX_VERSION="0.12.0-beta.3"
-dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+pushd ..
+test -d sdk || git clone https://github.com/dfinity/sdk.git
+pushd sdk
+git fetch
+git checkout tutorial3
+git reset --hard origin/tutorial3
+command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
+cargo build
+export DFX_WARNING=-version_check
+export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
+popd
+popd
 ```
 
 The dfx version also needs to be set in the local dfx.json:
