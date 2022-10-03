@@ -363,7 +363,7 @@ Vote for the proposal to pass.  As you have a huge neuron - your private network
 ### Invest
 Return to the launchpad and hit refresh.  You should now see the SNS move into the "Current Launches" section.  If you click on it, you will be able to read details about the project.
 
-Note the sale start time.  Wait until then, then hit refresh.  You should now see an interface to buy SNS tokens.  If yo don't, run this:
+Note the sale start time.  Wait until then, then hit refresh.  You should now see an interface to buy SNS tokens.  If you don't, run this:
 ```bash
 dfx canister call sns_swap refresh_sns_tokens '(record {})'
 ```
