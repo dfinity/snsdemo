@@ -85,6 +85,11 @@ jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 cat dfx.json
 ../sdk/target/debug/dfx cache install
 ```
+And we need an sns cli that can install the index canister.  Please build from the ic repo branch `sns-index-canister-cli` and install with e.g.:
+```bash
+cp /home/max/dfn/ic-gitlab/rs/target/debug/sns $(dfx cache show)/sns
+```
+
 
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
