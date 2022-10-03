@@ -376,7 +376,14 @@ read -rp "Invest 50 ICP.  OK?  "
 ```
 -->
 
-### Finalize the swap
+Check neurons:
 ```bash
-bin/sns-finalize-swap
+dfx canister call sns_governance list_neurons '(record {limit= 20})'
+```
+
+### Finalize the swap
+I think this is not needed anymore
+
+```bash
+// bin/sns-finalize-swap
 ```
