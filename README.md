@@ -389,14 +389,11 @@ read -rp "Invest 50 ICP.  OK?  "
 ```
 -->
 
+TODO:  There is a known UI bug, whereby the UI tries to refresh tokens but if the sale has already completed, this fails.  You can ignore this and refresh.
+
 Check neurons:
 ```bash
 dfx canister call sns_governance list_neurons '(record {limit= 20})'
 ```
 
-### Finalize the swap
-I think this is not needed anymore
-
-```bash
-// bin/sns-finalize-swap
-```
+TODO: The SNS neuron does not appear in the neurons tab.  Why?
