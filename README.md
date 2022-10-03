@@ -33,7 +33,7 @@ Before we get started, let's have a quick look at this repo.  It contains a simp
 
 ```bash
 : Start the server
-dfx start --host 127.0.0.1:8080 --background
+dfx start
 sleep 2
 : If we ask, we should be awarded a starting balance to play with.
 dfx wallet balance
@@ -64,14 +64,8 @@ fi # Skip first deployment
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
-# export DFX_VERSION="0.12.0-beta.3"
-# dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
-
-Update:  Build and install dfx from branch: test-sns-canisters-saved
-cargo build
-./target/debug/dfx cache install
-
-export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
+export DFX_VERSION="0.12.0-beta.3"
+dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 ```
 
 The dfx version also needs to be set in the local dfx.json:
@@ -79,27 +73,6 @@ The dfx version also needs to be set in the local dfx.json:
 pwd
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 cat dfx.json
-```
-
-You will also need to replace the bundled `sns` binary with a newer one:
-
-```bash
-IC_COMMIT=016e7d68bff38d921b9dd168fc11ac1f0a98995e
-install_ic_admin_linux() {
-  local USER_BIN="$HOME/.local/bin"
-  mkdir -p "$USER_BIN"
-  curl "https://download.dfinity.systems/ic/${IC_COMMIT}/release/ic-admin.gz" | gunzip >"$USER_BIN/ic-admin"
-  chmod +x "$USER_BIN/ic-admin"
-}
-install_ic_admin_darwin() {
-  local USER_BIN="$HOME/.local/bin"
-  mkdir -p "$USER_BIN"
-  curl "https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/ic-admin.gz" | gunzip >"$USER_BIN/ic-admin"
-  chmod +x "$USER_BIN/ic-admin"
-  # shellcheck disable=SC2016
-  command -v ic-admin ||
-    append_to_profile "export PATH=\"\$PATH:${USER_BIN}\""
-}
 ```
 
 Now we should now be able to see the help pages for the NNS commands:
@@ -216,9 +189,6 @@ To interact with the back end governance canisters you will need the API definit
 ```bash
 dfx nns import
 dfx sns import
-: The above are not complete so you will temporarily also need:
-cat <<<"$(jq '.canisters["nns-sns-wasm"].remote.id.local = "qjdve-lqaaa-aaaaa-aaaeq-cai"' dfx.json)" > dfx.json
-cat <<<"$(jq '.canisters["nns-governance"].remote.id.local = "rrkah-fqaaa-aaaaa-aaaaq-cai"' dfx.json)" > dfx.json
 ```
 You look in your dfx.json you should see the NNS canisters listed and you should have did files.  For example:
 ```bash
