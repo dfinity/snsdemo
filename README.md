@@ -33,7 +33,7 @@ Before we get started, let's have a quick look at this repo.  It contains a simp
 
 ```bash
 : Start the server
-dfx start
+dfx start --clean --host 127.0.0.1:8080 --background
 sleep 2
 : If we ask, we should be awarded a starting balance to play with.
 dfx wallet balance
