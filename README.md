@@ -297,7 +297,7 @@ dfx canister info smiley_dapp
 ```
 
 ### Neurons
-In the NNS UI, make sure that you have a large neuron with a long dissolve delay so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will suffice.
+In the NNS UI, make sure that you have a large neuron with a long dissolve delay so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will 
 
 You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
 
@@ -314,6 +314,9 @@ read -rp "Create a small neuron,  OK?"
 - Make a note of your neuron ID:
   ```bash
   read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
+  ```
+- Record the neuron ID in a file:
+  ```bash
   echo DEVELOPER_NEURON_ID=$DEVELOPER_NEURON_ID >> .demo-env
   ```
 
