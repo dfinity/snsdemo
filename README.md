@@ -72,7 +72,6 @@ git checkout tutorial3
 git reset --hard origin/tutorial3
 command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
 cargo build
-./target/debug/dfx cache install
 export DFX_WARNING=-version_check
 export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
 popd
@@ -84,6 +83,7 @@ The dfx version also needs to be set in the local dfx.json:
 pwd
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 cat dfx.json
+../sdk/target/debug/dfx cache install
 ```
 
 Now we should now be able to see the help pages for the NNS commands:
