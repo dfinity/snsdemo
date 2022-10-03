@@ -87,7 +87,7 @@ cat dfx.json
 ```
 And we need an sns cli that can install the index canister.  Please build from the ic repo branch `sns-index-canister-cli` and install with e.g.:
 ```bash
-cp /home/max/dfn/ic-gitlab/rs/target/debug/sns $(dfx cache show)/sns
+cp -f /home/max/dfn/ic-gitlab/rs/target/debug/sns $(dfx cache show)/sns
 ```
 
 
