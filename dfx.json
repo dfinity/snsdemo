@@ -90,7 +90,7 @@
       "remote": {
         "id": {
           "elocal": "qaa6y-5yaaa-aaaaa-aaafa-cai",
-          "local": "qjdve-lqaaa-aaaaa-aaaeq-cai"
+          "local": "qaa6y-5yaaa-aaaaa-aaafa-cai"
         }
       },
       "type": "custom",
@@ -144,6 +144,5 @@
       "packtool": ""
     }
   },
-  "dfx": "0.12.0-beta.3",
   "version": 1
 }
