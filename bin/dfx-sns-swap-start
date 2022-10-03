@@ -112,7 +112,7 @@ test -n "${PROPOSER_NEURON_ID:-}" || {
 
 test -n "${SWAP_CANISTER_ID:-}" || SWAP_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id sns_swap)"
 
-dfx canister --network "$DFX_NETWORK" call nns-governance manage_neuron --argument-file - <<EOF
+dfx canister --network "$DFX_NETWORK" call nns-governance manage_neuron --candid candid/nns-governance.did --argument-file - <<EOF
 (
         record {
                 id = opt record {
@@ -123,14 +123,20 @@ dfx canister --network "$DFX_NETWORK" call nns-governance manage_neuron --argume
                                 url = "${URL:-http://...}";
                                 title = opt "${TITLE:-my title}";
                                 summary = "${SUMMARY:-summary}";
-                                action = opt variant{ SetSnsTokenSwapOpenTimeWindow = record {
-                                        swap_canister_id = opt principal "$SWAP_CANISTER_ID";
-                                        request = opt record { open_time_window = opt record {
-                                                start_timestamp_seconds=$(($(date +%s) + 60 * 5)): nat64;
-                                                end_timestamp_seconds=$(($(date +%s) + 60 * 60 * 24 * 6)): nat64;
-                                        } }
-                                } }
-                        }
+				action = opt variant{ OpenSnsTokenSwap = record {
+					community_fund_investment_e8s = opt 0;
+					target_swap_canister_id = opt principal "$SWAP_CANISTER_ID";
+					params = opt record {
+						min_participant_icp_e8s = 100000000 : nat64;
+						max_icp_e8s = 5000000000 : nat64;
+						swap_due_timestamp_seconds = $(($(date +%s) + 60 * 60 * 24 * 6)) : nat64;
+						min_participants = 1 : nat32;
+						sns_token_e8s = 100000000 : nat64;
+						max_participant_icp_e8s = 5000000000 : nat64;
+						min_icp_e8s= 4000000000 : nat64;
+					}
+				}}
+			}
                 }
         }
 )
