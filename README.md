@@ -23,7 +23,7 @@ pkill icx-proxy || true
 ```
 
 ```bash
-if true ; then # skip first deployment
+if false ; then # skip first deployment
 else
 ```
 -->
