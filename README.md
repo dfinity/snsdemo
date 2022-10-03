@@ -68,8 +68,8 @@ pushd ..
 test -d sdk || git clone https://github.com/dfinity/sdk.git
 pushd sdk
 git fetch
-git checkout tutorial3
-git reset --hard origin/tutorial3
+git checkout tutorial4
+git reset --hard origin/tutorial4
 command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
 cargo build
 export DFX_WARNING=-version_check
