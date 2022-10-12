@@ -344,12 +344,24 @@ read -rp "Add this as a hotkey to the developer neuron: $(dfx identity get-princ
 ### Propose to start the SNS
 The community takes some responsibility for which SNS's are created, so it gets to vote on the creation:
 
-<!---
+Create a proposal template:
 ```bash
-{
+"$(dfx cache show)/sns" dsale create
 ```
--->
+This should create a file called `dsale.yml`.
+
+Edit the file with your preferred parameters.  As with the sns config, you can perform a basic sanity check of the parameters with:
+```
+"$(dfx cache show)/sns" dsale validate
+```
+
+If you wish to create some toy values for testing, you can use some parameters we prepared for this demo:
 ```bash
+bin/sns-dsale-create-random $DEVELOPER_NEURON_ID
+```
+
+
+
 bin/dfx-sns-swap-start --title "$USER $(date +'%Y%m%dT%H%M')" --proposer "$DEVELOPER_NEURON_ID"
 ```
 <!---

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BIN="$(dirname "$(realpath "$0")")"
+cd "$BIN/.."
+
+PROPOSER_NEURON_ID="$1"
+TOKEN_SYMBOL="$(awk '/token_symbol:/{print $2}' sns.yml)"
+SWAP_CANISTER_ID="$(dfx canister id sns_swap)"
+SWAP_DUE="$(date +%s -d 'now + 30 days')"
+
+sed "
+s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g
+s/PROPOSER_NEURON_ID/$PROPOSER_NEURON_ID/g
+s/SWAP_CANISTER_ID/$SWAP_CANISTER_ID/g
+s/SWAP_DUE/$SWAP_DUE/g
+" "$BIN/dsale.yml" > dsale.yml

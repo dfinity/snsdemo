@@ -1,0 +1,103 @@
+# DECENTRALISATION SALE PROPOSAL
+#
+# Note: e8s == 10**8 tokens
+# A token is 1 ICP or 1 SNS token, depending on context.
+#
+---
+
+# Proposal Title
+# - Something like:
+#   'Decentralized sale of NAME_OF_YOUR_DAPP'
+# - For examples of proposals, see: https://dashboard.internetcomputer.org/governance#proposals
+proposal_title: "Decentralized sale of TOKEN_SYMBOL"
+
+# Proposal Summary
+# - Describe in 2-4 paragraphs why you would like to make a decentralization sale.
+# - You may use markdown to include headings and URLs:
+#   proposal_summary: >
+#     ### The dapp
+#     is amazing: [http://MYDAPP.ic0.app]()
+#     ### The developers
+#     are wizards of the good kind
+proposal_summary: >
+     ### The dapp
+     is amazing: [http://MYDAPP.ic0.app]()
+     ### The developers
+     are wizards of the good kind
+
+# Proposal URL
+# The URL should point to a page with details
+# about the decentralization sale.  In particular,
+# the page should typically include:
+#
+# - Why the dapp is amazing.
+# - Details of the developers and why they are a
+#   competent and trustworthy team to maintain the dapp.
+# - A canister-level description of the dapp architecture,
+#   including any dependencies on canisters not included
+#   in the sale.
+# - A link to the source code.
+# - A rationale for the token parameters that have been chosen.
+proposal_url: "https://dfinity.org"
+
+# Proposer Neuron ID
+# - A neuron you control.
+# - This neuron will be used to propose the decentralisation sale.
+proposer_neuron_id: PROPOSER_NEURON_ID
+dsale_parameters:
+
+  # Swap Canister Id
+  # - The ID of the canister keeping a record of the sale.
+  # - The canister is created when you run `dfx sns deploy`
+  # - The canister ID can typically be found with:
+  #   `dfx canister id sns_swap --network ic`
+  target_swap_canister_id: sbzkb-zqaaa-aaaaa-aaaiq-cai
+  params:
+
+    # Min Participants
+    # - The minimum number of buyers for the sale to be considered successful.
+    # - A higher value encourages greater decentralization.
+    # - If the minimum is higher than the number of purchasers, the sale will fail.
+    # - For testing on the local network, this may be set to 1.
+    min_participants: 1
+
+    # Reserve Price
+    # - If the total sales to participants is less than the reserve price the
+    #   sale will fail and funds will be returned to investors.
+    min_icp_e8s: 4000000000
+
+    # Target Price
+    # - If the total sales to participants reaches the target price, the sale
+    #   will be stopped immediately rather than waiting for the sale end time.
+    max_icp_e8s: 5000000000
+
+    # Minimum Particiation
+    # - The minimum ICP that a participator can invest.
+    min_participant_icp_e8s: 100000000
+
+    # Maximum Particiation
+    # - The maximum ICP that a participator can invest.
+    max_participant_icp_e8s: 5000000000
+
+    # Swap Due
+    # - This is the latest possible sale completion time.
+    # - If the sale has not completed, e.g. by reaching the max sale price,
+    #   by this time, the sale will be checked and completed if possible.
+    # - The time is given in seconds since 1 Jan 1970.  Timestamps can be
+    # generated on the command line with e.g.:
+    #   - `date +%s -d 'now + 30 days'`
+    #   - `date +%s -d '1 June 2022'`
+    swap_due_timestamp_seconds: SWAP_DUE
+
+    # Total SNS Tokens
+    # - The number of SNS tokens available.
+    # - Note the unit.  One token is 100_000_000 e8s.
+    sns_token_e8s: 100000000
+
+    # Neuron Basket
+    neuron_basket_construction_parameters:
+      count: 0
+      dissolve_delay_interval_seconds: 0
+
+  # Community Fund Tokens
+  community_fund_investment_e8s: 0
