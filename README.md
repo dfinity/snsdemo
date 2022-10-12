@@ -409,5 +409,5 @@ dfx canister call sns_governance list_neurons '(record {limit= 20})'
 I think this is not needed anymore
 
 ```bash
-// bin/sns-finalize-swap
+"$(dfx cache show)/sns" dsale finalize
 ```
