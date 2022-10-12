@@ -94,7 +94,7 @@ dsale_parameters:
     # Total SNS Tokens
     # - The number of SNS tokens available.
     # - Note the unit.  One token is 100_000_000 e8s.
-    sns_token_e8s: 100000000
+    sns_token_e8s: 200000000
 
     # Neuron Basket
     neuron_basket_construction_parameters:
