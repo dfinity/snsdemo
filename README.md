@@ -214,7 +214,7 @@ dfx deploy --with-cycles 1000000000000 smiley_dapp
 dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
-Note: We cannot use `dfx deploy` here because that will try to deploy NNS and SNS wasms.
+Note: We cannot use `dfx deploy` here because that will try to deploy SNS wasms.
 TODO: Can we print the subdomain-based canister URLs please?
 
 ### Configure an SNS
