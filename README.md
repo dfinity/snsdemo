@@ -81,32 +81,6 @@ install --mode 775 sns "$(dfx cache show)/sns"
 rm sns
 ```
 
-pushd ..
-test -d sdk || git clone https://github.com/dfinity/sdk.git
-pushd sdk
-git fetch
-git checkout tutorial4
-git reset --hard origin/tutorial4
-command -v cargo || echo "Please install rust before proceeding: https://www.rust-lang.org/tools/install"
-cargo build
-export DFX_WARNING=-version_check
-export DFX_VERSION="$(./target/debug/dfx --version | awk '{print $2}')"
-popd
-popd
-```
-
-The dfx version also needs to be set in the local dfx.json:
-```bash
-pwd
-cat dfx.json
-../sdk/target/debug/dfx cache install
-```
-And we need an sns cli that can install the index canister.  Please build from the ic repo branch `sns-index-canister-cli` and install with e.g.:
-```bash
-cp -f /home/max/dfn/ic-gitlab/rs/target/debug/sns $(dfx cache show)/sns
-```
-
-
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
 dfx nns --help
