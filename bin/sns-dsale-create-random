@@ -14,4 +14,4 @@ s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g
 s/PROPOSER_NEURON_ID/$PROPOSER_NEURON_ID/g
 s/SWAP_CANISTER_ID/$SWAP_CANISTER_ID/g
 s/SWAP_DUE/$SWAP_DUE/g
-" "$BIN/dsale.yml" > dsale.yml
+" "$BIN/dsale.yml" >dsale.yml
