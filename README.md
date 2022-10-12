@@ -64,6 +64,23 @@ fi # Skip first deployment
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
+export DFX_VERSION="version 0.12.0-snsdemo.4"
+dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
+```
+You will also need a special SNS binary.
+
+On Linux:
+```bash
+curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
+```
+On Mac:
+```bash
+curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/nix-release/x86_64-darwin/ic-admin.gz | gunzip > sns
+install --mode 775 sns "$(dfx cache show)/sns"
+rm sns
+```
+
 pushd ..
 test -d sdk || git clone https://github.com/dfinity/sdk.git
 pushd sdk
@@ -81,7 +98,6 @@ popd
 The dfx version also needs to be set in the local dfx.json:
 ```bash
 pwd
-jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 cat dfx.json
 ../sdk/target/debug/dfx cache install
 ```
