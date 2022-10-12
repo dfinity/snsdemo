@@ -53,7 +53,7 @@ dsale_parameters:
   # - The canister is created when you run `dfx sns deploy`
   # - The canister ID can typically be found with:
   #   `dfx canister id sns_swap --network ic`
-  target_swap_canister_id: sbzkb-zqaaa-aaaaa-aaaiq-cai
+  target_swap_canister_id: SWAP_CANISTER_ID
   params:
 
     # Min Participants
