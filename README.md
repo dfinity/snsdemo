@@ -358,19 +358,15 @@ Edit the file with your preferred parameters.  As with the sns config, you can p
 If you wish to create some toy values for testing, you can use some parameters we prepared for this demo:
 ```bash
 bin/sns-dsale-create-random $DEVELOPER_NEURON_ID
+"$(dfx cache show)/sns" dsale validate
 ```
 
+Now you can propose the decentralisation sale:
 
-
-bin/dfx-sns-swap-start --title "$USER $(date +'%Y%m%dT%H%M')" --proposer "$DEVELOPER_NEURON_ID"
-```
-<!---
 ```bash
-} > ,start-swap.idl
-PROPOSAL_ID="$(idl2json <,start-swap.idl | jq -r '.command[0].MakeProposal.proposal_id[0].id')"
-read -rp "Vote for the proposal $PROPOSAL_ID OK?  "
+"$(dfx cache show)/sns" dsale propose
 ```
--->
+
 
 In the NNS Dapp UI go to the launchpad.
 
@@ -378,6 +374,15 @@ You should see a proposal.
 * You may need to refresh
 
 Vote for the proposal to pass.  As you have a huge neuron - your private network is not decentralized - your vote should be enough to pass the proposal.  If you watch the top of the proposal status, it should change to "Executed" after no more than 30 seconds.
+
+Check the state of the swap canister:
+```bash
+dfx canister call sns_swap get_state '(record {})'
+```
+Of particular interest is the value of `lifecycle`:
+```
+2 == open
+```
 
 ### Invest
 Return to the launchpad and hit refresh.  You should now see the SNS move into the "Current Launches" section.  If you click on it, you will be able to read details about the project.
