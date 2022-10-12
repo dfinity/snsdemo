@@ -65,7 +65,7 @@ fi # Skip first deployment
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
-export DFX_VERSION="0.12.0-snsdemo.4"
+export DFX_VERSION="0.12.0-snsdemo.5"
 dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 dfx cache install
