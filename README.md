@@ -76,7 +76,7 @@ On Linux:
 curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
 ```
 On Mac:
-```bash
+```
 curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/nix-release/x86_64-darwin/ic-admin.gz | gunzip > sns
 install --mode 775 sns "$(dfx cache show)/sns"
 rm sns
