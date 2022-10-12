@@ -67,6 +67,7 @@ This dfx functionality has not been released yet, so you will need a special bui
 export DFX_VERSION="0.12.0-snsdemo.4"
 dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
+dfx cache install
 ```
 You will also need a special SNS binary.
 
