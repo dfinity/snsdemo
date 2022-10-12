@@ -134,7 +134,7 @@ Now you can start your local testnet:
 ```bash
 dfx stop || true
 pkill dfx || true
-nohup dfx start --clean --host 127.0.0.1:8080 --background &
+dfx start --clean --background
 sleep 10
 ```
 You should see something like this:
