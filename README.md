@@ -50,7 +50,7 @@ read -rp "Click the link and check that you see the clock or smiley. OK?  "
 ```
 -->
 
-Open the URL printed by that last line and you should see the smiley dapp:
+Open the URL printed by that last line in a modern browser (firefox, chrome, edge, not Safari) and you should see the smiley dapp:
 
 ![image](docs/images/smiley.png)
 
