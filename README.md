@@ -78,8 +78,8 @@ curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c75
 ```
 On Mac:
 ```
-curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/nix-release/x86_64-darwin/ic-admin.gz | gunzip > sns
-install --mode 775 sns "$(dfx cache show)/sns"
+curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/nix-release/x86_64-darwin/sns.gz | gunzip > sns
+install -m 775 sns "$(dfx cache show)/sns"
 rm sns
 ```
 
