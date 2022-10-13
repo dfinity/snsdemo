@@ -3,6 +3,16 @@
 Welcome to the world of the Network Nervous System.  In this tutorial we will show you how to deploy the NNS locally and how you can decentralize your dapp using the SNS.
 
 ## Setup
+You will need developer tools and this code.
+
+#### MacOS
+```
+command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+command -v sponge || brew install sponge
+command -v npm || brew install npm
+```
+
+### Get the code
 Clone this project:
 <!---
 The comments like this are not displayed in Markdown; they contain code for automated testing.
