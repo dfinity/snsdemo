@@ -159,6 +159,7 @@ dfx start --clean
 ```bash
 dfx stop || true
 pkill dfx || true
+pkill icx-proxy
 dfx start --clean --background
 sleep 10
 ```
@@ -237,6 +238,7 @@ Now we will hand over control of the local Smiley Dapp to the community; the com
 We deployed the smiley dapp before but then wiped the network.  Let's recreate it:
 ```bash
 npm ci
+dfx wallet balance
 dfx deploy --with-cycles 1000000000000 smiley_dapp
 dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
