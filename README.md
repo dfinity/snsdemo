@@ -42,6 +42,7 @@ dfx wallet balance
 npm ci
 dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
+
 ```
 <!---
 ```bash
