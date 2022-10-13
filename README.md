@@ -86,6 +86,7 @@ export DFX_VERSION="0.12.0-snsdemo.5"
 dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 dfx cache install
+
 ```
 You will also need a special SNS binary.
 
@@ -149,12 +150,20 @@ Note:
   ```
 
 Now you can start your local testnet:
+```
+dfx stop || true
+dfx start --clean
+```
+
+<!---
 ```bash
 dfx stop || true
 pkill dfx || true
 dfx start --clean --background
 sleep 10
 ```
+-->
+
 You should see something like this:
 
 ![image](docs/images/dfx-start-clean.png)
