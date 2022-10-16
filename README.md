@@ -159,7 +159,7 @@ dfx start --clean
 ```bash
 dfx stop || true
 pkill dfx || true
-pkill icx-proxy
+pkill icx-proxy || true
 dfx start --clean --background
 sleep 10
 ```
