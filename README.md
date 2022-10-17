@@ -152,7 +152,7 @@ Note:
 
 Now you can start your local testnet:
 ```
-dfx stop || true
+dfx stop
 dfx start --clean
 ```
 
