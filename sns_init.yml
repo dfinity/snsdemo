@@ -60,7 +60,7 @@ url: "http://sgymv-uiaaa-aaaaa-aaaia-cai.localhost:8080/"
 # Name of the SNS project. This may differ from the name of the associated token name.
 # Must be a string of max length = 255.
 #
-name: "Food factory"
+name: "TOKEN_SYMBOL"
 #
 # Description of the SNS project.
 # Must be a string of max length = 2000.

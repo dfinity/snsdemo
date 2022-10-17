@@ -7,7 +7,11 @@ cd "$BIN/.."
 PROPOSER_NEURON_ID="$1"
 TOKEN_SYMBOL="$(awk '/token_symbol:/{print $2}' sns.yml)"
 SWAP_CANISTER_ID="$(dfx canister id sns_swap)"
-SWAP_DUE="$(date +%s -d 'now + 30 days')"
+if [[ "$(uname)" == "Darwin" ]]; then
+  SWAP_DUE="$(date -v+30d +%s)"
+else
+  SWAP_DUE="$(date +%s -d 'now + 30 days')"
+fi
 
 sed "
 s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g

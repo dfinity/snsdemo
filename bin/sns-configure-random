@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+consonant() {
+  openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
+}
+vowel() {
+  openssl rand -base64 100 | tr -dc AEIOUY | head -c 1
+}
+
 TOKEN_SYMBOL="$(
-  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
-  tr -dc AEIUY </dev/random | head -c 1
-  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
-  tr -dc AEIUY </dev/random | head -c 1
-  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  consonant
+  vowel
+  consonant
+  vowel
+  consonant
   echo
 )"
 TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"

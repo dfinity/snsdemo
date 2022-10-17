@@ -3,6 +3,23 @@
 Welcome to the world of the Network Nervous System.  In this tutorial we will show you how to deploy the NNS locally and how you can decentralize your dapp using the SNS.
 
 ## Setup
+You will need developer tools and this code.
+
+#### MacOS
+```
+command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+command -v sponge || brew install moreutils
+command -v npm || brew install npm
+```
+
+#### Ubuntu
+```
+command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+command -v sponge || sudo apt install moreutils
+command -v npm || sudo apt install npm
+```
+
+### Get the code
 Clone this project:
 <!---
 The comments like this are not displayed in Markdown; they contain code for automated testing.
@@ -42,6 +59,7 @@ dfx wallet balance
 npm ci
 dfx deploy
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
+
 ```
 <!---
 ```bash
@@ -50,7 +68,7 @@ read -rp "Click the link and check that you see the clock or smiley. OK?  "
 ```
 -->
 
-Open the URL printed by that last line and you should see the smiley dapp:
+Open the URL printed by that last line in a modern browser (chrome, firefox, edge, sorry not Safari) and you should see the smiley dapp:
 
 ![image](docs/images/smiley.png)
 
@@ -65,10 +83,11 @@ fi # Skip first deployment
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
-export DFX_VERSION="0.12.0-snsdemo.4"
+export DFX_VERSION="0.12.0-snsdemo.5"
 dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 dfx cache install
+
 ```
 You will also need a special SNS binary.
 
@@ -132,12 +151,21 @@ Note:
   ```
 
 Now you can start your local testnet:
+```
+dfx stop
+dfx start --clean
+```
+
+<!---
 ```bash
 dfx stop || true
 pkill dfx || true
+pkill icx-proxy || true
 dfx start --clean --background
 sleep 10
 ```
+-->
+
 You should see something like this:
 
 ![image](docs/images/dfx-start-clean.png)
@@ -211,12 +239,12 @@ Now we will hand over control of the local Smiley Dapp to the community; the com
 We deployed the smiley dapp before but then wiped the network.  Let's recreate it:
 ```bash
 npm ci
+dfx wallet balance
 dfx deploy --with-cycles 1000000000000 smiley_dapp
 dfx deploy --with-cycles 1000000000000 smiley_dapp_assets
 echo http://$(dfx canister id smiley_dapp_assets).localhost:8080
 ```
 Note: We cannot use `dfx deploy` here because that will try to deploy SNS wasms.
-TODO: Can we print the subdomain-based canister URLs please?
 
 ### Configure an SNS
 You will need to decide some things such as token name and token parameters.  To do this:
