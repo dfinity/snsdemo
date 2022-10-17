@@ -16,6 +16,7 @@ command -v npm || brew install npm
 ```
 command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 command -v sponge || sudo apt install moreutils
+command -v npm || sudo apt install npm
 ```
 
 ### Get the code
