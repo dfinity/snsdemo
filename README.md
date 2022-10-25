@@ -9,6 +9,7 @@ You will need developer tools and this code.
 ```
 command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 command -v sponge || brew install moreutils
+command -v realpath || brew install coreutils
 command -v npm || brew install npm
 ```
 
