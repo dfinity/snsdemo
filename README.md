@@ -328,7 +328,7 @@ dfx sns config validate
 The SNS is new and may still have significant bugs.  To prevent huge numbers of developers giving control of their dapps to SNSs before the SNS has been tested in production, access to the SNS is limited.  Who gets to be one of the brave first developers is decided by the community by proposal.  Later, when the SNS has a solid track record in production, this whitelist will be dropped.  In the meantime, if you wish to be whitelisted you can ask the community by proposal:
 
 ```bash
-$(dfx cache show)/ic-admin --secret-key-pem ~/.config/dfx/identity/$(dfx identity whoami)/identity.pem --nns-url "https://localhost:36743" propose-to-update-sns-deploy-whitelist --added-principals "$(dfx identity get-wallet)" --proposer "$DEVELOPER_NEURON_ID" --proposal-title "Let me SNS!" --summary "I am a nice guy, I won't try to break the baby when it's just born."
+$(dfx cache show)/ic-admin --secret-key-pem ~/.config/dfx/identity/$(dfx identity whoami)/identity.pem --nns-url "https://localhost:$(dfx info replica-port)" propose-to-update-sns-deploy-whitelist --added-principals "$(dfx identity get-wallet)" --proposer "$DEVELOPER_NEURON_ID" --proposal-title "Let me SNS!" --summary "I am a nice guy, I won't try to break the baby when it's just born."
 ```
 You should be able to see the proposal in the lauchpad here:  http://qsgjb-riaaa-aaaaa-aaaga-cai.localhost:8080/#/launchpad
 
