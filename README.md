@@ -215,11 +215,51 @@ If you wish, you can add a login service to the toy dapp using `internet_identit
 ### NNS Dapp
 Click on the `nns-dapp` URL.  You should be able to log in with your new identity.
 
-The NNS Dapp acts as a wallet.  You will need toy ICP tokens to test with.  Note that at the bottom of the menu there is a "Get ICPs" button with which you can award yourself ICP.  Free ICP are limited but you can make yourself a millionaire.
+The NNS Dapp acts as a wallet.  You will need toy ICP tokens to test with.  Note that at the bottom of the menu there is a "Get ICPs" button with which you can award yourself ICP.  Free ICP are limited but you can make yourself a millionaire.  Enjoy!
 
-To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.
 
+#### Neurons
+To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.  Make such a large neuron.  We will refer to it as the community neuron.
+
+You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
+
+Create the neuron:
+<!---
+```bash
+say Create a developer neuron
+read -rp "Create a small neuron,  OK?"
+```
+-->
+- Log in to the nns-dapp: <http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080/>
+- Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
+- Go to the neurons tab and create a neuron.  Give it 5 ICP and an 8 year dissolve delay.
+- Make a note of your neuron ID:
+  ```bash
+  read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
+  ```
+- Record the neuron ID in a file:
+  ```bash
+  echo DEVELOPER_NEURON_ID=$DEVELOPER_NEURON_ID >> .demo-env
+  ```
+
+Add your principal as a hotkey:
+- Get your command line principal:
+  ```bash
+  dfx identity get-principal
+  ```
+- In the nns-dapp, click on your neuron to see the neuron details.
+- Scroll down to "Hotkeys" and add your command line principal as a hotkey.
+
+<!---
+```bash
+say NNS dapp setup
+read -rp "Add this as a hotkey to the developer neuron: $(dfx identity get-principal)   OK?"
+```
+-->
+
+#### Proposals
 Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
+
 
 ### Import did files
 To interact with the back end governance canisters you will need the API definitions.  So far the commands have not altered the local project at all, but now we will add information about the NNS and SNS to the local project:
@@ -232,6 +272,7 @@ You look in your dfx.json you should see the NNS canisters listed and you should
 jq '.canisters["nns-sns-wasm"]' dfx.json
 ls candid/nns-sns-wasm.did
 ```
+
 
 ## Decentralize the Smiley Dapp
 Now we will hand over control of the local Smiley Dapp to the community; the community of just you, the reader, but the process is the same for handing over control of a real dapp on mainnet to the community at large.
@@ -283,6 +324,17 @@ If you just want a random config that works, run:
 dfx sns config validate
 ```
 
+## Whitelist for SNS deployment
+The SNS is new and may still have significant bugs.  To prevent huge numbers of developers giving control of their dapps to SNSs before the SNS has been tested in production, access to the SNS is limited.  Who gets to be one of the brave first developers is decided by the community by proposal.  Later, when the SNS has a solid track record in production, this whitelist will be dropped.  In the meantime, if you wish to be whitelisted you can ask the community by proposal:
+
+```bash
+$(dfx cache show)/ic-admin --secret-key-pem ~/.config/dfx/identity/$(dfx identity whoami)/identity.pem --nns-url "https://localhost:36743" propose-to-update-sns-deploy-whitelist --added-principals "$(dfx identity get-principal)" --proposer "$DEVELOPER_NEURON" --proposal-title "Let me SNS!" --summary "I am a nice guy, I won't try to break the baby when it's just born."
+```
+You should be able to see the proposal in the lauchpad here:  http://qsgjb-riaaa-aaaaa-aaaga-cai.localhost:8080/#/launchpad
+
+As you have a large neuron representing the community, you can vote in favour of whtitelisting yourself.  Congratulations and welcome to the community of SNS pioneers!
+
+
 ### Create an SNS
 Creating an SNS is expensive; the price is set at 50 trillion cycles.  Make sure that your wallet has at least that much:
 ```bash
@@ -329,47 +381,6 @@ Now compare the canister controller with the SNS root.  You should find that the
 dfx canister id sns_root
 dfx canister info smiley_dapp
 ```
-
-### Neurons
-In the NNS UI, make sure that you have a large neuron with a long dissolve delay so that you can pass proposals; it represents the voting public.  If you created large neuron earlier that will 
-
-You will also need a small neuron to represent yourself, the developer.  5 ICP should suffice.  You will also need to add your principal as a hotkey to this developer neuron.  Here is how to do this:
-
-Create the neuron:
-<!---
-```bash
-say Create a developer neuron
-read -rp "Create a small neuron,  OK?"
-```
--->
-- Log in to the nns-dapp: <http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080/>
-- Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
-- Go to the neurons tab and create a neuron.  Give it 5 ICP and an 8 year dissolve delay.
-- Make a note of your neuron ID:
-  ```bash
-  read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
-  ```
-- Record the neuron ID in a file:
-  ```bash
-  echo DEVELOPER_NEURON_ID=$DEVELOPER_NEURON_ID >> .demo-env
-  ```
-
-Add your principal as a hotkey:
-- Get your command line principal:
-  ```bash
-  dfx identity get-principal
-  ```
-- In the nns-dapp, click on your neuron to see the neuron details.
-- Scroll down to "Hotkeys" and add your command line principal as a hotkey.
-
-<!---
-```bash
-say NNS dapp setup
-read -rp "Add this as a hotkey to the developer neuron: $(dfx identity get-principal)   OK?"
-```
--->
-
-
 
 ### Propose to start the SNS
 The community takes some responsibility for which SNS's are created, so it gets to vote on the creation:
