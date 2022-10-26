@@ -90,7 +90,7 @@ jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 dfx cache install
 
 ```
-You will also need a special SNS binary; this is used as a prototypical extension to dfx for `dfx sns` commands.
+You will also need a special SNS binary; this is used to execute `dfx sns` commands.
 
 On Linux:
 ```bash
