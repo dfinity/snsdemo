@@ -98,8 +98,8 @@ dsale_parameters:
 
     # Neuron Basket
     neuron_basket_construction_parameters:
-      count: 0
-      dissolve_delay_interval_seconds: 0
+      count: 1
+      dissolve_delay_interval_seconds: 3600
 
   # Community Fund Tokens
   community_fund_investment_e8s: 0
