@@ -84,21 +84,21 @@ fi # Skip first deployment
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
-export DFX_VERSION="0.12.0-snsdemo.5"
+export DFX_VERSION="0.12.0-snsdemo.6"
 dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 dfx cache install
 
 ```
-You will also need a special SNS binary.
+You will also need a special SNS binary; this is used as a prototypical extension to dfx for `dfx sns` commands.
 
 On Linux:
 ```bash
-curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
+curl https://download.dfinity.systems/ic/725262b07bb82f2af53927e8bc5575471b747c87/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
 ```
 On Mac:
 ```
-curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/nix-release/x86_64-darwin/sns.gz | gunzip > sns
+curl https://download.dfinity.systems/ic/725262b07bb82f2af53927e8bc5575471b747c87/nix-release/x86_64-darwin/sns.gz | gunzip > sns
 install -m 775 sns "$(dfx cache show)/sns"
 rm sns
 ```
