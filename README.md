@@ -231,18 +231,17 @@ Create the neuron:
 ```bash
 say Create a developer neuron
 read -rp "Create a small neuron,  OK?"
+read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
+export DEVELOPER_NEURON_ID
 ```
 -->
 - Make sure that you have at least 5 ICP in your main account; if not get more with the "Get ICP" menu entry.
 - Go to the neurons tab and create a neuron.  Give it 5 ICP and an 8 year dissolve delay.
 - Make a note of your neuron ID:
-  ```bash
-  read -rp "What is your developer neuron ID?  " DEVELOPER_NEURON_ID
   ```
-- Record the neuron ID in a file:
-  ```bash
-  echo DEVELOPER_NEURON_ID=$DEVELOPER_NEURON_ID >> .demo-env
+  export DEVELOPER_NEURON_ID=XXXX
   ```
+  (Replace XXXX with the neuron ID.)
 
 Add your principal as a hotkey:
 - Get your command line principal:
