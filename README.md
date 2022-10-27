@@ -259,7 +259,7 @@ read -rp "Add this as a hotkey to the developer neuron: $(dfx identity get-princ
 -->
 
 #### Proposals
-Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
+Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  Later in this tutorial you will make proposals locally and vote on them.
 
 
 ### Import did files
