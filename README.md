@@ -173,7 +173,6 @@ You should see something like this:
 
 Some things to note:
 * The `--clean` flag is important, as system canisters have pre-assigned canister IDs that must be vacant before we install them.
-* In the output, see the line "subnet type: System".  This confirms that our configuration has taken effect.
 * Note the dashboard URL at the end of the output.  Open it in a browser.  It should show that there are no canisters currently installed.  Keep this page open; as the tutorial progresses you will be able to see canisters being installed.
 
   ![image](docs/images/dashboard-empty.png)
