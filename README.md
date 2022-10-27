@@ -217,7 +217,7 @@ Click on the `nns-dapp` URL.  You should be able to log in with your new identit
 The NNS Dapp acts as a wallet.  You will need toy ICP tokens to test with.  Note that at the bottom of the menu there is a "Get ICPs" button with which you can award yourself ICP.  Free ICP are limited but you can make yourself a millionaire.  Enjoy!
 
 
-### Neurons
+#### Neurons
 To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.  Make such a large neuron.  We will refer to it as the community neuron.
 
 - Log in to the NNS dapp.
