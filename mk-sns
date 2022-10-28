@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+if [[ "${1:-}" == "--help" ]] ; then
+	cat <<-EOF
+	Creates an SNS.
+	
+	This is a placeholder while the SNS tools are updated.  When they all work normally,
+	this will be deleted and the README will have correct instructions.
+	EOF
+	exit 0
+fi
+
+set -euxo pipefail
+
+./bin/sns-configure-random
+dfx sns config validate
+
+$(dfx cache show)/sns deploy --network "$DFX_NETWORK" --init-config-file sns.yml --candid ./candid/nns-sns-wasm.did
+
+bin/sns-dsale-create-random $DEVELOPER_NEURON_ID
+"$(dfx cache show)/sns" dsale validate
+
+"$(dfx cache show)/sns" dsale propose --network "$DFX_NETWORK"
+
