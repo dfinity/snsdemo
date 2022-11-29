@@ -102,6 +102,11 @@ install -m 775 sns "$(dfx cache show)/sns"
 rm sns
 ```
 
+And some scripts:
+``` bash
+export PATH="$PWD/bin:$PATH"
+```
+
 Now we should now be able to see the help pages for the NNS commands:
 ```bash
 dfx nns --help
@@ -216,7 +221,12 @@ Click on the `nns-dapp` URL.  You should be able to log in with your new identit
 
 The NNS Dapp acts as a wallet.  You will need toy ICP tokens to test with.  Note that at the bottom of the menu there is a "Get ICPs" button with which you can award yourself ICP.  Free ICP are limited but you can make yourself a millionaire.
 
-To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.
+To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.  You can do this in the UI or on the command line:
+```bash
+dfx-ledger-get-icp --icp 900000000
+dfx-neuron-create --icp 500000000
+```
+
 
 Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
 

@@ -24,5 +24,6 @@
       "packtool": ""
     }
   },
-  "version": 1
+  "version": 1,
+  "dfx": "0.12.1"
 }
