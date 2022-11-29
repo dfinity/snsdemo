@@ -1,5 +1,11 @@
 {
   "canisters": {
+    "nns_dapp": {
+      "build": "",
+      "candid": "candid/nns-dapp.did",
+      "wasm": "/home/max/dfn/nns-dapp/branches/local-canister-ids/nns-dapp.wasm",
+      "type": "custom"
+    },
     "nns-cycles-minting": {
       "build": "",
       "candid": "candid/nns-cycles-minting.did",
@@ -111,6 +117,37 @@
         "dist/smiley_dapp_assets/"
       ],
       "type": "assets"
+    },
+    "sns_governance": {
+      "build": "",
+      "candid": "candid/sns_governance.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_index": {
+      "build": "",
+      "candid": "candid/sns_index.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_ledger": {
+      "build": "",
+      "candid": "candid/sns_ledger.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_root": {
+      "build": "",
+      "candid": "candid/sns_root.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_swap": {
+      "build": "",
+      "remote": {"id": {"local": "sbzkb-zqaaa-aaaaa-aaaiq-cai"}},
+      "candid": "candid/sns_swap.did",
+      "type": "custom",
+      "wasm": ""
     }
   },
   "defaults": {

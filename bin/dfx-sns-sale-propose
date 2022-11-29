@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+export PATH="$SOURCE_DIR:$PATH"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source $( optparse.build )
+set -euo pipefail
+
+    export DFX_NEURON_ID="$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")"
+    export DFX_IDENTITY_PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
+    export DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
+
+
+# The due date of the sale must be greater than 1 day at thetime of NNS proposal execution
+SWAP_DUE_TIMESTAMP="$(date +%s -d 'now + 14 days')"
+SNS_SWAP="$(dfx canister id sns_swap --network "$DFX_NETWORK")"
+PROPOSAL_TITLE="SNS SALE"
+PATH_TO_SUMMARY_FILE="README.md"
+SNS_TOKENS_E8s=500000000000
+    set $(dfx cache show)/ic-admin \
+      --secret-key-pem "$DFX_IDENTITY_PEM" \
+      --nns-url "$DFX_NNS_URL" \
+    propose-to-open-sns-token-swap \
+    --proposer "$DFX_NEURON_ID" \
+    --min-participants 50 \
+    --min-icp-e8s 5000000000 \
+    --max-icp-e8s 500000000000 \
+    --min-participant-icp-e8s 10000000 \
+    --max-participant-icp-e8s 100000000 \
+    --swap-due-timestamp-seconds "$SWAP_DUE_TIMESTAMP" \
+    --sns-token-e8s "$SNS_TOKENS_E8s" \
+    --target-swap-canister-id "$SNS_SWAP" \
+    --neuron-basket-count 3 \
+    --neuron-basket-dissolve-delay-interval-seconds 2629800 \
+    --proposal-title "$PROPOSAL_TITLE" \
+    --summary "Some summary"
+
+   printf ' "%q"' "${@}"
+   echo
+   "${@}"
