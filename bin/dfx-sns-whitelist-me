@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+export PATH="$SOURCE_DIR:$PATH"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source $( optparse.build )
+set -euo pipefail
+
+    export DFX_NEURON_ID="$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")"
+    export DFX_IDENTITY_PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
+    export NNS_URL="$(dfx-network-provider)"
+    set ic-admin \
+      --secret-key-pem "$DFX_IDENTITY_PEM" \
+      --nns-url "http://localhost:$(dfx info replica-port)" \
+      propose-to-update-sns-deploy-whitelist \
+      --added-principals "$(dfx identity get-wallet --network "$DFX_NETWORK")" \
+      --proposer "$DFX_NEURON_ID" \
+      --proposal-title "Let me SNS!" \
+      --summary "I am a nice guy, I won't try to break the baby when it's just born."
+   printf ' "%q"' "${@}"
+   echo
+   "${@}"

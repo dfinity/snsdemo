@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+# dfx ledger account-id doesn't accept --accout as a falg so we can't provde it either.
+#optparse.define short=a long=account desc="The dfx account requesting the funds" variable=account default="$(dfx identity whoami)"
+optparse.define short=i long=icp desc="The amount of ICP to request" variable=amount default="10"
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source $( optparse.build )
+set -euo pipefail
+
+export DFX_NETWORK
+
+
+
+# Check whether ident-1 has already been imported as an identity.
+check_moneybags() {
+    (
+    set -euo pipefail
+    dfx identity list | grep -qw ident-1
+    )
+}
+# Imports an identity that has a billion toy ICP on testnets.
+make_moneybags() {
+    (
+    set -euo pipefail
+    check_moneybags || {
+    cat <<EOF >ident-1.pem
+-----BEGIN EC PRIVATE KEY-----
+MHQCAQEEICJxApEbuZznKFpV+VKACRK30i6+7u5Z13/DOl18cIC+oAcGBSuBBAAK
+oUQDQgAEPas6Iag4TUx+Uop+3NhE6s3FlayFtbwdhRVjvOar0kPTfE/N8N6btRnd
+74ly5xXEBNSXiENyxhEuzOZrIWMCNQ==
+-----END EC PRIVATE KEY-----
+EOF
+    dfx identity import ident-1 ident-1.pem --disable-encryption
+    } && check_moneybags
+    )
+}
+# Transfers funds from ident-1 to the current account.
+make_moneybags
+dfx ledger transfer --identity ident-1 "$(dfx ledger account-id)" --memo "$RANDOM" --amount "$amount"
