@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+PREFIX="$(basename "$(realpath "$0")")" "$(dirname "$(realpath "$0")")/subcommand" "${@}"

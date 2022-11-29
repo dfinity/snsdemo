@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PREFIX="$(basename "$(realpath "$0")")"
+if (( $# > 0 ))
+then
+    SUBCOMMAND="$1" ; shift 1
+    "$PREFIX-$SUBCOMMAND" "${@}"
+else
+    echo Subcommands:
+    find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | sed -nE 's!.*/'"$PREFIX"'-([a-zA-Z0-9]*)[-a-zA-Z0-9]*$!  - \1!g;ta;b;:a;p' | sort | uniq
+fi

@@ -259,7 +259,7 @@ Note: We cannot use `dfx deploy` here because that will try to deploy SNS wasms.
 ### Configure an SNS
 You will need to decide some things such as token name and token parameters.  To do this:
 ```bash
-dfx sns config create
+dfx-sns-config-new
 ```
 
 This will create a configuration file:
@@ -288,7 +288,7 @@ fi
 -->
 If you just want a random config that works, run:
 ```bash
-./bin/sns-configure-random
+./bin/sns-config-random
 dfx sns config validate
 ```
 
