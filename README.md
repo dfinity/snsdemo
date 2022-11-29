@@ -93,11 +93,11 @@ You will also need a special SNS binary.
 
 On Linux:
 ```bash
-curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
+curl https://download.dfinity.systems/ic/997ab2e9cc49189302fe54c1e60709abfbeb1d42/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
 ```
 On Mac:
 ```
-curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/nix-release/x86_64-darwin/sns.gz | gunzip > sns
+curl https://download.dfinity.systems/ic/997ab2e9cc49189302fe54c1e60709abfbeb1d42/nix-release/x86_64-darwin/sns.gz | gunzip > sns
 install -m 775 sns "$(dfx cache show)/sns"
 rm sns
 ```
