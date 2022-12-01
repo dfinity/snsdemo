@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-set -euxi pipefail
+set -euxo pipefail
 
 bin/demo-cleanup
+
+DFX_NETWORK=local
+export DFX_NETWORK
 
 dfx start --clean --background
 sleep 1
@@ -13,8 +16,9 @@ dfx sns import
 
 
 dfx identity new --disable-encryption snsdemo8 --force
-bin/dfx-ledger-get-icp 900000000
-bin/dfx-neuron-create  500000000
+bin/dfx-ledger-get-icp --icp 900000000
+bin/dfx-neuron-create  --icp 500000000
+bin/dfx-neuron-prolong
 
 ./bin/dfx-sns-whitelist-me
 

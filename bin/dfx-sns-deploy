@@ -8,4 +8,4 @@ optparse.define short=n long=network desc="The dfx network to use" variable=DFX_
 optparse.define short=c long=config desc="The SNS cofiguration" variable=SNS_CONFIG default="sns.yml"
 
 
-"$(dfx cache show)/sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
+"$(dfx cache show)/sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG" | tee ,sns-init-response
