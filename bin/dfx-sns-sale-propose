@@ -21,16 +21,16 @@ SWAP_DUE_TIMESTAMP="$(date +%s -d 'now + 14 days')"
 SNS_SWAP="$(dfx canister id sns_swap --network "$DFX_NETWORK")"
 PROPOSAL_TITLE="SNS SALE"
 PATH_TO_SUMMARY_FILE="README.md"
-SNS_TOKENS_E8s=500000000000
+SNS_TOKENS_E8s=50000000
     set $(dfx cache show)/ic-admin \
       --secret-key-pem "$DFX_IDENTITY_PEM" \
       --nns-url "$DFX_NNS_URL" \
     propose-to-open-sns-token-swap \
     --proposer "$DFX_NEURON_ID" \
     --min-participants 50 \
-    --min-icp-e8s 5000000000 \
-    --max-icp-e8s 500000000000 \
-    --min-participant-icp-e8s 10000000 \
+    --min-icp-e8s 5000000 \
+    --max-icp-e8s 500000000 \
+    --min-participant-icp-e8s 1000000 \
     --max-participant-icp-e8s 100000000 \
     --swap-due-timestamp-seconds "$SWAP_DUE_TIMESTAMP" \
     --sns-token-e8s "$SNS_TOKENS_E8s" \
