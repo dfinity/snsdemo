@@ -36,7 +36,6 @@ cd snsdemo
 <!---
 ```bash
 bin/demo-cleanup
-exit 0
 ```
 
 ```bash
