@@ -10,7 +10,25 @@ optparse.define short=c long=config desc="The SNS cofiguration" variable=SNS_CON
 source $( optparse.build )
 set -euo pipefail
 
+export DFX_NETWORK
 
 set "$(dfx cache show)/sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
 echo "${@}"
-"${@}" | tee ,sns-init-response
+"${@}" | tee ,sns-init-response.idl
+
+if [[ "$DFX_NETWORK" == "local" ]] ; then
+  sed -n ':a;/^[(]/bb;d;ba;:b;p;n;bb' <,sns-init-response.idl |
+    idl2json |
+    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {remote: {id:{(env.DFX_NETWORK): (.value[0])}}}}) | add | {canisters: .}' |
+    jq -s '.[1] * .[0]' - dfx.json | sponge dfx.json
+else
+  test -e canister_ids.json || {
+    echo "{}" >canister_ids.json
+  }
+
+  sed -n ':a;/^[(]/bb;d;ba;:b;p;n;bb' <,sns-init-response.idl |
+    idl2json |
+    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {(env.DFX_NETWORK): (.value[0])} }) | add' |
+    jq -s '.[1] * .[0]' - canister_ids.json | sponge canister_ids.json
+fi
+
