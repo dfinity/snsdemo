@@ -26,7 +26,7 @@ bin/dfx-neuron-prolong
 ./bin/dfx-sns-whitelist-me
 
 ./bin/dfx-sns-config-random
-./bin/bin/dfx-sns-deploy
+./bin/dfx-sns-deploy
 
 dfx canister id sns_root
 dfx canister id sns_governance

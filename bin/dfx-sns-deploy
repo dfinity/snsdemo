@@ -6,6 +6,11 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 optparse.define short=c long=config desc="The SNS cofiguration" variable=SNS_CONFIG default="sns.yml"
+# Source the output file ----------------------------------------------------------
+source $( optparse.build )
+set -euo pipefail
 
 
-"$(dfx cache show)/sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG" | tee ,sns-init-response
+set "$(dfx cache show)/sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
+echo "${@}"
+"${@}" | tee ,sns-init-response
