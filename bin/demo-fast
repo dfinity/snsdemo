@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euxi pipefail
+
+bin/demo-cleanup
+
+dfx start --clean --background
+sleep 1
+
+dfx nns install
+
+dfx nns import
+dfx sns import
+
+
+dfx identity new --disable-encryption snsdemo8 --force
+bin/dfx-ledger-get-icp 900000000
+bin/dfx-neuron-create  500000000
+
+./bin/dfx-sns-whitelist-me
+
+./bin/dfx-sns-config-random
+./bin/bin/dfx-sns-deploy
+
+dfx canister id sns_root
+dfx canister id sns_governance
+dfx canister id sns_ledger
+dfx canister id sns_swap
