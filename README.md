@@ -6,14 +6,14 @@ Welcome to the world of the Network Nervous System.  In this tutorial we will sh
 You will need developer tools and this code.
 
 #### MacOS
-```
+```sh
 command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 command -v sponge || brew install moreutils
 command -v npm || brew install npm
 ```
 
 #### Ubuntu
-```
+```sh
 command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 command -v sponge || sudo apt install moreutils
 command -v npm || sudo apt install npm
@@ -22,11 +22,12 @@ command -v npm || sudo apt install npm
 ### Get the code
 Clone this project:
 <!---
-The comments like this are not displayed in Markdown; they contain code for automated testing.
+Comments like this, in HTML escapes, are not displayed in Markdown; they contain code for automated testing.
 ```bash
 # We will use the current directory for testing, but make sure it is clean.
 which say || say() { : ; }
 ```
+Code blocks that do not start with `bash` are not executed by automated testing.
 -->
 ```sh
 git clone https://github.com/dfinity/snsdemo.git
@@ -34,10 +35,8 @@ cd snsdemo
 ```
 <!---
 ```bash
-git clean -dfx
-dfx stop || true
-pkill dfx || true
-pkill icx-proxy || true
+bin/demo-cleanup
+exit 0
 ```
 
 ```bash
