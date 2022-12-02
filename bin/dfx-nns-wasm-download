@@ -5,9 +5,10 @@ set -x
 # Notes regarding the IC_COMMIT - from the build config:
 # - We apply a patch to customise the code; if you change the hash, please check on the
 #   first run that the patch applies cleanly.  Docker SHOULD fail if it doesn't.
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DOWNLOAD_DIR="$PWD/wasms"
 NO_CLOBBER=""
-IC_COMMIT="3982db093a87e90cbe0595877a4110e4f37ac740"
+IC_COMMIT="$(. "$SOURCE_DIR/versions.bash" ; echo "$IC_COMMIT")"
 
 help_text() {
   cat <<-EOF
