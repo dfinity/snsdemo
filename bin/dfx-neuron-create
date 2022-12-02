@@ -8,7 +8,7 @@ optparse.define short=s long=icp desc="The amount of ICP to icp" variable=icp de
 optparse.define short=i long=identity desc="The dfx identity to use" variable=identity default="$(dfx identity whoami)"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $( optparse.build )
+source $(optparse.build)
 set -euo pipefail
 
 # Create a neuron
@@ -18,10 +18,10 @@ mkdir -p "$NEURONS_DIR"
 NEURONS_FILE="$NEURONS_DIR/$DFX_NETWORK"
 export IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 # Note: Quill send puts a pile of junk on stdout and has no option to put just the response(s) somewhere safe such as a file.
-NEURON_ID="$(quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM"  --amount "$icp" --name 1 | tee -a /dev/stderr |\
-     quill send --yes --insecure-local-dev-mode - | tee -a /dev/stderr |\
-     sed -nE 's/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/g;ta;b;:a;p' | tr -cd '[:alnum:]' | tee -a /dev/stderr)"
+NEURON_ID="$(quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --amount "$icp" --name 1 | tee -a /dev/stderr |
+	quill send --yes --insecure-local-dev-mode - | tee -a /dev/stderr |
+	sed -nE 's/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/g;ta;b;:a;p' | tr -cd '[:alnum:]' | tee -a /dev/stderr)"
 
-echo "$NEURON_ID" >> "$NEURONS_FILE"
+echo "$NEURON_ID" >>"$NEURONS_FILE"
 echo
 tail -n1 "$NEURONS_FILE"

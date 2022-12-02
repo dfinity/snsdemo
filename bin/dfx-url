@@ -2,7 +2,7 @@
 set -euo pipefail
 
 print_help() {
-  cat <<"EOF"
+	cat <<"EOF"
 
 # Proposal
 Each network should have a URL for the frontend, in addition to "provider".
@@ -33,8 +33,8 @@ EOF
 }
 
 [[ "${1:-}" != "--help" ]] || {
-  print_help
-  exit 0
+	print_help
+	exit 0
 }
 
 . .demo-env

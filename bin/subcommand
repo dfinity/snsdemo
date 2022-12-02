@@ -2,18 +2,19 @@
 set -euo pipefail
 
 PREFIX="$(basename "$(realpath "$0")")"
-if (( $# > 0 )) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]
-then
-    SUBCOMMAND="$1" ; shift 1
-    if command -v "$PREFIX-$SUBCOMMAND"
-    then "$PREFIX-$SUBCOMMAND" "${@}"
-    else {
-           echo "Unknown command: '$SUBCOMMAND'"
-           "$PREFIX"
-           exit 1
-         } >&2
-    fi
+if (($# > 0)) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]; then
+	SUBCOMMAND="$1"
+	shift 1
+	if command -v "$PREFIX-$SUBCOMMAND"; then
+		"$PREFIX-$SUBCOMMAND" "${@}"
+	else
+		{
+			echo "Unknown command: '$SUBCOMMAND'"
+			"$PREFIX"
+			exit 1
+		} >&2
+	fi
 else
-    echo Subcommands:
-    find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | sed -nE 's!.*/'"$PREFIX"'-([a-zA-Z0-9]*)[-a-zA-Z0-9]*$!  - \1!g;ta;b;:a;p' | sort | uniq
+	echo Subcommands:
+	find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | sed -nE 's!.*/'"$PREFIX"'-([a-zA-Z0-9]*)[-a-zA-Z0-9]*$!  - \1!g;ta;b;:a;p' | sort | uniq
 fi

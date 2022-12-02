@@ -6,13 +6,12 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $( optparse.build )
+source $(optparse.build)
 set -euo pipefail
 
 export DFX_NETWORK
 
-if [[ "$DFX_NETWORK" == "local" ]]
-then
+if [[ "$DFX_NETWORK" == "local" ]]; then
 	dfx stop || true
 	sleep 1
 	pkill -9 icx-proxy || true

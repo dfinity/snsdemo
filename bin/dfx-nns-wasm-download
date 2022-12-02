@@ -8,122 +8,125 @@ set -x
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DOWNLOAD_DIR="$PWD/wasms"
 NO_CLOBBER=""
-IC_COMMIT="$(. "$SOURCE_DIR/versions.bash" ; echo "$IC_COMMIT")"
+IC_COMMIT="$(
+	. "$SOURCE_DIR/versions.bash"
+	echo "$IC_COMMIT"
+)"
 
 help_text() {
-  cat <<-EOF
-	Downloads prebuilt internet computer artifacts:
-	- NNS wasm canisters
-	- NNS wasm canister installer
+	cat <<-EOF
+		Downloads prebuilt internet computer artifacts:
+		- NNS wasm canisters
+		- NNS wasm canister installer
 
-	Flags:
-	--help
-	  Prints this help text
+		Flags:
+		--help
+		  Prints this help text
 
-	--download-dir <DIR>
-	  Specifies where the artifacts should be downloaded.
-	  Default: '$DOWNLOAD_DIR'
-	  The download dir is printed on stdout for use by other programs.
+		--download-dir <DIR>
+		  Specifies where the artifacts should be downloaded.
+		  Default: '$DOWNLOAD_DIR'
+		  The download dir is printed on stdout for use by other programs.
 
-	--commit <IC_COMMIT>
-	  Commit in the IC repo.
-	  Note: Not all commits are available as artifacts to download.
+		--commit <IC_COMMIT>
+		  Commit in the IC repo.
+		  Note: Not all commits are available as artifacts to download.
 
-	--no-clobber
-	  Don't replace existing files.
-	
+		--no-clobber
+		  Don't replace existing files.
+
 	EOF
 }
 
 while (($# > 0)); do
-  arg="$1"
-  shift 1
-  case "$arg" in
-  --help)
-    help_text
-    exit 0
-    ;;
-  --download-dir)
-    DOWNLOAD_DIR="$(realpath "$1")"
-    test -d "$DOWNLOAD_DIR" || {
-      printf "ERROR: %s '%s'\n" "Download dir does not exist:" "$1"
-      exit 1
-    } >&2
-    shift 1
-    ;;
-  --ic-commit)
-    IC_COMMIT="$1"
-    shift 1
-    ;;
-  --no-clobber)
-    NO_CLOBBER=nc
-    ;;
-  *)
-    {
-      printf "ERROR: %s '%s'\n" "Unknown argument:" "$arg"
-      printf "Usage:"
-      help_text
-    } >&2
-    exit 1
-    ;;
-  esac
+	arg="$1"
+	shift 1
+	case "$arg" in
+	--help)
+		help_text
+		exit 0
+		;;
+	--download-dir)
+		DOWNLOAD_DIR="$(realpath "$1")"
+		test -d "$DOWNLOAD_DIR" || {
+			printf "ERROR: %s '%s'\n" "Download dir does not exist:" "$1"
+			exit 1
+		} >&2
+		shift 1
+		;;
+	--ic-commit)
+		IC_COMMIT="$1"
+		shift 1
+		;;
+	--no-clobber)
+		NO_CLOBBER=nc
+		;;
+	*)
+		{
+			printf "ERROR: %s '%s'\n" "Unknown argument:" "$arg"
+			printf "Usage:"
+			help_text
+		} >&2
+		exit 1
+		;;
+	esac
 done
 
 mkdir -p "$DOWNLOAD_DIR"
 echo "$DOWNLOAD_DIR"
 
 get_binary() {
-  local FILENAME
-  FILENAME="$1"
-  if test -e "$DOWNLOAD_DIR/$FILENAME" && test -n "${NO_CLOBBER:-}"; then
-    return
-  fi
-  local TMP_FILE
-  TMP_FILE="$(mktemp)"
-  local OS
-  OS="$(uname)"
-  case "$OS" in
-  Darwin)
-    curl "https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/${FILENAME}.gz" | gunzip >"$TMP_FILE"
-    ;;
-  Linux)
-    curl "https://download.dfinity.systems/ic/${IC_COMMIT}/release/${FILENAME}.gz" | gunzip >"$TMP_FILE"
-    ;;
-  *)
-    printf "ERROR: %s '%s'\n" \
-      "Cannot download binary" "$FILENAME" \
-      "Unsupported platform:" "$OS" \
-      >&2
-    exit 1
-    ;;
-  esac
-  install -m 755 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
-  rm "$TMP_FILE"
+	local FILENAME
+	FILENAME="$1"
+	if test -e "$DOWNLOAD_DIR/$FILENAME" && test -n "${NO_CLOBBER:-}"; then
+		return
+	fi
+	local TMP_FILE
+	TMP_FILE="$(mktemp)"
+	local OS
+	OS="$(uname)"
+	case "$OS" in
+	Darwin)
+		curl "https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/${FILENAME}.gz" | gunzip >"$TMP_FILE"
+		;;
+	Linux)
+		curl "https://download.dfinity.systems/ic/${IC_COMMIT}/release/${FILENAME}.gz" | gunzip >"$TMP_FILE"
+		;;
+	*)
+		printf "ERROR: %s '%s'\n" \
+			"Cannot download binary" "$FILENAME" \
+			"Unsupported platform:" "$OS" \
+			>&2
+		exit 1
+		;;
+	esac
+	install -m 755 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
+	rm "$TMP_FILE"
 }
 
 # Downloads wasm files.
 get_wasm() {
-  local FILENAME
-  FILENAME="$1"
-  shift 1
-  if test -e "$DOWNLOAD_DIR/$FILENAME" && test -n "${NO_CLOBBER:-}"; then
-    echo "Already downloaded $FILENAME"
-  else
-    local TMP_FILE
-    TMP_FILE="$(mktemp)"
-    curl "https://download.dfinity.systems/ic/${IC_COMMIT}/canisters/${FILENAME}.gz" | gunzip >"$TMP_FILE"
-    install -m 644 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
-    rm "$TMP_FILE"
-  fi
-  (
-    cd "$DOWNLOAD_DIR"
-    while (($# > 0)); do
-      LINK_NAME="$1"
-      shift 1
-      rm -f "$LINK_NAME"
-      ln -s "$FILENAME" "$LINK_NAME"
-    done
-  )
+	local FILENAME
+	FILENAME="$1"
+	shift 1
+	if test -e "$DOWNLOAD_DIR/$FILENAME" && test -n "${NO_CLOBBER:-}"; then
+		echo "Already downloaded $FILENAME"
+	else
+		local TMP_FILE
+		TMP_FILE="$(mktemp)"
+		curl "https://download.dfinity.systems/ic/${IC_COMMIT}/canisters/${FILENAME}.gz" | gunzip >"$TMP_FILE"
+		install -m 644 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
+		rm "$TMP_FILE"
+	fi
+	(
+		cd "$DOWNLOAD_DIR"
+		while (($# > 0)); do
+			LINK_NAME="$1"
+			shift 1
+			rm -f "$LINK_NAME"
+			ln -s "$FILENAME" "$LINK_NAME"
+		done
+	)
 }
 
 get_binary ic-nns-init

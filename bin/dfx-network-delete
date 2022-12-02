@@ -6,7 +6,7 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $( optparse.build )
+source $(optparse.build)
 set -euo pipefail
 
 export DFX_NETWORK
@@ -15,27 +15,27 @@ DELETE_CANISTER_IDS="true"
 DELETE_WALLET="true"
 
 if [[ "$DELETE_CANISTER_IDS" == "true" ]]; then
-  if test -e canister_ids.json; then
-    : Back up the canister_ids.json
-    cp canister_ids.json "canister_ids.json.$(date -Isecond -u | sed 's/+.*//g')"
-    echo "Deleting the entries for $DFX_NETWORK in canister_ids.json ..."
-    DFX_NETWORK="$DFX_NETWORK" jq 'to_entries | map(del(.value[env.DFX_NETWORK])) | from_entries' <canister_ids.json >canister_ids.json.new
-    mv canister_ids.json.new canister_ids.json
-  fi
+	if test -e canister_ids.json; then
+		: Back up the canister_ids.json
+		cp canister_ids.json "canister_ids.json.$(date -Isecond -u | sed 's/+.*//g')"
+		echo "Deleting the entries for $DFX_NETWORK in canister_ids.json ..."
+		DFX_NETWORK="$DFX_NETWORK" jq 'to_entries | map(del(.value[env.DFX_NETWORK])) | from_entries' <canister_ids.json >canister_ids.json.new
+		mv canister_ids.json.new canister_ids.json
+	fi
 fi
 
 if [[ "$DELETE_WALLET" == "true" ]]; then
-  # Note: "list" puts a '*' printed next to the current ID, but it is on stderr
-  #       so we discard it on dev/null leaving just the user's identities, one per line.
-  dfx identity list 2>/dev/null |
-    while read -r DFX_ID; do
-      WALLET_FILE="${HOME}/.config/dfx/identity/$DFX_ID/wallets.json"
-      if test -e "$WALLET_FILE"; then
-        : Back up wallet
-        cp "${WALLET_FILE}" "${WALLET_FILE}.$(date -Isecond -u | sed 's/+.*//g')"
-        echo "Deleting the wallet for $DFX_NETWORK in $WALLET_FILE ..."
-        DFX_NETWORK="$DFX_NETWORK" DFX_ID="$DFX_ID" jq 'del(.identities[env.DFX_ID][env.DFX_NETWORK])' "${WALLET_FILE}" | jq -s first >"${WALLET_FILE}.new"
-        mv "${WALLET_FILE}.new" "${WALLET_FILE}"
-      fi
-    done
+	# Note: "list" puts a '*' printed next to the current ID, but it is on stderr
+	#       so we discard it on dev/null leaving just the user's identities, one per line.
+	dfx identity list 2>/dev/null |
+		while read -r DFX_ID; do
+			WALLET_FILE="${HOME}/.config/dfx/identity/$DFX_ID/wallets.json"
+			if test -e "$WALLET_FILE"; then
+				: Back up wallet
+				cp "${WALLET_FILE}" "${WALLET_FILE}.$(date -Isecond -u | sed 's/+.*//g')"
+				echo "Deleting the wallet for $DFX_NETWORK in $WALLET_FILE ..."
+				DFX_NETWORK="$DFX_NETWORK" DFX_ID="$DFX_ID" jq 'del(.identities[env.DFX_ID][env.DFX_NETWORK])' "${WALLET_FILE}" | jq -s first >"${WALLET_FILE}.new"
+				mv "${WALLET_FILE}.new" "${WALLET_FILE}"
+			fi
+		done
 fi

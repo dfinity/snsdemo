@@ -6,12 +6,12 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $( optparse.build )
+source $(optparse.build)
 set -euo pipefail
 
 [[ "$DFX_NETWORK" != "local" ]] || {
-  echo "Subnets are already authorized on local networks."
-  exit 0
+	echo "Subnets are already authorized on local networks."
+	exit 0
 }
 
 export DFX_NETWORK
@@ -19,10 +19,10 @@ NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 export NNS_URL
 
 set "$(dfx cache show)/ic-admin" \
-  --nns-url "$NNS_URL" \
-  propose-to-update-sns-subnet-ids-in-sns-wasm \
-  --test-neuron-proposer \
-  $(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r 'map("--sns-subnet-ids-to-add " + . + " ") | .[]')
+	--nns-url "$NNS_URL" \
+	propose-to-update-sns-subnet-ids-in-sns-wasm \
+	--test-neuron-proposer \
+	$(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r 'map("--sns-subnet-ids-to-add " + . + " ") | .[]')
 
 echo "${@}"
 #"${@}"

@@ -2,71 +2,71 @@
 set -euo pipefail
 
 print_help() {
-  cat <<-EOF
-	Tests the commands in the README.
+	cat <<-EOF
+		Tests the commands in the README.
 
-	Usage: $(basename "$0") [flags]
+		Usage: $(basename "$0") [flags]
 
-	Flags:
-	--help
-	  Prints this help text.
+		Flags:
+		--help
+		  Prints this help text.
 
-	--dry-run
-	  Prints the commands without executing them.
+		--dry-run
+		  Prints the commands without executing them.
 
-	--ssh)
-	  Clones from github via ssh instead of https.
+		--ssh)
+		  Clones from github via ssh instead of https.
 	EOF
 }
 
 AUTH=http
 modify_auth() {
-  case "${AUTH:-}" in
-  ssh) sed 's!https://github.com/!git@github.com:!g' ;;
-  *) cat ;;
-  esac
+	case "${AUTH:-}" in
+	ssh) sed 's!https://github.com/!git@github.com:!g' ;;
+	*) cat ;;
+	esac
 }
 
 COMMAND=execute_bash
 execute_bash() {
-  bash -euxo pipefail "${@}"
+	bash -euxo pipefail "${@}"
 }
 
 while (($# > 0)); do
-  arg="$1"
-  shift 1
-  case "${arg:-}" in
-  --help)
-    print_help
-    exit 0
-    ;;
-  --dry-run)
-    COMMAND="cat"
-    ;;
-  --ssh)
-    AUTH="ssh"
-    ;;
-  *)
-    {
-      echo "ERROR: Unrecognized argument: ${arg:-}"
-      exit 1
-    } >&2
-    ;;
-  esac
+	arg="$1"
+	shift 1
+	case "${arg:-}" in
+	--help)
+		print_help
+		exit 0
+		;;
+	--dry-run)
+		COMMAND="cat"
+		;;
+	--ssh)
+		AUTH="ssh"
+		;;
+	*)
+		{
+			echo "ERROR: Unrecognized argument: ${arg:-}"
+			exit 1
+		} >&2
+		;;
+	esac
 done
 
 cd "$(dirname "$(realpath "$0")")/.."
 
 if git diff | grep -q .; then
-  {
-    echo "ERROR: Refusing to test unclean repo."
-    exit 1
-  } >&2
+	{
+		echo "ERROR: Refusing to test unclean repo."
+		exit 1
+	} >&2
 fi
 # We make changes to the README.  Better undo any changes.
 function cleanup {
-  git checkout README.md
-  dfx stop
+	git checkout README.md
+	dfx stop
 }
 trap cleanup EXIT
 

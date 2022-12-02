@@ -6,12 +6,13 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $( optparse.build )
+source $(optparse.build)
 set -euo pipefail
 
 export DFX_NETWORK
 
-if [[ "$DFX_NETWORK" == "local" ]]
-then echo "http://$(jq -er ".[env.DFX_NETWORK].bind | select (.!=null)" "$(dfx info networks-json-path)")"
-else jq -er '.[env.DFX_NETWORK].url | select (.!=null)' "$(dfx info networks-json-path)"
+if [[ "$DFX_NETWORK" == "local" ]]; then
+	echo "http://$(jq -er ".[env.DFX_NETWORK].bind | select (.!=null)" "$(dfx info networks-json-path)")"
+else
+	jq -er '.[env.DFX_NETWORK].url | select (.!=null)' "$(dfx info networks-json-path)"
 fi

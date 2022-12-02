@@ -5,94 +5,94 @@ SWAP_CANISTER_NAME="sns_swap"
 DFX_NETWORK="${DFX_NETWORK:-local}"
 
 help_text() {
-  cat <<-EOF
-	Starts an SNS swap.
+	cat <<-EOF
+		Starts an SNS swap.
 
-	Flags:
-	--dfx-network <DFX_NETWORK>
-	  The network in dfx.json with the swap canister.
-	  Default: None, this is required.
+		Flags:
+		--dfx-network <DFX_NETWORK>
+		  The network in dfx.json with the swap canister.
+		  Default: None, this is required.
 
-	--swap-canister <SWAP_CANISTER_ID>
-	  The swap canister ID.
-	  Default: The '${SWAP_CANISTER_NAME}' entry in 'canister_ids.json'
+		--swap-canister <SWAP_CANISTER_ID>
+		  The swap canister ID.
+		  Default: The '${SWAP_CANISTER_NAME}' entry in 'canister_ids.json'
 
-	--title <TITLE>
-	  The title of the proposal
-	  Default: Something meaningless
+		--title <TITLE>
+		  The title of the proposal
+		  Default: Something meaningless
 
-	--url <URL>
-	  The URL of a page describing the SNS
-	  Default: Something meaningless
+		--url <URL>
+		  The URL of a page describing the SNS
+		  Default: Something meaningless
 
-	--proposer <PROPOSER_NEURON_ID>
-	  The proposing neuron ID.
-	  Default: Interactive commands to set up a neuron and hotkey.
+		--proposer <PROPOSER_NEURON_ID>
+		  The proposing neuron ID.
+		  Default: Interactive commands to set up a neuron and hotkey.
 
-	Env vars:
-	  DFX_NETWORK
-	  SWAP_CANISTER_ID
-	  TITLE
-	  URL
-	  PROPOSER_NEURON_ID
+		Env vars:
+		  DFX_NETWORK
+		  SWAP_CANISTER_ID
+		  TITLE
+		  URL
+		  PROPOSER_NEURON_ID
 	EOF
 }
 
 dfx_network_is_valid() {
-  [[ "${DFX_NETWORK:-}" == "local" ]] || jq -e '.networks[env.DFX_NETWORK]' dfx.json >/dev/null
+	[[ "${DFX_NETWORK:-}" == "local" ]] || jq -e '.networks[env.DFX_NETWORK]' dfx.json >/dev/null
 }
 dfx_network_check_specified() {
-  test -n "${DFX_NETWORK:-}" || {
-    echo "ERROR: DFX_NETWORK not set.  Please use: --dfx-network <DFX_NETWORK>" >&2
-    exit 1
-  }
+	test -n "${DFX_NETWORK:-}" || {
+		echo "ERROR: DFX_NETWORK not set.  Please use: --dfx-network <DFX_NETWORK>" >&2
+		exit 1
+	}
 }
 dfx_network_check_valid() {
-  DFX_NETWORK="$DFX_NETWORK" dfx_network_is_valid || {
-    cat <<-EOF
+	DFX_NETWORK="$DFX_NETWORK" dfx_network_is_valid || {
+		cat <<-EOF
 
-	ERROR: No such network in dfx.json.
-	       Available networks are:
-	       $(jq -er '.networks | keys | join(" ")' dfx.json)
+			ERROR: No such network in dfx.json.
+			       Available networks are:
+			       $(jq -er '.networks | keys | join(" ")' dfx.json)
 
-	EOF
-    exit 1
-  }
+		EOF
+		exit 1
+	}
 }
 
 while (($# > 0)); do
-  arg="$1"
-  shift 1
-  case "$arg" in
-  --help)
-    help_text
-    exit 0
-    ;;
-  --dfx-network)
-    DFX_NETWORK="$1"
-    shift 1
-    dfx_network_check_valid
-    ;;
-  --proposer)
-    PROPOSER_NEURON_ID="${1:-}"
-    shift 1
-    ;;
-  --title)
-    TITLE="${1:-}"
-    shift 1
-    ;;
-  --url)
-    URL="${1:-}"
-    shift 1
-    ;;
-  *)
-    cat <<-EOF >&2
-	ERROR: Unrecognised argument: '$arg'
-	Please use --help for usage.
-	EOF
-    exit 1
-    ;;
-  esac
+	arg="$1"
+	shift 1
+	case "$arg" in
+	--help)
+		help_text
+		exit 0
+		;;
+	--dfx-network)
+		DFX_NETWORK="$1"
+		shift 1
+		dfx_network_check_valid
+		;;
+	--proposer)
+		PROPOSER_NEURON_ID="${1:-}"
+		shift 1
+		;;
+	--title)
+		TITLE="${1:-}"
+		shift 1
+		;;
+	--url)
+		URL="${1:-}"
+		shift 1
+		;;
+	*)
+		cat <<-EOF >&2
+			ERROR: Unrecognised argument: '$arg'
+			Please use --help for usage.
+		EOF
+		exit 1
+		;;
+	esac
 done
 
 dfx_network_check_specified
@@ -100,14 +100,14 @@ dfx_network_check_valid
 
 : "Tell the user how to set up a neuron, if none has been provided."
 test -n "${PROPOSER_NEURON_ID:-}" || {
-  echo
-  echo "Please create a neuron, e.g. in the nns-dapp front end."
-  read -rp "Press enter when done... " _
-  echo
-  read -rp "Please enter the ID of the neuron: " PROPOSER_NEURON_ID
-  echo
-  echo "Please add $(dfx identity --network "$DFX_NETWORK" get-principal) as a hotkey to the neuron."
-  read -rp "Press enter when done... " _
+	echo
+	echo "Please create a neuron, e.g. in the nns-dapp front end."
+	read -rp "Press enter when done... " _
+	echo
+	read -rp "Please enter the ID of the neuron: " PROPOSER_NEURON_ID
+	echo
+	echo "Please add $(dfx identity --network "$DFX_NETWORK" get-principal) as a hotkey to the neuron."
+	read -rp "Press enter when done... " _
 }
 
 test -n "${SWAP_CANISTER_ID:-}" || SWAP_CANISTER_ID="$(dfx canister --network "$DFX_NETWORK" id sns_swap)"

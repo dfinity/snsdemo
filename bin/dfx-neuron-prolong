@@ -8,7 +8,7 @@ optparse.define short=i long=identity desc="The dfx identity to use" variable=DF
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 optparse.define short=t long=time desc="By how long to extend the dissolve delay" variable=DISSOLVE_DELAY default="$((60 * 60 * 24 * 360))"
 # Source the output file ----------------------------------------------------------
-source $( optparse.build )
+source $(optparse.build)
 set -euo pipefail
 
 # Create a neuron
@@ -16,5 +16,5 @@ PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
 NEURON_ID="$("$SOURCE_DIR/dfx-neuron-id" --network "$DFX_NETWORK" --identity "$DFX_IDENTITY")"
 NETWORK_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 
-quill neuron-manage --insecure-local-dev-mode --pem-file "$PEM" --additional-dissolve-delay-seconds "$DISSOLVE_DELAY" "$NEURON_ID" | tee -a log |\
-     IC_URL="$NETWORK_URL" quill send --yes --insecure-local-dev-mode - | tee -a log
+quill neuron-manage --insecure-local-dev-mode --pem-file "$PEM" --additional-dissolve-delay-seconds "$DISSOLVE_DELAY" "$NEURON_ID" | tee -a log |
+	IC_URL="$NETWORK_URL" quill send --yes --insecure-local-dev-mode - | tee -a log

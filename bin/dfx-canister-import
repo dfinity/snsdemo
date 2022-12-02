@@ -3,34 +3,34 @@ set -euo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
 
 help_text() {
-  cat <<-EOF
+	cat <<-EOF
 
-	Imports candid files from a remote project.
+		Imports candid files from a remote project.
 
-	Polyfill for: "dfx canister import"
+		Polyfill for: "dfx canister import"
 
-	Usage: dfx canister import [--prefix <CANISTER_NAME_PREFIX>] <URL|PATH_TO_REMOTE_DFX> <CANISTER_NAME>
+		Usage: dfx canister import [--prefix <CANISTER_NAME_PREFIX>] <URL|PATH_TO_REMOTE_DFX> <CANISTER_NAME>
 
-	Arguments:
-	<URL|PATH_TO_REMOTE_DFX>
-	  The location of a remote dfx.json file.
-	  Example: To import the NNS canisters, use: https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json
+		Arguments:
+		<URL|PATH_TO_REMOTE_DFX>
+		  The location of a remote dfx.json file.
+		  Example: To import the NNS canisters, use: https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json
 
-	<CANISTER_NAME>
-	  The name of the canister to import.  If "--all" is given, all canisters will be imported.
+		<CANISTER_NAME>
+		  The name of the canister to import.  If "--all" is given, all canisters will be imported.
 
-	Flags:
-	--help
-	  Prints this help text and exits.
+		Flags:
+		--help
+		  Prints this help text and exits.
 
-	--prefix <CANISTER_NAME_PREFIX>
-	  A prefix to add to imported canister names.
+		--prefix <CANISTER_NAME_PREFIX>
+		  A prefix to add to imported canister names.
 
-	--ids
-	  Import the canister_ids.json (in its entirety or the specified canisters only).
+		--ids
+		  Import the canister_ids.json (in its entirety or the specified canisters only).
 
-	  Example: If the prefix is "foo-" and a remote canister is called "bar"
-		   then the canister will be called "foo-bar" in the local dfx.json.
+		  Example: If the prefix is "foo-" and a remote canister is called "bar"
+			   then the canister will be called "foo-bar" in the local dfx.json.
 
 	EOF
 }
@@ -38,96 +38,96 @@ help_text() {
 unset CANISTER_NAME_PREFIX
 ACTION=IMPORT_DFX
 while (($# > 0)); do
-  arg="$1"
-  shift 1
-  case "$arg" in
-  --help)
-    help_text
-    exit 0
-    ;;
-  --prefix)
-    CANISTER_NAME_PREFIX="${1}"
-    shift 1
-    ;;
-  --ids)
-    ACTION="IMPORT_CANISTER_IDS"
-    ;;
-  *)
-    REMOTE_DFX="${arg}"
-    CANISTER_NAME="${1:---all}"
-    shift 1 || true
-    ;;
-  esac
+	arg="$1"
+	shift 1
+	case "$arg" in
+	--help)
+		help_text
+		exit 0
+		;;
+	--prefix)
+		CANISTER_NAME_PREFIX="${1}"
+		shift 1
+		;;
+	--ids)
+		ACTION="IMPORT_CANISTER_IDS"
+		;;
+	*)
+		REMOTE_DFX="${arg}"
+		CANISTER_NAME="${1:---all}"
+		shift 1 || true
+		;;
+	esac
 done
 
 copy_from_anywhere() {
-  if test -f "$1" || test -L "$1"; then
-    cat "$1" >"$2"
-  else
-    curl -SL "$1" >"$2"
-  fi
+	if test -f "$1" || test -L "$1"; then
+		cat "$1" >"$2"
+	else
+		curl -SL "$1" >"$2"
+	fi
 }
 import_canister_dfx() {
-  (
-    set -euxo pipefail
-    export canister_name="$1"
-    export local_canister_name="${CANISTER_NAME_PREFIX:-}${canister_name}"
-    export source_did_path="$REMOTE_DFX_DIR/$(jq -r '.canisters[env.canister_name].candid' "$COPY_OF_REMOTE_DFX")"
-    export source_did_path="$(echo "$source_did_path" | sed -E 's_([^:])/+_\1/_g;:a;s_[^/]*\/\.\.\/__g;ta')"
-    export target_did_path="$LOCAL_CANDID_DIR/${local_canister_name}.did"
-    mkdir -p "$LOCAL_CANDID_DIR"
-    copy_from_anywhere "$source_did_path" "$target_did_path"
-    cat <<<"$(jq '.canisters[env.local_canister_name] = {candid: (env.target_did_path), build: "", wasm: "", type: "custom"}' "$COPY_OF_LOCAL_DFX")" >"$COPY_OF_LOCAL_DFX"
-  )
+	(
+		set -euxo pipefail
+		export canister_name="$1"
+		export local_canister_name="${CANISTER_NAME_PREFIX:-}${canister_name}"
+		export source_did_path="$REMOTE_DFX_DIR/$(jq -r '.canisters[env.canister_name].candid' "$COPY_OF_REMOTE_DFX")"
+		export source_did_path="$(echo "$source_did_path" | sed -E 's_([^:])/+_\1/_g;:a;s_[^/]*\/\.\.\/__g;ta')"
+		export target_did_path="$LOCAL_CANDID_DIR/${local_canister_name}.did"
+		mkdir -p "$LOCAL_CANDID_DIR"
+		copy_from_anywhere "$source_did_path" "$target_did_path"
+		cat <<<"$(jq '.canisters[env.local_canister_name] = {candid: (env.target_did_path), build: "", wasm: "", type: "custom"}' "$COPY_OF_LOCAL_DFX")" >"$COPY_OF_LOCAL_DFX"
+	)
 }
 import_dfx_main() {
-  REMOTE_DFX_DIR="$(dirname "${REMOTE_DFX}X")" # Maps: foo/dfx.json -> foo ; foo/ -> foo
-  REMOTE_DFX="${REMOTE_DFX_DIR:-.}/dfx.json"
-  COPY_OF_REMOTE_DFX="$(mktemp)"
-  COPY_OF_LOCAL_DFX="$(mktemp)"
-  LOCAL_CANDID_DIR="candid"
+	REMOTE_DFX_DIR="$(dirname "${REMOTE_DFX}X")" # Maps: foo/dfx.json -> foo ; foo/ -> foo
+	REMOTE_DFX="${REMOTE_DFX_DIR:-.}/dfx.json"
+	COPY_OF_REMOTE_DFX="$(mktemp)"
+	COPY_OF_LOCAL_DFX="$(mktemp)"
+	LOCAL_CANDID_DIR="candid"
 
-  cp dfx.json "$COPY_OF_LOCAL_DFX"
-  copy_from_anywhere "$REMOTE_DFX" "$COPY_OF_REMOTE_DFX"
-  if [[ "$CANISTER_NAME" == "--all" ]]; then
-    for canister_name in $(jq -r '.canisters | keys | .[]' "$COPY_OF_REMOTE_DFX"); do
-      import_canister_dfx "$canister_name"
-    done
-  else
-    import_canister_dfx "$CANISTER_NAME"
-  fi
-  cp "$COPY_OF_LOCAL_DFX" dfx.json
-  rm "$COPY_OF_REMOTE_DFX"
-  echo OK
+	cp dfx.json "$COPY_OF_LOCAL_DFX"
+	copy_from_anywhere "$REMOTE_DFX" "$COPY_OF_REMOTE_DFX"
+	if [[ "$CANISTER_NAME" == "--all" ]]; then
+		for canister_name in $(jq -r '.canisters | keys | .[]' "$COPY_OF_REMOTE_DFX"); do
+			import_canister_dfx "$canister_name"
+		done
+	else
+		import_canister_dfx "$CANISTER_NAME"
+	fi
+	cp "$COPY_OF_LOCAL_DFX" dfx.json
+	rm "$COPY_OF_REMOTE_DFX"
+	echo OK
 }
 import_canister_ids_main() {
-  REMOTE_DFX_DIR="$(dirname "${REMOTE_DFX}X")" # Maps: foo/dfx.json -> foo ; foo/ -> foo
-  REMOTE_CANISTER_IDS_PATH="${REMOTE_DFX_DIR:-.}/canister_ids.json"
-  COPY_OF_REMOTE_CANISTER_IDS="$(mktemp)"
-  COPY_OF_LOCAL_CANISTER_IDS="$(mktemp)"
-  touch canister_ids.json
-  cp canister_ids.json "$COPY_OF_LOCAL_CANISTER_IDS"
-  copy_from_anywhere "$REMOTE_CANISTER_IDS_PATH" "$COPY_OF_REMOTE_CANISTER_IDS"
-  if [[ "$CANISTER_NAME" == "--all" ]]; then
-    cat <<<"$(jq -s '.[0] * .[1]' "$COPY_OF_LOCAL_CANISTER_IDS" "$COPY_OF_REMOTE_CANISTER_IDS")" >"$COPY_OF_LOCAL_CANISTER_IDS"
-  else
-    export CANISTER_NAME
-    cat <<<"$(jq -s '.[0] * {(env.CANISTER_NAME): .[1](env.CANISTER_NAME)}' "$COPY_OF_LOCAL_CANISTER_IDS" "$COPY_OF_REMOTE_CANISTER_IDS")" >"$COPY_OF_LOCAL_CANISTER_IDS"
-  fi
-  mv "$COPY_OF_LOCAL_CANISTER_IDS" canister_ids.json
-  rm "$COPY_OF_REMOTE_CANISTER_IDS"
-  echo OK
+	REMOTE_DFX_DIR="$(dirname "${REMOTE_DFX}X")" # Maps: foo/dfx.json -> foo ; foo/ -> foo
+	REMOTE_CANISTER_IDS_PATH="${REMOTE_DFX_DIR:-.}/canister_ids.json"
+	COPY_OF_REMOTE_CANISTER_IDS="$(mktemp)"
+	COPY_OF_LOCAL_CANISTER_IDS="$(mktemp)"
+	touch canister_ids.json
+	cp canister_ids.json "$COPY_OF_LOCAL_CANISTER_IDS"
+	copy_from_anywhere "$REMOTE_CANISTER_IDS_PATH" "$COPY_OF_REMOTE_CANISTER_IDS"
+	if [[ "$CANISTER_NAME" == "--all" ]]; then
+		cat <<<"$(jq -s '.[0] * .[1]' "$COPY_OF_LOCAL_CANISTER_IDS" "$COPY_OF_REMOTE_CANISTER_IDS")" >"$COPY_OF_LOCAL_CANISTER_IDS"
+	else
+		export CANISTER_NAME
+		cat <<<"$(jq -s '.[0] * {(env.CANISTER_NAME): .[1](env.CANISTER_NAME)}' "$COPY_OF_LOCAL_CANISTER_IDS" "$COPY_OF_REMOTE_CANISTER_IDS")" >"$COPY_OF_LOCAL_CANISTER_IDS"
+	fi
+	mv "$COPY_OF_LOCAL_CANISTER_IDS" canister_ids.json
+	rm "$COPY_OF_REMOTE_CANISTER_IDS"
+	echo OK
 }
 
 case "${ACTION}" in
 IMPORT_DFX)
-  import_dfx_main
-  ;;
+	import_dfx_main
+	;;
 IMPORT_CANISTER_IDS)
-  import_canister_ids_main
-  ;;
+	import_canister_ids_main
+	;;
 *)
-  echo "Internal error: Unknown action '${ACTION}'" >&2
-  exit 1
-  ;;
+	echo "Internal error: Unknown action '${ACTION}'" >&2
+	exit 1
+	;;
 esac

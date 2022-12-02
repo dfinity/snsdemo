@@ -9,10 +9,10 @@ test -f canister_ids.json || echo '{}' >canister_ids.json
 
 echo "Checking that we have network config"
 jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
-  jq -s '.[0] * .[1]' dfx.json <(
-    cd "$ND_DIR"
-    jq '{networks: .networks}' dfx.json
-  ) >dfx.json.new && mv dfx.json.new dfx.json
+	jq -s '.[0] * .[1]' dfx.json <(
+		cd "$ND_DIR"
+		jq '{networks: .networks}' dfx.json
+	) >dfx.json.new && mv dfx.json.new dfx.json
 }
 
 : "Why is this needed???"

@@ -8,7 +8,7 @@ optparse.define short=s long=icp desc="The amount of ICP to icp" variable=icp de
 optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $( optparse.build )
+source $(optparse.build)
 set -euo pipefail
 
 tail -n1 "$HOME/.config/dfx/identity/$DFX_IDENTITY/neurons/$DFX_NETWORK"
