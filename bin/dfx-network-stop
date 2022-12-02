@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source $( optparse.build )
+set -euo pipefail
+
+export DFX_NETWORK
+
+if [[ "$DFX_NETWORK" == "local" ]]
+then
+	dfx stop || true
+	sleep 1
+	pkill -9 icx-proxy || true
+	sleep 0.1
+else
+	echo "Not stopping remote network: $DFX_NETWORK"
+fi

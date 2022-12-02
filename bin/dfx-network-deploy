@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=c long=commit desc="The IC commit of the wasms" variable=IC_COMMIT default="$(. "$SOURCE_DIR/versions.bash" ; echo "$IC_COMMIT")"
+# Source the output file ----------------------------------------------------------
+source "$( optparse.build )"
+set -euo pipefail
+
+export DFX_NETWORK
+
+if [[ "$DFX_NETWORK" == "local" ]]
+then
+	# Run locally; can be configured by e.g. chnaging the wasm files in the cache
+	dfx-network-stop --network "$DFX_NETWORK"
+	dfx start --clean
+	dfx nns deploy
+else
+	# Run remotely with one of the predefined configurations
+	IC_DIR="${IC_DIR:-$HOME/dfn/ic-github/}"
+	TESTNET="$DFX_NETWORK"
+	(
+		set -euxo pipefail
+		cd "$IC_DIR"
+		cat <<-EOF > test-accounts.json
+		{
+		  "init_ledger_accounts":["5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087", "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138"]
+		}
+		EOF
+
+		./testnet/tools/icos_deploy.sh --git-revision "$IC_COMMIT" "$TESTNET" --ansible-args "-e @$PWD/test-accounts.json"
+		( cd "testnet/env/$TESTNET/" && ./hosts --nns-nodes | awk '{printf "%s http://[%s]:8080\n", $1, $2}' ; )
+		dfx-network-delete --network "$DFX_NETWORK"
+	) || say fail fail fail
+fi
