@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=c long=commit desc="The IC commit of the wasms" variable=IC_COMMIT default="$(. "$SOURCE_DIR/versions.bash" ; echo "$IC_COMMIT")"
+# Source the output file ----------------------------------------------------------
+source $( optparse.build )
+set -euo pipefail
+
+if [[ "${1:-wasms}" == "wasms" ]]
+then
+  mkdir -p wasms
+  cat "$SOURCE_DIR/sns_dfx.json" | jq -r '.canisters | to_entries | map("curl --fail https://download.dfinity.systems/ic/\(env.IC_COMMIT)/canisters/\(.value.wasm).gz | gunzip > wasms/\(.value.wasm)") | .[]' | xargs -I{} bash -c '{}'
+fi

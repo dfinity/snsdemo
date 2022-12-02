@@ -1,0 +1,58 @@
+{
+    "canisters": {
+      "sns-governance": {
+        "config": {
+            "nns_sns_wasm_name": "governance"
+        },
+        "build": "",
+        "wasm": "sns-governance-canister.wasm",
+        "candid": "../governance/canister/governance.did",
+        "type": "custom"
+      },
+      "sns-index": {
+        "config": {
+            "nns_sns_wasm_name": "index"
+        },
+        "build": "",
+        "wasm": "ic-icrc1-index.wasm",
+        "candid": "../../rosetta-api/icrc1/index/index.did",
+        "type": "custom"
+      },
+      "sns-ledger": {
+        "config": {
+            "nns_sns_wasm_name": "ledger"
+        },
+        "build": "",
+        "wasm": "ic-icrc1-ledger.wasm",
+        "candid": "../../rosetta-api/icrc1/ledger/icrc1.did",
+        "type": "custom"
+      },
+      "sns-ledger-archive": {
+        "config": {
+            "nns_sns_wasm_name": "archive"
+        },
+        "build": "",
+        "wasm": "ic-icrc1-archive.wasm",
+        "candid": "../swap/canister/swap.did",
+        "type": "custom"
+      },
+      "sns-root": {
+        "config": {
+            "nns_sns_wasm_name": "root"
+        },
+        "build": "",
+        "wasm": "sns-root-canister.wasm",
+        "candid": "../root/canister/root.did",
+        "type": "custom"
+      },
+      "sns-swap": {
+        "config": {
+            "nns_sns_wasm_name": "swap"
+        },
+        "build": "",
+        "wasm": "sns-swap-canister.wasm",
+        "candid": "../swap/canister/swap.did",
+        "type": "custom"
+      }
+    }
+  }
