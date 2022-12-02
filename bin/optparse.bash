@@ -104,7 +104,7 @@ function optparse.build(){
         cat << EOF > $build_file
 function usage(){
 cat << XXX
-usage: \$0 [OPTIONS]
+usage: \$(basename "\$0") [OPTIONS]
 
 OPTIONS:
         $optparse_usage
