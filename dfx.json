@@ -116,31 +116,56 @@
       "build": "",
       "candid": "candid/sns_governance.did",
       "type": "custom",
-      "wasm": ""
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "q3fc5-haaaa-aaaaa-aaahq-cai"
+        }
+      }
     },
     "sns_index": {
       "build": "",
       "candid": "candid/sns_index.did",
       "type": "custom",
-      "wasm": ""
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "si2b5-pyaaa-aaaaa-aaaja-cai"
+        }
+      }
     },
     "sns_ledger": {
       "build": "",
       "candid": "candid/sns_ledger.did",
       "type": "custom",
-      "wasm": ""
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "sgymv-uiaaa-aaaaa-aaaia-cai"
+        }
+      }
     },
     "sns_root": {
       "build": "",
       "candid": "candid/sns_root.did",
       "type": "custom",
-      "wasm": ""
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "q4eej-kyaaa-aaaaa-aaaha-cai"
+        }
+      }
     },
     "sns_swap": {
       "build": "",
       "candid": "candid/sns_swap.did",
       "type": "custom",
-      "wasm": ""
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "sbzkb-zqaaa-aaaaa-aaaiq-cai"
+        }
+      }
     }
   },
   "defaults": {
