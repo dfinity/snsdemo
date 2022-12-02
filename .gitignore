@@ -10,6 +10,8 @@
 # dfx temporary files
 .dfx
 canister_ids.json
+wasms
+candid
 
 # generated files
 src/declarations/
