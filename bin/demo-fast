@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
@@ -19,7 +19,8 @@ sleep 1
 
 dfx-network-deploy --network "$DFX_NETWORK"
 
-dfx nns import
+dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
+# jq '.*(.canisters | to_entries | map(select(.key | startswith("nns-")) | .value.remote.id[env.DFX_NETWORK] = .value.remote.id.local) |from_entries | {canisters:.})' dfx.json | sponge dfx.json
 dfx sns import
 
 rm -fr "$HOME/.config/dfx/identity/snsdemo8"
