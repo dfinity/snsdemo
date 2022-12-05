@@ -18,7 +18,7 @@ set ic-admin --nns-url "$NNS_URL" \
   "$PROPOSAL_TYPE" \
   --test-neuron-proposer \
   --proposal-title "Authorize CMC to create canisters in subnets" \
-  --proposal-url https://this-is-a.test \
+  --proposal-url https://forum.dfinity.org/somepost \
   --summary "Some summary" \
   --subnets $(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r '. | join(" --subnets ")')
 
