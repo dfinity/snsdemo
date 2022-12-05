@@ -19,16 +19,18 @@ rm -fr "$HOME/.config/dfx/identity/snsdemo8"
 dfx identity new --disable-encryption snsdemo8
 dfx identity use snsdemo8
 
-bin/dfx-ledger-get-icp --icp 900000000
-bin/dfx-neuron-create --icp 500000000
-bin/dfx-neuron-prolong
+bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
+bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
+bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 
-./bin/dfx-sns-whitelist-me
+./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
 
-./bin/dfx-sns-config-random
-./bin/dfx-sns-deploy
+./bin/dfx-sns-config-random --network "$DFX_NETWORK"
+./bin/dfx-sns-deploy --network "$DFX_NETWORK"
 
-dfx canister id sns_root
-dfx canister id sns_governance
-dfx canister id sns_ledger
-dfx canister id sns_swap
+dfx canister id sns_root --network "$DFX_NETWORK"
+dfx canister id sns_governance --network "$DFX_NETWORK"
+dfx canister id sns_ledger --network "$DFX_NETWORK"
+dfx canister id sns_swap --network "$DFX_NETWORK"
+
+: "Demo finished!  Hope you enjoyed the show."
