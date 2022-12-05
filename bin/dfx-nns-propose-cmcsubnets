@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source $(optparse.build)
+set -euo pipefail
+
+
+NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
+PROPOSAL_TYPE="propose-to-set-authorized-subnetworks"
+
+
+set ic-admin --nns-url "$NNS_URL" \
+  "$PROPOSAL_TYPE" \
+  --test-neuron-proposer \
+  --proposal-title "Authorize CMC to create canisters in all subnets" \
+  --proposal-url https://blah.blah \
+  --summary "Some summary" \
+  --subnets $(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r '. | join(" --subnets ")')
