@@ -29,7 +29,16 @@ else
 	# out before we can resonably ask people to do this.
 	IC_DIR="${IC_DIR:-$HOME/dfn/ic-github/}"
 	ND_DIR="${ND_DIR:-$HOME/dfn/nns-dapp/}"
-	dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
+	TESTNET="$DFX_NETWORK"
+	test -d "$ND_DIR" || {
+		echo "Invalid directory for nns-dapp source code: $ND_DIR"
+		exit 1
+	} >&2
+	(
+		set -euxo pipefail
+		echo "Configuring NNS..."
+		dfx identity use ident-1
+		dfx-nns-propose xdr-icp-conversion-rate --network "$DFX_NETWORK"
+		dfx-nns-propose to-set-authorized-subnetworks --network "$DFX_NETWORK"
+	)
 fi

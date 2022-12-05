@@ -19,17 +19,33 @@ set -euo pipefail
 export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-	# Run locally; can be configured by e.g. chnaging the wasm files in the cache
-	dfx-network-stop --network "$DFX_NETWORK"
-	dfx start --clean
-	dfx nns deploy
+	echo NOT APPLICABLE
+	exit 1
 else
 	# Run remotely with one of the predefined configurations.
 	# Note: This is still relatively slow and error prone.  Points of friction need to be ironed
 	# out before we can resonably ask people to do this.
 	IC_DIR="${IC_DIR:-$HOME/dfn/ic-github/}"
 	ND_DIR="${ND_DIR:-$HOME/dfn/nns-dapp/}"
-	dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
+	TESTNET="$DFX_NETWORK"
+	test -d "$ND_DIR" || {
+		echo "Invalid directory for nns-dapp source code: $ND_DIR"
+		exit 1
+	} >&2
+	(
+		set -euxo pipefail
+		echo "Deploying testnet..."
+		cd "$IC_DIR"
+		cat <<-EOF >test-accounts.json
+			{
+			  "init_ledger_accounts":["5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087", "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138"]
+			}
+		EOF
+
+		./testnet/tools/icos_deploy.sh --git-revision "$IC_COMMIT" "$TESTNET" --ansible-args "-e @$PWD/test-accounts.json" || {
+			echo "Tesnet returned an error code but it returns errors for very minor reasons.  The deployment is probably fine."
+		}
+		(cd "testnet/env/$TESTNET/" && ./hosts --nns-nodes | awk '{printf "%s http://[%s]:8080\n", $1, $2}')
+		dfx-network-delete --network "$DFX_NETWORK"
+	)
 fi

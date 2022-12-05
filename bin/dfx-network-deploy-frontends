@@ -19,17 +19,25 @@ set -euo pipefail
 export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-	# Run locally; can be configured by e.g. chnaging the wasm files in the cache
-	dfx-network-stop --network "$DFX_NETWORK"
-	dfx start --clean
-	dfx nns deploy
+	echo NOT APPLICABLE
 else
 	# Run remotely with one of the predefined configurations.
 	# Note: This is still relatively slow and error prone.  Points of friction need to be ironed
 	# out before we can resonably ask people to do this.
 	IC_DIR="${IC_DIR:-$HOME/dfn/ic-github/}"
 	ND_DIR="${ND_DIR:-$HOME/dfn/nns-dapp/}"
-	dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
+	TESTNET="$DFX_NETWORK"
+	test -d "$ND_DIR" || {
+		echo "Invalid directory for nns-dapp source code: $ND_DIR"
+		exit 1
+	} >&2
+
+	(
+		set -euxo pipefail
+		echo "Deploying internet-identity and nns-dapp"
+		cd "$ND_DIR"
+		./deploy.sh --ii "$DFX_NETWORK"
+		./deploy.sh --nns-dapp "$DFX_NETWORK"
+	) || say fail fail fail
+
 fi

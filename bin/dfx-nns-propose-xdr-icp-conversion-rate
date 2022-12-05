@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source $(optparse.build)
+set -euo pipefail
+
+
+NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
+PROPOSAL_TYPE="propose-xdr-icp-conversion-rate"
+
+
+set ic-admin --nns-url "$NNS_URL" propose-xdr-icp-conversion-rate --test-neuron-proposer --summary "Please set the conversion rate between ICP and cycles" --xdr-permyriad-per-icp 123456789
+
+echo "${@}"
+
+"${@}"

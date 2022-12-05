@@ -16,5 +16,5 @@ if (($# > 0)) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]; then
 	fi
 else
 	echo Subcommands:
-	find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | sed -nE 's!.*/'"$PREFIX"'-([a-zA-Z0-9]*)[-a-zA-Z0-9]*$!  - \1!g;ta;b;:a;p' | sort | uniq
+	find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | awk -F/ '{print $(NF)}' | sort |uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
 fi
