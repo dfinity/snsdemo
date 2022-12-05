@@ -14,5 +14,7 @@ export DFX_NETWORK
 if [[ "$DFX_NETWORK" == "local" ]]; then
 	echo "http://$(jq -er ".[env.DFX_NETWORK].bind | select (.!=null)" "$(dfx info networks-json-path)")"
 else
-	jq -er '.[env.DFX_NETWORK].url | select (.!=null)' "$(dfx info networks-json-path)"
+	jq -er '.[env.DFX_NETWORK].url | select (.!=null)' "$(dfx info networks-json-path)" | grep . || {
+		echo "https://${DFX_NETWORK}.dfinity.network"
+	}
 fi
