@@ -32,6 +32,7 @@ bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
+bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-config-random --network "$DFX_NETWORK"
 ./bin/dfx-sns-deploy --network "$DFX_NETWORK"
