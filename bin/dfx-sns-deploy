@@ -12,7 +12,7 @@ set -euo pipefail
 
 export DFX_NETWORK
 
-set "$(dfx cache show)/sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
+set "sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
 echo "${@}"
 "${@}" | tee ,sns-init-response.idl
 

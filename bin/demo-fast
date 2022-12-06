@@ -40,6 +40,7 @@ bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-config-random --network "$DFX_NETWORK"
+dfx ledger top-up --amount 1.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
 ./bin/dfx-sns-deploy --network "$DFX_NETWORK"
 
 dfx canister id sns_root --network "$DFX_NETWORK"
