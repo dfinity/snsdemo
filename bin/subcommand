@@ -5,7 +5,7 @@ PREFIX="$(basename "$(realpath "$0")")"
 if (($# > 0)) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]; then
 	SUBCOMMAND="$1"
 	shift 1
-	if command -v "$PREFIX-$SUBCOMMAND"; then
+	if command -v "$PREFIX-$SUBCOMMAND" >/dev/null ; then
 		"$PREFIX-$SUBCOMMAND" "${@}"
 	else
 		{
