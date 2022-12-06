@@ -7,7 +7,7 @@ test -f canister_ids.json || echo '{}' >canister_ids.json
 
 : Check that vars are defined:
 : "$DFX_NETWORK"
-: "$ND_DIR"
+: "$ND_REPO_DIR"
 
 echo "Creating identities..."
 ./bin/create-dfx-identites.sh

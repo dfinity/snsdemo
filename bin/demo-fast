@@ -6,16 +6,14 @@ PATH="$SOURCE_DIR:$PATH"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=c long=ic_commit desc="The IC commit to use" variable=IC_COMMIT default=""
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euxo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
 
-bin/demo-cleanup
+demo-cleanup
 export DFX_NETWORK
-
-dfx start --clean --background
-sleep 1
 
 dfx-network-deploy --network "$DFX_NETWORK"
 

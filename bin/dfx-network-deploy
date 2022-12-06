@@ -10,8 +10,8 @@ optparse.define short=c long=commit desc="The IC commit of the wasms" variable=I
 	. "$SOURCE_DIR/versions.bash"
 	echo "$IC_COMMIT"
 )"
-optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_DIR default="$HOME/dfn/ic"
-optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_DIR default="$HOME/dfn/nns-dapp"
+optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euo pipefail
@@ -27,9 +27,9 @@ else
 	# Run remotely with one of the predefined configurations.
 	# Note: This is still relatively slow and error prone.  Points of friction need to be ironed
 	# out before we can resonably ask people to do this.
-	IC_DIR="${IC_DIR:-$HOME/dfn/ic-github/}"
-	ND_DIR="${ND_DIR:-$HOME/dfn/nns-dapp/}"
-	dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
-	dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_DIR}" --nd_dir "${ND_DIR}"
+	IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
+	ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
+	dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+	dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+	dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
 fi
