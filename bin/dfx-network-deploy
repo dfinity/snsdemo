@@ -21,7 +21,7 @@ export DFX_NETWORK
 if [[ "$DFX_NETWORK" == "local" ]]; then
 	# Run locally; can be configured by e.g. chnaging the wasm files in the cache
 	dfx-network-stop --network "$DFX_NETWORK"
-	dfx start --clean
+	dfx start --clean --background
 	dfx nns deploy
 else
 	# Run remotely with one of the predefined configurations.
