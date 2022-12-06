@@ -22,6 +22,7 @@ demo-cleanup
 	export PATH="$DEMO_BIN:$PATH"
 	(
 		cd "$IC_REPO_DIR"
+		git fetch
 		git checkout "$IC_COMMIT"
 		bazel build //rs/sns/cli:all
 		cp bazel-bin/rs/sns/cli/sns "$DEMO_BIN"
