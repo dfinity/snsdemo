@@ -48,4 +48,9 @@ dfx canister id sns_governance --network "$DFX_NETWORK"
 dfx canister id sns_ledger --network "$DFX_NETWORK"
 dfx canister id sns_swap --network "$DFX_NETWORK"
 
+: hand over control of the dapp.  Skipped...
+
+dfx-sns-sale-propose --network "$DFX_NETWORK"
+
+
 : "Demo finished!  Hope you enjoyed the show."
