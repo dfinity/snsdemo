@@ -19,8 +19,11 @@ sleep 1
 
 dfx-network-deploy --network "$DFX_NETWORK"
 
-dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
+# dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
+# The above does NOT include nns-sns-wasm.  So import for local (which does include the canister????) and then copy to the requested network.
+# dfx nns import
 # jq '.*(.canisters | to_entries | map(select(.key | startswith("nns-")) | .value.remote.id[env.DFX_NETWORK] = .value.remote.id.local) |from_entries | {canisters:.})' dfx.json | sponge dfx.json
+dfx nns import --network-mapping "$DFX_NETWORK=local"
 dfx sns import
 
 rm -fr "$HOME/.config/dfx/identity/snsdemo8"
@@ -32,7 +35,9 @@ bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
-bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
+./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
+./bin/dfx-sns-wasm-download
+./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-config-random --network "$DFX_NETWORK"
 ./bin/dfx-sns-deploy --network "$DFX_NETWORK"

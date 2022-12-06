@@ -5,6 +5,7 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=i long=identity desc="The identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 # Source the output file ----------------------------------------------------------
 source $(optparse.build)
 set -euo pipefail
@@ -18,11 +19,19 @@ export DFX_NETWORK
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 export NNS_URL
 
-set "$(dfx cache show)/ic-admin" \
+if [[ "$DFX_IDENTITY" == "test" ]]
+then NEURON_ARGS=( "--test-neuron-proposer" )
+     PEM_ARGS=()
+else NEURON_ARGS=( --proposer "$(dfx-neuron-id --network "$DFX_NETWORK" --identity "$DFX_IDENTITY")" )
+     PEM_ARGS=( "--secret-key-pem" "$(dfx-identity-pem --identity "$DFX_IDENTITY")" )
+fi
+
+set "ic-admin" \
 	--nns-url "$NNS_URL" \
+	"${PEM_ARGS[@]}" \
 	propose-to-update-sns-subnet-ids-in-sns-wasm \
-	--test-neuron-proposer \
+	"${NEURON_ARGS[@]}" \
 	$(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r 'map("--sns-subnet-ids-to-add " + . + " ") | .[]')
 
 echo "${@}"
-#"${@}"
+"${@}"

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$PATH:$(dfx cache show)"
+export PATH
 
 # Source the optparse.bash file ---------------------------------------------------
 source "$SOURCE_DIR/optparse.bash"
@@ -9,14 +11,14 @@ optparse.define short=c long=commit desc="The IC commit of the wasms" variable=I
 	. "$SOURCE_DIR/versions.bash"
 	echo "$IC_COMMIT"
 )"
-optparse.define short=i long=id desc="The wasm canister id to upload to" variable=SNS_WASM_CANISTER_ID default='dfx canister id nns-sns-wasm --network DFX_NETWORK'
+optparse.define short=i long=id desc="The wasm canister id to upload to" variable=SNS_WASM_CANISTER_ID default=''
 # Source the output file ----------------------------------------------------------
 source $(optparse.build)
 set -euo pipefail
 
 SNS_WASM_CANISTER_ID="${SNS_WASM_CANISTER_ID:-$(dfx canister id nns-sns-wasm --network "$DFX_NETWORK" 2>/dev/null)}"
 
-if [[ "${1:-wasms}" == "wasms" ]]; then
+
 	cat "$SOURCE_DIR/sns_dfx.json" | jq -r '.canisters | to_entries | map("\(.value.config.nns_sns_wasm_name) \(.value.wasm)") | .[]' | while read line; do
 		set $line
 		UPLOAD_NAME="$1"
@@ -28,4 +30,3 @@ if [[ "${1:-wasms}" == "wasms" ]]; then
 		echo "${@}"
 		"${@}"
 	done
-fi
