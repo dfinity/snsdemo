@@ -26,7 +26,6 @@
 optparse_usage=""
 optparse_contractions=""
 optparse_defaults=""
-optparse_process=""
 optparse_arguments_string=""
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -42,9 +41,12 @@ function optparse.define() {
 		optparse.throw_error "optparse.define <short> <long> <variable> [<desc>] [<default>] [<value>]"
 	fi
 	for option_id in $(seq 1 $#); do
-		local option="$(eval "echo \$$option_id")"
-		local key="$(echo $option | awk -F "=" '{print $1}')"
-		local value="$(echo $option | awk -F "=" '{print $2}')"
+		local option
+		option="$(eval "echo \$$option_id")"
+		local key
+		key="$(echo "$option" | awk -F "=" '{print $1}')"
+		local value
+		value="$(echo "$option" | awk -F "=" '{print $2}')"
 
 		#essentials: shortname, longname, description
 		if [ "$key" = "short" ]; then
@@ -83,7 +85,7 @@ function optparse.define() {
 	if [ "$default" != "" ]; then
 		optparse_usage="${optparse_usage} [default:$default]"
 	fi
-	optparse_contractions="${optparse_contractions}#NL#TB#TB${long})#NL#TB#TB#TBparams+=( \"${short}\" );;"
+	optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
 	if [ "$default" != "" ]; then
 		optparse_defaults="${optparse_defaults}#NL${variable}=${default}"
 	fi
@@ -91,17 +93,17 @@ function optparse.define() {
 	if [ "$val" = "\$OPTARG" ]; then
 		optparse_arguments_string="${optparse_arguments_string}:"
 	fi
-	optparse_process="${optparse_process}#NL#TB#TB${shortname})#NL#TB#TB#TB${variable}=\"$val\";;"
 }
 
 # -----------------------------------------------------------------------------------------------------------------------------
 function optparse.build() {
-	local build_file="$(mktemp -t "optparse-XXXXXX.tmp")"
+	local build_file
+	build_file="$(mktemp -t "optparse-XXXXXX.tmp")"
 
 	# Building getopts header here
 
 	# Function usage
-	cat <<EOF >$build_file
+	cat <<EOF >"$build_file"
 function usage(){
 cat << XXX
 usage: \$(basename "\$0") [OPTIONS]
@@ -114,11 +116,13 @@ OPTIONS:
 XXX
 }
 
+# Set default variable values
+$optparse_defaults
+
 # Contract long options into short options
-params=()
 while [ \$# -ne 0 ]; do
         param="\$1"
-        shift
+        shift 1
 
         case "\$param" in
                 $optparse_contractions
@@ -126,33 +130,13 @@ while [ \$# -ne 0 ]; do
                         usage
                         exit 0;;
 		--)
-			params+=( -- "${@}" )
 			break ;;
                 -*)
                         echo -e "Unrecognized option: \$param"
                         usage
                         exit 1 ;;
                 *)
-                        params+=( "\$param" );;
-        esac
-done
-
-set -- "\${params[@]}"
-
-# Set default variable values
-$optparse_defaults
-
-# Process using getopts
-while getopts "$optparse_arguments_string" option; do
-        case \$option in
-                # Substitute actions for different variables
-                $optparse_process
-                :)
-                        echo "Option - \$OPTARG requires an argument"
-                        exit 1;;
-                *)
-                        usage
-                        exit 1;;
+			break ;;
         esac
 done
 
@@ -161,15 +145,13 @@ rm $build_file
 
 EOF
 
-	local -A o=(['#NL']='\n' ['#TB']='\t')
-
-	for i in "${!o[@]}"; do
-		cat <<<$(sed "s/${i}/${o[$i]}/g" $build_file) >> $build_file
-	done
+	# shellcheck disable=SC2094
+		cat <<<"$(sed 's/#NL/\n/g' "$build_file")" > "$build_file"
+	# shellcheck disable=SC2094
+		cat <<<"$(sed "s/#TB/\t/g" "$build_file")" > "$build_file"
 
 	# Unset global variables
 	unset optparse_usage
-	unset optparse_process
 	unset optparse_arguments_string
 	unset optparse_defaults
 	unset optparse_contractions
