@@ -16,7 +16,7 @@ export DFX_IDENTITY_PEM="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
 export DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
 # The due date of the sale must be greater than 1 day at thetime of NNS proposal execution
-SWAP_DUE_TIMESTAMP="$(date +%s -d 'now + 14 days')"
+SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 14 * 24 * 3600')"
 SNS_SWAP="$(dfx canister id sns_swap --network "$DFX_NETWORK")"
 PROPOSAL_TITLE="SNS SALE"
 PATH_TO_SUMMARY_FILE="README.md"
