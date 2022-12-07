@@ -8,6 +8,7 @@ source "$SOURCE_DIR/optparse.bash"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 optparse.define short=c long=ic_commit desc="The IC commit to use" variable=IC_COMMIT default=""
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euxo pipefail
@@ -26,7 +27,7 @@ demo-cleanup
 }
 
 export DFX_NETWORK
-dfx-network-deploy --network "$DFX_NETWORK"
+dfx-network-deploy --network "$DFX_NETWORK" --ic_dir="$IC_REPO_DIR" --nd_dir="$ND_REPO_DIR"
 
 # dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
 # The above does NOT include nns-sns-wasm.  So import for local (which does include the canister????) and then copy to the requested network.

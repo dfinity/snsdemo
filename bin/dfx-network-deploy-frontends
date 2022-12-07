@@ -36,6 +36,7 @@ else
 		set -euxo pipefail
 		echo "Deploying internet-identity and nns-dapp"
 		cd "$ND_REPO_DIR"
+		rm -f canister_ids.json
 		./deploy.sh --ii "$DFX_NETWORK"
 		./deploy.sh --nns-dapp "$DFX_NETWORK"
 	) || say fail fail fail

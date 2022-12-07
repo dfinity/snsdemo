@@ -41,7 +41,7 @@ else
 		dfx identity use ident-1
 		dfx-nns-propose xdr-icp-conversion-rate --network "$DFX_NETWORK"
 		dfx-nns-propose to-set-authorized-subnetworks --network "$DFX_NETWORK"
-		dfx-sns-subnet-add --network "$DFX_NETWORK"
+		dfx-sns-subnet-add --network "$DFX_NETWORK" --identity test
 		dfx identity use "$DFX_IDENTITY"
 	)
 fi
