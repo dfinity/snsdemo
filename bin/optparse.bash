@@ -164,7 +164,7 @@ EOF
 	local -A o=(['#NL']='\n' ['#TB']='\t')
 
 	for i in "${!o[@]}"; do
-		sed -i "s/${i}/${o[$i]}/g" $build_file
+		cat <<<$(sed "s/${i}/${o[$i]}/g" $build_file) >> $build_file
 	done
 
 	# Unset global variables
