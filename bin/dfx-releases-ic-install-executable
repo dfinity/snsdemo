@@ -20,7 +20,9 @@ install_linux() {
 }
 install_darwin() {
   EXEC_NAME="$1"
-  curl "https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/${EXEC_NAME}.gz" | gunzip >"$USER_BIN/sns"
+  URL="https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/${EXEC_NAME}.gz"
+  echo "Downloading $URL"
+  curl "$URL" | gunzip >"$USER_BIN/sns"
   chmod +x "$USER_BIN/sns"
 }
 

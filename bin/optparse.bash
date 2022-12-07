@@ -136,6 +136,7 @@ while [ \$# -ne 0 ]; do
                         usage
                         exit 1 ;;
                 *)
+			set "\$param" "\${@}"
 			break ;;
         esac
 done
