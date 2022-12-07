@@ -1,6 +1,7 @@
-# Optparse - a BASH wrapper for getopts
+# Optparse - a BASH argument parser
+# Heavily modified from an original by:
+# Optparse - a BASH wrapper for getopts < doesn't use optparse any more.  Just bash.
 # https://github.com/nk412/optparse
-
 # Copyright (c) 2015 Nagarjuna Kumarappan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
