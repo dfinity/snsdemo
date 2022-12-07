@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=c long=commit desc="The IC commit of the binaries to install" variable=IC_COMMIT default="$(
+        . "$SOURCE_DIR/versions.bash"
+        echo "$IC_COMMIT"
+)"
+optparse.define short=b long=bin desc="Diectory in which to install the executeble" variable=USER_BIN default="$HOME/.local/bin"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+install_linux() {
+  EXEC_NAME="$1"
+  curl "https://download.dfinity.systems/ic/${IC_COMMIT}/release/${EXEC_NAME}.gz" | gunzip | install -m 755 /dev/stdin "$USER_BIN/sns"
+}
+install_darwin() {
+  EXEC_NAME="$1"
+  curl "https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/${EXEC_NAME}.gz" | gunzip >"$USER_BIN/sns"
+  chmod +x "$USER_BIN/sns"
+}
+
+OS="$(uname | tr '[:upper:]' '[:lower:]')"
+mkdir -p "$USER_BIN"
+
+[[ "${IC_COMMIT}" != "latest" ]] || {
+	echo "Finding the latest commit..."
+	IC_COMMIT="$(dfx-releases ic latest)"
+}
+
+echo "Installing ${@}"
+while (( $# > 0 )) ; do
+	COMMAND="$1" ; shift 1
+	case "$COMMAND" in
+	-*)	shift 1 ;;
+	*)
+		echo "Installing '$COMMAND' to '$USER_BIN'..."
+		"install_${OS}" "$COMMAND"
+		echo "Installed '$COMMAND' to '$USER_BIN/$COMMAND'"
+	esac
+done

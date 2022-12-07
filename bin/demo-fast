@@ -16,19 +16,12 @@ cd "$(dirname "$(realpath "$0")")/.."
 demo-cleanup
 
 # If ic-commit is specified, get execuables from there:
+[[ "${IC_COMMIT:-}" != "latest" ]] || IC_COMMIT="$(dfx-releases ic latest)"
 [[ "${IC_COMMIT:-}" == "" ]] || {
 	DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
 	rm -fr "$DEMO_BIN"
 	export PATH="$DEMO_BIN:$PATH"
-	(
-		cd "$IC_REPO_DIR"
-		git fetch
-		git checkout "$IC_COMMIT"
-		bazel build //rs/sns/cli:all
-		cp bazel-bin/rs/sns/cli/sns "$DEMO_BIN"
-		bazel build //rs/registry/admin:all
-		cp bazel-bin/rs/registry/admin/ic-admin "$DEMO_BIN"
-	)
+	dfx-releases ic install-executable --commit "$IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
 	echo "Using binaries from ic commit: $IC_COMMIT"
 }
 
@@ -52,7 +45,7 @@ bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
 ./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
-./bin/dfx-sns-wasm-download
+./bin/dfx-sns-wasm-download --commit "$IC_COMMIT"
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-config-random --network "$DFX_NETWORK"

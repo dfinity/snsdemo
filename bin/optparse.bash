@@ -83,7 +83,7 @@ function optparse.define() {
 	if [ "$default" != "" ]; then
 		optparse_usage="${optparse_usage} [default:$default]"
 	fi
-	optparse_contractions="${optparse_contractions}#NL#TB#TB${long})#NL#TB#TB#TBparams=\"\$params ${short}\";;"
+	optparse_contractions="${optparse_contractions}#NL#TB#TB${long})#NL#TB#TB#TBparams+=( \"${short}\" );;"
 	if [ "$default" != "" ]; then
 		optparse_defaults="${optparse_defaults}#NL${variable}=${default}"
 	fi
@@ -115,7 +115,7 @@ XXX
 }
 
 # Contract long options into short options
-params=""
+params=()
 while [ \$# -ne 0 ]; do
         param="\$1"
         shift
@@ -125,17 +125,19 @@ while [ \$# -ne 0 ]; do
                 "-?"|--help)
                         usage
                         exit 0;;
+		--)
+			params+=( -- "${@}" )
+			break ;;
+                -*)
+                        echo -e "Unrecognized option: \$param"
+                        usage
+                        exit 1 ;;
                 *)
-                        if [[ "\$param" == --* ]]; then
-                                echo -e "Unrecognized long option: \$param"
-                                usage
-                                exit 1
-                        fi
-                        params="\$params \"\$param\"";;
+                        params+=( "\$param" );;
         esac
 done
 
-eval set -- "\$params"
+set -- "\${params[@]}"
 
 # Set default variable values
 $optparse_defaults
