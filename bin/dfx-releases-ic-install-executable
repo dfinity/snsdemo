@@ -15,15 +15,13 @@ source "$(optparse.build)"
 set -euo pipefail
 
 install_linux() {
-  EXEC_NAME="$1"
   curl "https://download.dfinity.systems/ic/${IC_COMMIT}/release/${EXEC_NAME}.gz" | gunzip | install -m 755 /dev/stdin "$USER_BIN/sns"
 }
 install_darwin() {
-  EXEC_NAME="$1"
   URL="https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/${EXEC_NAME}.gz"
   echo "Downloading $URL"
-  curl "$URL" | gunzip >"$USER_BIN/sns"
-  chmod +x "$USER_BIN/sns"
+  curl "$URL" | gunzip >"$USER_BIN/$EXEC_NAME"
+  chmod +x "$USER_BIN/$EXEC_NAME"
 }
 
 OS="$(uname | tr '[:upper:]' '[:lower:]')"
@@ -36,8 +34,8 @@ mkdir -p "$USER_BIN"
 
 echo "Installing ${@}"
 while (( $# > 0 )) ; do
-	COMMAND="$1" ; shift 1
-		echo "Installing '$COMMAND' to '$USER_BIN'..."
-		"install_${OS}" "$COMMAND"
-		echo "Installed '$COMMAND' to '$USER_BIN/$COMMAND'"
+	EXEC_NAME="$1" ; shift 1
+		echo "Installing '$EXEC_NAME' to '$USER_BIN'..."
+		"install_${OS}" "$EXEC_NAME"
+		echo "Installed '$EXEC_NAME' to '$USER_BIN/$EXEC_NAME'"
 done
