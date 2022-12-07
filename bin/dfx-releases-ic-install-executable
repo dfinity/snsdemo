@@ -37,11 +37,7 @@ mkdir -p "$USER_BIN"
 echo "Installing ${@}"
 while (( $# > 0 )) ; do
 	COMMAND="$1" ; shift 1
-	case "$COMMAND" in
-	-*)	shift 1 ;;
-	*)
 		echo "Installing '$COMMAND' to '$USER_BIN'..."
 		"install_${OS}" "$COMMAND"
 		echo "Installed '$COMMAND' to '$USER_BIN/$COMMAND'"
-	esac
 done
