@@ -7,7 +7,7 @@
 # Fee of a ledger transaction.
 # Default value = 10000
 #
-transaction_fee_e8s: 10000
+transaction_fee_e8s: 1000 # 0.00001 SNS1 tokens
 #
 # The name of the token issued by the SNS ledger.
 # This field has no default, a value must be provided by the user.
@@ -31,17 +31,17 @@ token_symbol: TOKEN_SYMBOL
 # The cost of making a proposal that is not adopted in e8s.
 # Default value = 100000000
 #
-proposal_reject_cost_e8s: 100000000
+proposal_reject_cost_e8s: 10000000 # 0.1 SNS1 tokens
 #
 # The minimum amount of SNS Token e8s an SNS Ledger account must have to stake a neuron.
 # Default value = 100000000
 #
-neuron_minimum_stake_e8s: 20000
+neuron_minimum_stake_e8s: 1000000 # 0.01 SNS1 tokens
 #
 # The minimum dissolve_delay in seconds a neuron must have to be able to cast votes on proposals.
 # Default value = 15778800
 #
-neuron_minimum_dissolve_delay_to_vote_seconds: 15778800
+neuron_minimum_dissolve_delay_to_vote_seconds: 2629800 # 1 month
 #
 # Path to the SNS Project logo on the local filesystem. The path is relative
 # to the running sns binary, so an absolute path to the logo file is recommended.
@@ -52,7 +52,7 @@ logo: "logo.png"
 # Url to the dapp controlled by the SNS project.
 # Must be a string of max length = 512.
 #
-url: "https://dfinity.org"
+url: "https://sqbzf-5aaaa-aaaam-aavya-cai.ic0.app/"
 #
 # Name of the SNS project. This may differ from the name of the associated token name.
 # Must be a string of max length = 255.
@@ -73,13 +73,12 @@ description: "This is my awesome project"
 # 252460800 seconds. (The value cannot be set to 0.)
 #
 #
-reward_rate_transition_duration_seconds: 1
+reward_rate_transition_duration_seconds: 31557600 # 1 Year
 #
 # The voting reward rate controls how quickly the supply of the SNS token 
-# increases. For example, an initial_reward_rate_percentage of `2.0` will cause 
-# the supply to increase by at most 2% each year. A higher voting reward rate 
-# incentivizes people to participate in governance, but also results in higher 
-# inflation. 
+# increases. For example, a reward rate of 2% will cause the supply to increase
+# by at most 2% each year. A higher voting reward rate incentivizes people to
+# participate in governance, but also results in higher inflation.
 #
 # An initial and a final reward rate can be set, to have a higher reward rate at
 # the launch of the SNS, and a lower rate farther into the SNS’s lifetime. The 
@@ -94,10 +93,6 @@ reward_rate_transition_duration_seconds: 1
 # The default value for final_reward_rate_percentage is 0. The value used by 
 # the NNS is 5%.
 #
-# These values correspond to
-# `NervousSystemParameters::initial_reward_rate_basis points` and 
-# `NervousSystemParameters::final_reward_rate_basis points` in the SNS.
-#
 initial_reward_rate_percentage: 0.0
 final_reward_rate_percentage: 0.0
 #
@@ -105,17 +100,17 @@ final_reward_rate_percentage: 0.0
 #
 # The default value is 252460800 seconds (96 months). 
 #
-max_dissolve_delay_seconds: 252460800
+max_dissolve_delay_seconds: 3155760000 # 100 Years
 #
 # It is possible to give a higher voting weight to older neurons by setting 
-# `max_age_bonus_multiplier` to a value greater than 1. This parameter, 
-# `max_neuron_age_seconds_for_age_bonus`, sets the age at which the maximum bonus will 
+# `max_age_bonus_percentage` to a value other than zero. This parameter,
+# `max_neuron_age_for_age_bonus`, sets the age at which the maximum bonus will
 # be given. All older neurons will be treated as if they are this age. The unit 
 # is seconds. 
 #
 # The default value is 126230400 seconds (48 months).
 #
-max_neuron_age_seconds_for_age_bonus: 126230400
+max_neuron_age_seconds_for_age_bonus: 15778800 # 6 months
 #
 # Users with a higher dissolve delay are incentivized to take the long-term 
 # interests of the SNS into consideration when voting. To reward this long time 
@@ -130,9 +125,6 @@ max_neuron_age_seconds_for_age_bonus: 126230400
 # no change in voting weight for neurons with higher dissolve delays. 
 # Values below 1 are prohibited.
 #
-# This value corresponds to
-# `NervousSystemParameters::max_dissolve_delay_bonus_percentage` in the SNS.
-#
 max_dissolve_delay_bonus_multiplier: 2.0
 #
 # This is analogous to `max_dissolve_delay_bonus_multiplier`, but controls the 
@@ -141,12 +133,9 @@ max_dissolve_delay_bonus_multiplier: 2.0
 # If neurons' age is `max_neuron_age_seconds_for_age_bonus` or older, their 
 # voting weight will be multiplied by `max_age_bonus_multiplier`. 
 #
-# The default value is 1.25. The value the NNS uses is 1.25. A value of 1 results 
+# The default value is 2. The value the NNS uses is 1.25. A value of 1 results
 # in no change in voting weight for neurons with higher age. 
 # Values below 1 are prohibited.
-#
-# This value corresponds to
-# `NervousSystemParameters::max_age_bonus_percentage` in the SNS.
 #
 max_age_bonus_multiplier: 1.25
 #
@@ -154,7 +143,7 @@ max_age_bonus_multiplier: 1.25
 # principal IDs. In most use cases, this is set to the original set of controller(s) of the dapp.
 # This field has no default, a value must be provided by the user.
 #
-fallback_controller_principal_ids: ["hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe"]
+fallback_controller_principal_ids: ["73his-v347r-keigq-mah4l-4sruk-4by32-iehd4-waept-meslh-ewxzn-aqe", "b6ps5-uiaaa-aaaal-abhta-cai"]
 #
 # The initial voting period in seconds of a newly created proposal.
 # (A proposal's voting period may be increased during a proposal's lifecycle due
@@ -233,27 +222,55 @@ wait_for_quiet_deadline_increase_seconds: 86400
 #      mode. No voting power multiplier is applied to these neurons.
 #
 # Example:
+# initial_token_distribution:
+#   FractionalDeveloperVotingPower:
+#     developer_distribution:
+#       developer_neurons:
+#         - controller: x4vjn-rrapj-c2kqe-a6m2b-7pzdl-ntmc4-riutz-5bylw-2q2bh-ds5h2-lae
+#           stake_e8s: 1500000000
+#           memo: 0,
+#           dissolve_delay_seconds: 15780000 # 6 months
+#         - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
+#           stake_e8s: 1500000000
+#           memo: 1,
+#           dissolve_delay_seconds: 31560000 # 1 year
+#     treasury_distribution:
+#       total_e8s: 5000000000
+#     swap_distribution:
+#       total_e8s: 6000000000
+#       initial_swap_amount_e8s: 3000000000
+#     airdrop_distribution:
+#       airdrop_neurons:
+#         - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
+#           stake_e8s: 500000000
+#           memo: 0,
+#           dissolve_delay_seconds: 15780000 # 6 months
+#
 initial_token_distribution:
   FractionalDeveloperVotingPower:
     developer_distribution:
       developer_neurons:
-        - controller: x4vjn-rrapj-c2kqe-a6m2b-7pzdl-ntmc4-riutz-5bylw-2q2bh-ds5h2-lae
-          stake_e8s: 1500000000
+        - controller: 73his-v347r-keigq-mah4l-4sruk-4by32-iehd4-waept-meslh-ewxzn-aqe
+          stake_e8s: 100000000
           memo: 0
-          dissolve_delay_seconds: 15780000 # 6 months
-        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
-          stake_e8s: 1500000000
-          memo: 1
-          dissolve_delay_seconds: 31560000 # 1 year
+          dissolve_delay_seconds: 2629800 # 1 month
+        - controller: cspsr-o7r2d-rzztp-bt5lf-h5odj-amced-bfpou-qijhe-moq4a-czfvk-bqe
+          stake_e8s: 100000000
+          memo: 0
+          dissolve_delay_seconds: 2629800 # 1 month
     treasury_distribution:
-      total_e8s: 5000000000
+      total_e8s: 293700000000
     swap_distribution:
-      total_e8s: 6000000000
-      initial_swap_amount_e8s: 3000000000
+      total_e8s: 314100000000
+      initial_swap_amount_e8s: 314100000000
     airdrop_distribution:
       airdrop_neurons:
-        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
-          stake_e8s: 500000000
+        - controller: odx6p-fifgh-rpiiu-k7yt6-iho3e-rybvs-w4d4f-crwfy-txnrt-lwb7j-hae
+          stake_e8s: 5000000000
           memo: 0
-          dissolve_delay_seconds: 15780000 # 6 months
+          dissolve_delay_seconds: 2629800 # 1 month
+        - controller: itrrq-g27vg-5dsxv-ldpfu-qi2qy-qldoy-kwnpp-fnven-ulakw-mndzv-2ae
+          stake_e8s: 100000000
+          memo: 0
+          dissolve_delay_seconds: 2629800
 
