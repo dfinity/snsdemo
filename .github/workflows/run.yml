@@ -29,8 +29,8 @@ jobs:
       matrix:
         os: [ macos-11, ubuntu-22.04 ]
     steps:
-      - name: Install apt dependencies
-        run: sudo apt install moreutils
+      - name: Install more
+        run: bin/dfx-releases-more-install
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dfx
