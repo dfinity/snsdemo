@@ -143,7 +143,7 @@ max_age_bonus_multiplier: 1.25
 # principal IDs. In most use cases, this is set to the original set of controller(s) of the dapp.
 # This field has no default, a value must be provided by the user.
 #
-fallback_controller_principal_ids: ["73his-v347r-keigq-mah4l-4sruk-4by32-iehd4-waept-meslh-ewxzn-aqe", "b6ps5-uiaaa-aaaal-abhta-cai"]
+fallback_controller_principal_ids: ["PRINCIPAL"]
 #
 # The initial voting period in seconds of a newly created proposal.
 # (A proposal's voting period may be increased during a proposal's lifecycle due
@@ -250,11 +250,7 @@ initial_token_distribution:
   FractionalDeveloperVotingPower:
     developer_distribution:
       developer_neurons:
-        - controller: 73his-v347r-keigq-mah4l-4sruk-4by32-iehd4-waept-meslh-ewxzn-aqe
-          stake_e8s: 100000000
-          memo: 0
-          dissolve_delay_seconds: 2629800 # 1 month
-        - controller: cspsr-o7r2d-rzztp-bt5lf-h5odj-amced-bfpou-qijhe-moq4a-czfvk-bqe
+        - controller: PRINCIPAL
           stake_e8s: 100000000
           memo: 0
           dissolve_delay_seconds: 2629800 # 1 month
@@ -265,11 +261,11 @@ initial_token_distribution:
       initial_swap_amount_e8s: 314100000000
     airdrop_distribution:
       airdrop_neurons:
-        - controller: odx6p-fifgh-rpiiu-k7yt6-iho3e-rybvs-w4d4f-crwfy-txnrt-lwb7j-hae
+        - controller: x4vjn-rrapj-c2kqe-a6m2b-7pzdl-ntmc4-riutz-5bylw-2q2bh-ds5h2-lae
           stake_e8s: 5000000000
           memo: 0
           dissolve_delay_seconds: 2629800 # 1 month
-        - controller: itrrq-g27vg-5dsxv-ldpfu-qi2qy-qldoy-kwnpp-fnven-ulakw-mndzv-2ae
+        - controller: fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe
           stake_e8s: 100000000
           memo: 0
           dissolve_delay_seconds: 2629800
