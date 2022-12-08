@@ -10,4 +10,4 @@ source "$SOURCE_DIR/optparse.bash"
 source "$(optparse.build)"
 set -euo pipefail
 
-gh release list --exclude-drafts --limit 20 --repo dfinity/nns-dapp | grep -m1 proposal | sed -E 's/.*\<(proposal-[0-9]+).*/\1/g'
+gh release list --exclude-drafts --limit 1 --repo dfinity/quill | awk '{print $1}'
