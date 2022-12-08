@@ -1,1 +1,24 @@
-cat <<<"$(jq '.networks.local.replica.subnet_type="system"' dfx.json)" >dfx.json
+#!/usr/bin/env bash
+set -euxo pipefail
+NETWORKS_PATH="$HOME/.config/dfx/networks.json"
+test -d "$(dirname "$NETWORKS_PATH")" || mkdir -p "$(dirname "$NETWORKS_PATH")"
+jq . "$NETWORKS_PATH" | grep -q . || echo '{}' > "$NETWORKS_PATH"
+jq -s '.[0] * .[1]' "$NETWORKS_PATH" - <<EOF | sponge "$NETWORKS_PATH"
+{
+  "local": {
+    "config": {
+      "FETCH_ROOT_KEY": true,
+      "HOST": "http://localhost:8080",
+      "FEATURE_FLAGS": {
+        "ENABLE_SNS": true,
+        "ENABLE_SNS_2": true
+      }
+    },
+    "bind": "127.0.0.1:8080",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "system"
+    }
+  }
+}
+EOF

@@ -26,6 +26,8 @@ export PATH="$DEMO_BIN:$PATH"
 dfx-releases ic install-executable --commit "$IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
 echo "Using binaries from ic commit: $IC_COMMIT"
 
+./bin/demo-system-subnet
+
 export DFX_NETWORK
 dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR"
 
