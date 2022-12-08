@@ -6,4 +6,4 @@ old_commit="${old_commit:-$(cat scripts/ic-commit)}"
 
 git grep -l "$old_commit" | xargs -I {} sed -i "s/$old_commit/$new_commit/g" "{}"
 
-echo "$new_commit" > scripts/ic-commit
+echo "$new_commit" >scripts/ic-commit

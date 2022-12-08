@@ -6,8 +6,8 @@ PATH="$SOURCE_DIR:$PATH"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=c long=commit desc="The IC commit of the binaries to install" variable=IC_COMMIT default="$(
-        . "$SOURCE_DIR/versions.bash"
-        echo "$IC_COMMIT"
+  . "$SOURCE_DIR/versions.bash"
+  echo "$IC_COMMIT"
 )"
 optparse.define short=b long=bin desc="Diectory in which to install the executeble" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
@@ -28,14 +28,15 @@ OS="$(uname | tr '[:upper:]' '[:lower:]')"
 mkdir -p "$USER_BIN"
 
 [[ "${IC_COMMIT}" != "latest" ]] || {
-	echo "Finding the latest commit..."
-	IC_COMMIT="$(dfx-releases ic latest)"
+  echo "Finding the latest commit..."
+  IC_COMMIT="$(dfx-releases ic latest)"
 }
 
 echo "Installing ${@}"
-while (( $# > 0 )) ; do
-	EXEC_NAME="$1" ; shift 1
-		echo "Installing '$EXEC_NAME' to '$USER_BIN'..."
-		"install_${OS}" "$EXEC_NAME"
-		echo "Installed '$EXEC_NAME' to '$USER_BIN/$EXEC_NAME'"
+while (($# > 0)); do
+  EXEC_NAME="$1"
+  shift 1
+  echo "Installing '$EXEC_NAME' to '$USER_BIN'..."
+  "install_${OS}" "$EXEC_NAME"
+  echo "Installed '$EXEC_NAME' to '$USER_BIN/$EXEC_NAME'"
 done

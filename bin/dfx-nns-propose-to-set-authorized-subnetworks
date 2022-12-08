@@ -9,10 +9,8 @@ optparse.define short=n long=network desc="The dfx network to use" variable=DFX_
 source $(optparse.build)
 set -euo pipefail
 
-
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 PROPOSAL_TYPE="propose-to-set-authorized-subnetworks"
-
 
 set ic-admin --nns-url "$NNS_URL" \
   "$PROPOSAL_TYPE" \

@@ -12,7 +12,7 @@ set -euo pipefail
 export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-	echo "http://localhost:$(dfx info replica-port)"
+  echo "http://localhost:$(dfx info replica-port)"
 else
-	jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
+  jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
 fi

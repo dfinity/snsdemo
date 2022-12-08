@@ -12,9 +12,10 @@ source $(optparse.build)
 set -euo pipefail
 
 PROPOSAL_NUM="${PROPOSAL_NUM:-${1:-$(
-   {  echo "--proposal <PROPOSAL_NUM> is required."
-      exit 1
-   } >&2
+  {
+    echo "--proposal <PROPOSAL_NUM> is required."
+    exit 1
+  } >&2
 )}}"
 
 dfx canister call --network "$DFX_NETWORK" nns-governance get_proposal_info "( $PROPOSAL_NUM )"

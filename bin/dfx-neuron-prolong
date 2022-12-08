@@ -17,4 +17,4 @@ NEURON_ID="$("$SOURCE_DIR/dfx-neuron-id" --network "$DFX_NETWORK" --identity "$D
 NETWORK_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 
 quill neuron-manage --insecure-local-dev-mode --pem-file "$PEM" --additional-dissolve-delay-seconds "$DISSOLVE_DELAY" "$NEURON_ID" | tee -a log |
-	IC_URL="$NETWORK_URL" quill send --yes --insecure-local-dev-mode - | tee -a log
+  IC_URL="$NETWORK_URL" quill send --yes --insecure-local-dev-mode - | tee -a log

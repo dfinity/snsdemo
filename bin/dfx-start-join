@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
 
 help_text() {
-	cat <<-EOF
+  cat <<-EOF
 
 		Joins an existing locally running dfx server.
 
@@ -17,21 +17,21 @@ help_text() {
 }
 
 while (($# > 0)); do
-	arg="$1"
-	shift 1
-	case "$arg" in
-	--help)
-		help_text
-		exit 0
-		;;
-	*)
-		cat <<-EOF >&2
+  arg="$1"
+  shift 1
+  case "$arg" in
+  --help)
+    help_text
+    exit 0
+    ;;
+  *)
+    cat <<-EOF >&2
 			ERROR: Unrecognised argument: '$arg'
 			Please use --help for usage.
 		EOF
-		exit 1
-		;;
-	esac
+    exit 1
+    ;;
+  esac
 done
 
 : Find the locally running dfx server
@@ -43,5 +43,5 @@ DFX_SERVER_DIR="$(realpath "/proc/$(pgrep -n icx-proxy)/cwd")"
 
 : Link
 [[ "$(realpath .dfx)" == "$(realpath "$DFX_SERVER_DIR")/.dfx" ]] || {
-	ln -s "$(realpath "$DFX_SERVER_DIR")/.dfx" .dfx
+  ln -s "$(realpath "$DFX_SERVER_DIR")/.dfx" .dfx
 }
