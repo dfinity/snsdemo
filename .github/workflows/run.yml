@@ -20,9 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dfx
-	run: ./bin/dfx-releases-dfx-install
+        run: ./bin/dfx-releases-dfx-install
       - name: Install quill
-	run: ./bin/dfx-releases-quill-install
+        run: ./bin/dfx-releases-quill-install
       - name: Run the demo with the current default ic commits
         run: bin/demo-fast
   demo_latest:
