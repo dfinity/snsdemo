@@ -27,10 +27,10 @@ set ic-admin \
   --nns-url "$DFX_NNS_URL" \
   propose-to-open-sns-token-swap \
   --proposer "$DFX_NEURON_ID" \
-  --min-participants                   1 \
-  --min-icp-e8s               5000000000 \
-  --max-icp-e8s             314100000000 \
-  --min-participant-icp-e8s     10000000 \
+  --min-participants 1 \
+  --min-icp-e8s 5000000000 \
+  --max-icp-e8s 314100000000 \
+  --min-participant-icp-e8s 10000000 \
   --max-participant-icp-e8s 314100000000 \
   --swap-due-timestamp-seconds "$SWAP_DUE_TIMESTAMP" \
   --sns-token-e8s "$SNS_TOKENS_E8s" \
