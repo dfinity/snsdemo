@@ -25,6 +25,10 @@ NEURON_ID="$(quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --am
   perl -e 'while($_ = <>){if (s/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/){ print $_ }}' |
   tr -cd '[:alnum:]' | tee -a /dev/stderr)"
 
+test -n "${NEURON_ID:-}" || {
+  echo "Failed to create a neuron!"
+  exit 1
+} >&2
 echo "$NEURON_ID" >>"$NEURONS_FILE"
 echo
 tail -n1 "$NEURONS_FILE"
