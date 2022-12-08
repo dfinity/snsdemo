@@ -20,6 +20,8 @@ jobs:
   demo_current:
     runs-on: ubuntu-20.04
     steps:
+      - name: Install apt dependencies
+        run: sudo apt install moreutils
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dfx
