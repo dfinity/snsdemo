@@ -2,7 +2,7 @@
 set -euxo pipefail
 NETWORKS_PATH="$HOME/.config/dfx/networks.json"
 test -d "$(dirname "$NETWORKS_PATH")" || mkdir -p "$(dirname "$NETWORKS_PATH")"
-jq . "$NETWORKS_PATH" | grep -q . || echo '{}' > "$NETWORKS_PATH"
+jq . "$NETWORKS_PATH" | grep -q . || echo '{}' >"$NETWORKS_PATH"
 jq -s '.[0] * .[1]' "$NETWORKS_PATH" - <<EOF | sponge "$NETWORKS_PATH"
 {
   "local": {
