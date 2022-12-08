@@ -10,15 +10,24 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
+
   readme:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-11, ubuntu-22.04 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Run the README code parts
         run: bin/test-readme
   demo_current:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-11, ubuntu-22.04 ]
     steps:
       - name: Install apt dependencies
         run: sudo apt install moreutils
@@ -31,7 +40,11 @@ jobs:
       - name: Run the demo with the current default ic commits
         run: bin/demo-fast
   demo_latest:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-11, ubuntu-22.04 ]
     steps:
       - name: Install apt dependencies
         run: sudo apt install moreutils
