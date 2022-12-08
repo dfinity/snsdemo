@@ -2,7 +2,7 @@
 set -euo pipefail
 
 jq -s '.[0] * .[1]' dfx.json <(
-	cat <<EOF
+  cat <<EOF
 { "canisters": {
     "nns-governance": {
       "type": "custom",

@@ -7,8 +7,8 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 optparse.define short=c long=commit desc="The IC commit of the wasms" variable=IC_COMMIT default="$(
-	. "$SOURCE_DIR/versions.bash"
-	echo "$IC_COMMIT"
+  . "$SOURCE_DIR/versions.bash"
+  echo "$IC_COMMIT"
 )"
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
@@ -19,17 +19,17 @@ set -euo pipefail
 export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-	# Run locally; can be configured by e.g. chnaging the wasm files in the cache
-	dfx-network-stop --network "$DFX_NETWORK"
-	dfx start --clean --background
-	dfx nns install
+  # Run locally; can be configured by e.g. chnaging the wasm files in the cache
+  dfx-network-stop --network "$DFX_NETWORK"
+  dfx start --clean --background
+  dfx nns install
 else
-	# Run remotely with one of the predefined configurations.
-	# Note: This is still relatively slow and error prone.  Points of friction need to be ironed
-	# out before we can resonably ask people to do this.
-	IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
-	ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
-	dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
-	dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
-	dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+  # Run remotely with one of the predefined configurations.
+  # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
+  # out before we can resonably ask people to do this.
+  IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
+  ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
+  dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+  dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+  dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
 fi

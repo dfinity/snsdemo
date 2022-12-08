@@ -2,19 +2,19 @@
 set -euo pipefail
 
 if test -f .demo-env; then
-	. .demo-env
+  . .demo-env
 fi
 
 esay() {
-	echo -- "${@}"
-	say "${@}"
+  echo -- "${@}"
+  say "${@}"
 }
 
 if [[ "${1:-}" == "--fast" ]]; then
-	touch bin/read
-	chmod +x bin/read
+  touch bin/read
+  chmod +x bin/read
 else
-	rm -f bin/read
+  rm -f bin/read
 fi
 
 esay "Cleaning up..."
@@ -27,13 +27,13 @@ clear
 
 wc -l dfx.json
 [[ "$(jq -r '.networks.local.replica.subnet_type' dfx.json)" == "system" ]] || (
-	echo "To install NNS on a dfx replica, subnet type must be set to system."
-	read -rp 'Change local subnet type to system? Y/n' change
-	if [[ "$(echo "${change:-y}" | tr '[:upper:]' '[:lower:]')" == "y" ]]; then
-		bin/demo-system-subnet
-	else
-		exit 1
-	fi
+  echo "To install NNS on a dfx replica, subnet type must be set to system."
+  read -rp 'Change local subnet type to system? Y/n' change
+  if [[ "$(echo "${change:-y}" | tr '[:upper:]' '[:lower:]')" == "y" ]]; then
+    bin/demo-system-subnet
+  else
+    exit 1
+  fi
 )
 wc -l dfx.json
 
@@ -43,22 +43,22 @@ wc -l dfx.json
 esay "The developer needs a testnet."
 case "$DFX_NETWORK" in
 local)
-	#echo "In a new terminal, please run:"
-	#read -rp "pkill -9 dfx && dfx start --clean "
-	#read -rp "dfx nns install"
-	dfx stop || true
-	pkill dfx || true
-	pkill icx-proxy || true
-	sleep 1
-	read -rp "dfx start --clean --background "
-	dfx start --clean --background 2>/dev/null >/dev/null
-	read -rp "dfx nns install "
-	dfx nns install
-	;;
+  #echo "In a new terminal, please run:"
+  #read -rp "pkill -9 dfx && dfx start --clean "
+  #read -rp "dfx nns install"
+  dfx stop || true
+  pkill dfx || true
+  pkill icx-proxy || true
+  sleep 1
+  read -rp "dfx start --clean --background "
+  dfx start --clean --background 2>/dev/null >/dev/null
+  read -rp "dfx nns install "
+  dfx nns install
+  ;;
 *)
-	# The testnet SHOULD already be fully set up.
-	read -rp "dfx nns install"
-	;;
+  # The testnet SHOULD already be fully set up.
+  read -rp "dfx nns install"
+  ;;
 esac
 
 esay "The developer needs to install did files for the NNS and SNS"

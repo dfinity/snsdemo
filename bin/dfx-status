@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 if pgrep icx-proxy | grep -q .; then
-	echo running
+  echo running
 else
-	echo stopped
+  echo stopped
 fi

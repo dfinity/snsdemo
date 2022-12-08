@@ -3,27 +3,27 @@ set -euo pipefail
 
 PREFIX="$(basename "$(realpath "$0")")"
 if (($# > 0)) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]; then
-	SUBCOMMAND="$1"
-	shift 1
-	if command -v "$PREFIX-$SUBCOMMAND" >/dev/null ; then
-		"$PREFIX-$SUBCOMMAND" "${@}"
-	else
-		{
-			echo "Unknown command: '$SUBCOMMAND'"
-			"$PREFIX"
-			exit 1
-		} >&2
-	fi
+  SUBCOMMAND="$1"
+  shift 1
+  if command -v "$PREFIX-$SUBCOMMAND" >/dev/null; then
+    "$PREFIX-$SUBCOMMAND" "${@}"
+  else
+    {
+      echo "Unknown command: '$SUBCOMMAND'"
+      "$PREFIX"
+      exit 1
+    } >&2
+  fi
 else
-	echo Subcommands:
-	# If the current command name is abc-de then we look for executables that start with abc-de- such as abc-de-fgh-ij and return "fgh-ij" as a subcommand.
-	# We do not, however, return sub-subcommands.  E.g. if there is also abc-de-fgh-ij-klmno we disregard it.  This is implemented by sorting and filtering out executables
-	# that look like sub-sub-commands of earlier sub-commands:
-	#
-	#   abc-de <- current executable
-	#   abc-de-fgh-ij <-- subcommand
-	#   abc-de-fgh-ij-klmno <- ignored
-	#   abc-de-fgh-ij-pq <---- ignored
-	#   abc-de-fgh-rs <-- subcommand
-	find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | awk -F/ '{print $(NF)}' | sort | uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
+  echo Subcommands:
+  # If the current command name is abc-de then we look for executables that start with abc-de- such as abc-de-fgh-ij and return "fgh-ij" as a subcommand.
+  # We do not, however, return sub-subcommands.  E.g. if there is also abc-de-fgh-ij-klmno we disregard it.  This is implemented by sorting and filtering out executables
+  # that look like sub-sub-commands of earlier sub-commands:
+  #
+  #   abc-de <- current executable
+  #   abc-de-fgh-ij <-- subcommand
+  #   abc-de-fgh-ij-klmno <- ignored
+  #   abc-de-fgh-ij-pq <---- ignored
+  #   abc-de-fgh-rs <-- subcommand
+  find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | awk -F/ '{print $(NF)}' | sort | uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
 fi

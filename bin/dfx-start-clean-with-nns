@@ -11,10 +11,10 @@ echo "PLACEHOLDER: Use '$DFX_NETWORK' testnet with an nns set up"
 
 echo "Getting dfx.json network entries..."
 jq -e '.networks[env.DFX_NETWORK]' dfx.json || {
-	jq -s '.[0] * .[1]' dfx.json <(
-		cd "$ND_REPO_DIR"
-		jq '{networks: .networks}' dfx.json
-	) >dfx.json.new && mv dfx.json.new dfx.json
+  jq -s '.[0] * .[1]' dfx.json <(
+    cd "$ND_REPO_DIR"
+    jq '{networks: .networks}' dfx.json
+  ) >dfx.json.new && mv dfx.json.new dfx.json
 }
 
 echo "Getting canister IDs"

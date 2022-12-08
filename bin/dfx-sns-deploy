@@ -17,17 +17,17 @@ echo "${@}"
 "${@}" | tee ,sns-init-response.idl
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-	perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
-		idl2json |
-		jq '.canisters[] | to_entries | map({ ("sns_"+.key): {remote: {id:{(env.DFX_NETWORK): (.value[0])}}}}) | add | {canisters: .}' |
-		jq -s '.[1] * .[0]' - dfx.json | sponge dfx.json
+  perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
+    idl2json |
+    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {remote: {id:{(env.DFX_NETWORK): (.value[0])}}}}) | add | {canisters: .}' |
+    jq -s '.[1] * .[0]' - dfx.json | sponge dfx.json
 else
-	test -e canister_ids.json || {
-		echo "{}" >canister_ids.json
-	}
+  test -e canister_ids.json || {
+    echo "{}" >canister_ids.json
+  }
 
-	perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
-		idl2json |
-		jq '.canisters[] | to_entries | map({ ("sns_"+.key): {(env.DFX_NETWORK): (.value[0])} }) | add' |
-		jq -s '.[1] * .[0]' - canister_ids.json | sponge canister_ids.json
+  perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
+    idl2json |
+    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {(env.DFX_NETWORK): (.value[0])} }) | add' |
+    jq -s '.[1] * .[0]' - canister_ids.json | sponge canister_ids.json
 fi

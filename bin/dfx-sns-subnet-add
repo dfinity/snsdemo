@@ -11,27 +11,28 @@ source $(optparse.build)
 set -euo pipefail
 
 [[ "$DFX_NETWORK" != "local" ]] || {
-	echo "Subnets are already authorized on local networks."
-	exit 0
+  echo "Subnets are already authorized on local networks."
+  exit 0
 }
 
 export DFX_NETWORK
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 export NNS_URL
 
-if [[ "$DFX_IDENTITY" == "test" ]]
-then NEURON_ARGS=( "--test-neuron-proposer" )
-     PEM_ARGS=()
-else NEURON_ARGS=( --proposer "$(dfx-neuron-id --network "$DFX_NETWORK" --identity "$DFX_IDENTITY")" )
-     PEM_ARGS=( "--secret-key-pem" "$(dfx-identity-pem --identity "$DFX_IDENTITY")" )
+if [[ "$DFX_IDENTITY" == "test" ]]; then
+  NEURON_ARGS=("--test-neuron-proposer")
+  PEM_ARGS=()
+else
+  NEURON_ARGS=(--proposer "$(dfx-neuron-id --network "$DFX_NETWORK" --identity "$DFX_IDENTITY")")
+  PEM_ARGS=("--secret-key-pem" "$(dfx-identity-pem --identity "$DFX_IDENTITY")")
 fi
 
 set "ic-admin" \
-	--nns-url "$NNS_URL" \
-	"${PEM_ARGS[@]}" \
-	propose-to-update-sns-subnet-ids-in-sns-wasm \
-	"${NEURON_ARGS[@]}" \
-	$(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r 'map("--sns-subnet-ids-to-add " + . + " ") | .[]')
+  --nns-url "$NNS_URL" \
+  "${PEM_ARGS[@]}" \
+  propose-to-update-sns-subnet-ids-in-sns-wasm \
+  "${NEURON_ARGS[@]}" \
+  $(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r 'map("--sns-subnet-ids-to-add " + . + " ") | .[]')
 
 echo "${@}"
 "${@}"

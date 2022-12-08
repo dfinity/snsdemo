@@ -19,9 +19,9 @@ NEURONS_FILE="$NEURONS_DIR/$DFX_NETWORK"
 export IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 # Note: Quill send puts a pile of junk on stdout and has no option to put just the response(s) somewhere safe such as a file.
 NEURON_ID="$(quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --amount "$icp" --name 1 | tee -a /dev/stderr |
-	quill send --yes --insecure-local-dev-mode - | tee -a /dev/stderr |
-	perl -e 'while($_ = <>){if (s/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/){ print $_ }}' |
-	tr -cd '[:alnum:]' | tee -a /dev/stderr)"
+  quill send --yes --insecure-local-dev-mode - | tee -a /dev/stderr |
+  perl -e 'while($_ = <>){if (s/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/){ print $_ }}' |
+  tr -cd '[:alnum:]' | tee -a /dev/stderr)"
 
 echo "$NEURON_ID" >>"$NEURONS_FILE"
 echo

@@ -11,12 +11,12 @@ read -rp "${*}"
 "${@}" || true
 
 TOKEN_SYMBOL="$(
-	tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
-	tr -dc AEIUY </dev/random | head -c 1
-	tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
-	tr -dc AEIUY </dev/random | head -c 1
-	tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
-	echo
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  tr -dc AEIUY </dev/random | head -c 1
+  tr -dc BCDFGHJKLMNPQRSTVWXZ </dev/random | head -c 1
+  echo
 )"
 TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
 

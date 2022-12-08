@@ -2,19 +2,19 @@
 set -euo pipefail
 
 consonant() {
-	openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
+  openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
 }
 vowel() {
-	openssl rand -base64 100 | tr -dc AEIOUY | head -c 1
+  openssl rand -base64 100 | tr -dc AEIOUY | head -c 1
 }
 
 TOKEN_SYMBOL="$(
-	consonant
-	vowel
-	consonant
-	vowel
-	consonant
-	echo
+  consonant
+  vowel
+  consonant
+  vowel
+  consonant
+  echo
 )"
 TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
 
