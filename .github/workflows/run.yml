@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   readme:
     runs-on: ubuntu-20.04
