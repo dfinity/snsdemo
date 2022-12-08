@@ -57,7 +57,7 @@ jobs:
       - name: Checkout ic repo
         uses: actions/checkout@v3
         with:
-          name: dfinity/ic
+          repository: dfinity/ic
           ref: master
           fetch-depth: 100
           path: ic
