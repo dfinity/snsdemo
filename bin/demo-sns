@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH:$(dfx cache show)"
+export PATH="$PATH:$HOME/.local/bin"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=c long=ic_commit desc="The IC commit to use" variable=IC_COMMIT default=""
+optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euxo pipefail
+cd "$(dirname "$(realpath "$0")")/.."
+
+./bin/dfx-sns-config-random --network "$DFX_NETWORK"
+dfx ledger top-up --amount 2.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
+./bin/dfx-sns-deploy --network "$DFX_NETWORK"
+
+dfx canister id sns_root --network "$DFX_NETWORK"
+dfx canister id sns_governance --network "$DFX_NETWORK"
+dfx canister id sns_ledger --network "$DFX_NETWORK"
+dfx canister id sns_swap --network "$DFX_NETWORK"
+
+: hand over control of the dapp. Skipped...
+
+dfx-sns-sale-propose --network "$DFX_NETWORK"
+
+: "Demo finished!  Hope you enjoyed the show."
