@@ -14,3 +14,24 @@ jobs:
         uses: actions/checkout@v3
       - name: Run the README code parts
         run: bin/test-readme
+  demo_current:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run the demo with the current default ic commits
+        run: bin/demo-fast
+  demo_latest:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Checkout ic repo
+        uses: actions/checkout@v3
+        with:
+          name: dfinity/ic
+          ref: master
+          fetch-depth: 100
+          path: ic
+      - name: Run the demo with the latest repo
+        run: bin/demo-fast --ic_commit latest --ic_dir ic
