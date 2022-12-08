@@ -7,9 +7,11 @@ source "$SOURCE_DIR/optparse.bash"
 optparse.define short=s long=icp desc="The amount of ICP to icp" variable=icp default=1
 optparse.define short=i long=identity desc="The dfx identity to use" variable=identity default="$(dfx identity whoami)"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=V long=verbose desc="Print progress" variable=DFX_VERBOSE nargs=0
 # Source the output file ----------------------------------------------------------
 source $(optparse.build)
 set -euo pipefail
+test -z "${DFX_VERBOSE:-}" || set -x
 
 # Create a neuron
 PEM="$HOME/.config/dfx/identity/$identity/identity.pem"

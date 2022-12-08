@@ -39,8 +39,9 @@ function optparse.throw_error() {
 # -----------------------------------------------------------------------------------------------------------------------------
 function optparse.define() {
 	if [ $# -lt 3 ]; then
-		optparse.throw_error "optparse.define <short> <long> <variable> [<desc>] [<default>] [<value>]"
+		optparse.throw_error "optparse.define <short> <long> <variable> [<desc>] [<default>] [<value>] [<nargs>]"
 	fi
+	local nargs=""
 	for option_id in $(seq 1 $#); do
 		local option
 		option="$(eval "echo \$$option_id")"
@@ -70,6 +71,8 @@ function optparse.define() {
 			local variable="$value"
 		elif [ "$key" = "value" ]; then
 			local val="$value"
+		elif [ "$key" = "nargs" ]; then
+			local nargs="$value"
 		fi
 	done
 
@@ -83,10 +86,16 @@ function optparse.define() {
 
 	# build OPTIONS and help
 	optparse_usage="${optparse_usage}#NL#TB${short} $(printf "%-25s %s" "${long}:" "${desc}")"
-	if [ "$default" != "" ]; then
+	if [ "$default" != "" ] && [ "${nargs:-}" != "0" ]; then
 		optparse_usage="${optparse_usage} [default:$default]"
 	fi
-	optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
+	if [ "${nargs:-}" == "" ]; then
+		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
+	elif [ "${nargs:-}" == "0" ]; then
+		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\"; shift 1;;"
+	else
+		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
+	fi
 	if [ "$default" != "" ]; then
 		optparse_defaults="${optparse_defaults}#NL${variable}=${default}"
 	fi

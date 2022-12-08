@@ -43,7 +43,7 @@ dfx identity new --disable-encryption snsdemo8
 dfx identity use snsdemo8
 
 bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
-bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
+bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK" --verbose
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 
 bash -x ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
