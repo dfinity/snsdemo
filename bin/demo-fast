@@ -46,7 +46,7 @@ bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
 bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 
-./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
+bash -x ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
 ./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
 ./bin/dfx-sns-wasm-download --commit "$IC_COMMIT"
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
