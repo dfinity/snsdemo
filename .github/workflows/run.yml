@@ -33,8 +33,14 @@ jobs:
   demo_latest:
     runs-on: ubuntu-20.04
     steps:
+      - name: Install apt dependencies
+        run: sudo apt install moreutils
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Install dfx
+        run: ./bin/dfx-releases-dfx-install
+      - name: Install quill
+        run: ./bin/dfx-releases-quill-install
       - name: Checkout ic repo
         uses: actions/checkout@v3
         with:
