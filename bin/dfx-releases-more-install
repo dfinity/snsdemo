@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Note: Do mot import optparse as without coreutils it won't wrk on mac.
-set -euxo pipefail
+set -euo pipefail
 
 install_linux() {
   sudo apt-get update
