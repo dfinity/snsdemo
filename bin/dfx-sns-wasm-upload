@@ -13,7 +13,7 @@ optparse.define short=c long=commit desc="The IC commit of the wasms" variable=I
 )"
 optparse.define short=i long=id desc="The wasm canister id to upload to" variable=SNS_WASM_CANISTER_ID default=''
 # Source the output file ----------------------------------------------------------
-source $(optparse.build)
+source "$(optparse.build)"
 set -euo pipefail
 
 SNS_WASM_CANISTER_ID="${SNS_WASM_CANISTER_ID:-$(dfx canister id nns-sns-wasm --network "$DFX_NETWORK" 2>/dev/null)}"

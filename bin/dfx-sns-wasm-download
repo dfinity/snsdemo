@@ -9,7 +9,7 @@ optparse.define short=c long=commit desc="The IC commit of the wasms" variable=I
   echo "$IC_COMMIT"
 )"
 # Source the output file ----------------------------------------------------------
-source $(optparse.build)
+source "$(optparse.build)"
 set -euo pipefail
 
 export IC_COMMIT

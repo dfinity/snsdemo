@@ -6,7 +6,7 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $(optparse.build)
+source "$(optparse.build)"
 set -euo pipefail
 
 export DFX_NETWORK

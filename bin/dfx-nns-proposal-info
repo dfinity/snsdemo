@@ -8,7 +8,7 @@ source "$SOURCE_DIR/optparse.bash"
 optparse.define short=p long=proposal desc="The proposal number" variable=PROPOSAL_NUM default=""
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source $(optparse.build)
+source "$(optparse.build)"
 set -euo pipefail
 
 PROPOSAL_NUM="${PROPOSAL_NUM:-${1:-$(

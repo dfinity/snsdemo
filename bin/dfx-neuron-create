@@ -9,7 +9,7 @@ optparse.define short=i long=identity desc="The dfx identity to use" variable=id
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 optparse.define short=V long=verbose desc="Print progress" variable=DFX_VERBOSE nargs=0
 # Source the output file ----------------------------------------------------------
-source $(optparse.build)
+source "$(optparse.build)"
 set -euo pipefail
 test -z "${DFX_VERBOSE:-}" || set -x
 

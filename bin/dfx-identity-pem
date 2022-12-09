@@ -7,7 +7,7 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 # Source the output file ----------------------------------------------------------
-source $(optparse.build)
+source "$(optparse.build)"
 set -euo pipefail
 
 : "Note:  Direct use of the pem file is needed for ic-admin but is generally deprecated"

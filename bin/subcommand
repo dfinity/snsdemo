@@ -25,5 +25,7 @@ else
   #   abc-de-fgh-ij-klmno <- ignored
   #   abc-de-fgh-ij-pq <---- ignored
   #   abc-de-fgh-rs <-- subcommand
-  find $(echo $PATH | tr ":" " ") -maxdepth 1 -type f -executable | awk -F/ '{print $(NF)}' | sort | uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
+  # shellcheck disable=SC2046
+  # shellcheck disable=SC2086 # we really do want to split PATH into separate arguments.
+  find $(echo "$PATH" | tr ":" " ") -maxdepth 1 -type f -executable | awk -F/ '{print $(NF)}' | sort | uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
 fi
