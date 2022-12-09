@@ -38,7 +38,7 @@ jobs:
       - name: Install quill
         run: ./bin/dfx-releases-quill-install
       - name: Run the demo with the current default ic commits
-        run: bin/demo-fast
+        run: bin/demo-cli
 #  demo_latest:
 #    runs-on: ${{ matrix.os }}
 #    strategy:
@@ -62,4 +62,4 @@ jobs:
 #          fetch-depth: 100
 #          path: ic
 #      - name: Run the demo with the latest repo
-#        run: bin/demo-fast --ic_commit latest --ic_dir ic
+#        run: bin/demo-cli --ic_commit latest --ic_dir ic
