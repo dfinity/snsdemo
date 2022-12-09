@@ -48,6 +48,8 @@ jobs:
         run: ./bin/dfx-releases-dfx-install
       - name: Install quill
         run: ./bin/dfx-releases-quill-install
+      - name: Install idl2json
+        run: ./bin/dfx-releases-idl2json-install
       - name: Run the demo with the current default ic commits
         run: bin/demo-cli
 #  demo_latest:
