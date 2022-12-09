@@ -16,5 +16,5 @@ export IC_COMMIT
 
 if [[ "${1:-wasms}" == "wasms" ]]; then
   mkdir -p wasms
-  cat "$SOURCE_DIR/sns_dfx.json" | jq -r '.canisters | to_entries | map({url: "https://download.dfinity.systems/ic/\(env.IC_COMMIT)/canisters/\(.value.wasm).gz", file: "wasms/\(.value.wasm)"}) | map ("curl --fail \(.url) | gunzip > \(.file)") | .[]' | xargs -I{} bash -xc '{}'
+  cat "$SOURCE_DIR/sns_dfx.json" | jq -r '.canisters | to_entries | map({url: "https://download.dfinity.systems/ic/\(env.IC_COMMIT)/canisters/\(.value.wasm).gz", file: "wasms/\(.value.wasm)"}) | map ("curl -L --fail \(.url) | gunzip > \(.file)") | .[]' | xargs -I{} bash -xc '{}'
 fi
