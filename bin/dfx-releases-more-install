@@ -10,7 +10,8 @@ source "$(optparse.build)"
 set -euo pipefail
 
 install_linux() {
-  sudo apt install moreutils
+  sudo apt-get update
+  sudo apt-get install -yy moreutils
 }
 install_darwin() {
   brew install moreutils
