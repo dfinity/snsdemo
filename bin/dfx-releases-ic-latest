@@ -1,9 +1,18 @@
+#!/usr/bin/env bash
 function disk_image_exists() {
-     curl -fL --output /dev/null --silent --head --fail \
-         "https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/disk-img/disk-img.tar.gz" \
-         || curl --output /dev/null --silent --head --fail \
-             "https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/disk-img.tar.gz"
-     curl -fL --output /dev/null --silent --head --fail \
-         "https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/update-img/SHA256SUMS"
+	curl -fL --output /dev/null --silent --head --fail \
+		"https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/disk-img/disk-img.tar.gz" ||
+		curl --output /dev/null --silent --head --fail \
+			"https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/disk-img.tar.gz"
+	curl -fL --output /dev/null --silent --head --fail \
+		"https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/update-img/SHA256SUMS"
+
+	# Mac buids can lag or be missing
+	curl -fL --output /dev/null --silent --head --fail \
+		"https://download.dfinity.systems/ic/${GIT_REVISION}/nix-release/x86_64-darwin/ic-admin.gz"
 }
-( cd ~/dfn/ic-github ; git fetch ; git log --format=format:%H origin/master ) | while read -r GIT_REVISION ; do disk_image_exists && echo $GIT_REVISION && break ; done
+(
+	cd ~/dfn/ic-github
+	git fetch
+	git log --format=format:%H origin/master
+) | while read -r GIT_REVISION; do disk_image_exists && echo $GIT_REVISION && break; done
