@@ -15,6 +15,10 @@ test -z "${DFX_VERBOSE:-}" || set -x
 
 # Create a neuron
 PEM="$HOME/.config/dfx/identity/$identity/identity.pem"
+test -e "$PEM" || {
+  echo "ERROR: Pem file for user '$identity' does not exist at '$PEM'"
+  exit 1
+} >&2
 NEURONS_DIR="$HOME/.config/dfx/identity/$identity/neurons"
 mkdir -p "$NEURONS_DIR"
 NEURONS_FILE="$NEURONS_DIR/$DFX_NETWORK"
