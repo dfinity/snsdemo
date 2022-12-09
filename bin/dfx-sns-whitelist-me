@@ -15,6 +15,7 @@ export DFX_NEURON_ID="$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX
 export DFX_IDENTITY_PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
 export NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 command -v "ic-admin"
+echo $PATH | tr : "\n"
 set ic-admin \
   --secret-key-pem "$DFX_IDENTITY_PEM" \
   --nns-url "$NNS_URL" \
