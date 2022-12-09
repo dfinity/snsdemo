@@ -15,7 +15,7 @@ cd "$(dirname "$(realpath "$0")")/.."
 bin/dfx-ledger-get-icp --max --icp 100 --network "$DFX_NETWORK"
 dfx ledger balance --network "$DFX_NETWORK"
 
-bin/dfx-neuron-id --network "$DFX_NETWORK" ||
+bin/dfx-neuron-id --network "$DFX_NETWORK" || {
 	bin/dfx-neuron-create --icp 50 --network "$DFX_NETWORK" --verbose
 	bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 }
