@@ -1,17 +1,10 @@
 #!/usr/bin/env bash
-SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-PATH="$SOURCE_DIR:$PATH"
-
-# Source the optparse.bash file ---------------------------------------------------
-source "$SOURCE_DIR/optparse.bash"
-# Define options
-# Source the output file ----------------------------------------------------------
-source "$(optparse.build)"
+# Note: Do mot import optparse as without coreutils it won't wrk on mac.
 set -euo pipefail
 
 install_linux() {
   sudo apt-get update
-  sudo apt-get install -yy moreutils
+  sudo apt-get install -yy coreutils moreutils
 }
 install_darwin() {
   brew install coreutils
