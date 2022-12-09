@@ -35,6 +35,13 @@ jobs:
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$PWD/bin" >> $GITHUB_PATH
+
+      - name: Unbork mac
+        if: matrix.os == macos-11
+        run: |
+          brew install bash
+          echo "/usr/local/bin" >> $GITHUB_PATH
+          echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
       - name: Install more
         run: ./bin/dfx-releases-more-install
       - name: Install dfx
