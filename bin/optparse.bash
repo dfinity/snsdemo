@@ -92,7 +92,7 @@ function optparse.define() {
 	if [ "${nargs:-}" == "" ]; then
 		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
 	elif [ "${nargs:-}" == "0" ]; then
-		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\"; shift 1;;"
+		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
 	else
 		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
 	fi
