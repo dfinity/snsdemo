@@ -18,14 +18,14 @@ export DFX_NETWORK
 # Check whether ident-1 has already been imported as an identity.
 check_moneybags() {
   (
-    set -euxo pipefail
+    set -euo pipefail
     dfx identity list | grep -qw ident-1
   )
 }
 # Imports an identity that has a billion toy ICP on testnets.
 make_moneybags() {
   (
-    set -euxo pipefail
+    set -euo pipefail
     check_moneybags || {
       cat <<EOF >ident-1.pem
 -----BEGIN EC PRIVATE KEY-----
