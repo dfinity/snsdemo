@@ -5,7 +5,7 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=s long=icp desc="The amount of ICP to icp" variable=ICP default=1
-optparse.define short=i long=DFX_IDENTITY desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx DFX_IDENTITY whoami)"
+optparse.define short=i long=DFX_IDENTITY desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 optparse.define short=V long=verbose desc="Print progress" variable=DFX_VERBOSE nargs=0
 # Source the output file ----------------------------------------------------------
@@ -14,12 +14,12 @@ set -euo pipefail
 test -z "${DFX_VERBOSE:-}" || set -x
 
 # Create a neuron
-PEM="$HOME/.config/dfx/DFX_IDENTITY/$DFX_IDENTITY/DFX_IDENTITY.pem"
+PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
 test -e "$PEM" || {
   echo "ERROR: Pem file for user '$DFX_IDENTITY' does not exist at '$PEM'"
   exit 1
 } >&2
-NEURONS_DIR="$HOME/.config/dfx/DFX_IDENTITY/$DFX_IDENTITY/neurons"
+NEURONS_DIR="$HOME/.config/dfx/identity/$DFX_IDENTITY/neurons"
 mkdir -p "$NEURONS_DIR"
 NEURONS_FILE="$NEURONS_DIR/$DFX_NETWORK"
 export IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
