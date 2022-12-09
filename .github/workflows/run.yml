@@ -29,37 +29,37 @@ jobs:
       matrix:
         os: [ macos-11, ubuntu-22.04 ]
     steps:
-      - name: Install more
-        run: ./bin/dfx-releases-more-install
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Install more
+        run: ./bin/dfx-releases-more-install
       - name: Install dfx
         run: ./bin/dfx-releases-dfx-install
       - name: Install quill
         run: ./bin/dfx-releases-quill-install
       - name: Run the demo with the current default ic commits
         run: bin/demo-fast
-  demo_latest:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ macos-11, ubuntu-22.04 ]
-    steps:
-      - name: Install apt dependencies
-        run: sudo apt install moreutils
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install dfx
-        run: ./bin/dfx-releases-dfx-install
-      - name: Install quill
-        run: ./bin/dfx-releases-quill-install
-      - name: Checkout ic repo
-        uses: actions/checkout@v3
-        with:
-          repository: dfinity/ic
-          ref: master
-          fetch-depth: 100
-          path: ic
-      - name: Run the demo with the latest repo
-        run: bin/demo-fast --ic_commit latest --ic_dir ic
+#  demo_latest:
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        os: [ macos-11, ubuntu-22.04 ]
+#    steps:
+#      - name: Install apt dependencies
+#        run: sudo apt install moreutils
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Install dfx
+#        run: ./bin/dfx-releases-dfx-install
+#      - name: Install quill
+#        run: ./bin/dfx-releases-quill-install
+#      - name: Checkout ic repo
+#        uses: actions/checkout@v3
+#        with:
+#          repository: dfinity/ic
+#          ref: master
+#          fetch-depth: 100
+#          path: ic
+#      - name: Run the demo with the latest repo
+#        run: bin/demo-fast --ic_commit latest --ic_dir ic
