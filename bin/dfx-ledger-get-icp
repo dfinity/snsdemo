@@ -40,4 +40,4 @@ EOF
 # Transfers funds from ident-1 to the current account.
 make_moneybags
 CALLER_ACCOUNT_ID="$(dfx ledger account-id)"
-dfx ledger transfer --identity ident-1 "$CALLER_ACCOUNT_ID" --memo "$RANDOM" --AMOUNT "$AMOUNT" --network "$DFX_NETWORK"
+dfx ledger transfer --identity ident-1 "$CALLER_ACCOUNT_ID" --memo "$RANDOM" --amount "$AMOUNT" --network "$DFX_NETWORK"
