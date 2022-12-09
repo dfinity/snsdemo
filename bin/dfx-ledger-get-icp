@@ -10,21 +10,21 @@ optparse.define short=i long=icp desc="The amount of ICP to request" variable=am
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
-set -euo pipefail
+set -euxo pipefail
 
 export DFX_NETWORK
 
 # Check whether ident-1 has already been imported as an identity.
 check_moneybags() {
   (
-    set -euo pipefail
+    set -euxo pipefail
     dfx identity list | grep -qw ident-1
   )
 }
 # Imports an identity that has a billion toy ICP on testnets.
 make_moneybags() {
   (
-    set -euo pipefail
+    set -euxo pipefail
     check_moneybags || {
       cat <<EOF >ident-1.pem
 -----BEGIN EC PRIVATE KEY-----
@@ -39,4 +39,5 @@ EOF
 }
 # Transfers funds from ident-1 to the current account.
 make_moneybags
-dfx ledger transfer --identity ident-1 "$(dfx ledger account-id)" --memo "$RANDOM" --amount "$amount" --network "$DFX_NETWORK"
+CALLER_ACCOUNT_ID="$(dfx ledger account-id)"
+dfx ledger transfer --identity ident-1 "$CALLER_ACCOUNT_ID" --memo "$RANDOM" --amount "$amount" --network "$DFX_NETWORK"
