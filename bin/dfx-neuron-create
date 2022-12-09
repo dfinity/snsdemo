@@ -27,6 +27,7 @@ export IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 
 command -v quill
 file "$(command -v quill)"
+ls -l "$(command -v quill)"
 quill --help
 quill --version
 quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --amount "$icp" --name 1 | jq .
