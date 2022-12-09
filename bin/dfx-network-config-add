@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+export DFX_NETWORK
+
+
+
+( cd "$IC_REPO_DIR/testnet/env/$DFX_NETWORK/" && ./hosts --nns-nodes | awk '{printf "http://[%s]:8080\n", $2}' ; ) | jq --raw-input --slurp 'split("\n") | map(select(. != ""))'
+
