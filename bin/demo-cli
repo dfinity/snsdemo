@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-PATH="$SOURCE_DIR:$PATH:$(dfx cache show)"
-export PATH="$PATH:$HOME/.local/bin"
+DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
+PATH="$SOURCE_DIR:$DEMO_BIN:$HOME/.local/bin:$PATH:$(dfx cache show)"
+export PATH
 
 # Source the optparse.bash file ---------------------------------------------------
 source "$SOURCE_DIR/optparse.bash"
@@ -20,9 +21,7 @@ demo-cleanup
 # If ic-commit is specified, get execuables from there:
 [[ "${IC_COMMIT:-}" != "latest" ]] || IC_COMMIT="$(dfx-releases ic latest)"
 [[ "${IC_COMMIT:-}" != "" ]] || IC_COMMIT="$(dfx-releases ic current)"
-DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
 rm -fr "$DEMO_BIN"
-export PATH="$DEMO_BIN:$PATH"
 dfx-releases ic install-executable --commit "$IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
 echo "Using binaries from ic commit: $IC_COMMIT"
 
