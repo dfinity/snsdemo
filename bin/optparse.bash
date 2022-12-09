@@ -123,6 +123,8 @@ OPTIONS:
 
         -? --help  :  usage
 
+        --verbose  :  show debug info
+
 XXX
 }
 
@@ -139,6 +141,8 @@ while [ \$# -ne 0 ]; do
                 "-?"|--help)
                         usage
                         exit 0;;
+		--verbose)
+			set -x;;
 		--)
 			break ;;
                 -*)
