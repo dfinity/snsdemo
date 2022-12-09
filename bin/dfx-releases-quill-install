@@ -39,7 +39,7 @@ chmod +x "$TMP_DESTINATION"
 mv "$TMP_DESTINATION" "$DESTINATION"
 echo "Installed quill at: $DESTINATION"
 
-CURRENT_QUILL="$(realpath "$(command -v quill 2>/dev/null || true)")"
+CURRENT_QUILL="$(realpath "$(command -v quill 2>/dev/null || true)" || true)"
 [[ "$CURRENT_QUILL" == "$(realpath "$DESTINATION")" ]] || {
   if test -z "${CURRENT_QUILL:-}"; then
     echo "Please add this to your PATH: $USER_BIN"
