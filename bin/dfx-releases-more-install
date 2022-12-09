@@ -14,6 +14,7 @@ install_linux() {
   sudo apt-get install -yy moreutils
 }
 install_darwin() {
+  brew install coreutils
   brew install moreutils
 }
 
