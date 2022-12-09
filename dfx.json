@@ -5,7 +5,8 @@
       "candid": "candid/nns-cycles-minting.did",
       "remote": {
         "id": {
-          "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+          "local": "rkp4c-7iaaa-aaaaa-aaaca-cai",
+          "small14": "rkp4c-7iaaa-aaaaa-aaaca-cai"
         }
       },
       "type": "custom",
@@ -16,7 +17,8 @@
       "candid": "candid/nns-genesis-token.did",
       "remote": {
         "id": {
-          "local": "renrk-eyaaa-aaaaa-aaada-cai"
+          "local": "renrk-eyaaa-aaaaa-aaada-cai",
+          "small14": "renrk-eyaaa-aaaaa-aaada-cai"
         }
       },
       "type": "custom",
@@ -27,7 +29,8 @@
       "candid": "candid/nns-governance.did",
       "remote": {
         "id": {
-          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small14": "rrkah-fqaaa-aaaaa-aaaaq-cai"
         }
       },
       "type": "custom",
@@ -38,7 +41,8 @@
       "candid": "candid/nns-ledger.did",
       "remote": {
         "id": {
-          "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+          "local": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+          "small14": "ryjl3-tyaaa-aaaaa-aaaba-cai"
         }
       },
       "type": "custom",
@@ -49,7 +53,8 @@
       "candid": "candid/nns-lifeline.did",
       "remote": {
         "id": {
-          "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+          "local": "rno2w-sqaaa-aaaaa-aaacq-cai",
+          "small14": "rno2w-sqaaa-aaaaa-aaacq-cai"
         }
       },
       "type": "custom",
@@ -60,7 +65,8 @@
       "candid": "candid/nns-registry.did",
       "remote": {
         "id": {
-          "local": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+          "local": "rwlgt-iiaaa-aaaaa-aaaaa-cai",
+          "small14": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
         }
       },
       "type": "custom",
@@ -71,7 +77,8 @@
       "candid": "candid/nns-root.did",
       "remote": {
         "id": {
-          "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+          "local": "r7inp-6aaaa-aaaaa-aaabq-cai",
+          "small14": "r7inp-6aaaa-aaaaa-aaabq-cai"
         }
       },
       "type": "custom",
@@ -82,7 +89,8 @@
       "candid": "candid/nns-sns-wasm.did",
       "remote": {
         "id": {
-          "local": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+          "local": "qaa6y-5yaaa-aaaaa-aaafa-cai",
+          "small14": "qaa6y-5yaaa-aaaaa-aaafa-cai"
         }
       },
       "type": "custom",
@@ -108,57 +116,57 @@
     "sns_governance": {
       "build": "",
       "candid": "candid/sns_governance.did",
-      "type": "custom",
-      "wasm": "",
       "remote": {
         "id": {
           "local": "q3fc5-haaaa-aaaaa-aaahq-cai"
         }
-      }
+      },
+      "type": "custom",
+      "wasm": ""
     },
     "sns_index": {
       "build": "",
       "candid": "candid/sns_index.did",
-      "type": "custom",
-      "wasm": "",
       "remote": {
         "id": {
           "local": "si2b5-pyaaa-aaaaa-aaaja-cai"
         }
-      }
+      },
+      "type": "custom",
+      "wasm": ""
     },
     "sns_ledger": {
       "build": "",
       "candid": "candid/sns_ledger.did",
-      "type": "custom",
-      "wasm": "",
       "remote": {
         "id": {
           "local": "sgymv-uiaaa-aaaaa-aaaia-cai"
         }
-      }
+      },
+      "type": "custom",
+      "wasm": ""
     },
     "sns_root": {
       "build": "",
       "candid": "candid/sns_root.did",
-      "type": "custom",
-      "wasm": "",
       "remote": {
         "id": {
           "local": "q4eej-kyaaa-aaaaa-aaaha-cai"
         }
-      }
+      },
+      "type": "custom",
+      "wasm": ""
     },
     "sns_swap": {
       "build": "",
       "candid": "candid/sns_swap.did",
-      "type": "custom",
-      "wasm": "",
       "remote": {
         "id": {
           "local": "sbzkb-zqaaa-aaaaa-aaaiq-cai"
         }
-      }
+      },
+      "type": "custom",
+      "wasm": ""
     }
   },
   "defaults": {

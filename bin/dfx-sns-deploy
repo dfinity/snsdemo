@@ -15,15 +15,14 @@ export PATH
 export DFX_NETWORK
 
 dfx canister id nns-sns-wasm --network "$DFX_NETWORK" 2>/dev/null || {
-	echo "Canister dfx-nns-wasm is not defined."
-	echo "Please run:"
-	echo "    dfx nns import --network-mapping $DFX_NETWORK=local"
-	exit 1
-}>&2
+  echo "Canister dfx-nns-wasm is not defined."
+  echo "Please run:"
+  echo "    dfx nns import --network-mapping $DFX_NETWORK=local"
+  exit 1
+} >&2
 set "sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
 echo "${@}"
 "${@}" | tee ,sns-init-response.idl
-
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
   perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |

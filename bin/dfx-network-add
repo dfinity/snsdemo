@@ -17,5 +17,3 @@ source "$(optparse.build)"
 set -euo pipefail
 
 export DFX_NETWORK
-
-

@@ -17,7 +17,7 @@ export DFX_NETWORK
 
 # Check whether ident-1 has already been imported as an identity.
 check_moneybags() {
-    dfx identity list 2>/dev/null | grep -qw ident-1
+  dfx identity list 2>/dev/null | grep -qw ident-1
 }
 # Imports an identity that has a billion toy ICP on testnets.
 make_moneybags() {
@@ -39,16 +39,15 @@ EOF
 
 # Checks whether anything needs to be done
 test -z "${IF_NEEDED:-}" || {
-	HAVE_ICP="$(dfx ledger balance --network "$DFX_NETWORK" | awk '{print $1}')"
-	NEED_ICP="$(awk -vwant="$AMOUNT" -vhave="$HAVE_ICP" 'BEGIN{need=(want - have);if(need<=0){print 0; exit 0}if(need < 1){print 1}else{print need}}')"
-	if [[ "$NEED_ICP" == "0" ]]
-	then
-		echo "Balance is already over $AMOUNT"
-	else
-		echo "Topping up by $NEED_ICP ICP ..."
-		dfx-ledger-get-icp --icp "$NEED_ICP" --network "$DFX_NETWORK"
-	fi
-	exit 0
+  HAVE_ICP="$(dfx ledger balance --network "$DFX_NETWORK" | awk '{print $1}')"
+  NEED_ICP="$(awk -vwant="$AMOUNT" -vhave="$HAVE_ICP" 'BEGIN{need=(want - have);if(need<=0){print 0; exit 0}if(need < 1){print 1}else{print need}}')"
+  if [[ "$NEED_ICP" == "0" ]]; then
+    echo "Balance is already over $AMOUNT"
+  else
+    echo "Topping up by $NEED_ICP ICP ..."
+    dfx-ledger-get-icp --icp "$NEED_ICP" --network "$DFX_NETWORK"
+  fi
+  exit 0
 }
 
 # Transfers funds from ident-1 to the current account.
