@@ -12,6 +12,7 @@ set -euo pipefail
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 PROPOSAL_TYPE="propose-to-set-authorized-subnetworks"
 
+# shellcheck disable=SC2046 # We want multiple fields to come from the ic-admin command
 set ic-admin --nns-url "$NNS_URL" \
   "$PROPOSAL_TYPE" \
   --test-neuron-proposer \

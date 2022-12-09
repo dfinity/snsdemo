@@ -27,6 +27,7 @@ else
   PEM_ARGS=("--secret-key-pem" "$(dfx-identity-pem --identity "$DFX_IDENTITY")")
 fi
 
+# shellcheck disable=SC2046 # We want to have multiple fields comme out of the ic-admin command
 set "ic-admin" \
   --nns-url "$NNS_URL" \
   "${PEM_ARGS[@]}" \

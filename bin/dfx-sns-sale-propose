@@ -18,7 +18,6 @@ export DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 # The due date of the sale must be greater than 1 day at thetime of NNS proposal execution
 SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 14 * 24 * 3600')"
 SNS_SWAP="$(dfx canister id sns_swap --network "$DFX_NETWORK")"
-PATH_TO_SUMMARY_FILE="README.md"
 SNS_TOKENS_E8s=314100000000
 TOKEN_SYMBOL="$(awk '/token_symbol:/{print $2}' sns.yml || echo SOMETHING)"
 PROPOSAL_TITLE="Proposal to create an SNS-DAO for $TOKEN_SYMBOL"

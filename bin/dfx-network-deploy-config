@@ -29,7 +29,6 @@ else
   # out before we can resonably ask people to do this.
   IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
   ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
-  TESTNET="$DFX_NETWORK"
   test -d "$ND_REPO_DIR" || {
     echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
     exit 1

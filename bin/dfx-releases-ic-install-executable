@@ -32,7 +32,7 @@ mkdir -p "$USER_BIN"
   IC_COMMIT="$(dfx-releases ic latest)"
 }
 
-echo "Installing ${@}"
+echo "Installing $*"
 while (($# > 0)); do
   EXEC_NAME="$1"
   shift 1

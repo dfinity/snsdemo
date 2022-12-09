@@ -13,7 +13,7 @@ install_darwin() {
 
 OS="$(uname | tr '[:upper:]' '[:lower:]')"
 
-EXEC_NAME=more
+EXEC_NAME="more"
 echo "Installing '$EXEC_NAME' ..."
 "install_${OS}"
 echo "Installed '$EXEC_NAME'"
