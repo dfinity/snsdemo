@@ -6,35 +6,35 @@ DFX_NETWORK="${DFX_NETWORK:-local}"
 
 help_text() {
   cat <<-EOF
-	Starts an SNS swap.
+		Starts an SNS swap.
 
-	Flags:
-	--dfx-network <DFX_NETWORK>
-	  The network in dfx.json with the swap canister.
-	  Default: None, this is required.
+		Flags:
+		--dfx-network <DFX_NETWORK>
+		  The network in dfx.json with the swap canister.
+		  Default: None, this is required.
 
-	--swap-canister <SWAP_CANISTER_ID>
-	  The swap canister ID.
-	  Default: The '${SWAP_CANISTER_NAME}' entry in 'canister_ids.json'
+		--swap-canister <SWAP_CANISTER_ID>
+		  The swap canister ID.
+		  Default: The '${SWAP_CANISTER_NAME}' entry in 'canister_ids.json'
 
-	--title <TITLE>
-	  The title of the proposal
-	  Default: Something meaningless
+		--title <TITLE>
+		  The title of the proposal
+		  Default: Something meaningless
 
-	--url <URL>
-	  The URL of a page describing the SNS
-	  Default: Something meaningless
+		--url <URL>
+		  The URL of a page describing the SNS
+		  Default: Something meaningless
 
-	--proposer <PROPOSER_NEURON_ID>
-	  The proposing neuron ID.
-	  Default: Interactive commands to set up a neuron and hotkey.
+		--proposer <PROPOSER_NEURON_ID>
+		  The proposing neuron ID.
+		  Default: Interactive commands to set up a neuron and hotkey.
 
-	Env vars:
-	  DFX_NETWORK
-	  SWAP_CANISTER_ID
-	  TITLE
-	  URL
-	  PROPOSER_NEURON_ID
+		Env vars:
+		  DFX_NETWORK
+		  SWAP_CANISTER_ID
+		  TITLE
+		  URL
+		  PROPOSER_NEURON_ID
 	EOF
 }
 
@@ -51,11 +51,11 @@ dfx_network_check_valid() {
   DFX_NETWORK="$DFX_NETWORK" dfx_network_is_valid || {
     cat <<-EOF
 
-	ERROR: No such network in dfx.json.
-	       Available networks are:
-	       $(jq -er '.networks | keys | join(" ")' dfx.json)
+			ERROR: No such network in dfx.json.
+			       Available networks are:
+			       $(jq -er '.networks | keys | join(" ")' dfx.json)
 
-	EOF
+		EOF
     exit 1
   }
 }
@@ -87,9 +87,9 @@ while (($# > 0)); do
     ;;
   *)
     cat <<-EOF >&2
-	ERROR: Unrecognised argument: '$arg'
-	Please use --help for usage.
-	EOF
+			ERROR: Unrecognised argument: '$arg'
+			Please use --help for usage.
+		EOF
     exit 1
     ;;
   esac

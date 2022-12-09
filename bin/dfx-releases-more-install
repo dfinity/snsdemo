@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Note: Do mot import optparse as without coreutils it won't wrk on mac.
+set -euo pipefail
+
+install_linux() {
+  sudo apt-get update
+  sudo apt-get install -yy coreutils moreutils
+}
+install_darwin() {
+  brew install coreutils
+  brew install moreutils
+}
+
+OS="$(uname | tr '[:upper:]' '[:lower:]')"
+
+EXEC_NAME="more"
+echo "Installing '$EXEC_NAME' ..."
+"install_${OS}"
+echo "Installed '$EXEC_NAME'"

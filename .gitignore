@@ -9,7 +9,16 @@
 
 # dfx temporary files
 .dfx
-canister_ids.json
+canister_ids.*
+wasms
+candid
+
+# other temporary files
+,*
+
+# Configuration files in the root, unless explicitly committed
+/*.yml
+/*.yaml
 
 # generated files
 src/declarations/
@@ -17,3 +26,6 @@ src/declarations/
 # frontend code
 node_modules/
 dist/
+
+# Hidden files need to be included explicitly
+.*

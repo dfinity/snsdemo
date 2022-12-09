@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+consonant() {
+  openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
+}
+vowel() {
+  openssl rand -base64 100 | tr -dc AEIOUY | head -c 1
+}
+
+TOKEN_SYMBOL="$(
+  consonant
+  vowel
+  consonant
+  vowel
+  consonant
+  echo
+)"
+TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
+PRINCIPAL="$(dfx identity get-principal)"
+# For original cotrollers, use:
+# dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
+
+sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g;s/PRINCIPAL/$PRINCIPAL/g" "$(dirname "$(realpath "$0")")"/sns_init.yml >sns.yml
+
+echo "Created an SNS: $TOKEN_SYMBOL"

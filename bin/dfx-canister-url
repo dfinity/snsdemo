@@ -102,7 +102,7 @@ else
   # Yes, shell does not bind logical operators like some other languages.  That is fine.
   # Thank you, shellcheck, for making sure that we are aware.
   # shellcheck disable=SC2015
-  test -e "$local_dfx_port_file" && curl -s "$url" >/dev/null || {
+  test -e "$local_dfx_port_file" && curl -sL "$url" >/dev/null || {
     printf "ERROR: %s\n" "dfx does not appear to be running in this repo"
     exit 1
   } >&2

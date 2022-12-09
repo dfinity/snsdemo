@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+cd "$(dirname "$(realpath "$0")")/.."
+new_commit="$1"
+old_commit="${old_commit:-$(cat scripts/ic-commit)}"
+
+git grep -l "$old_commit" | xargs -I {} sed -i "s/$old_commit/$new_commit/g" "{}"
+
+echo "$new_commit" >scripts/ic-commit

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=c long=config desc="The SNS cofiguration" variable=SNS_CONFIG default="sns.yml"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+export DFX_NETWORK
+
+set "sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
+echo "${@}"
+"${@}" | tee ,sns-init-response.idl
+
+if [[ "$DFX_NETWORK" == "local" ]]; then
+  perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
+    idl2json |
+    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {remote: {id:{(env.DFX_NETWORK): (.value[0])}}}}) | add | {canisters: .}' |
+    jq -s '.[1] * .[0]' - dfx.json | sponge dfx.json
+else
+  test -e canister_ids.json || {
+    echo "{}" >canister_ids.json
+  }
+
+  perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
+    idl2json |
+    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {(env.DFX_NETWORK): (.value[0])} }) | add' |
+    jq -s '.[1] * .[0]' - canister_ids.json | sponge canister_ids.json
+fi

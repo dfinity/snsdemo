@@ -5,13 +5,13 @@ cd "$(dirname "$(realpath "$0")")/.."
 help_text() {
   cat <<-EOF
 
-	Joins an existing locally running dfx server.
+		Joins an existing locally running dfx server.
 
-	Polyfill for: $(dfx start --join)
+		Polyfill for: $(dfx start --join)
 
-	Flags:
-	--help
-	  Prints this help text and exits.
+		Flags:
+		--help
+		  Prints this help text and exits.
 
 	EOF
 }
@@ -26,9 +26,9 @@ while (($# > 0)); do
     ;;
   *)
     cat <<-EOF >&2
-	ERROR: Unrecognised argument: '$arg'
-	Please use --help for usage.
-	EOF
+			ERROR: Unrecognised argument: '$arg'
+			Please use --help for usage.
+		EOF
     exit 1
     ;;
   esac

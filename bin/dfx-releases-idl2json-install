@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=v long=version desc="The release to install" variable=IDL2JSON_VERSION default="latest"
+optparse.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+[[ "${IDL2JSON_VERSION:-}" != "latest" ]] || IDL2JSON_VERSION="$(dfx-releases-idl2json-latest)"
+
+mkdir -p "$USER_BIN"
+
+OS="$(uname)"
+
+get_url() {
+  case "$OS" in
+  Darwin)
+    echo "https://github.com/dfinity/idl2json/releases/download/${IDL2JSON_VERSION}/idl2json-macos-x86_64.zip"
+    ;;
+  Linux)
+    echo "https://github.com/dfinity/idl2json/releases/download/${IDL2JSON_VERSION}/idl2json-linux-x86_64.tar.gz"
+    ;;
+  esac
+}
+
+install_idl2json() {
+  case "$OS" in
+  Darwin)
+    (
+      cd "$USER_BIN"
+      tempfile="$(mktemp idl2json-XXXXXX)"
+      curl -Ls "$URL" >"$tempfile"
+      unzip "$tempfile"
+      rm "$tempfile"
+    )
+    ;;
+  Linux)
+    curl -Ls "$URL" | tar -xz --directory="$USER_BIN"
+    ;;
+  esac
+}
+
+URL="$(get_url)"
+DESTINATION="${USER_BIN}/idl2json"
+echo "Downloading $URL ..."
+install_idl2json
+echo "Installed idl2json at: $DESTINATION"
+
+CURRENT_IDL2JSON="$(realpath "$(command -v idl2json 2>/dev/null || true)" || true)"
+[[ "$CURRENT_IDL2JSON" == "$(realpath "$DESTINATION")" ]] || {
+  if test -z "${CURRENT_IDL2JSON:-}"; then
+    echo "Please add this to your PATH: $USER_BIN"
+  else
+    echo "WARNING: You currently have a different idl2json in your path"
+  fi
+}

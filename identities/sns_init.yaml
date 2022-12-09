@@ -47,14 +47,14 @@ min_participants: 1
 # The minimum amount of ICP that each buyer must contribute to participate in the swap.
 # Default value = 1
 #
-min_participant_icp_e8s: 100000000
+min_participant_icp_e8s: 390000000
 #
 # This field has no default, a value must be provided by the user.
 # The maximum amount of ICP that each buyer can contribute. Must be greater than
 # or equal to `min_participant_icp_e8s` and less than or equal to
 # `max_icp_e8s`. Can effectively be disabled by setting it to `max_icp_e8s`.
 #
-max_participant_icp_e8s: 400000000
+max_participant_icp_e8s: 500000000
 #
 # This field has no default, a value must be provided by the user.
 # The minimum amount of ICP that is required for this token swap to take

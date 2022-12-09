@@ -6,11 +6,73 @@ on:
       - main
   pull_request:
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
-  readme:
-    runs-on: ubuntu-20.04
+
+#  readme:
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        os: [ macos-11, ubuntu-22.04 ]
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Run the README code parts
+#        run: bin/test-readme
+  demo_current:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-11, ubuntu-22.04 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Run the README code parts
-        run: bin/test-readme
+      - name: Add user path
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$PWD/bin" >> $GITHUB_PATH
+
+      - name: Unbork mac
+        if: matrix.os == 'macos-11'
+        run: |
+          brew install bash
+          echo "/usr/local/bin" >> $GITHUB_PATH
+          echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+      - name: Install more
+        run: ./bin/dfx-releases-more-install
+      - name: Install dfx
+        run: ./bin/dfx-releases-dfx-install
+      - name: Install quill
+        run: ./bin/dfx-releases-quill-install
+      - name: Install idl2json
+        run: ./bin/dfx-releases-idl2json-install
+      - name: Run the demo with the current default ic commits
+        run: bin/demo-cli
+#  demo_latest:
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        os: [ macos-11, ubuntu-22.04 ]
+#    steps:
+#      - name: Install apt dependencies
+#        run: sudo apt install moreutils
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Install dfx
+#        run: ./bin/dfx-releases-dfx-install
+#      - name: Install quill
+#        run: ./bin/dfx-releases-quill-install
+#      - name: Checkout ic repo
+#        uses: actions/checkout@v3
+#        with:
+#          repository: dfinity/ic
+#          ref: master
+#          fetch-depth: 100
+#          path: ic
+#      - name: Run the demo with the latest repo
+#        run: bin/demo-cli --ic_commit latest --ic_dir ic

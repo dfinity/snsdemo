@@ -5,32 +5,32 @@ cd "$(dirname "$(realpath "$0")")/.."
 help_text() {
   cat <<-EOF
 
-	Imports candid files from a remote project.
+		Imports candid files from a remote project.
 
-	Polyfill for: "dfx canister import"
+		Polyfill for: "dfx canister import"
 
-	Usage: dfx canister import [--prefix <CANISTER_NAME_PREFIX>] <URL|PATH_TO_REMOTE_DFX> <CANISTER_NAME>
+		Usage: dfx canister import [--prefix <CANISTER_NAME_PREFIX>] <URL|PATH_TO_REMOTE_DFX> <CANISTER_NAME>
 
-	Arguments:
-	<URL|PATH_TO_REMOTE_DFX>
-	  The location of a remote dfx.json file.
-	  Example: To import the NNS canisters, use: https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json
+		Arguments:
+		<URL|PATH_TO_REMOTE_DFX>
+		  The location of a remote dfx.json file.
+		  Example: To import the NNS canisters, use: https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json
 
-	<CANISTER_NAME>
-	  The name of the canister to import.  If "--all" is given, all canisters will be imported.
+		<CANISTER_NAME>
+		  The name of the canister to import.  If "--all" is given, all canisters will be imported.
 
-	Flags:
-	--help
-	  Prints this help text and exits.
+		Flags:
+		--help
+		  Prints this help text and exits.
 
-	--prefix <CANISTER_NAME_PREFIX>
-	  A prefix to add to imported canister names.
+		--prefix <CANISTER_NAME_PREFIX>
+		  A prefix to add to imported canister names.
 
-	--ids
-	  Import the canister_ids.json (in its entirety or the specified canisters only).
+		--ids
+		  Import the canister_ids.json (in its entirety or the specified canisters only).
 
-	  Example: If the prefix is "foo-" and a remote canister is called "bar"
-		   then the canister will be called "foo-bar" in the local dfx.json.
+		  Example: If the prefix is "foo-" and a remote canister is called "bar"
+			   then the canister will be called "foo-bar" in the local dfx.json.
 
 	EOF
 }

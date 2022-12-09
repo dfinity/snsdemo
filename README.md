@@ -6,14 +6,14 @@ Welcome to the world of the Network Nervous System.  In this tutorial we will sh
 You will need developer tools and this code.
 
 #### MacOS
-```
+```sh
 command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 command -v sponge || brew install moreutils
 command -v npm || brew install npm
 ```
 
 #### Ubuntu
-```
+```sh
 command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 command -v sponge || sudo apt install moreutils
 command -v npm || sudo apt install npm
@@ -22,11 +22,12 @@ command -v npm || sudo apt install npm
 ### Get the code
 Clone this project:
 <!---
-The comments like this are not displayed in Markdown; they contain code for automated testing.
+Comments like this, in HTML escapes, are not displayed in Markdown; they contain code for automated testing.
 ```bash
 # We will use the current directory for testing, but make sure it is clean.
 which say || say() { : ; }
 ```
+Code blocks that do not start with `bash` are not executed by automated testing.
 -->
 ```sh
 git clone https://github.com/dfinity/snsdemo.git
@@ -34,10 +35,7 @@ cd snsdemo
 ```
 <!---
 ```bash
-git clean -dfx
-dfx stop || true
-pkill dfx || true
-pkill icx-proxy || true
+bin/demo-cleanup
 ```
 
 ```bash
@@ -83,7 +81,7 @@ fi # Skip first deployment
 -->
 This dfx functionality has not been released yet, so you will need a special build, which you can obtain as follows:
  ```bash
-export DFX_VERSION="0.12.0-snsdemo.5"
+export DFX_VERSION="0.12.1"
 dfx --version | grep "$DFX_VERSION" || sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 jq '.dfx=(env.DFX_VERSION)' dfx.json | sponge dfx.json
 dfx cache install
@@ -93,13 +91,18 @@ You will also need a special SNS binary.
 
 On Linux:
 ```bash
-curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
+curl https://download.dfinity.systems/ic/997ab2e9cc49189302fe54c1e60709abfbeb1d42/release/sns.gz | gunzip | install --mode 775 /dev/stdin "$(dfx cache show)/sns"
 ```
 On Mac:
 ```
-curl https://download.dfinity.systems/ic/c307accc11b5bc66a090ac4f18149e527fc6c750/nix-release/x86_64-darwin/sns.gz | gunzip > sns
+curl https://download.dfinity.systems/ic/997ab2e9cc49189302fe54c1e60709abfbeb1d42/nix-release/x86_64-darwin/sns.gz | gunzip > sns
 install -m 775 sns "$(dfx cache show)/sns"
 rm sns
+```
+
+And some scripts:
+``` bash
+export PATH="$PWD/bin:$PATH"
 ```
 
 Now we should now be able to see the help pages for the NNS commands:
@@ -216,7 +219,12 @@ Click on the `nns-dapp` URL.  You should be able to log in with your new identit
 
 The NNS Dapp acts as a wallet.  You will need toy ICP tokens to test with.  Note that at the bottom of the menu there is a "Get ICPs" button with which you can award yourself ICP.  Free ICP are limited but you can make yourself a millionaire.
 
-To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.
+To be able to make decisions in your local testnet you will need a neuron with hefty voting power.  In the real world, neuron ownership is distributed but in the testnet, if you make yourself a neuron with 500 million ICP and an 8 year dissolve delay you will be able to vote through proposals under almost any circumstances.  You can do this in the UI or on the command line:
+```bash
+dfx-ledger-get-icp --icp 900000000
+dfx-neuron-create --icp 500000000
+```
+
 
 Finally, look to see what proposals you can vote on.  Disappointingly, if you look at the voting tab you will see no proposals but, actually, setting up the local NNS involved passing some proposals.  You can see this if you filter by proposal status == executed and select all topics.  You will be able to make proposals locally and vote on them.
 
@@ -249,7 +257,7 @@ Note: We cannot use `dfx deploy` here because that will try to deploy SNS wasms.
 ### Configure an SNS
 You will need to decide some things such as token name and token parameters.  To do this:
 ```bash
-dfx sns config create
+dfx-sns-config-new
 ```
 
 This will create a configuration file:
@@ -278,7 +286,7 @@ fi
 -->
 If you just want a random config that works, run:
 ```bash
-./bin/sns-configure-random
+./bin/sns-config-random
 dfx sns config validate
 ```
 

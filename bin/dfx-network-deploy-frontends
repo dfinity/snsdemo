@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=c long=commit desc="The IC commit of the wasms" variable=IC_COMMIT default="$(
+  . "$SOURCE_DIR/versions.bash"
+  echo "$IC_COMMIT"
+)"
+optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+export DFX_NETWORK
+
+if [[ "$DFX_NETWORK" == "local" ]]; then
+  echo NOT APPLICABLE
+else
+  # Run remotely with one of the predefined configurations.
+  # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
+  # out before we can resonably ask people to do this.
+  IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
+  ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
+  test -d "$ND_REPO_DIR" || {
+    echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
+    exit 1
+  } >&2
+
+  (
+    set -euxo pipefail
+    echo "Deploying internet-identity and nns-dapp"
+    cd "$ND_REPO_DIR"
+    rm -f canister_ids.json
+    ./deploy.sh --ii "$DFX_NETWORK"
+    ./deploy.sh --nns-dapp "$DFX_NETWORK"
+  ) || say fail fail fail
+
+fi
