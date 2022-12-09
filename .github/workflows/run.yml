@@ -37,7 +37,7 @@ jobs:
           echo "$PWD/bin" >> $GITHUB_PATH
 
       - name: Unbork mac
-        if: matrix.os == "macos-11"
+        if: matrix.os == 'macos-11'
         run: |
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
