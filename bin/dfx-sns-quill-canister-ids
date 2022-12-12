@@ -7,16 +7,21 @@ PATH="$SOURCE_DIR:$PATH"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=r long=network desc="get the cnister IDs from the root canister" variable=USE_ROOT nargs=0
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euo pipefail
 
-cat <<EOF | jq .
-{
-  "governance_canister_id": "$(dfx canister id sns_governance --network "$DFX_NETWORK")",
-  "ledger_canister_id": "$(dfx canister id sns_ledger --network "$DFX_NETWORK")",
-  "root_canister_id": "$(dfx canister id sns_root --network "$DFX_NETWORK")",
-  "swap_canister_id": "$(dfx canister id sns_swap --network "$DFX_NETWORK")",
-  "dapp_canister_id_list": []
-}
-EOF
+if test -n "${USE_ROOT:-}"; then
+  dfx canister call sns_root list_sns_canisters '(record {})' | idl2json | jq '{ governance_canister_id: .governance[0], ledger_canister_id: .ledger[0], root_canister_id: .root[0], swap_canister_id: .swap[0], dapp_canister_id_list: .dapps }'
+else
+  cat <<-EOF | jq .
+	{
+	  "governance_canister_id": "$(dfx canister id sns_governance --network "$DFX_NETWORK")",
+	  "ledger_canister_id": "$(dfx canister id sns_ledger --network "$DFX_NETWORK")",
+	  "root_canister_id": "$(dfx canister id sns_root --network "$DFX_NETWORK")",
+	  "swap_canister_id": "$(dfx canister id sns_swap --network "$DFX_NETWORK")",
+	  "dapp_canister_id_list": []
+	}
+	EOF
+fi
