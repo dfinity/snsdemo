@@ -8,24 +8,23 @@ source "$SOURCE_DIR/optparse.bash"
 #optparse.define short=a long=account desc="The dfx account requesting the funds" variable=account default="$(dfx identity whoami)"
 optparse.define short=i long=icp desc="The amount of ICP to request" variable=AMOUNT default="10"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=t long=to desc="Top up to the given value, if needed" variable=IF_NEEDED nargs=0
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
-set -euxo pipefail
+set -euo pipefail
 
 export DFX_NETWORK
 
 # Check whether ident-1 has already been imported as an identity.
 check_moneybags() {
-  (
-    set -euxo pipefail
-    dfx identity list | grep -qw ident-1
-  )
+  dfx identity list 2>/dev/null | grep -qw ident-1
 }
 # Imports an identity that has a billion toy ICP on testnets.
 make_moneybags() {
   (
-    set -euxo pipefail
+    set -euo pipefail
     check_moneybags || {
+      echo "Creating identity ident-1" >&2
       cat <<EOF >ident-1.pem
 -----BEGIN EC PRIVATE KEY-----
 MHQCAQEEICJxApEbuZznKFpV+VKACRK30i6+7u5Z13/DOl18cIC+oAcGBSuBBAAK
@@ -37,6 +36,20 @@ EOF
     } && check_moneybags
   )
 }
+
+# Checks whether anything needs to be done
+test -z "${IF_NEEDED:-}" || {
+  HAVE_ICP="$(dfx ledger balance --network "$DFX_NETWORK" | awk '{print $1}')"
+  NEED_ICP="$(awk -vwant="$AMOUNT" -vhave="$HAVE_ICP" 'BEGIN{need=(want - have);if(need<=0){print 0; exit 0}if(need < 1){print 1}else{print need}}')"
+  if [[ "$NEED_ICP" == "0" ]]; then
+    echo "Balance is already over $AMOUNT"
+  else
+    echo "Topping up by $NEED_ICP ICP ..."
+    dfx-ledger-get-icp --icp "$NEED_ICP" --network "$DFX_NETWORK"
+  fi
+  exit 0
+}
+
 # Transfers funds from ident-1 to the current account.
 make_moneybags
 CALLER_ACCOUNT_ID="$(dfx ledger account-id)"
