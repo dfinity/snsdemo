@@ -6,6 +6,7 @@ PATH="$SOURCE_DIR:$PATH"
 # Source the optparse.bash file ---------------------------------------------------
 source "$SOURCE_DIR/optparse.bash"
 # Define options
+optparse.define short=I long=icp desc="The amount of ICP to swap" variable=AMOUNT default="max"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 # Source the output file ----------------------------------------------------------
@@ -14,20 +15,12 @@ set -euo pipefail
 
 export DFX_NETWORK
 
-# If no subcommand has been provided, list all subcommands.
-(($# > 0)) || {
-  sns-quill --help | sed -n '/^SUBCOMMANDS:/,$p'
-  exit 1
-}
+# Set the purchased amout to the maximum allowed, if requested.
+[[ "${AMOUNT:-}" != "max" ]] || AMOUNT="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK" | awk '/max_participant_icp_e8s/{gsub(/_/,""); print $3/100000000}')"
 
-# sns-quill has its own canister ids JSON file different from the dfx canister_ids.json
-SNS_QUILL_CANISTER_IDS_FILE="$(mktemp)"
-dfx-sns-quill-canister-ids --network "$DFX_NETWORK" >"$SNS_QUILL_CANISTER_IDS_FILE"
-# Also, get the pem file.  Encrypted pem files etc are not supported.
-PEM_PATH="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
+# Set eth URL used by sns-quill
+IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 
-# Call sns-quill
-sns-quill --canister-ids-file "$SNS_QUILL_CANISTER_IDS_FILE" --pem-file "$PEM_PATH" "${@}"
-
-# Tidy up.
-rm "$SNS_QUILL_CANISTER_IDS_FILE"
+set dfx-sns-quill swap --memo 0 --amount "$AMOUNT"
+echo "${@}"
+"${@}" | IC_URL="$IC_URL" sns-quill send - --yes
