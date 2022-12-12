@@ -6,14 +6,21 @@ PATH="$SOURCE_DIR:$PATH"
 # Source the optparse.bash file ---------------------------------------------------
 source "$SOURCE_DIR/optparse.bash"
 # Define options
+optparse.define short=I long=icp desc="The amount of ICP to swap" variable=AMOUNT default="max"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-optparse.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$DFX_IC_COMMIT"
-optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
-optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
-optparse.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euo pipefail
 
 export DFX_NETWORK
+
+# Set the purchased amout to the maximum allowed, if requested.
+[[ "${AMOUNT:-}" != "max" ]] || AMOUNT="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK" | awk '/max_participant_icp_e8s/{gsub(/_/,""); print $3/100000000}')"
+
+# Set eth URL used by sns-quill
+IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
+
+set dfx-sns-quill swap --memo 0 --amount "$AMOUNT"
+echo "${@}"
+"${@}" | IC_URL="$IC_URL" sns-quill send - --yes

@@ -6,9 +6,9 @@ PATH="$SOURCE_DIR:$PATH"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-optparse.define short=c long=commit desc="The IC commit of the wasms" variable=IC_COMMIT default="$(
+optparse.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
-  echo "$IC_COMMIT"
+  echo "$DFX_IC_COMMIT"
 )"
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
@@ -36,14 +36,14 @@ else
     set -euxo pipefail
     echo "Deploying testnet..."
     cd "$IC_REPO_DIR"
-    git checkout "$IC_COMMIT"
+    git checkout "$DFX_IC_COMMIT"
     cat <<-EOF >test-accounts.json
 			{
 			  "init_ledger_accounts":["5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087", "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138"]
 			}
 		EOF
 
-    ./testnet/tools/icos_deploy.sh --git-revision "$IC_COMMIT" "$TESTNET" --ansible-args "-e @$PWD/test-accounts.json" || {
+    ./testnet/tools/icos_deploy.sh --git-revision "$DFX_IC_COMMIT" "$TESTNET" --ansible-args "-e @$PWD/test-accounts.json" || {
       echo "Tesnet returned an error code but it returns errors for very minor reasons.  The deployment is probably fine."
     }
     (cd "testnet/env/$TESTNET/" && ./hosts --nns-nodes | awk '{printf "%s http://[%s]:8080\n", $1, $2}')

@@ -8,7 +8,7 @@ export PATH
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-optparse.define short=c long=ic_commit desc="The IC commit to use" variable=IC_COMMIT default=""
+optparse.define short=c long=ic_commit desc="The IC commit to use" variable=DFX_IC_COMMIT default=""
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 # Source the output file ----------------------------------------------------------
@@ -19,11 +19,11 @@ cd "$(dirname "$(realpath "$0")")/.."
 demo-cleanup
 
 # If ic-commit is specified, get execuables from there:
-[[ "${IC_COMMIT:-}" != "latest" ]] || IC_COMMIT="$(dfx-software ic latest)"
-[[ "${IC_COMMIT:-}" != "" ]] || IC_COMMIT="$(dfx-software ic current)"
+[[ "${DFX_IC_COMMIT:-}" != "latest" ]] || DFX_IC_COMMIT="$(dfx-software ic latest)"
+[[ "${DFX_IC_COMMIT:-}" != "" ]] || DFX_IC_COMMIT="$(dfx-software ic current)"
 rm -fr "$DEMO_BIN"
-dfx-software ic install-executable --commit "$IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
-echo "Using binaries from ic commit: $IC_COMMIT"
+dfx-software ic install-executable --commit "$DFX_IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
+echo "Using binaries from ic commit: $DFX_IC_COMMIT"
 
 ./bin/demo-system-subnet
 
@@ -48,9 +48,10 @@ bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 
 ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
 ./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
-./bin/dfx-sns-wasm-download --commit "$IC_COMMIT"
+./bin/dfx-sns-wasm-download --commit "$DFX_IC_COMMIT"
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 
 ./bin/demo-mksns --network "$DFX_NETWORK"
+./bin/dfx-sns-sale-finalize --network "$DFX_NETWORK"
 
 : "Demo finished!  Hope you enjoyed the show."
