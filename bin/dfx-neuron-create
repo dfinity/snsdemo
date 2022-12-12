@@ -37,7 +37,8 @@ test -n "${RESPONSE:-}" || {
 } >&2
 NEURON_TEXT="$(echo "$RESPONSE" | perl -e 'while($_ = <>){if (s/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/){ print $_ }}')"
 test -n "${NEURON_TEXT:-}" || {
-  echo "ERROR: Could not find neuron in response:\n$RESPONSE"
+  echo "ERROR: Could not find neuron in response:"
+  echo "$RESPONSE"
   exit 1
 } >&2
 NEURON_ID="$(echo "$NEURON_TEXT" | tr -cd '[:alnum:]')"
