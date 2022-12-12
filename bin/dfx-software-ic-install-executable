@@ -29,7 +29,7 @@ mkdir -p "$USER_BIN"
 
 [[ "${IC_COMMIT}" != "latest" ]] || {
   echo "Finding the latest commit..."
-  IC_COMMIT="$(dfx-releases ic latest)"
+  IC_COMMIT="$(dfx-software ic latest)"
 }
 
 echo "Installing $*"
