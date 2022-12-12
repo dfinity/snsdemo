@@ -12,7 +12,7 @@ optparse.define short=b long=bin desc="Local directory for executables" variable
 source "$(optparse.build)"
 set -euo pipefail
 
-[[ "${IDL2JSON_VERSION:-}" != "latest" ]] || IDL2JSON_VERSION="$(dfx-releases-idl2json-latest)"
+[[ "${IDL2JSON_VERSION:-}" != "latest" ]] || IDL2JSON_VERSION="$(dfx-software-idl2json-latest)"
 
 mkdir -p "$USER_BIN"
 
