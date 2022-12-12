@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+export DFX_NETWORK
+
+# If no subcommand has been provided, list all subcommands.
+(($# > 0)) || {
+  sns-quill --help | sed -n '/^SUBCOMMANDS:/,$p'
+  exit 1
+}
+
+# sns-quill has its own canister ids JSON file different from the dfx canister_ids.json
+SNS_QUILL_CANISTER_IDS_FILE="$(mktemp)"
+dfx-sns-quill-canister-ids --network "$DFX_NETWORK" >"$SNS_QUILL_CANISTER_IDS_FILE"
+# Also, get the pem file.  Encrypted pem files etc are not supported.
+PEM_PATH="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
+
+# Call sns-quill
+sns-quill --canister-ids-file "$SNS_QUILL_CANISTER_IDS_FILE" --pem-file "$PEM_PATH" "${@}"
+
+# Tidy up.
+rm "$SNS_QUILL_CANISTER_IDS_FILE"

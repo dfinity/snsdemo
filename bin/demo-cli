@@ -52,5 +52,6 @@ bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 
 ./bin/demo-mksns --network "$DFX_NETWORK"
+./bin/dfx-sns-sale-finalize --network "$DFX_NETWORK"
 
 : "Demo finished!  Hope you enjoyed the show."
