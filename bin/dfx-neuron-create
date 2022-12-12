@@ -26,14 +26,26 @@ export IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 # Note: Quill send puts a pile of junk on stdout and has no option to put just the response(s) somewhere safe such as a file.
 
 MESSAGE="$(quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --amount "$ICP" --name 1)"
-RESPONSE="$(echo "$MESSAGE" | quill send --yes --insecure-local-dev-mode -)"
-NEURON_TEXT="$(echo "$RESPONSE" | perl -e 'while($_ = <>){if (s/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/){ print $_ }}')"
-NEURON_ID="$(echo "$NEURON_TEXT" | tr -cd '[:alnum:]')"
-
-test -n "${NEURON_ID:-}" || {
-  echo "Failed to create a neuron!"
+test -n "${MESSAGE:-}" || {
+  echo "ERROR: Created an empty message."
   exit 1
 } >&2
+RESPONSE="$(echo "$MESSAGE" | quill send --yes --insecure-local-dev-mode -)"
+test -n "${RESPONSE:-}" || {
+  echo "ERROR: Received an empty response."
+  exit 1
+} >&2
+NEURON_TEXT="$(echo "$RESPONSE" | perl -e 'while($_ = <>){if (s/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/){ print $_ }}')"
+test -n "${NEURON_TEXT:-}" || {
+  echo "ERROR: Could not find neuron in response:\n$RESPONSE"
+  exit 1
+} >&2
+NEURON_ID="$(echo "$NEURON_TEXT" | tr -cd '[:alnum:]')"
+test -n "${NEURON_ID:-}" || {
+  echo "Failed to get nuron ID from line: $NEURON_TEXT"
+  exit 1
+} >&2
+
 echo "$NEURON_ID" >>"$NEURONS_FILE"
 echo
 tail -n1 "$NEURONS_FILE"
