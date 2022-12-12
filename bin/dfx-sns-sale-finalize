@@ -16,4 +16,11 @@ optparse.define short=b long=bin desc="Local directory for executables" variable
 source "$(optparse.build)"
 set -euo pipefail
 
-dfx canister --network "$DFX_NETWORK" call sns_swap finalize_swap '(record {})'
+dfx canister --network "$DFX_NETWORK" call sns_swap finalize_swap '(record {})' | tee ,sns-sale-finalize.idl
+
+if idl2json <,sns-sale-finalize.idl | jq 'to_entries | map({key: .key, value: {failure: .value[0].failure}} | select((.value.failure != 0) and (.value.failure != null)))| from_entries | select (. != {})' | grep .; then
+  {
+    echo "There were errors in the finalization."
+    exit 1
+  } >&2
+fi
