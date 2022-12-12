@@ -8,7 +8,7 @@ source "$SOURCE_DIR/optparse.bash"
 #optparse.define short=a long=account desc="The dfx account requesting the funds" variable=account default="$(dfx identity whoami)"
 optparse.define short=i long=icp desc="The amount of ICP to request" variable=AMOUNT default="10"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-optparse.define short=m long=max desc="Top up to the given value, if needed" variable=IF_NEEDED nargs=0
+optparse.define short=t long=to desc="Top up to the given value, if needed" variable=IF_NEEDED nargs=0
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euo pipefail
@@ -17,7 +17,7 @@ export DFX_NETWORK
 
 # Check whether ident-1 has already been imported as an identity.
 check_moneybags() {
-  dfx identity list 2>/dev/null | grep -qw ident-1
+  dfx identity get-principal --identity ident-1 >/dev/null 2>/dev/null
 }
 # Imports an identity that has a billion toy ICP on testnets.
 make_moneybags() {

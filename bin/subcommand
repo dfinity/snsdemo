@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$PATH:$SOURCE_DIR"
 
 PREFIX="$(basename "$(realpath "$0")")"
 if (($# > 0)) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]; then
