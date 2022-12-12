@@ -17,7 +17,7 @@ export DFX_NETWORK
 
 # Check whether ident-1 has already been imported as an identity.
 check_moneybags() {
-  dfx identity list 2>/dev/null | grep -qw ident-1
+  dfx identity get-principal --identity ident-1 >/dev/null 2>/dev/null
 }
 # Imports an identity that has a billion toy ICP on testnets.
 make_moneybags() {
