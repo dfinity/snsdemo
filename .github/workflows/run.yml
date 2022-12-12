@@ -43,13 +43,13 @@ jobs:
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
       - name: Install more
-        run: ./bin/dfx-releases-more-install
+        run: ./bin/dfx-software-more-install
       - name: Install dfx
-        run: ./bin/dfx-releases-dfx-install
+        run: ./bin/dfx-software-dfx-install
       - name: Install quill
-        run: ./bin/dfx-releases-quill-install
+        run: ./bin/dfx-software-quill-install
       - name: Install idl2json
-        run: ./bin/dfx-releases-idl2json-install
+        run: ./bin/dfx-software-idl2json-install
       - name: Run the demo with the current default ic commits
         run: bin/demo-cli
 #  demo_latest:
@@ -64,9 +64,9 @@ jobs:
 #      - name: Checkout
 #        uses: actions/checkout@v3
 #      - name: Install dfx
-#        run: ./bin/dfx-releases-dfx-install
+#        run: ./bin/dfx-software-dfx-install
 #      - name: Install quill
-#        run: ./bin/dfx-releases-quill-install
+#        run: ./bin/dfx-software-quill-install
 #      - name: Checkout ic repo
 #        uses: actions/checkout@v3
 #        with:
