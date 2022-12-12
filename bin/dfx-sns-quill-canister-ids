@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+cat <<EOF | jq .
+{
+  "governance_canister_id": "$(dfx canister id sns_governance --network "$DFX_NETWORK")",
+  "ledger_canister_id": "$(dfx canister id sns_ledger --network "$DFX_NETWORK")",
+  "root_canister_id": "$(dfx canister id sns_root --network "$DFX_NETWORK")",
+  "swap_canister_id": "$(dfx canister id sns_swap --network "$DFX_NETWORK")",
+  "dapp_canister_id_list": []
+}
+EOF
