@@ -7,7 +7,7 @@ source "$SOURCE_DIR/optparse.bash"
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
-set -euxo pipefail
+set -eux # No pipefail
 
 function disk_image_exists() {
   curl -fL --output /dev/null --silent --head --fail \
