@@ -19,10 +19,10 @@ cd "$(dirname "$(realpath "$0")")/.."
 demo-cleanup
 
 # If ic-commit is specified, get execuables from there:
-[[ "${IC_COMMIT:-}" != "latest" ]] || IC_COMMIT="$(dfx-releases ic latest)"
-[[ "${IC_COMMIT:-}" != "" ]] || IC_COMMIT="$(dfx-releases ic current)"
+[[ "${IC_COMMIT:-}" != "latest" ]] || IC_COMMIT="$(dfx-software ic latest)"
+[[ "${IC_COMMIT:-}" != "" ]] || IC_COMMIT="$(dfx-software ic current)"
 rm -fr "$DEMO_BIN"
-dfx-releases ic install-executable --commit "$IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
+dfx-software ic install-executable --commit "$IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
 echo "Using binaries from ic commit: $IC_COMMIT"
 
 ./bin/demo-system-subnet
