@@ -10,4 +10,4 @@ source "$SOURCE_DIR/optparse.bash"
 source "$(optparse.build)"
 set -euo pipefail
 
-gh release list --exclude-drafts --limit 1 --repo dfinity/sns-quill | awk '{print $1}'
+gh release list --exclude-drafts --limit 1 --repo dfinity/sns-quill | awk '{print $1}' | sed 's/:.*//g'
