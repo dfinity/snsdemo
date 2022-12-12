@@ -2,15 +2,15 @@
 set -euo pipefail
 set -x
 
-# Notes regarding the IC_COMMIT - from the build config:
+# Notes regarding the DFX_IC_COMMIT - from the build config:
 # - We apply a patch to customise the code; if you change the hash, please check on the
 #   first run that the patch applies cleanly.  Docker SHOULD fail if it doesn't.
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DOWNLOAD_DIR="$PWD/wasms"
 NO_CLOBBER=""
-IC_COMMIT="$(
+DFX_IC_COMMIT="$(
   . "$SOURCE_DIR/versions.bash"
-  echo "$IC_COMMIT"
+  echo "$DFX_IC_COMMIT"
 )"
 
 help_text() {
@@ -28,7 +28,7 @@ help_text() {
 		  Default: '$DOWNLOAD_DIR'
 		  The download dir is printed on stdout for use by other programs.
 
-		--commit <IC_COMMIT>
+		--commit <DFX_IC_COMMIT>
 		  Commit in the IC repo.
 		  Note: Not all commits are available as artifacts to download.
 
@@ -55,7 +55,7 @@ while (($# > 0)); do
     shift 1
     ;;
   --ic-commit)
-    IC_COMMIT="$1"
+    DFX_IC_COMMIT="$1"
     shift 1
     ;;
   --no-clobber)
@@ -87,10 +87,10 @@ get_binary() {
   OS="$(uname)"
   case "$OS" in
   Darwin)
-    curl -fL "https://download.dfinity.systems/ic/${IC_COMMIT}/nix-release/x86_64-darwin/${FILENAME}.gz" | gunzip >"$TMP_FILE"
+    curl -fL "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/nix-release/x86_64-darwin/${FILENAME}.gz" | gunzip >"$TMP_FILE"
     ;;
   Linux)
-    curl -fL "https://download.dfinity.systems/ic/${IC_COMMIT}/release/${FILENAME}.gz" | gunzip >"$TMP_FILE"
+    curl -fL "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/release/${FILENAME}.gz" | gunzip >"$TMP_FILE"
     ;;
   *)
     printf "ERROR: %s '%s'\n" \
@@ -114,7 +114,7 @@ get_wasm() {
   else
     local TMP_FILE
     TMP_FILE="$(mktemp)"
-    curl "https://download.dfinity.systems/ic/${IC_COMMIT}/canisters/${FILENAME}.gz" | gunzip >"$TMP_FILE"
+    curl "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/${FILENAME}.gz" | gunzip >"$TMP_FILE"
     install -m 644 "$TMP_FILE" "$DOWNLOAD_DIR/$FILENAME"
     rm "$TMP_FILE"
   fi
