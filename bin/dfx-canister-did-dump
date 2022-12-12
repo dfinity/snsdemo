@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Prints out the candid for a canister interface.
+set -euxo pipefail
+CANISTER_NAME="$1"
+export CANISTER_NAME
+DID_PATH="$(jq -r '.canisters[env.CANISTER_NAME].candid' dfx.json)"
+cat "$DID_PATH"
