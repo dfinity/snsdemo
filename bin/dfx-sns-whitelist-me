@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-export PATH="$SOURCE_DIR:$PATH"
+export PATH="$SOURCE_DIR:$PATH:$(dfx cache show)"
 
 # Source the optparse.bash file ---------------------------------------------------
 source "$SOURCE_DIR/optparse.bash"
