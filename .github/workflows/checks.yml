@@ -23,6 +23,9 @@ jobs:
       - name: Format shell scripts
         run: ./scripts/fmt-sh
 
+      - name: Restore dfx.json
+	run: cp dfx.json.original dfx.json
+
       - name: Commit Formatting changes - will not trigger rebuild
         uses: EndBug/add-and-commit@v9.1.1
         if: ${{ github.event_name == 'pull_request' }}
