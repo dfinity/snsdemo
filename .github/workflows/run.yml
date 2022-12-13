@@ -54,27 +54,43 @@ jobs:
         run: ./bin/dfx-software-idl2json-install
       - name: Run the demo with the current default ic commits
         run: bin/demo-cli
-#  demo_latest:
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        os: [ macos-11, ubuntu-22.04 ]
-#    steps:
-#      - name: Install apt dependencies
-#        run: sudo apt install moreutils
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#      - name: Install dfx
-#        run: ./bin/dfx-software-dfx-install
-#      - name: Install quill
-#        run: ./bin/dfx-software-quill-install
-#      - name: Checkout ic repo
-#        uses: actions/checkout@v3
-#        with:
-#          repository: dfinity/ic
-#          ref: master
-#          fetch-depth: 100
-#          path: ic
-#      - name: Run the demo with the latest repo
-#        run: bin/demo-cli --ic_commit latest --ic_dir ic
+  demo_latest:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-11, ubuntu-22.04 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Add user path
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$PWD/bin" >> $GITHUB_PATH
+
+      - name: Unbork mac
+        if: matrix.os == 'macos-11'
+        run: |
+          brew install bash
+          echo "/usr/local/bin" >> $GITHUB_PATH
+          echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+      - name: Install more
+        run: ./bin/dfx-software-more-install
+      - name: Install dfx
+        run: ./bin/dfx-software-dfx-install
+      - name: Install quill
+        run: ./bin/dfx-software-quill-install
+      - name: Install sns-quill
+        run: ./bin/dfx-software-sns-quill-install
+      - name: Install idl2json
+        run: ./bin/dfx-software-idl2json-install
+      # Clone the ic repo so that we can find the latest published commit. 
+      - name: Checkout ic repo
+        uses: actions/checkout@v3
+        with:
+          repository: dfinity/ic
+          ref: master
+          fetch-depth: 100
+          path: ic
+      - name: Run the demo with the latest repo
+        run: bin/demo-cli --ic_commit latest --ic_dir ic
