@@ -25,6 +25,4 @@ dfx canister id sns_swap --network "$DFX_NETWORK"
 
 dfx-sns-sale-propose --network "$DFX_NETWORK"
 
-dfx-sns-sale-buy --network "$DFX_NETWORK"
-
 : "Demo finished!  Hope you enjoyed the show."

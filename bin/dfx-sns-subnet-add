@@ -32,6 +32,7 @@ set "ic-admin" \
   --nns-url "$NNS_URL" \
   "${PEM_ARGS[@]}" \
   propose-to-update-sns-subnet-ids-in-sns-wasm \
+  --summary "Allow SNSs to be deployed to the listed subnets." \
   "${NEURON_ARGS[@]}" \
   $(ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r 'map("--sns-subnet-ids-to-add " + . + " ") | .[]')
 

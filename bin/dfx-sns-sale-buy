@@ -21,6 +21,17 @@ export DFX_NETWORK
 # Set eth URL used by sns-quill
 IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 
-set dfx-sns-quill swap --memo 0 --amount "$AMOUNT"
+set dfx-sns-quill --network "$DFX_NETWORK" swap --memo 0 --amount "$AMOUNT"
 echo "${@}"
-"${@}" | IC_URL="$IC_URL" sns-quill send - --yes
+MESSAGE="$("${@}")"
+test -n "${MESSAGE:-}" || {
+  echo "ERROR: Empty message"
+  exit 1
+} >&2
+
+echo "$MESSAGE" | IC_URL="$IC_URL" sns-quill send - --yes || {
+  echo "ERROR: Failed to send message."
+  echo "Message:"
+  echo "$MESSAGE"
+  exit 1
+}
