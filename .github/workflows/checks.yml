@@ -16,12 +16,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        if: ${{ github.event_name != 'pull_request' }}
 
       - name: Install shfmt
         run: sudo snap install --classic shfmt
 
       - name: Format shell scripts
         run: ./scripts/fmt-sh
+
+      - name: Restore dfx.json
+        run: cp dfx.json.original dfx.json
 
       - name: Commit Formatting changes - will not trigger rebuild
         uses: EndBug/add-and-commit@v9.1.1
