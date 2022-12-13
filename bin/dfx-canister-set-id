@@ -27,6 +27,7 @@ fi
   set +euo pipefail
   test -f "$FILENAME" && jq . "$FILENAME" | grep .
 ) || {
+  mkdir -p "$(dirname "$FILENAME")"
   echo "{}" >"$FILENAME"
 }
 
