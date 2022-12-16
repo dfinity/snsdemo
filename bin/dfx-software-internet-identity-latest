@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+gh release list --exclude-drafts --limit 1 --repo dfinity/internet-identity | awk '{print $1}'
