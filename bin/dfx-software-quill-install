@@ -13,7 +13,6 @@ source "$(optparse.build)"
 set -euo pipefail
 
 [[ "${QUILL_VERSION:-}" != "latest" ]] || QUILL_VERSION="$(dfx-software-quill-latest)"
-QUILL_VERSION="${QUILL_VERSION#v}" # change v1.2.3 to 1.2.3 to match download URLs
 
 mkdir -p "$USER_BIN"
 
