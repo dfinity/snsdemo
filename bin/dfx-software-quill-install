@@ -13,7 +13,6 @@ source "$(optparse.build)"
 set -euo pipefail
 
 [[ "${QUILL_VERSION:-}" != "latest" ]] || QUILL_VERSION="$(dfx-software-quill-latest)"
-QUILL_VERSION="${QUILL_VERSION#v}" # change v1.2.3 to 1.2.3 to match download URLs
 
 mkdir -p "$USER_BIN"
 
@@ -22,10 +21,10 @@ OS="$(uname)"
 get_url() {
   case "$OS" in
   Darwin)
-    echo "https://github.com/dfinity/quill/releases/download/${QUILL_VERSION}/quill-macos-x86_64"
+    echo "https://github.com/dfinity/quill/releases/download/v${QUILL_VERSION}/quill-macos-x86_64"
     ;;
   Linux)
-    echo "https://github.com/dfinity/quill/releases/download/${QUILL_VERSION}/quill-linux-x86_64"
+    echo "https://github.com/dfinity/quill/releases/download/v${QUILL_VERSION}/quill-linux-x86_64"
     ;;
   esac
 }

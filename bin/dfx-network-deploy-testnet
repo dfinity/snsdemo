@@ -34,11 +34,19 @@ else
   } >&2
   (
     set -euxo pipefail
+    echo "Building custom canisters..."
+    cd "$ND_REPO_DIR"
+    ./e2e-tests/scripts/nns-canister-download
+    ./e2e-tests/scripts/nns-canister-build
+  )
+  (
+    set -euxo pipefail
     echo "Deploying testnet..."
     cd "$IC_REPO_DIR"
     git checkout "$DFX_IC_COMMIT"
     cat <<-EOF >test-accounts.json
 			{
+                          "custom_canister_dir": "${ND_REPO_DIR}/target/ic",
 			  "init_ledger_accounts":["5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087", "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138"]
 			}
 		EOF
