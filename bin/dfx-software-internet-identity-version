@@ -24,20 +24,20 @@ latest)
   gh release list --exclude-drafts --limit 1 --repo dfinity/internet-identity | awk '{print $1}' | awk -F: '{print $1}'
   ;;
 mainnet)
-  HASH="$(dfx canister info --network ic rdmx6-jaaaa-aaaaa-aaadq-cai | awk -F: '/Module hash/{print $2}' | tr -d '[[:whitespace:]]')"
+  HASH="$(dfx canister info --network ic rdmx6-jaaaa-aaaaa-aaadq-cai | awk -F: '/Module hash/{print $2}' | tr -d '[:whitespace:]')"
   dfx-software-internet-identity-version --hash "$HASH"
   ;;
 hash)
-  HASH="$(echo "$GET_HASH" | tr A-Z a-z)"
+  HASH="$(echo "$GET_HASH" | tr '[:upper:]' '[:lower:]')"
   HASH="${HASH#0x}"
   gh release list --repo dfinity/internet-identity |
     awk '{print $1}' | awk -F: '{print $1}' |
-    while read line; do
+    while read -r line; do
       if gh release view "$line" --repo dfinity/internet-identity |
         grep "${HASH}" |
         sed -En 's,.*(https://github.com/dfinity/internet-identity/releases/download/release-[-0-9a-zA-Z]+/internet_identity[_a-zA-Z0-9]*.wasm).*,\1,g;ta;b;:a;p;q' |
         grep . >&2; then
-        echo $line
+        echo "$line"
         break
       fi
     done
