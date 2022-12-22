@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
+optparse.define short=u long=url desc="Get the version deployed at the given URL" variable=GET_URL
+optparse.define short=m long=mainnet desc="Get the version deployed in production" variable=GET_MAINNET
+optparse.define short=h long=hash desc="Get the version of a given hash" variable=GET_HASH
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+STRATEGY="${STRATEGY:-${GET_LATEST:+latest}}"
+STRATEGY="${STRATEGY:-${GET_URL:+url}}"
+STRATEGY="${STRATEGY:-${GET_MAINNET:+mainnet}}"
+STRATEGY="${STRATEGY:-${GET_HASH:+hash}}"
+STRATEGY="${STRATEGY:-latest}"
+case "${STRATEGY}" in
+latest)
+  gh release list --exclude-drafts --limit 1 --repo dfinity/internet-identity | awk '{print $1}' | awk -F: '{print $1}'
+  ;;
+mainnet)
+  HASH="$(dfx canister info --network ic rdmx6-jaaaa-aaaaa-aaadq-cai | awk -F: '/Module hash/{print $2}' | tr -d '[[:whitespace:]]')"
+  dfx-software-internet-identity-version --hash "$HASH"
+  ;;
+hash)
+  HASH="$(echo "$GET_HASH" | tr A-Z a-z)"
+  HASH="${HASH#0x}"
+  gh release list --repo dfinity/internet-identity |
+    awk '{print $1}' | awk -F: '{print $1}' |
+    while read line; do
+      if gh release view "$line" --repo dfinity/internet-identity |
+        grep "${HASH}" |
+        sed -En 's,.*(https://github.com/dfinity/internet-identity/releases/download/release-[-0-9a-zA-Z]+/internet_identity[_a-zA-Z0-9]*.wasm).*,\1,g;ta;b;:a;p;q' |
+        grep . >&2; then
+        echo $line
+        break
+      fi
+    done
+  ;;
+*)
+  {
+    echo "ERROR: Unsupported strategy '${STRATEGY:-}'"
+    exit 1
+  } >&2
+  ;;
+esac
