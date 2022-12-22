@@ -43,7 +43,7 @@ dfx identity use snsdemo8
 
 dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
 dfx ledger balance --network "$DFX_NETWORK"
-dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK" --verbose
+dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
 dfx-neuron-prolong --network "$DFX_NETWORK"
 
 dfx-sns-whitelist-me --network "$DFX_NETWORK"
