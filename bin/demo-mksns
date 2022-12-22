@@ -12,9 +12,9 @@ source "$(optparse.build)"
 set -euxo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
 
-./bin/dfx-sns-config-random --network "$DFX_NETWORK"
+dfx-sns-config-random --network "$DFX_NETWORK"
 dfx ledger top-up --amount 2.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
-./bin/dfx-sns-deploy --network "$DFX_NETWORK"
+dfx-sns-deploy --network "$DFX_NETWORK"
 
 dfx canister id sns_root --network "$DFX_NETWORK"
 dfx canister id sns_governance --network "$DFX_NETWORK"

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
 set -euo pipefail
 . .demo-env || true
 
-echo "$(./bin/dfx-url nns-dapp)/#/project/$(jq -r '.sns_root[env.DFX_NETWORK]' canister_ids.json)"
+echo "$(dfx-url nns-dapp)/#/project/$(jq -r '.sns_root[env.DFX_NETWORK]' canister_ids.json)"

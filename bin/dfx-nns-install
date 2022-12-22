@@ -25,7 +25,7 @@ export PATH="$PATH:$WASM_DIR" # We currently also download binaries to here.
 mkdir -p "$WASM_DIR"
 export WASM_DIR
 
-bin/dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
+dfx-nns-wasm-download --download-dir "$WASM_DIR" --no-clobber
 for canister in nns-sns-wasm sns_governance sns_ledger sns_root sns_swap; do
   (
     export canister

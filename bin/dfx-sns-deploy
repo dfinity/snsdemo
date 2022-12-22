@@ -16,7 +16,7 @@ export DFX_NETWORK
 
 { # Verifies that the canister ID and did file are known before deploying.
   dfx canister id nns-sns-wasm --network "$DFX_NETWORK" &&
-    bin/dfx-canister-did-dump nns-sns-wasm
+    dfx-canister-did-dump nns-sns-wasm
 } >/dev/null 2>/dev/null || {
   echo "Canister dfx-nns-wasm is not defined."
   echo "Please run:"
