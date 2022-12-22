@@ -5,14 +5,30 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=f long=format desc="The format: url or ip" variable=FORMAT default="url"
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euo pipefail
 
 export DFX_NETWORK
 
-if [[ "$DFX_NETWORK" == "local" ]]; then
-  echo "http://localhost:$(dfx info replica-port)"
-else
-  jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
-fi
+case "${FORMAT}" in
+url)
+  if [[ "$DFX_NETWORK" == "local" ]]; then
+    echo "http://localhost:$(dfx info replica-port)"
+  else
+    jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
+  fi
+  ;;
+ip)
+  if [[ "$DFX_NETWORK" == "local" ]]; then
+    echo localhost
+  else
+    jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)" | sed 's/.*\[//g;s/\].*//g'
+  fi
+  ;;
+*)
+  echo "ERROR: Unsupported format '$FORMAT'" >&2
+  exit 1
+  ;;
+esac
