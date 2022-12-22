@@ -14,8 +14,11 @@ optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp sour
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euxo pipefail
-cd "$(dirname "$(realpath "$0")")/.."
 
+test -f dfx.json || {
+  echo "ERROR: This needs to be rn in a dfx project dir."
+  exit 1
+} >&2
 demo-cleanup
 
 # If ic-commit is specified, get execuables from there:
@@ -25,7 +28,7 @@ rm -fr "$DEMO_BIN"
 dfx-software ic install-executable --commit "$DFX_IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
 echo "Using binaries from ic commit: $DFX_IC_COMMIT"
 
-./bin/demo-system-subnet
+demo-system-subnet
 
 export DFX_NETWORK
 dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR"
@@ -41,18 +44,18 @@ rm -fr "$HOME/.config/dfx/identity/snsdemo8"
 dfx identity new --disable-encryption snsdemo8
 dfx identity use snsdemo8
 
-bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
+dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
 dfx ledger balance --network "$DFX_NETWORK"
-bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
-bin/dfx-neuron-prolong --network "$DFX_NETWORK"
+dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
+dfx-neuron-prolong --network "$DFX_NETWORK"
 
-./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
-./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
-./bin/dfx-sns-wasm-download --commit "$DFX_IC_COMMIT"
-./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
+dfx-sns-whitelist-me --network "$DFX_NETWORK"
+dfx-sns-subnet-add --network "$DFX_NETWORK"
+dfx-sns-wasm-download --commit "$DFX_IC_COMMIT"
+dfx-sns-wasm-upload --network "$DFX_NETWORK"
 
-./bin/demo-mksns --network "$DFX_NETWORK"
+demo-mksns --network "$DFX_NETWORK"
 dfx-sns-sale-buy --network "$DFX_NETWORK"
-./bin/dfx-sns-sale-finalize --network "$DFX_NETWORK"
+dfx-sns-sale-finalize --network "$DFX_NETWORK"
 
 : "Demo finished!  Hope you enjoyed the show."
