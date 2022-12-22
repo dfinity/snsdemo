@@ -60,6 +60,7 @@ jobs:
         run: |
           dfx new "${{ matrix.project_dir }}"
           cp "${{ matrix.project_dir }}/dfx.json" "${{ matrix.project_dir }}/dfx.json.original"
+          cp "logo.png" "${{ matrix.project_dir }}/"
         if: matrix.project_dir != '.'
       - name: Run the demo with the current default ic commits
         run: |
