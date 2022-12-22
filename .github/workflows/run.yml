@@ -58,7 +58,7 @@ jobs:
         run: ./bin/dfx-software-idl2json-install
       - name: Make a new project
         run: dfx new "${{ matrix.project_dir }}"
-        if: "${{ matrix.project_dir }}" != "."
+        if: matrix.project_dir != '.'
       - name: Run the demo with the current default ic commits
         run: |
           command="$(realpath bin/demo-cli)"
