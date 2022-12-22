@@ -27,7 +27,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-11, ubuntu-22.04 ]
+        include:
+          - os: "macos-11"
+            project_dir: "."
+          - os: "ubuntu-22.04"
+            project_dir: "cobra"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -52,8 +56,14 @@ jobs:
         run: ./bin/dfx-software-sns-quill-install
       - name: Install idl2json
         run: ./bin/dfx-software-idl2json-install
+      - name: Make a new project
+        run: dfx new "${{ matrix.project_dir }}"
+        if: ${{ matrix.project_dir }} != "."
       - name: Run the demo with the current default ic commits
-        run: bin/demo-cli
+        run: |
+          command="$(realpath bin/dem-cli)"
+          cd "${{ matrix.project_dir }}"
+          "$command"
   demo_latest:
     runs-on: ${{ matrix.os }}
     strategy:
