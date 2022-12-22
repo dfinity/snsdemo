@@ -61,7 +61,7 @@ jobs:
         if: "${{ matrix.project_dir }}" != "."
       - name: Run the demo with the current default ic commits
         run: |
-          command="$(realpath bin/dem-cli)"
+          command="$(realpath bin/demo-cli)"
           cd "${{ matrix.project_dir }}"
           "$command"
   demo_latest:
