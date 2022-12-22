@@ -10,7 +10,11 @@ optparse.define short=n long=network desc="The dfx network to use" variable=DFX_
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euxo pipefail
-cd "$(dirname "$(realpath "$0")")/.."
+
+test -f dfx.json || {
+  echo "ERROR: This needs to be rn in a dfx project dir."
+  exit 1
+} >&2
 
 dfx-sns-config-random --network "$DFX_NETWORK"
 dfx ledger top-up --amount 2.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"

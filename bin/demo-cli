@@ -14,8 +14,11 @@ optparse.define short=y long=nd_dir desc="Directory containing the nns-dapp sour
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euxo pipefail
-cd "$(dirname "$(realpath "$0")")/.."
 
+test -f dfx.json || {
+  echo "ERROR: This needs to be rn in a dfx project dir."
+  exit 1
+} >&2
 demo-cleanup
 
 # If ic-commit is specified, get execuables from there:
