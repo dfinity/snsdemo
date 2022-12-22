@@ -6,6 +6,8 @@ PATH="$SOURCE_DIR:$PATH"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=p long=prodlike desc="Make it like prod (experimental)" variable=DFX_PRODLIKE nargs=0
+optparse.define short=I long=ii_release desc="The release of II to use" variable=DFX_II_RELEASE default=""
 optparse.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
@@ -18,11 +20,28 @@ set -euo pipefail
 
 export DFX_NETWORK
 
+: If asked to make the release production-like, get the corresponding software versions
+if [[ "${DFX_PRODLIKE:-}" == "true" ]]; then
+  DFX_II_RELEASE="$(dfx-software-internet-identity-version --mainnet)"
+fi
+
 if [[ "$DFX_NETWORK" == "local" ]]; then
   # Run locally; can be configured by e.g. chnaging the wasm files in the cache
   dfx-network-stop --network "$DFX_NETWORK"
-  dfx start --clean --background
   export DFX_IC_COMMIT
+  : "Get the specified version of II, if requested."
+  : "Note: This does clobber the version in the global cache, which is not really OK but there is no other option at the moment."
+  test -z "${DFX_II_RELEASE:-}" || {
+    II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE}")"
+    WASM_DIR="$(dfx cache show)/wasms"
+    mkdir -p "$WASM_DIR"
+    tempfile="$(mktemp ii-wasm-XXXXXX)"
+    curl -sL --fail "$II_WASM_URL" >"$tempfile"
+    cp "$tempfile" "$WASM_DIR/internet_identity_dev.wasm"
+    rm "$tempfile"
+  }
+
+  dfx start --clean --background
   dfx nns install
 else
   # Run remotely with one of the predefined configurations.

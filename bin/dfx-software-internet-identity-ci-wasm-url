@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="latest"
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+export DFX_NETWORK
+
+RELEASE_NAME="$(dfx-software-internet-identity-version --verbose "${DFX_II_RELEASE}")"
+test -n "${RELEASE_NAME:-}" || {
+  echo "ERROR: Could not find release '${DFX_II_RELEASE}'"
+} >&2
+echo "https://github.com/dfinity/internet-identity/releases/download/${RELEASE_NAME}/internet_identity_test.wasm"
