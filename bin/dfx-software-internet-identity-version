@@ -18,7 +18,6 @@ STRATEGY="${STRATEGY:-${GET_LATEST:+latest}}"
 STRATEGY="${STRATEGY:-${GET_URL:+url}}"
 STRATEGY="${STRATEGY:-${GET_MAINNET:+mainnet}}"
 STRATEGY="${STRATEGY:-${GET_HASH:+hash}}"
-STRATEGY="${STRATEGY:-latest}"
 case "${STRATEGY}" in
 latest)
   gh release list --exclude-drafts --limit 1 --repo dfinity/internet-identity | awk '{print $1}' | awk -F: '{print $1}'
@@ -41,6 +40,16 @@ hash)
         break
       fi
     done
+  ;;
+"")
+  # Best guess. NOT guaranteed to be stable.
+  guess="${1:-latest}"
+  case "${guess:-}" in
+  latest) bin/dfx-software-internet-identity-version --latest ;;
+  mainnet) bin/dfx-software-internet-identity-version --mainnet ;;
+  release-*) echo "${guess}" ;;
+  *) bin/dfx-software-internet-identity-version --hash "${guess}" ;;
+  esac
   ;;
 *)
   {
