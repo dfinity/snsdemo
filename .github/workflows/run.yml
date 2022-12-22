@@ -57,7 +57,9 @@ jobs:
       - name: Install idl2json
         run: ./bin/dfx-software-idl2json-install
       - name: Make a new project
-        run: dfx new "${{ matrix.project_dir }}"
+        run: |
+          dfx new "${{ matrix.project_dir }}"
+          cp "${{ matrix.project_dir }}/dfx.json" "${{ matrix.project_dir }}/dfx.json.original"
         if: matrix.project_dir != '.'
       - name: Run the demo with the current default ic commits
         run: |
