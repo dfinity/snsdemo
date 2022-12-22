@@ -13,8 +13,8 @@ set -euo pipefail
 
 export DFX_NETWORK
 
-RELEASE_NAME="$(dfx-software-internet-identity-version "${DFX_II_RELEASE}")"
+RELEASE_NAME="$(dfx-software-internet-identity-version --verbose "${DFX_II_RELEASE}")"
 test -n "${RELEASE_NAME:-}" || {
-	echo "ERROR: Could not find release '${DFX_II_RELEASE}'"
+  echo "ERROR: Could not find release '${DFX_II_RELEASE}'"
 } >&2
 echo "https://github.com/dfinity/internet-identity/releases/download/${RELEASE_NAME}/internet_identity_test.wasm"

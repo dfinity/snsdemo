@@ -3,11 +3,13 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
+export DFX_NETWORK=""
+
 # Source the optparse.bash file ---------------------------------------------------
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
-optparse.define short=n long=network desc="Get the version deployed on the given network" variable=DFX_NETWORK
+optparse.define short=n long=network desc="Get the version deployed on the given network" variable=DFX_NETWORK default=""
 optparse.define short=c long=canister desc="Get the version deployed to the given canster of the specified network" variable=CANISTER
 optparse.define short=m long=mainnet desc="Get the version deployed in production" variable=GET_MAINNET
 optparse.define short=h long=hash desc="Get the version of a given hash" variable=GET_HASH
@@ -21,10 +23,10 @@ test -z "${CANISTER:-}" || {
 }
 : "If a network is specified, make sure that a canister ID is set as well."
 test -z "${DFX_NETWORK:-}" || {
-  if [[ "$DFX_NETWORK" == "local" ]] ; then
-     CANISTER="${CANISTER:-qhbym-qaaaa-aaaaa-aaafq-cai}"
+  if [[ "$DFX_NETWORK" == "local" ]]; then
+    CANISTER="${CANISTER:-qhbym-qaaaa-aaaaa-aaafq-cai}"
   else
-     CANISTER="${CANISTER:-qhbym-qaaaa-aaaaa-aaafq-cai}"
+    CANISTER="${CANISTER:-qhbym-qaaaa-aaaaa-aaafq-cai}"
   fi
 }
 
@@ -63,10 +65,10 @@ hash)
   # Best guess. NOT guaranteed to be stable.
   guess="${1:-latest}"
   case "${guess:-}" in
-  latest) bin/dfx-software-internet-identity-version --latest ;;
-  mainnet) bin/dfx-software-internet-identity-version --mainnet ;;
+  latest) dfx-software-internet-identity-version --latest ;;
+  mainnet) dfx-software-internet-identity-version --mainnet ;;
   release-*) echo "${guess}" ;;
-  *) bin/dfx-software-internet-identity-version --hash "${guess}" ;;
+  *) dfx-software-internet-identity-version --hash "${guess}" ;;
   esac
   ;;
 *)
