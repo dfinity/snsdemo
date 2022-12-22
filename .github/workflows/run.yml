@@ -67,6 +67,7 @@ jobs:
           cd "${{ matrix.project_dir }}"
           "$command"
   demo_latest:
+    if: false
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

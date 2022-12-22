@@ -28,7 +28,7 @@ rm -fr "$DEMO_BIN"
 dfx-software ic install-executable --commit "$DFX_IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
 echo "Using binaries from ic commit: $DFX_IC_COMMIT"
 
-./bin/demo-system-subnet
+demo-system-subnet
 
 export DFX_NETWORK
 dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR"
