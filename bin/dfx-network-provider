@@ -14,21 +14,21 @@ export DFX_NETWORK
 
 case "${FORMAT}" in
 url)
-if [[ "$DFX_NETWORK" == "local" ]]; then
-  echo "http://localhost:$(dfx info replica-port)"
-else
-  jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
-fi
-;;
+  if [[ "$DFX_NETWORK" == "local" ]]; then
+    echo "http://localhost:$(dfx info replica-port)"
+  else
+    jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
+  fi
+  ;;
 ip)
-if [[ "$DFX_NETWORK" == "local" ]]; then
-  echo localhost
-else
-  jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)" | sed 's/.*\[//g;s/\].*//g'
-fi
-;;
+  if [[ "$DFX_NETWORK" == "local" ]]; then
+    echo localhost
+  else
+    jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)" | sed 's/.*\[//g;s/\].*//g'
+  fi
+  ;;
 *)
   echo "ERROR: Unsupported format '$FORMAT'" >&2
   exit 1
-;;
+  ;;
 esac
