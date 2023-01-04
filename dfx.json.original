@@ -24,6 +24,6 @@
       "packtool": ""
     }
   },
-  "dfx": "0.12.1",
+  "dfx": "0.12.2-beta.0",
   "version": 1
 }
