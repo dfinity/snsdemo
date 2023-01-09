@@ -51,7 +51,7 @@ bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 ./bin/dfx-sns-wasm-download --commit "$DFX_IC_COMMIT"
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 
-./bin/demo-mksns --network "$DFX_NETWORK"
+./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK"
 dfx-sns-sale-buy --network "$DFX_NETWORK"
 ./bin/dfx-sns-sale-finalize --network "$DFX_NETWORK"
 

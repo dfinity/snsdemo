@@ -53,7 +53,7 @@ jobs:
       - name: Install idl2json
         run: ./bin/dfx-software-idl2json-install
       - name: Run the demo with the current default ic commits
-        run: bin/demo-cli
+        run: bin/dfx-sns-demo
   demo_latest:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -93,4 +93,4 @@ jobs:
           fetch-depth: 100
           path: ic
       - name: Run the demo with the latest repo
-        run: bin/demo-cli --ic_commit latest --ic_dir ic
+        run: bin/dfx-sns-demo --ic_commit latest --ic_dir ic
