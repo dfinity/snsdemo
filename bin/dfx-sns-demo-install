@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+	Installs the binaries needed for the SNS demo.
+	EOF
+}
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euo pipefail
+
+dfx-software-more-install
+dfx-software-dfx-install --version 0.12.1
+dfx-software-idl2json-install --version v0.8.5
+dfx-software-quill-install --version 0.3.1
+dfx-software-sns-quill-install --version v0.4.0
