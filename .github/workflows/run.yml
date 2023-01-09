@@ -42,16 +42,8 @@ jobs:
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-      - name: Install more
-        run: ./bin/dfx-software-more-install
-      - name: Install dfx
-        run: ./bin/dfx-software-dfx-install
-      - name: Install quill
-        run: ./bin/dfx-software-quill-install
-      - name: Install sns-quill
-        run: ./bin/dfx-software-sns-quill-install
-      - name: Install idl2json
-        run: ./bin/dfx-software-idl2json-install
+      - name: Install dependencies
+        run: ./bin/dfx-sns-demo-install
       - name: Run the demo with the current default ic commits
         run: bin/dfx-sns-demo
   demo_latest:
@@ -74,16 +66,8 @@ jobs:
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-      - name: Install more
-        run: ./bin/dfx-software-more-install
-      - name: Install dfx
-        run: ./bin/dfx-software-dfx-install
-      - name: Install quill
-        run: ./bin/dfx-software-quill-install
-      - name: Install sns-quill
-        run: ./bin/dfx-software-sns-quill-install
-      - name: Install idl2json
-        run: ./bin/dfx-software-idl2json-install
+      - name: Install dependencies
+        run: ./bin/dfx-sns-demo-install
       # Clone the ic repo so that we can find the latest published commit. 
       - name: Checkout ic repo
         uses: actions/checkout@v3
