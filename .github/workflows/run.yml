@@ -43,7 +43,7 @@ jobs:
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
       - name: Install dependencies
-        run: ./bin/dfx-sns-demo-install
+        run: ./bin/dfx-sns-demo-install --verbose
       - name: Run the demo with the current default ic commits
         run: bin/dfx-sns-demo
   demo_latest:
@@ -67,7 +67,7 @@ jobs:
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
       - name: Install dependencies
-        run: ./bin/dfx-sns-demo-install
+        run: ./bin/dfx-sns-demo-install --verbose
       # Clone the ic repo so that we can find the latest published commit. 
       - name: Checkout ic repo
         uses: actions/checkout@v3
