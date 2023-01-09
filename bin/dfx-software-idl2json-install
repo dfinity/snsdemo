@@ -15,12 +15,10 @@ set -euo pipefail
 [[ "${IDL2JSON_VERSION:-}" != "latest" ]] || IDL2JSON_VERSION="$(dfx-software-idl2json-latest)"
 IDL2JSON_VERSION="${IDL2JSON_VERSION#v}"
 
-if command -v idl2json && [[ "$(idl2json --version | awk '($1 == "idl2json"){print $2}')" == "${IDL2JSON_VERSION:-}" ]]
-then
-        echo "quill v$IDL2JSON_VERSION already installed.  Nothing to do."
-        exit 0
+if command -v idl2json && [[ "$(idl2json --version | awk '($1 == "idl2json"){print $2}')" == "${IDL2JSON_VERSION:-}" ]]; then
+  echo "quill v$IDL2JSON_VERSION already installed.  Nothing to do."
+  exit 0
 fi
-
 
 mkdir -p "$USER_BIN"
 

@@ -15,10 +15,9 @@ set -euo pipefail
 [[ "${QUILL_VERSION:-}" != "latest" ]] || QUILL_VERSION="$(dfx-software-quill-latest)"
 QUILL_VERSION="${QUILL_VERSION#v}"
 
-if command -v quill && [[ "$(quill --version | awk '{print $2}')" == "$QUILL_VERSION" ]]
-then
-	echo "quill v$QUILL_VERSION already installed.  Nothing to do."
-	exit 0
+if command -v quill && [[ "$(quill --version | awk '{print $2}')" == "$QUILL_VERSION" ]]; then
+  echo "quill v$QUILL_VERSION already installed.  Nothing to do."
+  exit 0
 fi
 
 mkdir -p "$USER_BIN"

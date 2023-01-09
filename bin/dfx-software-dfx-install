@@ -14,10 +14,9 @@ set -euo pipefail
 [[ "${DFX_VERSION}" != "latest" ]] || DFX_VERSION=""
 DFX_VERSION="${DFX_VERSION#v}"
 
-if command -v dfx && [[ "$(dfx --version | awk '{print $2}')" == "${DFX_VERSION:-}" ]]
-then
-        echo "quill v$DFX_VERSION already installed.  Nothing to do."
-        exit 0
+if command -v dfx && [[ "$(dfx --version | awk '{print $2}')" == "${DFX_VERSION:-}" ]]; then
+  echo "quill v$DFX_VERSION already installed.  Nothing to do."
+  exit 0
 fi
 
 export DFX_VERSION

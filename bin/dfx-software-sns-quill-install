@@ -15,10 +15,9 @@ set -euo pipefail
 [[ "${QUILL_VERSION:-}" != "latest" ]] || QUILL_VERSION="$(dfx-software-sns-quill-latest)"
 QUILL_VERSION="${QUILL_VERSION#v}"
 
-if command -v sns-quill && [[ "$(sns-quill --version | awk '{print $2}')" == "$QUILL_VERSION" ]]
-then
-        echo "sns-quill v$QUILL_VERSION already installed.  Nothing to do."
-        exit 0
+if command -v sns-quill && [[ "$(sns-quill --version | awk '{print $2}')" == "$QUILL_VERSION" ]]; then
+  echo "sns-quill v$QUILL_VERSION already installed.  Nothing to do."
+  exit 0
 fi
 
 mkdir -p "$USER_BIN"
