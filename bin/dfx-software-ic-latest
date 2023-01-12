@@ -7,7 +7,7 @@ source "$SOURCE_DIR/optparse.bash"
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
-set -eux # No pipefail
+set -eu # No pipefail
 
 function disk_image_exists() {
   curl -fL --output /dev/null --silent --head --fail \
@@ -19,7 +19,7 @@ function disk_image_exists() {
 
   # Mac buids can lag or be missing
   curl -fL --output /dev/null --silent --head --fail \
-    "https://download.dfinity.systems/ic/${GIT_REVISION}/nix-release/x86_64-darwin/ic-admin.gz"
+    "https://download.dfinity.systems/ic/${GIT_REVISION}/binaries/x86_64-darwin/ic-admin.gz"
 }
 (
   cd "$IC_REPO_DIR"
