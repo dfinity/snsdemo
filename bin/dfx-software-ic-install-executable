@@ -15,10 +15,10 @@ source "$(optparse.build)"
 set -euo pipefail
 
 install_linux() {
-  curl -fL "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/release/${EXEC_NAME}.gz" | gunzip | install -m 755 /dev/stdin "$USER_BIN/$EXEC_NAME"
+  curl -fL "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/binaries/x86_64-linux/${EXEC_NAME}.gz" | gunzip | install -m 755 /dev/stdin "$USER_BIN/$EXEC_NAME"
 }
 install_darwin() {
-  URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/nix-release/x86_64-darwin/${EXEC_NAME}.gz"
+  URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/binaries/x86_64-darwin/${EXEC_NAME}.gz"
   echo "Downloading $URL"
   curl -fL "$URL" | gunzip >"$USER_BIN/$EXEC_NAME"
   chmod +x "$USER_BIN/$EXEC_NAME"

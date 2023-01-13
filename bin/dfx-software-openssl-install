@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Note: Do mot import optparse as without coreutils it won't wrk on mac.
+set -euo pipefail
+
+install_linux() {
+  sudo apt-get update
+  sudo apt-get install -yy openssl
+}
+install_darwin() {
+  brew install openssl
+}
+
+OS="$(uname | tr '[:upper:]' '[:lower:]')"
+
+EXEC_NAME="openssl"
+echo "Installing '$EXEC_NAME' ..."
+"install_${OS}"
+echo "Installed '$EXEC_NAME'"

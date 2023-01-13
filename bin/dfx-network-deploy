@@ -19,6 +19,7 @@ source "$(optparse.build)"
 set -euo pipefail
 
 export DFX_NETWORK
+export DFX_IC_COMMIT
 
 : If asked to make the release production-like, get the corresponding software versions
 if [[ "${DFX_PRODLIKE:-}" == "true" ]]; then
