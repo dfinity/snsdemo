@@ -23,7 +23,7 @@ export DFX_NETWORK
   echo "    dfx nns import --network-mapping $DFX_NETWORK=local"
   exit 1
 } >&2
-set "sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
+set "sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG" --with-cycles 180000000000000
 echo "${@}"
 "${@}" | tee ,sns-init-response.idl
 
