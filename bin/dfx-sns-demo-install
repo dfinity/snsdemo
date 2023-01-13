@@ -18,8 +18,7 @@ set -euo pipefail
 
 dfx-software-jq-install
 dfx-software-more-install
-dfx-software-openssl-install
-dfx-software-dfx-install --version 0.12.1
+dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
 dfx-software-idl2json-install --version v0.8.5
 dfx-software-quill-install --version 0.3.1
 dfx-software-sns-quill-install --version v0.4.0
