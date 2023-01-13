@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Note: Do mot import optparse as without coreutils it won't wrk on mac.
+set -euo pipefail
+
+install_linux() {
+  sudo apt-get update
+  sudo apt-get install -yy jq
+}
+install_darwin() {
+  brew install jq
+}
+
+OS="$(uname | tr '[:upper:]' '[:lower:]')"
+
+EXEC_NAME="jq"
+if command -v "$EXEC_NAME"; then
+  echo "Nothing to do: $EXEC_NAME is already installed."
+else
+  echo "Installing '$EXEC_NAME' ..."
+  "install_${OS}"
+  echo "Installed '$EXEC_NAME'"
+fi
