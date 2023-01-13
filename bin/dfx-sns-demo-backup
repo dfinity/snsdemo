@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+: "Back up state after running a demo, in case we need to access the deployment again in future."
+backup_dir=",backup-$(date +%Y-%m-%d--%H-%M-%S)"
+mkdir -p "$backup_dir/identity"
+for user in ident-1 snsdemo8; do
+  rsync -avzr "$HOME/.config/dfx/identity/$user/" "$backup_dir/identity/$user"
+done
+
+for file in dfx.json canister_ids.json .dfx/local/canister_ids.json; do
+  if test -e "$file"; then
+    echo "Backing up: $file"
+    mkdir -p "$backup_dir/$(dirname "$file")"
+    cp "$file" "$backup_dir/$file"
+  fi
+done
