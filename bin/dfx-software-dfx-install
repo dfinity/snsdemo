@@ -19,5 +19,15 @@ if command -v dfx && [[ "$(dfx --version | awk '{print $2}')" == "${DFX_VERSION:
   exit 0
 fi
 
+if command -v dfx >/dev/null
+then
+    CURRENT_DFX_BINARY="$(command -v dfx)"
+    CACHED_DFX_BINARY="$(dirname "$(dfx cache show)")/${DFX_VERSION}/dfx"
+    if test -x "$CACHED_DFX_BINARY"
+    then echo "Installing cached version to $CURRENT_DFX_BINARY"
+         cp "$CACHED_DFX_BINARY" "$CURRENT_DFX_BINARY"
+    fi
+fi
+
 export DFX_VERSION
 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
