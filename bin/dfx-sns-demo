@@ -28,7 +28,7 @@ echo "Using binaries from ic commit: $DFX_IC_COMMIT"
 ./bin/demo-system-subnet
 
 export DFX_NETWORK
-dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --ic_commit "$DFX_IC_COMMIT"
+dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT"
 
 # dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
 # The above does NOT include nns-sns-wasm.  So import for local (which does include the canister????) and then copy to the requested network.
