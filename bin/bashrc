@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+complete -C dfx-canister dfx-canister
+complete -C dfx-ledger dfx-ledger
+complete -C dfx-network dfx-network
+complete -C dfx-neuron dfx-neuron
+complete -C dfx-sns dfx-sns
+complete -C dfx-software dfx-software
