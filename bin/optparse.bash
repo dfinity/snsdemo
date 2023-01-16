@@ -89,6 +89,7 @@ function optparse.define() {
 	if [ "$default" != "" ] && [ "${nargs:-}" != "0" ]; then
 		optparse_usage="${optparse_usage} [default:$default]"
 	fi
+	optparse_flags="${optparse_flags:-} ${long}"
 	if [ "${nargs:-}" == "" ]; then
 		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
 	elif [ "${nargs:-}" == "0" ]; then
@@ -110,8 +111,6 @@ function optparse.build() {
 	local build_file
 	build_file="$(mktemp -t "optparse-XXXXXX.tmp")"
 
-	# Building getopts header here
-
 	# Function usage
 	cat <<EOF >"$build_file"
 function usage(){
@@ -126,6 +125,18 @@ OPTIONS:
         --verbose  :  show debug info
 
 XXX
+}
+
+# Autocomplete
+# Manual: https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html
+[[ "\${COMP_LINE:-}" == "" ]] || [[ "\${COMP_POINT:-}" == "" ]] || {
+	COMP_CURRENT="$1"
+	case "\$COMP_CURRENT" in
+	"")	compgen -W "$optparse_flags" -- "\$COMP_CURRENT" ;;
+	-*)	compgen -W "$optparse_flags" -- "\$COMP_CURRENT" ;;
+	*)	compgen -f -- "\$COMP_CURRENT" ;;
+	esac
+	exit 0
 }
 
 # Set default variable values

@@ -4,6 +4,28 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$PATH:$SOURCE_DIR"
 
 PREFIX="$(basename "$(realpath "$0")")"
+
+print_subcommands() {
+	find $(echo "$PATH" | tr ":" " ") -maxdepth 1 -type f -executable 2>/dev/null | awk -F/ '{print $(NF)}' | sort | uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
+}
+
+# Autocomplete?
+[[ "${COMP_LINE:-}" == "" ]] || [[ "${COMP_POINT:-}" == "" ]] || {
+	SUBCOMMAND_DEPTH="${SUBCOMMAND_DEPTH:-1}"
+	read -r -a COMP_WORDS <<< "$COMP_LINE"
+	# Only complete if the cursor is at the end of the line.
+	(( ${#COMP_LINE} == COMP_POINT )) || exit 0
+	# If the subcommand is incomplete, complete that, else delegate to the subcommand.
+	if (( ${#COMP_WORDS[@]} == SUBCOMMAND_DEPTH )) || ( (( ${#COMP_WORDS[@]} == SUBCOMMAND_DEPTH +1 )) && [[ ${COMP_LINE% } == ${COMP_LINE} ]] )
+	then
+		compgen -W "$(print_subcommands)" -- "${COMP_WORDS[$SUBCOMMAND_DEPTH]:-}"
+	else
+		SUBCOMMAND="${COMP_WORDS[$SUBCOMMAND_DEPTH]:-}"
+		SUBCOMMAND_DEPTH="$((SUBCOMMAND_DEPTH + 1))" "$PREFIX-$SUBCOMMAND" "${@}"
+	fi
+        exit 0
+}
+
 if (($# > 0)) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]; then
   SUBCOMMAND="$1"
   shift 1
@@ -29,5 +51,5 @@ else
   #   abc-de-fgh-rs <-- subcommand
   # shellcheck disable=SC2046
   # shellcheck disable=SC2086 # we really do want to split PATH into separate arguments.
-  find $(echo "$PATH" | tr ":" " ") -maxdepth 1 -type f -executable | awk -F/ '{print $(NF)}' | sort | uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
+  print_subcommands
 fi
