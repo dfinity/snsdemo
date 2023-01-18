@@ -24,7 +24,7 @@ demo-cleanup
   echo "Please make sure that the network is defined in ~/.config/dfx/networks"
   exit 1
 } >&2
-jq '.networks[env.DFX_NETWORK]' "$ND_REPO_DIR/dfx.json" | grep -q . || {
+[[ "$DFX_NETWORK" == "local" ]] || jq '.networks[env.DFX_NETWORK]' "$ND_REPO_DIR/dfx.json" | grep -q . || {
   echo "ERROR: Network is not defined in the nns-dapp dfx.json"
   echo "Please add it to: $ND_REPO_DIR/dfx.json"
   exit 1
