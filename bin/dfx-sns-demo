@@ -18,6 +18,18 @@ cd "$(dirname "$(realpath "$0")")/.."
 
 demo-cleanup
 
+# Check that the network is known.
+[[ "$DFX_NETWORK" == "local" ]] || dfx-network-provider --network "$DFX_NETWORK" >/dev/null || {
+  echo "ERROR: Unknown network '$DFX_NETWORK'"
+  echo "Please make sure that the network is defined in ~/.config/dfx/networks"
+  exit 1
+} >&2
+jq '.networks[env.DFX_NETWORK]' "$ND_REPO_DIR/dfx.json" | grep -q . || {
+  echo "ERROR: Network is not defined in the nns-dapp dfx.json"
+  echo "Please add it to: $ND_REPO_DIR/dfx.json"
+  exit 1
+} >&2
+
 # If ic-commit is specified, get execuables from there:
 [[ "${DFX_IC_COMMIT:-}" != "latest" ]] || DFX_IC_COMMIT="$(dfx-software ic latest --ic_dir "$IC_REPO_DIR")"
 [[ "${DFX_IC_COMMIT:-}" != "" ]] || DFX_IC_COMMIT="$(dfx-software ic current)"
