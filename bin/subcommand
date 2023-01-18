@@ -6,6 +6,17 @@ PATH="$PATH:$SOURCE_DIR"
 PREFIX="$(basename "$(realpath "$0")")"
 
 print_subcommands() {
+  # If the current command name is abc-de then we look for executables that start with abc-de- such as abc-de-fgh-ij and return "fgh-ij" as a subcommand.
+  # We do not, however, return sub-subcommands.  E.g. if there is also abc-de-fgh-ij-klmno we disregard it.  This is implemented by sorting and filtering out executables
+  # that look like sub-sub-commands of earlier sub-commands:
+  #
+  #   abc-de <- current executable
+  #   abc-de-fgh-ij <-- subcommand
+  #   abc-de-fgh-ij-klmno <- ignored
+  #   abc-de-fgh-ij-pq <---- ignored
+  #   abc-de-fgh-rs <-- subcommand
+  # shellcheck disable=SC2046
+  # shellcheck disable=SC2086 # we really do want to split PATH into separate arguments.
   find $(echo "$PATH" | tr ":" " ") -maxdepth 1 -type f -executable 2>/dev/null | awk -F/ '{print $(NF)}' | sort | uniq | awk -vprefix="$PREFIX" '($0 ~ "^" prefix "-"){ if ($0 ~ "^" last "-") { next } ; last=$0 ; print substr($0, length(prefix)+2) }'
 }
 
@@ -16,7 +27,7 @@ print_subcommands() {
   # Only complete if the cursor is at the end of the line.
   ((${#COMP_LINE} == COMP_POINT)) || exit 0
   # If the subcommand is incomplete, complete that, else delegate to the subcommand.
-  if ((${#COMP_WORDS[@]} == SUBCOMMAND_DEPTH)) || ( ((${#COMP_WORDS[@]} == SUBCOMMAND_DEPTH + 1)) && [[ ${COMP_LINE% } == ${COMP_LINE} ]]); then
+  if ((${#COMP_WORDS[@]} == SUBCOMMAND_DEPTH)) || ( ((${#COMP_WORDS[@]} == SUBCOMMAND_DEPTH + 1)) && [[ "${COMP_LINE% }" == "${COMP_LINE}" ]]); then
     compgen -W "$(print_subcommands)" -- "${COMP_WORDS[$SUBCOMMAND_DEPTH]:-}"
   else
     SUBCOMMAND="${COMP_WORDS[$SUBCOMMAND_DEPTH]:-}"
@@ -39,16 +50,5 @@ if (($# > 0)) && [[ "${1:-}" != "--help" ]] && [[ "${1:-}" != "-h" ]]; then
   fi
 else
   echo Subcommands:
-  # If the current command name is abc-de then we look for executables that start with abc-de- such as abc-de-fgh-ij and return "fgh-ij" as a subcommand.
-  # We do not, however, return sub-subcommands.  E.g. if there is also abc-de-fgh-ij-klmno we disregard it.  This is implemented by sorting and filtering out executables
-  # that look like sub-sub-commands of earlier sub-commands:
-  #
-  #   abc-de <- current executable
-  #   abc-de-fgh-ij <-- subcommand
-  #   abc-de-fgh-ij-klmno <- ignored
-  #   abc-de-fgh-ij-pq <---- ignored
-  #   abc-de-fgh-rs <-- subcommand
-  # shellcheck disable=SC2046
-  # shellcheck disable=SC2086 # we really do want to split PATH into separate arguments.
   print_subcommands
 fi
