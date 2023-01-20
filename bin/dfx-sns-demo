@@ -18,18 +18,6 @@ cd "$(dirname "$(realpath "$0")")/.."
 
 demo-cleanup
 
-# Check that the network is known.
-[[ "$DFX_NETWORK" == "local" ]] || dfx-network-provider --network "$DFX_NETWORK" >/dev/null || {
-  echo "ERROR: Unknown network '$DFX_NETWORK'"
-  echo "Please make sure that the network is defined in ~/.config/dfx/networks"
-  exit 1
-} >&2
-[[ "$DFX_NETWORK" == "local" ]] || jq '.networks[env.DFX_NETWORK]' "$ND_REPO_DIR/dfx.json" | grep -q . || {
-  echo "ERROR: Network is not defined in the nns-dapp dfx.json"
-  echo "Please add it to: $ND_REPO_DIR/dfx.json"
-  exit 1
-} >&2
-
 # If ic-commit is specified, get execuables from there:
 [[ "${DFX_IC_COMMIT:-}" != "latest" ]] || DFX_IC_COMMIT="$(dfx-software ic latest --ic_dir "$IC_REPO_DIR")"
 [[ "${DFX_IC_COMMIT:-}" != "" ]] || DFX_IC_COMMIT="$(dfx-software ic current)"
@@ -41,6 +29,19 @@ echo "Using binaries from ic commit: $DFX_IC_COMMIT"
 
 export DFX_NETWORK
 export DFX_IC_COMMIT
+
+# Check that the network is known.
+[[ "$DFX_NETWORK" == "local" ]] || dfx-network-provider --network "$DFX_NETWORK" >/dev/null || {
+  echo "ERROR: Unknown network '$DFX_NETWORK'"
+  echo "Please make sure that the network is defined in $(dfx info networks-json-path)"
+  exit 1
+} >&2
+[[ "$DFX_NETWORK" == "local" ]] || jq '.networks[env.DFX_NETWORK]' "$ND_REPO_DIR/dfx.json" | grep -q . || {
+  echo "ERROR: Network is not defined in the nns-dapp dfx.json"
+  echo "Please add it to: $ND_REPO_DIR/dfx.json"
+  exit 1
+} >&2
+
 dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT"
 
 # dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
