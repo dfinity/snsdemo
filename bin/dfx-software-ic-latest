@@ -20,6 +20,9 @@ function disk_image_exists() {
   # Mac buids can lag or be missing
   curl -fL --output /dev/null --silent --head --fail \
     "https://download.dfinity.systems/ic/${GIT_REVISION}/binaries/x86_64-darwin/ic-admin.gz"
+  # Syncing to the public repo may be slow
+  curl -fL --output /dev/null --silent --head --fail \
+    "https://raw.githubusercontent.com/dfinity/ic/${GIT_REVISION}/rs/nns/dfx.json"
 }
 (
   cd "$IC_REPO_DIR"

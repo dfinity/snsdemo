@@ -64,7 +64,7 @@
         "BUILD": "dev",
         "FETCH_ROOT_KEY": true,
         "REDIRECT_TO_LEGACY": "prod",
-        "IDENTITY_SERVICE_URL": "https://qjdve-lqaaa-aaaaa-aaaeq-cai.nnsdapp.dfinity.network"
+        "IDENTITY_SERVICE_URL": "https://qjdve-lqaaa-aaaaa-aaaeq-cai.nnsdapp.testnet.dfinity.network"
       },
       "providers": ["http://[2a00:fb01:400:42:5000:d1ff:fefe:987e]:8080"],
       "type": "persistent"
@@ -75,8 +75,8 @@
         "FETCH_ROOT_KEY": true,
         "REDIRECT_TO_LEGACY": "both",
         "ENABLE_NEW_SPAWN_FEATURE": true,
-        "HOST": "https://small12.dfinity.network",
-        "IDENTITY_SERVICE_URL": "https://qjdve-lqaaa-aaaaa-aaaeq-cai.small12.dfinity.network"
+        "HOST": "https://small12.testnet.dfinity.network",
+        "IDENTITY_SERVICE_URL": "https://qjdve-lqaaa-aaaaa-aaaeq-cai.small12.testnet.dfinity.network"
       },
       "providers": ["http://[2a00:fb01:400:42:5000:54ff:fef3:eb8]:8080"],
       "type": "persistent"
