@@ -16,6 +16,12 @@ source "$SOURCE_DIR/optparse.bash"
 source "$(optparse.build)"
 set -euo pipefail
 
+case "$(uname)" in
+	Linux)
+		sudo apt-get update
+		command -v curl || sudo apt-get install -yy curl
+		;;
+esac
 dfx-software-jq-install
 dfx-software-more-install
 dfx-software-openssl-install
@@ -23,3 +29,4 @@ dfx-software-dfx-install --version 0.12.1
 dfx-software-idl2json-install --version v0.8.5
 dfx-software-quill-install --version 0.3.1
 dfx-software-sns-quill-install --version v0.4.0
+

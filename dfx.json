@@ -1,5 +1,105 @@
 {
   "canisters": {
+    "nns-cycles-minting": {
+      "build": "",
+      "candid": "candid/nns-cycles-minting.did",
+      "remote": {
+        "id": {
+          "local": "rkp4c-7iaaa-aaaaa-aaaca-cai",
+          "small09": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-genesis-token": {
+      "build": "",
+      "candid": "candid/nns-genesis-token.did",
+      "remote": {
+        "id": {
+          "local": "renrk-eyaaa-aaaaa-aaada-cai",
+          "small09": "renrk-eyaaa-aaaaa-aaada-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-governance": {
+      "build": "",
+      "candid": "candid/nns-governance.did",
+      "remote": {
+        "id": {
+          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+          "small09": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-ledger": {
+      "build": "",
+      "candid": "candid/nns-ledger.did",
+      "remote": {
+        "id": {
+          "local": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+          "small09": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-lifeline": {
+      "build": "",
+      "candid": "candid/nns-lifeline.did",
+      "remote": {
+        "id": {
+          "local": "rno2w-sqaaa-aaaaa-aaacq-cai",
+          "small09": "rno2w-sqaaa-aaaaa-aaacq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-registry": {
+      "build": "",
+      "candid": "candid/nns-registry.did",
+      "remote": {
+        "id": {
+          "local": "rwlgt-iiaaa-aaaaa-aaaaa-cai",
+          "small09": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-root": {
+      "build": "",
+      "candid": "candid/nns-root.did",
+      "remote": {
+        "id": {
+          "local": "r7inp-6aaaa-aaaaa-aaabq-cai",
+          "small09": "r7inp-6aaaa-aaaaa-aaabq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-sns-wasm": {
+      "build": "",
+      "candid": "candid/nns-sns-wasm.did",
+      "remote": {
+        "id": {
+          "local": "qaa6y-5yaaa-aaaaa-aaafa-cai",
+          "small09": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "smiley_dapp": {
+      "main": "src/smiley_dapp/main.mo",
+      "type": "motoko"
+    },
     "smiley_dapp_assets": {
       "dependencies": [
         "smiley_dapp"
@@ -13,9 +113,35 @@
       ],
       "type": "assets"
     },
-    "smiley_dapp": {
-      "main": "src/smiley_dapp/main.mo",
-      "type": "motoko"
+    "sns_governance": {
+      "build": "",
+      "candid": "candid/sns_governance.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_index": {
+      "build": "",
+      "candid": "candid/sns_index.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_ledger": {
+      "build": "",
+      "candid": "candid/sns_ledger.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_root": {
+      "build": "",
+      "candid": "candid/sns_root.did",
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_swap": {
+      "build": "",
+      "candid": "candid/sns_swap.did",
+      "type": "custom",
+      "wasm": ""
     }
   },
   "defaults": {
