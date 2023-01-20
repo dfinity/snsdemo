@@ -22,7 +22,7 @@ cat <<EOF >"$NEW_ENTRY"
   "$DFX_NETWORK": {
     "config": {
       "FETCH_ROOT_KEY": true,
-      "HOST": "https://${DFX_NETWORK}.dfinity.network"
+      "HOST": "https://${DFX_NETWORK}.testnet.dfinity.network"
     },
     "providers": $PROVIDERS,
     "type": "persistent"
