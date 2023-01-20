@@ -18,7 +18,6 @@ cd "$(dirname "$(realpath "$0")")/.."
 
 demo-cleanup
 
-
 # If ic-commit is specified, get execuables from there:
 [[ "${DFX_IC_COMMIT:-}" != "latest" ]] || DFX_IC_COMMIT="$(dfx-software ic latest --ic_dir "$IC_REPO_DIR")"
 [[ "${DFX_IC_COMMIT:-}" != "" ]] || DFX_IC_COMMIT="$(dfx-software ic current)"
