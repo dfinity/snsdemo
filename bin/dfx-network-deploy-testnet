@@ -56,5 +56,7 @@ else
     }
     (cd "testnet/env/$TESTNET/" && ./hosts --nns-nodes | awk '{printf "%s http://[%s]:8080\n", $1, $2}')
     dfx-network-delete --network "$DFX_NETWORK"
+    # The network seems to need some time to wake up?  The endpoints appear but fail erratically if called too early.
+    sleep 20
   )
 fi
