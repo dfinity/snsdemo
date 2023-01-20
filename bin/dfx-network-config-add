@@ -15,6 +15,10 @@ set -euo pipefail
 export DFX_NETWORK
 
 DFX_NETWORK_CONFIG_PATH="$(dfx-network-config-path)"
+jq . "$DFX_NETWORK_CONFIG_PATH" >/dev/null 2>/dev/null || {
+  mkdir -p "$(dirname "$DFX_NETWORK_CONFIG_PATH")"
+  echo "{}" >"$DFX_NETWORK_CONFIG_PATH"
+}
 PROVIDERS="$(cd "$IC_REPO_DIR/testnet/env/$DFX_NETWORK/" && ./hosts --nns-nodes | awk '{printf "http://[%s]:8080\n", $2}' | jq --raw-input --slurp 'split("\n") | map(select(. != ""))')"
 NEW_ENTRY="$(mktemp)"
 cat <<EOF >"$NEW_ENTRY"
