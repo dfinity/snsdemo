@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-PATH="$SOURCE_DIR:$PATH:$(dfx cache show)"
+DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
+PATH="$DEMO_BIN:$SOURCE_DIR:$PATH:$(dfx cache show)"
 export PATH="$PATH:$HOME/.local/bin"
 
 # Source the optparse.bash file ---------------------------------------------------
