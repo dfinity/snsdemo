@@ -25,6 +25,7 @@ if command -v dfx >/dev/null; then
   if test -x "$CACHED_DFX_BINARY"; then
     echo "Installing cached version to $CURRENT_DFX_BINARY"
     cp "$CACHED_DFX_BINARY" "$CURRENT_DFX_BINARY"
+    exit 0
   fi
 fi
 
