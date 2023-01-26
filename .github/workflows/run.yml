@@ -41,6 +41,11 @@ jobs:
         run: ./bin/dfx-sns-demo-install --verbose
       - name: Run the demo with the current default ic commits
         run: bin/dfx-sns-demo
+      - name: Create and finalize an additional SNS
+        run: |
+          ./bin/dfx-sns-demo-mksns
+          ./bin/dfx-sns-sale-buy
+          ./bin/dfx-sns-sale-finalize
   demo_latest:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -72,3 +77,8 @@ jobs:
           path: ic
       - name: Run the demo with the latest repo
         run: bin/dfx-sns-demo --ic_commit latest --ic_dir ic
+      - name: Create and finalize an additional SNS
+        run: |
+          ./bin/dfx-sns-demo-mksns
+          ./bin/dfx-sns-sale-buy
+          ./bin/dfx-sns-sale-finalize
