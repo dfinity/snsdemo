@@ -14,18 +14,26 @@ set -euo pipefail
 
 export DFX_NETWORK
 
-DFX_NEWTORK_CONFIG_PATH="$(dfx-network-config-path)"
+DFX_NETWORK_CONFIG_PATH="$(dfx-network-config-path)"
+jq . "$DFX_NETWORK_CONFIG_PATH" >/dev/null 2>/dev/null || {
+  mkdir -p "$(dirname "$DFX_NETWORK_CONFIG_PATH")"
+  echo "{}" >"$DFX_NETWORK_CONFIG_PATH"
+}
 PROVIDERS="$(cd "$IC_REPO_DIR/testnet/env/$DFX_NETWORK/" && ./hosts --nns-nodes | awk '{printf "http://[%s]:8080\n", $2}' | jq --raw-input --slurp 'split("\n") | map(select(. != ""))')"
 NEW_ENTRY="$(mktemp)"
 cat <<EOF >"$NEW_ENTRY"
 {
   "$DFX_NETWORK": {
+    "config": {
+      "FETCH_ROOT_KEY": true,
+      "HOST": "https://${DFX_NETWORK}.testnet.dfinity.network"
+    },
     "providers": $PROVIDERS,
     "type": "persistent"
   }
 }
 EOF
 
-jq -s '.[0] * .[1]' "$DFX_NEWTORK_CONFIG_PATH" "$NEW_ENTRY" | sponge "$DFX_NEWTORK_CONFIG_PATH"
+jq -s '.[0] * .[1]' "$DFX_NETWORK_CONFIG_PATH" "$NEW_ENTRY" | sponge "$DFX_NETWORK_CONFIG_PATH"
 
 rm "$NEW_ENTRY"

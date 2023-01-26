@@ -1,33 +1,29 @@
 name: Run non-interactive demo
-
 on:
   push:
     branches:
       - main
   pull_request:
-
 env:
   GH_TOKEN: ${{ github.token }}
-
 jobs:
-
-#  readme:
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        os: [ macos-11, ubuntu-22.04 ]
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#      - name: Run the README code parts
-#        run: bin/test-readme
+  #  readme:
+  #    runs-on: ${{ matrix.os }}
+  #    strategy:
+  #      fail-fast: false
+  #      matrix:
+  #        os: [ macos-11, ubuntu-22.04 ]
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@v3
+  #      - name: Run the README code parts
+  #        run: bin/test-readme
   demo_current:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-11, ubuntu-22.04 ]
+        os: [macos-11, ubuntu-22.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,7 +31,6 @@ jobs:
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$PWD/bin" >> $GITHUB_PATH
-
       - name: Unbork mac
         if: matrix.os == 'macos-11'
         run: |
@@ -56,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-11, ubuntu-22.04 ]
+        os: [macos-11, ubuntu-22.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -64,7 +59,6 @@ jobs:
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$PWD/bin" >> $GITHUB_PATH
-
       - name: Unbork mac
         if: matrix.os == 'macos-11'
         run: |

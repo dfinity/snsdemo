@@ -51,7 +51,7 @@ else
 			}
 		EOF
 
-    ./testnet/tools/icos_deploy.sh --git-revision "$DFX_IC_COMMIT" "$TESTNET" --ansible-args "-e @$PWD/test-accounts.json" || {
+    ./testnet/tools/icos_deploy.sh --boundary-dev-image --git-revision "$DFX_IC_COMMIT" "$TESTNET" --ansible-args "-e @$PWD/test-accounts.json" || {
       echo "Tesnet returned an error code but it returns errors for very minor reasons.  The deployment is probably fine."
     }
     (cd "testnet/env/$TESTNET/" && ./hosts --nns-nodes | awk '{printf "%s http://[%s]:8080\n", $1, $2}')
