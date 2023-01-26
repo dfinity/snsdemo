@@ -13,7 +13,7 @@ install_darwin() {
 
 OS="$(uname | tr '[:upper:]' '[:lower:]')"
 
-EXEC_NAME="more"
+EXEC_NAME="sponge"
 if command -v "$EXEC_NAME"; then
   echo "Nothing to do: $EXEC_NAME is already installed."
 else
