@@ -5,7 +5,7 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
-optparse.define short=b long=before desc="Latest published commit before th egiven one" variable=IC_COMMIT_BEFORE default=""
+optparse.define short=b long=before desc="Latest published commit before the given one" variable=IC_COMMIT_BEFORE default=""
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -eu # No pipefail
