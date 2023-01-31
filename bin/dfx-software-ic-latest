@@ -33,14 +33,13 @@ function disk_image_exists() {
   )
 }
 
-if test -n "${IC_COMMIT_BEFORE:-}"; then
-  IC_COMMIT="$(git log --pretty=%P -n 1 "$IC_COMMIT_BEFORE")"
-else
-  IC_COMMIT="$(git rev-parse origin/master)"
-fi
-
 (
   cd "$IC_REPO_DIR"
   git fetch
+  if test -n "${IC_COMMIT_BEFORE:-}"; then
+    IC_COMMIT="$(git log --pretty=%P -n 1 "$IC_COMMIT_BEFORE")"
+  else
+    IC_COMMIT="$(git rev-parse origin/master)"
+  fi
   git log --format=format:%H "$IC_COMMIT"
 ) | while read -r GIT_REVISION; do disk_image_exists && echo "$GIT_REVISION" && break; done
