@@ -5,6 +5,7 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+optparse.define short=b long=before desc="Latest published commit before the given one" variable=IC_COMMIT_BEFORE default=""
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -eu # No pipefail
@@ -31,8 +32,14 @@ function disk_image_exists() {
       "https://raw.githubusercontent.com/dfinity/ic/${GIT_REVISION}/rs/nns/dfx.json" || exit 1
   )
 }
+
 (
   cd "$IC_REPO_DIR"
   git fetch
-  git log --format=format:%H origin/master
+  if test -n "${IC_COMMIT_BEFORE:-}"; then
+    IC_COMMIT="$(git log --pretty=%P -n 1 "$IC_COMMIT_BEFORE" | awk '{print $2}')"
+  else
+    IC_COMMIT="$(git rev-parse origin/master)"
+  fi
+  git log --format=format:%H "$IC_COMMIT"
 ) | while read -r GIT_REVISION; do disk_image_exists && echo "$GIT_REVISION" && break; done
