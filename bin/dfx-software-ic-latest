@@ -37,7 +37,7 @@ function disk_image_exists() {
   cd "$IC_REPO_DIR"
   git fetch
   if test -n "${IC_COMMIT_BEFORE:-}"; then
-	  IC_COMMIT="$(git log --pretty=%P -n 1 "$IC_COMMIT_BEFORE" | awk '{print $(NF)}')"
+    IC_COMMIT="$(git log --pretty=%P -n 1 "$IC_COMMIT_BEFORE" | awk '{print $(NF)}')"
   else
     IC_COMMIT="$(git rev-parse origin/master)"
   fi
