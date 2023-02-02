@@ -27,7 +27,7 @@ if [[ "${DFX_PRODLIKE:-}" == "true" ]]; then
 fi
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-  # Run locally; can be configured by e.g. chnaging the wasm files in the cache
+  # Run locally; can be configured by e.g. changing the wasm files in the cache
   dfx-network-stop --network "$DFX_NETWORK"
   export DFX_IC_COMMIT
   : "Get the specified version of II, if requested."
@@ -54,3 +54,7 @@ else
   dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
   dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
 fi
+
+# However the network is deloyed, we also need a placeholder for the aggregator canister.
+jq '.canisters.sns_aggregator = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
+dfx canister create sns_aggregator
