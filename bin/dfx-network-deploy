@@ -44,7 +44,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
 
   dfx start --clean --background
   dfx nns install
-EOF
+  EOF
 else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
