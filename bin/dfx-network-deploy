@@ -30,11 +30,13 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   # Run locally; can be configured by e.g. chnaging the wasm files in the cache
   dfx-network-stop --network "$DFX_NETWORK"
   export DFX_IC_COMMIT
+  # Make sure that we use the expected wasms, not some leftovers.
+  WASM_DIR="$(dfx cache show)/wasms"
+  rm -fr "$WASM_DIR"
   : "Get the specified version of II, if requested."
   : "Note: This does clobber the version in the global cache, which is not really OK but there is no other option at the moment."
   test -z "${DFX_II_RELEASE:-}" || {
     II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE}")"
-    WASM_DIR="$(dfx cache show)/wasms"
     mkdir -p "$WASM_DIR"
     tempfile="$(mktemp ii-wasm-XXXXXX)"
     curl -sL --fail "$II_WASM_URL" >"$tempfile"
