@@ -59,4 +59,4 @@ fi
 
 # However the network is deloyed, we also need a placeholder for the aggregator canister.
 jq '.canisters.sns_aggregator = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
-dfx canister create sns_aggregator
+dfx canister create sns_aggregator --no-wallet
