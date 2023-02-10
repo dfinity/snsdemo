@@ -43,7 +43,17 @@ export DFX_IC_COMMIT
 } >&2
 
 sleep 1
+rm -fr "$HOME/.config/dfx/identity/snsdemo8"
+sleep 1
+dfx identity new --disable-encryption snsdemo8
+sleep 1
+dfx identity use snsdemo8
+sleep 1
+
+sleep 1
 dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT"
+# Make sure that we use snsdemo8, in case the network deployment needed to change that.
+dfx identity use snsdemo8
 
 # dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
 # The above does NOT include nns-sns-wasm.  So import for local (which does include the canister????) and then copy to the requested network.
@@ -53,13 +63,6 @@ sleep 1
 dfx nns import --network-mapping "$DFX_NETWORK=local"
 sleep 1
 dfx sns import
-sleep 1
-
-rm -fr "$HOME/.config/dfx/identity/snsdemo8"
-sleep 1
-dfx identity new --disable-encryption snsdemo8
-sleep 1
-dfx identity use snsdemo8
 sleep 1
 
 bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
