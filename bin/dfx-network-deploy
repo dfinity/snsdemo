@@ -42,7 +42,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
     rm "$tempfile"
   }
   : "Get the specified version of the nns-sns-wasm.wasm"
-  curl "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/sns-wasm-canister.wasm.gz" | gunzip > "${WASM_DIR}/sns-wasm-canister.wasm"
+  curl "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/sns-wasm-canister.wasm.gz" | gunzip >"${WASM_DIR}/sns-wasm-canister.wasm"
 
   dfx start --clean --background
   dfx nns install
