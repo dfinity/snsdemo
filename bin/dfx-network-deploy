@@ -31,6 +31,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   dfx-network-stop --network "$DFX_NETWORK"
   export DFX_IC_COMMIT
   WASM_DIR="$(dfx cache show)/wasms"
+  test -d "$(dfx cache show)" || dfx cache install
   mkdir -p "$WASM_DIR"
   : "Get the specified version of II, if requested."
   : "Note: This does clobber the version in the global cache, which is not really OK but there is no other option at the moment."
