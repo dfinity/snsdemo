@@ -44,7 +44,7 @@ function disk_image_exists() {
   else
     IC_COMMIT="$(git rev-parse origin/master)"
   fi
-  if test -n "${IC_COMMIT_AFTER}"; then
+  if test -n "${IC_COMMIT_AFTER:-}"; then
     git log --format=format:%H --reverse "${IC_COMMIT}...origin/master" | sed 1d
   else
     git log --format=format:%H "$IC_COMMIT"
