@@ -49,7 +49,7 @@ else
 			  "init_ledger_accounts":["5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087", "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138"]
 			}
 		EOF
-   # "custom_canister_dir": "${ND_REPO_DIR}/target/ic", <- currently causes an error
+    # "custom_canister_dir": "${ND_REPO_DIR}/target/ic", <- currently causes an error
 
     ./testnet/tools/icos_deploy.sh --boundary-dev-image --git-revision "$DFX_IC_COMMIT" "$TESTNET" --ansible-args "-e @$PWD/test-accounts.json" || {
       echo "Tesnet returned an error code but it returns errors for very minor reasons.  The deployment is probably fine."
