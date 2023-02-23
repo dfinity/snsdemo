@@ -45,7 +45,7 @@ export DFX_IC_COMMIT
 sleep 1
 rm -fr "$HOME/.config/dfx/identity/snsdemo8"
 sleep 1
-dfx identity new --disable-encryption snsdemo8
+dfx identity new --storage-mode=plaintext snsdemo8
 sleep 1
 dfx identity use snsdemo8
 sleep 1

@@ -32,7 +32,7 @@ oUQDQgAEPas6Iag4TUx+Uop+3NhE6s3FlayFtbwdhRVjvOar0kPTfE/N8N6btRnd
 74ly5xXEBNSXiENyxhEuzOZrIWMCNQ==
 -----END EC PRIVATE KEY-----
 EOF
-      dfx identity import ident-1 ident-1.pem --disable-encryption
+      dfx identity import ident-1 ident-1.pem --storage-mode=plaintext
     } && check_moneybags
   )
 }
