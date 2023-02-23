@@ -74,8 +74,6 @@ sleep 1
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 sleep 1
 
-./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
-sleep 1
 ./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
 sleep 1
 ./bin/dfx-sns-wasm-download --commit "$DFX_IC_COMMIT"

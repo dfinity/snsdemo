@@ -23,22 +23,10 @@ export DFX_NETWORK
   echo "    dfx nns import --network-mapping $DFX_NETWORK=local"
   exit 1
 } >&2
-set "sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG"
+SNS_TOKEN_SYMBOL="$(awk '/^token_symbol:/{print $2}' "$SNS_CONFIG")"
+SNS_CANISTER_IDS_FILE="sns_${SNS_TOKEN_SYMBOL}_canister_ids.json"
+rm -f "$SNS_CANISTER_IDS_FILE"
+set "sns" deploy --network "$DFX_NETWORK" --init-config-file "$SNS_CONFIG" --save-to "$SNS_CANISTER_IDS_FILE"
 echo "${@}"
 "${@}" | tee ,sns-init-response.idl
-
-if [[ "$DFX_NETWORK" == "local" ]]; then
-  perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
-    idl2json |
-    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {remote: {id:{(env.DFX_NETWORK): (.value[0])}}}}) | add | {canisters: .}' |
-    jq -s '.[1] * .[0]' - dfx.json | sponge dfx.json
-else
-  test -e canister_ids.json || {
-    echo "{}" >canister_ids.json
-  }
-
-  perl -e 'while($_ = <>){if (s/^\(/(/){ $p=1 } ; if ($p == 1){print $_}}' <,sns-init-response.idl |
-    idl2json |
-    jq '.canisters[] | to_entries | map({ ("sns_"+.key): {(env.DFX_NETWORK): (.value[0])} }) | add' |
-    jq -s '.[1] * .[0]' - canister_ids.json | sponge canister_ids.json
-fi
+jq -e 'to_entries | {canisters: map({key: .key, value: {remote: {id: .value}}}) | from_entries}' "$SNS_CANISTER_IDS_FILE" | jq -se '.[1] * .[0]' - dfx.json | sponge dfx.json
