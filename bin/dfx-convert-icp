@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# XDR is a basket of currencies.
+# 1XDR = 1T cycles
+# One ICP buys this many XDR:
+curl -s https://ic-api.internetcomputer.org/api/v3/icp-xdr-conversion-rates | jq '.icp_xdr_conversion_rates[0][1] / 10000'
