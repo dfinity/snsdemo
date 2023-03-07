@@ -7,11 +7,12 @@ source "$SOURCE_DIR/optparse.bash"
 # Define options
 optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=N long=neuron desc="The dfx network to use" variable=DFX_NEURON_ID default=""
 # Source the output file ----------------------------------------------------------
 source "$(optparse.build)"
 set -euo pipefail
 
-export DFX_NEURON_ID="$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")"
+export DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")}"
 export DFX_IDENTITY_PEM="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
 export DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
