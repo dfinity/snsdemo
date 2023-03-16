@@ -16,7 +16,7 @@ export DFX_NETWORK
 
 # If no subcommand has been provided, list all subcommands.
 (($# > 0)) || {
-  sns-quill --help | sed -n '/^SUBCOMMANDS:/,$p'
+  quill sns --help | sed -n '/^SUBCOMMANDS:/,$p'
   exit 1
 }
 
@@ -27,7 +27,7 @@ dfx-sns-quill-canister-ids --network "$DFX_NETWORK" >"$SNS_QUILL_CANISTER_IDS_FI
 PEM_PATH="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
 
 # Call sns-quill
-sns-quill --canister-ids-file "$SNS_QUILL_CANISTER_IDS_FILE" --pem-file "$PEM_PATH" "${@}"
+quill sns --canister-ids-file "$SNS_QUILL_CANISTER_IDS_FILE" --pem-file "$PEM_PATH" "${@}"
 
 # Tidy up.
 rm "$SNS_QUILL_CANISTER_IDS_FILE"

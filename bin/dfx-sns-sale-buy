@@ -29,7 +29,7 @@ test -n "${MESSAGE:-}" || {
   exit 1
 } >&2
 
-echo "$MESSAGE" | IC_URL="$IC_URL" sns-quill send - --yes || {
+echo "$MESSAGE" | IC_URL="$IC_URL" quill sns send - --yes || {
   echo "ERROR: Failed to send message."
   echo "Message:"
   echo "$MESSAGE"
