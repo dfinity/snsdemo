@@ -52,7 +52,7 @@ test -n "${NEURON_TEXT:-}" || {
 } >&2
 NEURON_ID="$(echo "$NEURON_TEXT" | tr -cd '[:alnum:]')"
 test -n "${NEURON_ID:-}" || {
-  echo "Failed to get nuron ID from line: $NEURON_TEXT"
+  echo "Failed to get neuron ID from line: $NEURON_TEXT"
   exit 1
 } >&2
 
