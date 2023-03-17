@@ -14,12 +14,13 @@ optparse.define short=m long=majority desc="A user representing the majority vot
 source "$(optparse.build)"
 set -euxo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
+DEMO_USER_DIR="$PWD/users"
 
 # Creates an identity with their own home directory, their own project in that home dir, a neuron and some ICP.
 make_user() {
   (
     DEMO_USER="$1"
-    DEMODIR="users/$1"
+    DEMODIR="$DEMO_USER_DIR/$1"
     rm -fr "$DEMODIR"
     mkdir -p "$DEMODIR/.config" "$DEMODIR/.local/share"
     # Share some data:
@@ -94,8 +95,8 @@ create_all_sns() {
 swap_all_sns() {
   for ((i = 0; i < NUM_SNS_TO_MAKE; i++)); do
     (
-      DEMODIR="snsdemo_$i"
-      become_user "$DEMODIR"
+      DEMO_USER="snsdemo_$i"
+      become_user "$DEMO_USER"
       dfx-sns-sale-propose --network "$DFX_NETWORK" --identity "${DFX_PROPOSER:-${DEMO_USER}}"
       sleep 1
       dfx-sns-sale-buy --network "$DFX_NETWORK"
