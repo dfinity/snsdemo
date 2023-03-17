@@ -16,22 +16,30 @@ set -euo pipefail
 export DFX_NETWORK
 
 # Set the purchased amout to the maximum allowed, if requested.
-[[ "${AMOUNT:-}" != "max" ]] || AMOUNT="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK" | awk '/max_participant_icp_e8s/{gsub(/_/,""); print $3/100000000}')"
+if [[ "${AMOUNT:-}" = "max" ]]; then
+  AMOUNT_E8S="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK" | awk '/max_participant_icp_e8s/{gsub(/_/,""); print $3}')"
+else
+  AMOUNT_E8S="$(($AMOUNT * 100000000))"
+fi
 
-# Set eth URL used by sns-quill
-IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
-
-set dfx-sns-quill --network "$DFX_NETWORK" swap --memo 0 --amount "$AMOUNT"
+set dfx-sns-quill --network "$DFX_NETWORK" new-sale-ticket --amount-icp-e8s "$AMOUNT_E8S"
 echo "${@}"
-MESSAGE="$("${@}")"
-test -n "${MESSAGE:-}" || {
-  echo "ERROR: Empty message"
-  exit 1
-} >&2
+TICKET_RESPONSE="$(${@} | grep --before-context=1 --after-context=999 '^  record {$')"
+TICKET_RESPONSE_JSON="$(echo "$TICKET_RESPONSE" | idl2json)"
+TICKET_ID="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Ok.ticket[0].ticket_id')";
+TICKET_CREATION_TIME="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Ok.ticket[0].creation_time')";
 
-echo "$MESSAGE" | IC_URL="$IC_URL" sns-quill send - --yes || {
-  echo "ERROR: Failed to send message."
-  echo "Message:"
-  echo "$MESSAGE"
+set dfx-sns-quill --network local pay --amount-icp-e8s "$AMOUNT_E8S" --ticket-id "$TICKET_ID" --ticket-creation-time "$TICKET_CREATION_TIME"
+echo "${@}"
+"${@}" || {
+  echo "ERROR: Failed to participate in SNS swap."
+  echo "Ticket response:"
+  echo "$TICKET_RESPONSE"
+  echo "Ticket response JSON:"
+  echo "$TICKET_RESPONSE_JSON"
+  echo "Ticket ID:"
+  echo "$TICKET_ID"
+  echo "Ticket creation time:"
+  echo "$TICKET_CREATION_TIME"
   exit 1
 }
