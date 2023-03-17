@@ -46,6 +46,10 @@ jobs:
           ./bin/dfx-sns-demo-mksns
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
+      - name: Create lots of SNS
+        if: matrix.os != 'macos-11'
+        run: |
+          ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
   demo_latest:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -82,3 +86,7 @@ jobs:
           ./bin/dfx-sns-demo-mksns
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
+      - name: Create lots of SNS
+        if: matrix.os != 'macos-11'
+        run: |
+          ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
