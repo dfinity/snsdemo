@@ -16,7 +16,7 @@ export DFX_NETWORK
 
 # If no subcommand has been provided, list all subcommands.
 (($# > 0)) || {
-  sns-quill --help | sed -n '/^SUBCOMMANDS:/,$p'
+  quill sns --help | sed -n '/^SUBCOMMANDS:/,$p'
   exit 1
 }
 
@@ -27,7 +27,24 @@ dfx-sns-quill-canister-ids --network "$DFX_NETWORK" >"$SNS_QUILL_CANISTER_IDS_FI
 PEM_PATH="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
 
 # Call sns-quill
-sns-quill --canister-ids-file "$SNS_QUILL_CANISTER_IDS_FILE" --pem-file "$PEM_PATH" "${@}"
+set quill sns --canister-ids-file "$SNS_QUILL_CANISTER_IDS_FILE" --pem-file "$PEM_PATH" "${@}"
+echo "${@}"
+MESSAGE="$("${@}")"
 
 # Tidy up.
 rm "$SNS_QUILL_CANISTER_IDS_FILE"
+
+test -n "${MESSAGE:-}" || {
+  echo "ERROR: Empty message"
+  exit 1
+} >&2
+
+# Set the URL used by quill
+IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
+
+echo "$MESSAGE" | IC_URL="$IC_URL" quill send --insecure-local-dev-mode - --yes || {
+  echo "ERROR: Failed to send message."
+  echo "Message:"
+  echo "$MESSAGE"
+  exit 1
+}
