@@ -16,7 +16,7 @@ set -euo pipefail
 IDL2JSON_VERSION="${IDL2JSON_VERSION#v}"
 
 if command -v idl2json && [[ "$(idl2json --version | awk '($1 == "idl2json"){print $2}')" == "${IDL2JSON_VERSION:-}" ]]; then
-  echo "quill v$IDL2JSON_VERSION already installed.  Nothing to do."
+  echo "idl2json v$IDL2JSON_VERSION already installed.  Nothing to do."
   exit 0
 fi
 
