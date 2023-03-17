@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
+PATH="$DEMO_BIN:$SOURCE_DIR:$PATH:$(dfx cache show)"
+export PATH="$PATH:$HOME/.local/bin"
+
+# Source the optparse.bash file ---------------------------------------------------
+source "$SOURCE_DIR/optparse.bash"
+# Define options
+optparse.define short=s long=num_sns desc="The number of SNSs to create" variable=NUM_SNS_TO_MAKE default="1"
+optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+optparse.define short=m long=majority desc="A user representing the majority vote" variable=DFX_PROPOSER default=""
+# Source the output file ----------------------------------------------------------
+source "$(optparse.build)"
+set -euxo pipefail
+cd "$(dirname "$(realpath "$0")")/.."
+
+# Creates an identity with their own home directory, their own project in that home dir, a neuron and some ICP.
+make_user() {
+  (
+    DEMO_USER="$1"
+    DEMODIR="users/$1"
+    rm -fr "$DEMODIR"
+    mkdir -p "$DEMODIR/.config" "$DEMODIR/.local/share"
+    # Share some data:
+    ln -s "$PWD/bin" "$DEMODIR/bin"
+    ln -s "$PWD/logo.png" "$DEMODIR/logo.png"
+    ln -s "$PWD/candid" "$DEMODIR/candid"
+    ln -s "$PWD/bin-other" "$DEMODIR/bin-other"
+    ln -s "$HOME/.local/share/dfx" "$DEMODIR/.local/share/dfx"
+    # Copy dfx.json and the user config
+    cp dfx.json "$DEMODIR/"
+    cp -R "$HOME/.config/dfx" "$DEMODIR/.config/dfx"
+    cp -R .dfx "$DEMODIR/.dfx"
+    # Enter the directory
+    become_user "$DEMO_USER"
+    dfx identity remove --quiet "$DEMO_USER" --drop-wallets 2>/dev/null || true
+    dfx identity new --storage-mode=plaintext "$DEMO_USER"
+    dfx identity use "$DEMO_USER"
+    dfx wallet balance
+    bin/dfx-ledger-get-icp --icp 5000 --network "$DFX_NETWORK"
+    dfx ledger balance --network "$DFX_NETWORK"
+    bin/dfx-neuron-create --icp 10 --network "$DFX_NETWORK"
+    bin/dfx-neuron-prolong --network "$DFX_NETWORK"
+  )
+}
+
+# Enters an identity's home dir and gets them ready to interact with the replica.
+become_user() {
+  DEMO_USER="$1"
+  DEMODIR="users/$1"
+  cd "$DEMODIR"
+  export PATH="$PWD/bin:$PWD/bin-other:$PATH"
+  export HOME="$PWD"
+  # If the identity has been created, use it:
+  if dfx identity get-principal --identity "$DEMO_USER" 2>/dev/null ; then
+      dfx identity use "$DEMO_USER" || true
+  fi
+}
+
+# Create all the SNS canisters in parallel but do not open any swaps.
+create_all_sns() {
+  PROCESSES=()
+  echo "I am $$"
+  for ((i = 0; i < NUM_SNS_TO_MAKE; i++)); do
+    (
+      echo "Starting $BASHPID"
+      DEMO_USER="snsdemo_$i"
+      make_user "$DEMO_USER"
+      become_user "$DEMO_USER"
+
+      ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK" --proposer "${DFX_PROPOSER:-${DEMO_USER}}"
+
+      ./bin/dfx-sns-config-random --network "$DFX_NETWORK"
+      dfx ledger top-up --amount 4.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
+      dfx wallet balance
+      ./bin/dfx-sns-deploy --network "$DFX_NETWORK"
+
+      dfx canister id sns_root --network "$DFX_NETWORK"
+      dfx canister id sns_governance --network "$DFX_NETWORK"
+      dfx canister id sns_ledger --network "$DFX_NETWORK"
+      dfx canister id sns_swap --network "$DFX_NETWORK"
+
+      : hand over control of the dapp. Skipped...
+
+      echo FIN $BASHPID
+    ) &
+    PROCESSES+=($!)
+  done
+  wait "${PROCESSES[@]}"
+}
+
+# Run all the swaps, one at a time.
+swap_all_sns() {
+  for ((i = 0; i < NUM_SNS_TO_MAKE; i++)); do
+    (
+      DEMODIR="snsdemo_$i"
+      become_user "$DEMODIR"
+      dfx-sns-sale-propose --network "$DFX_NETWORK" --identity "${DFX_PROPOSER:-${DEMO_USER}}"
+      sleep 1
+      dfx-sns-sale-buy --network "$DFX_NETWORK"
+      sleep 1
+      ./bin/dfx-sns-sale-finalize --network "$DFX_NETWORK" --identity "${DFX_PROPOSER:-${DEMO_USER}}" || true
+      sleep 1
+
+    )
+  done
+}
+
+# MAIN
+test -z "${DFX_PROPOSER:-}" || {
+	echo "Details of p[roposer '${DFX_PROPOSER}':"
+    dfx identity get-principal --identity "$DFX_PROPOSER"
+    echo
+}
+create_all_sns
+swap_all_sns
+echo FIN
