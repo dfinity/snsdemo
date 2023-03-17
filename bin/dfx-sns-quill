@@ -29,7 +29,7 @@ PEM_PATH="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
 # Call sns-quill
 set quill sns --canister-ids-file "$SNS_QUILL_CANISTER_IDS_FILE" --pem-file "$PEM_PATH" "${@}"
 echo "${@}"
-MESSAGE="$(${@})"
+MESSAGE="$("${@}")"
 
 # Tidy up.
 rm "$SNS_QUILL_CANISTER_IDS_FILE"
