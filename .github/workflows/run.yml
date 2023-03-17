@@ -46,6 +46,9 @@ jobs:
           ./bin/dfx-sns-demo-mksns
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
+      - name: Create lots of SNS
+        run: |
+          ./bin/dfx-sns-demo-mksns-parallel -s 2 -m snsdemo8
   demo_latest:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -82,3 +85,6 @@ jobs:
           ./bin/dfx-sns-demo-mksns
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
+      - name: Create lots of SNS
+        run: |
+          ./bin/dfx-sns-demo-mksns-parallel -s 2 -m snsdemo8
