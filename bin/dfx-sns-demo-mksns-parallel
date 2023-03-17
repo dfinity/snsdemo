@@ -54,8 +54,8 @@ become_user() {
   export PATH="$PWD/bin:$PWD/bin-other:$PATH"
   export HOME="$PWD"
   # If the identity has been created, use it:
-  if dfx identity get-principal --identity "$DEMO_USER" 2>/dev/null ; then
-      dfx identity use "$DEMO_USER" || true
+  if dfx identity get-principal --identity "$DEMO_USER" 2>/dev/null; then
+    dfx identity use "$DEMO_USER" || true
   fi
 }
 
@@ -110,9 +110,9 @@ swap_all_sns() {
 
 # MAIN
 test -z "${DFX_PROPOSER:-}" || {
-	echo "Details of p[roposer '${DFX_PROPOSER}':"
-    dfx identity get-principal --identity "$DFX_PROPOSER"
-    echo
+  echo "Details of p[roposer '${DFX_PROPOSER}':"
+  dfx identity get-principal --identity "$DFX_PROPOSER"
+  echo
 }
 create_all_sns
 swap_all_sns
