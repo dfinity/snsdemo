@@ -30,6 +30,7 @@ jobs:
           echo HOME=$HOME
           echo PWD=$PWD
           pwd
+          [[ "$PWD" == "$HOME" ]] ; echo $?
           git rev-parse HEAD
           git tag
           git tag --points-at HEAD
