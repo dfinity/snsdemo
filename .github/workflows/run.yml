@@ -1,10 +1,6 @@
 name: Run non-interactive demo
 on:
   push:
-    branches:
-      - main
-    tags:
-  pull_request:
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
@@ -34,6 +30,7 @@ jobs:
           git rev-parse HEAD
           git tag
           git tag --points-at HEAD
+          echo Ref Name: ${{github.ref_name}}
       - name: Add user path
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
