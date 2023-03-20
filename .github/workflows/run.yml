@@ -50,6 +50,22 @@ jobs:
         if: matrix.os != 'macos-11'
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
+      - name: Save state
+        run: ./bin/dfx-state-save
+      - name: Release
+        run: |
+          cd "${{ matrix.BUILD_NAME }}-out"
+          artefacts=(state.zip)
+          ls -l "${artefacts[@]}"
+          for tag in $(git tag --points-at HEAD) ; do
+            : Creates or updates a release for the tag
+            if gh release view "$tag"
+            then gh release upload --repo dfinity/nns-dapp --clobber "$tag" "${artefacts[@]}" || true
+            else gh release create --title "Release for tags/$tag" --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   demo_latest:
     runs-on: ${{ matrix.os }}
     strategy:
