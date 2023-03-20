@@ -51,8 +51,10 @@ jobs:
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
       - name: Save state
+        if: matrix.os != 'macos-11'
         run: ./bin/dfx-state-save
       - name: Release
+        if: matrix.os != 'macos-11'
         run: |
           artefacts=(state.zip)
           ls -l "${artefacts[@]}"
