@@ -27,6 +27,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Check tags
+        run: |
+          set -x
+          git tag
+          git tag --points-at HEAD
       - name: Add user path
         run: |
           echo "$HOME/.local/bin" >> $GITHUB_PATH
