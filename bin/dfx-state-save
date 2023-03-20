@@ -3,3 +3,4 @@ pushd "$HOME"
 zip -r state.zip .local/share/dfx .config/dfx/identity/{ident-1,snsdemo8} .config/dfx/networks.json
 popd
 mv "$HOME/state.zip" state.zip
+zip -r state.zip .dfx
