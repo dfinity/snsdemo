@@ -30,6 +30,7 @@ jobs:
       - name: Check tags
         run: |
           set -x
+          git rev-parse HEAD
           git tag
           git tag --points-at HEAD
       - name: Add user path
