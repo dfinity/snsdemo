@@ -27,6 +27,8 @@ jobs:
       - name: Check tags
         run: |
           set -x
+          echo HOME=$HOME
+          echo PWD=$PWD
           git rev-parse HEAD
           git tag
           git tag --points-at HEAD
