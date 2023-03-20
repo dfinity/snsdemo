@@ -29,6 +29,7 @@ jobs:
           set -x
           echo HOME=$HOME
           echo PWD=$PWD
+          pwd
           git rev-parse HEAD
           git tag
           git tag --points-at HEAD
