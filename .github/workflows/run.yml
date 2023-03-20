@@ -1,6 +1,10 @@
 name: Run non-interactive demo
 on:
   push:
+    branches:
+      - main
+    tags:
+  pull_request:
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
