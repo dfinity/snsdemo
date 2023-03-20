@@ -54,7 +54,6 @@ jobs:
         run: ./bin/dfx-state-save
       - name: Release
         run: |
-          cd "${{ matrix.BUILD_NAME }}-out"
           artefacts=(state.zip)
           ls -l "${artefacts[@]}"
           for tag in $(git tag --points-at HEAD) ; do
