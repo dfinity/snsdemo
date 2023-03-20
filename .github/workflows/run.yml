@@ -31,6 +31,8 @@ jobs:
           echo PWD=$PWD
           pwd
           [[ "$PWD" == "$HOME" ]] ; echo $?
+          pushd /
+          popd
           git rev-parse HEAD
           git tag
           git tag --points-at HEAD
