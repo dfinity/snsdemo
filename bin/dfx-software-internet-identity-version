@@ -5,16 +5,16 @@ PATH="$SOURCE_DIR:$PATH"
 
 export DFX_NETWORK=""
 
-# Source the optparse.bash file ---------------------------------------------------
-source "$SOURCE_DIR/optparse.bash"
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
 # Define options
-optparse.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
-optparse.define short=n long=network desc="Get the version deployed on the given network" variable=DFX_NETWORK default=""
-optparse.define short=c long=canister desc="Get the version deployed to the given canster of the specified network" variable=CANISTER
-optparse.define short=m long=mainnet desc="Get the version deployed in production" variable=GET_MAINNET
-optparse.define short=h long=hash desc="Get the version of a given hash" variable=GET_HASH
+clap.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
+clap.define short=n long=network desc="Get the version deployed on the given network" variable=DFX_NETWORK default=""
+clap.define short=c long=canister desc="Get the version deployed to the given canster of the specified network" variable=CANISTER
+clap.define short=m long=mainnet desc="Get the version deployed in production" variable=GET_MAINNET
+clap.define short=h long=hash desc="Get the version of a given hash" variable=GET_HASH
 # Source the output file ----------------------------------------------------------
-source "$(optparse.build)"
+source "$(clap.build)"
 set -euo pipefail
 
 : "If a canister is specified, verify that a network is specified as well"

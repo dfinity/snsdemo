@@ -1,7 +1,7 @@
 # Optparse - a BASH argument parser
 # Heavily modified from an original by:
-# Optparse - a BASH wrapper for getopts < doesn't use optparse any more.  Just bash.
-# https://github.com/nk412/optparse
+# Optparse - a BASH wrapper for getopts < doesn't use clap any more.  Just bash.
+# https://github.com/nk412/clap
 # Copyright (c) 2015 Nagarjuna Kumarappan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,22 +24,22 @@
 #
 # Author: Nagarjuna Kumarappan <nagarjuna.412@gmail.com>
 
-optparse_usage=""
-optparse_contractions=""
-optparse_defaults=""
-optparse_arguments_string=""
+clap_usage=""
+clap_contractions=""
+clap_defaults=""
+clap_arguments_string=""
 
 # -----------------------------------------------------------------------------------------------------------------------------
-function optparse.throw_error() {
+function clap.throw_error() {
 	local message="$1"
 	echo "OPTPARSE: ERROR: $message"
 	exit 1
 }
 
 # -----------------------------------------------------------------------------------------------------------------------------
-function optparse.define() {
+function clap.define() {
 	if [ $# -lt 3 ]; then
-		optparse.throw_error "optparse.define <short> <long> <variable> [<desc>] [<default>] [<value>] [<nargs>]"
+		clap.throw_error "clap.define <short> <long> <variable> [<desc>] [<default>] [<value>] [<nargs>]"
 	fi
 	local nargs=""
 	for option_id in $(seq 1 $#); do
@@ -54,13 +54,13 @@ function optparse.define() {
 		if [ "$key" = "short" ]; then
 			local shortname="$value"
 			if [ ${#shortname} -ne 1 ]; then
-				optparse.throw_error "short name expected to be one character long"
+				clap.throw_error "short name expected to be one character long"
 			fi
 			local short="-${shortname}"
 		elif [ "$key" = "long" ]; then
 			local longname="$value"
 			if [ ${#longname} -lt 2 ]; then
-				optparse.throw_error "long name expected to be atleast one character long"
+				clap.throw_error "long name expected to be atleast one character long"
 			fi
 			local long="--${longname}"
 		elif [ "$key" = "desc" ]; then
@@ -77,7 +77,7 @@ function optparse.define() {
 	done
 
 	if [ "$variable" = "" ]; then
-		optparse.throw_error "You must give a variable for option: ($short/$long)"
+		clap.throw_error "You must give a variable for option: ($short/$long)"
 	fi
 
 	if [ "$val" = "" ]; then
@@ -85,31 +85,31 @@ function optparse.define() {
 	fi
 
 	# build OPTIONS and help
-	optparse_usage="${optparse_usage}#NL#TB${short} $(printf "%-25s %s" "${long}:" "${desc}")"
+	clap_usage="${clap_usage}#NL#TB${short} $(printf "%-25s %s" "${long}:" "${desc}")"
 	if [ "$default" != "" ] && [ "${nargs:-}" != "0" ]; then
-		optparse_usage="${optparse_usage} [default:$default]"
+		clap_usage="${clap_usage} [default:$default]"
 	fi
-	optparse_flags="${optparse_flags:-} ${long}"
+	clap_flags="${clap_flags:-} ${long}"
 	if [ "${nargs:-}" == "" ]; then
-		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
+		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
 	elif [ "${nargs:-}" == "0" ]; then
-		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
+		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
 	else
-		optparse_contractions="${optparse_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
+		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
 	fi
 	if [ "$default" != "" ]; then
-		optparse_defaults="${optparse_defaults}#NL${variable}=${default}"
+		clap_defaults="${clap_defaults}#NL${variable}=${default}"
 	fi
-	optparse_arguments_string="${optparse_arguments_string}${shortname}"
+	clap_arguments_string="${clap_arguments_string}${shortname}"
 	if [ "$val" = "\$OPTARG" ]; then
-		optparse_arguments_string="${optparse_arguments_string}:"
+		clap_arguments_string="${clap_arguments_string}:"
 	fi
 }
 
 # -----------------------------------------------------------------------------------------------------------------------------
-function optparse.build() {
+function clap.build() {
 	local build_file
-	build_file="$(mktemp -t "optparse-XXXXXX.tmp")"
+	build_file="$(mktemp -t "clap-XXXXXX.tmp")"
 
 	# Function usage
 	cat <<EOF >"$build_file"
@@ -118,7 +118,7 @@ cat << XXX
 usage: \$(basename "\$0") [OPTIONS]
 
 OPTIONS:
-        $optparse_usage
+        $clap_usage
 
         -? --help  :  usage
 
@@ -132,15 +132,15 @@ XXX
 [[ "\${COMP_LINE:-}" == "" ]] || [[ "\${COMP_POINT:-}" == "" ]] || {
 	COMP_CURRENT="$1"
 	case "\$COMP_CURRENT" in
-	"")	compgen -W "$optparse_flags" -- "\$COMP_CURRENT" ;;
-	-*)	compgen -W "$optparse_flags" -- "\$COMP_CURRENT" ;;
+	"")	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
+	-*)	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
 	*)	compgen -f -- "\$COMP_CURRENT" ;;
 	esac
 	exit 0
 }
 
 # Set default variable values
-$optparse_defaults
+$clap_defaults
 
 # Contract long options into short options
 while [ \$# -ne 0 ]; do
@@ -148,7 +148,7 @@ while [ \$# -ne 0 ]; do
         shift 1
 
         case "\$param" in
-                $optparse_contractions
+                $clap_contractions
                 "-?"|--help)
                         usage
                         exit 0;;
@@ -177,10 +177,10 @@ EOF
 		cat <<<"$(sed "s/#TB/\t/g" "$build_file")" > "$build_file"
 
 	# Unset global variables
-	unset optparse_usage
-	unset optparse_arguments_string
-	unset optparse_defaults
-	unset optparse_contractions
+	unset clap_usage
+	unset clap_arguments_string
+	unset clap_defaults
+	unset clap_contractions
 
 	# Return file name to parent
 	echo "$build_file"
