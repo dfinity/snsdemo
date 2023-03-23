@@ -28,11 +28,6 @@ jobs:
         run: |
           set -x
           echo HOME=$HOME
-          echo PWD=$PWD
-          pwd
-          [[ "$PWD" == "$HOME" ]] ; echo $?
-          pushd /
-          popd
           git rev-parse HEAD
           git tag
           git tag --points-at HEAD
