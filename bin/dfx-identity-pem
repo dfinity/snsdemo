@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 export PATH="$SOURCE_DIR:$PATH"
 
@@ -8,7 +9,6 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 : "Note:  Direct use of the pem file is needed for ic-admin but is generally deprecated"
 : "Note: It is not guaranteed that the pem file is present and unencrypted."
