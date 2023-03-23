@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -uexo pipefail
+for canister in nns-governance sns_aggregator; do
+dfx canister info "$canister"
+done
