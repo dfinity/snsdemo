@@ -1,6 +1,6 @@
 # Optparse - a BASH argument parser
 # Heavily modified from an original by:
-# Optparse - a BASH wrapper for getopts < doesn't use clap any more.  Just bash.
+# Optparse - a BASH wrapper for getopts <== NOTE: This doesn't use getopts any more.
 # https://github.com/nk412/clap
 # Copyright (c) 2015 Nagarjuna Kumarappan
 #
@@ -32,7 +32,7 @@ clap_arguments_string=""
 # -----------------------------------------------------------------------------------------------------------------------------
 function clap.throw_error() {
 	local message="$1"
-	echo "OPTPARSE: ERROR: $message"
+	echo "CLAP: ERROR: $message"
 	exit 1
 }
 
