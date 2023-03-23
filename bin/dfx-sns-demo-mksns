@@ -4,12 +4,12 @@ DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
 PATH="$DEMO_BIN:$SOURCE_DIR:$PATH:$(dfx cache show)"
 export PATH="$PATH:$HOME/.local/bin"
 
-# Source the optparse.bash file ---------------------------------------------------
-source "$SOURCE_DIR/optparse.bash"
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
 # Define options
-optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source "$(optparse.build)"
+source "$(clap.build)"
 set -euxo pipefail
 cd "$(dirname "$(realpath "$0")")/.."
 

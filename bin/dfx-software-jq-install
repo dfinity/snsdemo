@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Note: Do mot import optparse as without coreutils it won't wrk on mac.
+# Note: Do mot import clap as without coreutils it won't wrk on mac.
 set -euo pipefail
 
 install_linux() {

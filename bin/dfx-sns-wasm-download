@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-# Source the optparse.bash file ---------------------------------------------------
-source "$SOURCE_DIR/optparse.bash"
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
 # Define options
-optparse.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
+clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
 )"
 # Source the output file ----------------------------------------------------------
-source "$(optparse.build)"
+source "$(clap.build)"
 set -euo pipefail
 
 export DFX_IC_COMMIT

@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-# Source the optparse.bash file ---------------------------------------------------
-source "$SOURCE_DIR/optparse.bash"
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
 # Define options
-optparse.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
-optparse.define short=b long=before desc="Latest published commit before the given one" variable=IC_COMMIT_BEFORE default=""
-optparse.define short=a long=after desc="First published commit after the given one" variable=IC_COMMIT_AFTER default=""
+clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+clap.define short=b long=before desc="Latest published commit before the given one" variable=IC_COMMIT_BEFORE default=""
+clap.define short=a long=after desc="First published commit after the given one" variable=IC_COMMIT_AFTER default=""
 # Source the output file ----------------------------------------------------------
-source "$(optparse.build)"
+source "$(clap.build)"
 set -eu # No pipefail
 
 function disk_image_exists() {

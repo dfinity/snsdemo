@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
-# Source the optparse.bash file ---------------------------------------------------
-source "$SOURCE_DIR/optparse.bash"
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
 # Define options
-optparse.define short=s long=icp desc="The amount of ICP to icp" variable=icp default=1
-optparse.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
-optparse.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=s long=icp desc="The amount of ICP to icp" variable=icp default=1
+clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
-source "$(optparse.build)"
+source "$(clap.build)"
 set -euo pipefail
 
 tail -n1 "$HOME/.config/dfx/identity/$DFX_IDENTITY/neurons/$DFX_NETWORK"
