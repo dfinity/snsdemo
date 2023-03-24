@@ -130,7 +130,7 @@ XXX
 # Autocomplete
 # Manual: https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html
 [[ "\${COMP_LINE:-}" == "" ]] || [[ "\${COMP_POINT:-}" == "" ]] || {
-	COMP_CURRENT="$1"
+	COMP_CURRENT="${1:-}"
 	case "\$COMP_CURRENT" in
 	"")	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
 	-*)	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
@@ -150,6 +150,8 @@ while [ \$# -ne 0 ]; do
         case "\$param" in
                 $clap_contractions
                 "-?"|--help)
+			print_help
+			echo
                         usage
                         exit 0;;
 		--verbose)
