@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
@@ -19,7 +20,6 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=f long=state desc="The state file to save to" variable=DFX_STATE_FILE default="state.zip"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 DFX_STATE_FILE="$(realpath "$DFX_STATE_FILE")"
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
@@ -16,7 +17,6 @@ clap.define short=s long=state desc="The state file to save to" variable=DFX_STA
 clap.define short=i long=identities desc="The identities to save" variable=DFX_IDENTITIES default="snsdemo8,ident-1"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 # Get the absolute path to the output file and make sure that teh containing dir exists.
 DFX_STATE_DIR="$(dirname "$DFX_STATE_FILE")"
