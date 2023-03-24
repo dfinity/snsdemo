@@ -1,31 +1,8 @@
-# Optparse - a BASH argument parser
-# Heavily modified from an original by:
-# Optparse - a BASH wrapper for getopts <== NOTE: This doesn't use getopts any more.
-# https://github.com/nk412/clap
-# Copyright (c) 2015 Nagarjuna Kumarappan
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-# Author: Nagarjuna Kumarappan <nagarjuna.412@gmail.com>
+# clap - a BASH argument parser
+# This parser aims to have similar parsing semantics as Rust's clap parser; if it doesn't look anything like clap it's not just you.
 
 clap_usage=""
-clap_contractions=""
+clap_flag_match=""
 clap_defaults=""
 clap_arguments_string=""
 
@@ -91,11 +68,11 @@ function clap.define() {
 	fi
 	clap_flags="${clap_flags:-} ${long}"
 	if [ "${nargs:-}" == "" ]; then
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
 	elif [ "${nargs:-}" == "0" ]; then
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
 	else
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
 	fi
 	if [ "${default:-}" != "" ]; then
 		clap_defaults="${clap_defaults}#NL${variable}=${default}"
@@ -148,7 +125,7 @@ while [ \$# -ne 0 ]; do
         shift 1
 
         case "\$param" in
-                $clap_contractions
+                $clap_flag_match
                 "-?"|--help)
 			print_help
 			echo
@@ -182,7 +159,7 @@ EOF
 	unset clap_usage
 	unset clap_arguments_string
 	unset clap_defaults
-	unset clap_contractions
+	unset clap_flag_match
 
 	# Return file name to parent
 	echo "$build_file"
