@@ -60,7 +60,7 @@ function clap.define() {
 		elif [ "$key" = "long" ]; then
 			local longname="$value"
 			if [ ${#longname} -lt 2 ]; then
-				clap.throw_error "long name expected to be atleast one character long"
+				clap.throw_error "long name expected to be at least one character long"
 			fi
 			local long="--${longname}"
 		elif [ "$key" = "desc" ]; then
@@ -101,7 +101,7 @@ function clap.define() {
 		clap_defaults="${clap_defaults}#NL${variable}=${default}"
 	fi
 	clap_arguments_string="${clap_arguments_string}${shortname}"
-	if [ "$val" = "\$OPTARG" ]; then
+	if [ "${val:-}" = "\$OPTARG" ]; then
 		clap_arguments_string="${clap_arguments_string}:"
 	fi
 }

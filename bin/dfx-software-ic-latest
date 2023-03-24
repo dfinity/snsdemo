@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eu # No pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 # Source the clap.bash file ---------------------------------------------------
@@ -9,7 +10,6 @@ clap.define short=b long=before desc="Latest published commit before the given o
 clap.define short=a long=after desc="First published commit after the given one" variable=IC_COMMIT_AFTER default=""
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -eu # No pipefail
 
 function disk_image_exists() {
   (

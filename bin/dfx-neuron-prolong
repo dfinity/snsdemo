@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 # Source the clap.bash file ---------------------------------------------------
@@ -9,7 +10,6 @@ clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETW
 clap.define short=t long=time desc="By how long to extend the dissolve delay" variable=DISSOLVE_DELAY default="$((60 * 60 * 24 * 360))"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 # Create a neuron
 PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"

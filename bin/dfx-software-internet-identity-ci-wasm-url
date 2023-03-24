@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
@@ -9,7 +10,6 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="latest"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 export DFX_NETWORK
 
