@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -uexo pipefail
-for canister in nns-governance nns-sns-wasm sns_aggregator; do
+for canister in nns-governance nns-sns-wasm sns_aggregator nns-dapp internet_identity; do
   dfx canister info "$canister"
 done
 echo Basic health check passes
