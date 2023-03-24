@@ -80,13 +80,13 @@ function clap.define() {
 		clap.throw_error "You must give a variable for option: ($short/$long)"
 	fi
 
-	if [ "$val" = "" ]; then
+	if [ "${val:-}" = "" ]; then
 		val="\$OPTARG"
 	fi
 
 	# build OPTIONS and help
 	clap_usage="${clap_usage}#NL#TB${short} $(printf "%-25s %s" "${long}:" "${desc}")"
-	if [ "$default" != "" ] && [ "${nargs:-}" != "0" ]; then
+	if [ "${default:-}" != "" ] && [ "${nargs:-}" != "0" ]; then
 		clap_usage="${clap_usage} [default:$default]"
 	fi
 	clap_flags="${clap_flags:-} ${long}"
@@ -97,7 +97,7 @@ function clap.define() {
 	else
 		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
 	fi
-	if [ "$default" != "" ]; then
+	if [ "${default:-}" != "" ]; then
 		clap_defaults="${clap_defaults}#NL${variable}=${default}"
 	fi
 	clap_arguments_string="${clap_arguments_string}${shortname}"
@@ -130,7 +130,7 @@ XXX
 # Autocomplete
 # Manual: https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html
 [[ "\${COMP_LINE:-}" == "" ]] || [[ "\${COMP_POINT:-}" == "" ]] || {
-	COMP_CURRENT="$1"
+	COMP_CURRENT="${1:-}"
 	case "\$COMP_CURRENT" in
 	"")	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
 	-*)	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
@@ -150,6 +150,8 @@ while [ \$# -ne 0 ]; do
         case "\$param" in
                 $clap_contractions
                 "-?"|--help)
+			print_help
+			echo
                         usage
                         exit 0;;
 		--verbose)
