@@ -1,31 +1,8 @@
-# Optparse - a BASH argument parser
-# Heavily modified from an original by:
-# Optparse - a BASH wrapper for getopts <== NOTE: This doesn't use getopts any more.
-# https://github.com/nk412/clap
-# Copyright (c) 2015 Nagarjuna Kumarappan
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-# Author: Nagarjuna Kumarappan <nagarjuna.412@gmail.com>
+# clap - a BASH argument parser
+# This parser aims to have similar parsing semantics as Rust's clap parser; if it doesn't look anything like clap it's not just you.
 
 clap_usage=""
-clap_contractions=""
+clap_flag_match=""
 clap_defaults=""
 clap_arguments_string=""
 
@@ -60,7 +37,7 @@ function clap.define() {
 		elif [ "$key" = "long" ]; then
 			local longname="$value"
 			if [ ${#longname} -lt 2 ]; then
-				clap.throw_error "long name expected to be atleast one character long"
+				clap.throw_error "long name expected to be at least one character long"
 			fi
 			local long="--${longname}"
 		elif [ "$key" = "desc" ]; then
@@ -80,28 +57,28 @@ function clap.define() {
 		clap.throw_error "You must give a variable for option: ($short/$long)"
 	fi
 
-	if [ "$val" = "" ]; then
+	if [ "${val:-}" = "" ]; then
 		val="\$OPTARG"
 	fi
 
 	# build OPTIONS and help
 	clap_usage="${clap_usage}#NL#TB${short} $(printf "%-25s %s" "${long}:" "${desc}")"
-	if [ "$default" != "" ] && [ "${nargs:-}" != "0" ]; then
+	if [ "${default:-}" != "" ] && [ "${nargs:-}" != "0" ]; then
 		clap_usage="${clap_usage} [default:$default]"
 	fi
 	clap_flags="${clap_flags:-} ${long}"
 	if [ "${nargs:-}" == "" ]; then
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
 	elif [ "${nargs:-}" == "0" ]; then
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
 	else
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
 	fi
-	if [ "$default" != "" ]; then
+	if [ "${default:-}" != "" ]; then
 		clap_defaults="${clap_defaults}#NL${variable}=${default}"
 	fi
 	clap_arguments_string="${clap_arguments_string}${shortname}"
-	if [ "$val" = "\$OPTARG" ]; then
+	if [ "${val:-}" = "\$OPTARG" ]; then
 		clap_arguments_string="${clap_arguments_string}:"
 	fi
 }
@@ -130,7 +107,7 @@ XXX
 # Autocomplete
 # Manual: https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html
 [[ "\${COMP_LINE:-}" == "" ]] || [[ "\${COMP_POINT:-}" == "" ]] || {
-	COMP_CURRENT="$1"
+	COMP_CURRENT="${1:-}"
 	case "\$COMP_CURRENT" in
 	"")	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
 	-*)	compgen -W "$clap_flags" -- "\$COMP_CURRENT" ;;
@@ -148,8 +125,10 @@ while [ \$# -ne 0 ]; do
         shift 1
 
         case "\$param" in
-                $clap_contractions
+                $clap_flag_match
                 "-?"|--help)
+			print_help
+			echo
                         usage
                         exit 0;;
 		--verbose)
@@ -180,7 +159,7 @@ EOF
 	unset clap_usage
 	unset clap_arguments_string
 	unset clap_defaults
-	unset clap_contractions
+	unset clap_flag_match
 
 	# Return file name to parent
 	echo "$build_file"

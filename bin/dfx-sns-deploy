@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 # Source the clap.bash file ---------------------------------------------------
@@ -8,7 +9,6 @@ clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETW
 clap.define short=c long=config desc="The SNS cofiguration" variable=SNS_CONFIG default="sns.yml"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 PATH="$PATH:$(dfx cache show)"
 export PATH
 
