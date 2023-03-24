@@ -2,7 +2,7 @@
 # This parser aims to have similar parsing semantics as Rust's clap parser; if it doesn't look anything like clap it's not just you.
 
 clap_usage=""
-clap_contractions=""
+clap_flag_match=""
 clap_defaults=""
 clap_arguments_string=""
 
@@ -68,11 +68,11 @@ function clap.define() {
 	fi
 	clap_flags="${clap_flags:-} ${long}"
 	if [ "${nargs:-}" == "" ]; then
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"\$1\"; shift 1;;"
 	elif [ "${nargs:-}" == "0" ]; then
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=\"true\";;"
 	else
-		clap_contractions="${clap_contractions}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
+		clap_flag_match="${clap_flag_match}#NL#TB#TB${long}${short:+|${short}})#NL#TB#TB#TB${variable}=(); for ((i=0; i<nargs; i++)); do ${variable}+=( \"\$1\" ); shift 1; done;;"
 	fi
 	if [ "${default:-}" != "" ]; then
 		clap_defaults="${clap_defaults}#NL${variable}=${default}"
@@ -125,7 +125,7 @@ while [ \$# -ne 0 ]; do
         shift 1
 
         case "\$param" in
-                $clap_contractions
+                $clap_flag_match
                 "-?"|--help)
 			print_help
 			echo
@@ -159,7 +159,7 @@ EOF
 	unset clap_usage
 	unset clap_arguments_string
 	unset clap_defaults
-	unset clap_contractions
+	unset clap_flag_match
 
 	# Return file name to parent
 	echo "$build_file"
