@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+	
+	Saves a snapshot of local state.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=s long=state desc="The state file to save to" variable=DFX_STATE_FILE default="state.zip"
+clap.define short=i long=identities desc="The identities to save" variable=DFX_IDENTITIES default="ident-1,snsdemo8"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+set -euo pipefail
+
+# Get the absolute path to the output file and make sure that teh containing dir exists.
+DFX_STATE_DIR="$(dirname "$DFX_STATE_FILE")"
+mkdir -p "$DFX_STATE_DIR"
+DFX_STATE_FILE="$(realpath "$DFX_STATE_DIR")/$(basename "$DFX_STATE_FILE")"
+
+# Put the identities to save into an array
+IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
+
+# Get global state
+pushd "$HOME"
+zip -r "$DFX_STATE_FILE" .local/share/dfx .config/dfx/networks.json
+for id in "${DFX_IDENTITIES[@]}"; do
+  zip -r "$DFX_STATE_FILE" ".config/dfx/identity/${id}"
+done
+
+# Get local project state
+popd
+if test -d .dfx; then
+  zip -r "$DFX_STATE_FILE" .dfx
+fi
