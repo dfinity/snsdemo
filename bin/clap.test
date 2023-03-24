@@ -2,10 +2,13 @@
 set -euo pipefail
 
 (
-  set -euxo pipefail
+  set -euo pipefail
   script() {
     # Script header:
     SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    print_help() {
+      echo HELP_TEXT
+    }
     # Source the clap.bash file ---------------------------------------------------
     source "$SOURCE_DIR/clap.bash"
     # Define options
@@ -19,7 +22,6 @@ set -euo pipefail
     clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
     clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
     # Source the output file ----------------------------------------------------------
-    set -x
     source "$(clap.build)"
   }
 
@@ -37,11 +39,19 @@ set -euo pipefail
     script --network "$EXPECTED_NETWORK"
     [[ "${DFX_NETWORK:-}" == "$EXPECTED_NETWORK" ]] || {
       echo "ERROR: DFX_NETWORK not set to default value '$EXPECTED_NETWORK': '$DFX_NETWORK'"
-      echo "Args: $*"
       exit 1
     }
   )
 
+  (
+    EXPECTED_NETWORK=foo
+    output="$(script --network "$EXPECTED_NETWORK" --help)"
+    echo "$output" | grep HELP_TEXT || {
+      echo "ERROR: Expected to see help text"
+      echo "Output: $output"
+      exit 1
+    }
+  )
 )
 
 echo SUCCESS
