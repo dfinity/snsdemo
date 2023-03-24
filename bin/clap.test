@@ -13,7 +13,7 @@ set -euo pipefail
     source "$SOURCE_DIR/clap.bash"
     # Define options
     clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-    clap.define short=p long=prodlike desc="Make it like prod (experimental)" variable=DFX_PRODLIKE nargs=0
+    clap.define short=p long=prodlike desc="Make it like prod (experimental)" variable=DFX_PRODLIKE nargs=0 default="false"
     clap.define short=I long=ii_release desc="The release of II to use" variable=DFX_II_RELEASE default=""
     clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
       . "$SOURCE_DIR/versions.bash"
@@ -26,6 +26,7 @@ set -euo pipefail
   }
 
   (
+    echo "Key-val arg is set to default by default"
     set --
     script
     [[ "${DFX_NETWORK:-}" == "local" ]] || {
@@ -35,6 +36,7 @@ set -euo pipefail
   )
 
   (
+    echo "Key-val arg is set to provided value"
     EXPECTED_NETWORK=foo
     script --network "$EXPECTED_NETWORK"
     [[ "${DFX_NETWORK:-}" == "$EXPECTED_NETWORK" ]] || {
@@ -44,11 +46,32 @@ set -euo pipefail
   )
 
   (
+    echo "Help text is printed with other args"
     EXPECTED_NETWORK=foo
     output="$(script --network "$EXPECTED_NETWORK" --help)"
     echo "$output" | grep HELP_TEXT || {
       echo "ERROR: Expected to see help text"
       echo "Output: $output"
+      exit 1
+    }
+  )
+
+  (
+    echo "With nargs=0, the default value is used"
+    script
+    EXPECTED="false"
+    [[ "${DFX_PRODLIKE:-}" == "$EXPECTED" ]] || {
+      echo "ERROR: DFX_PRODLIKE not set to default value '$EXPECTED': '${DFX_PRODLIKE:-}'"
+      exit 1
+    }
+  )
+
+  (
+    echo "With nargs=0, the default value is cleared"
+    script --prodlike
+    EXPECTED="true"
+    [[ "${DFX_PRODLIKE:-}" == "$EXPECTED" ]] || {
+      echo "ERROR: DFX_PRODLIKE not set to expected value '$EXPECTED': '${DFX_PRODLIKE:-}'"
       exit 1
     }
   )
