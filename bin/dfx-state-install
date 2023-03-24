@@ -2,24 +2,35 @@
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
+help_text() {
+	cat <<-EOF
+
+	Restores a local dfx server state and releted identities from a saved ZIP file.
+
+	Warning: This is recommended only for CI, as there is limited protection against
+	local identities being clobbered by those in the zip file.
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
+clap.define short=f long=state desc="The state file to save to" variable=DFX_STATE_FILE default="state.zip"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -euo pipefail
 
-file="$(realpath "$1")"
+DFX_STATE_FILE="$(realpath "$DFX_STATE_FILE")"
 
 pushd "$HOME"
-unzip -q "$file"
-# Note: dfx start works here but not in the project dir.  Strange.
-dfx start --background
+rm -fr .local/share/dfx
+unzip -q "$DFX_STATE_FILE"
+# Note: dfx start works here but not in the project dir.
+[[ "${DFX_START:-}" != "true" ]] || dfx start --background
 num_canisters="$(curl -s "http://localhost:$(dfx info replica-port)/_/dashboard" | grep '<h3>Execution state</h3>' | wc -l)"
-popd
-mv "$HOME/.dfx" .
-dfx identity list
-dfx identity use snsdemo8
-cat .dfx/local/canister_ids.json
 echo "Approx num canisters: $num_canisters"
+popd
+rm -fr .dfx
+mv "$HOME/.dfx" .
 dfx-sns-demo-healthcheck

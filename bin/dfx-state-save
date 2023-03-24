@@ -13,7 +13,7 @@ print_help() {
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=s long=state desc="The state file to save to" variable=DFX_STATE_FILE default="state.zip"
-clap.define short=i long=identities desc="The identities to save" variable=DFX_IDENTITIES default="ident-1,snsdemo8"
+clap.define short=i long=identities desc="The identities to save" variable=DFX_IDENTITIES default="snsdemo8,ident-1"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -euo pipefail
