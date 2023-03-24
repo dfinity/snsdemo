@@ -150,6 +150,8 @@ while [ \$# -ne 0 ]; do
         case "\$param" in
                 $clap_contractions
                 "-?"|--help)
+			print_help
+			echo
                         usage
                         exit 0;;
 		--verbose)
