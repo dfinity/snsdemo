@@ -27,7 +27,7 @@ pushd "$HOME"
 rm -fr .local/share/dfx
 unzip -q "$DFX_STATE_FILE"
 # Note: dfx start works here but not in the project dir.
-[[ "${DFX_START:-}" != "true" ]] || dfx start --background
+dfx start --background
 num_canisters="$(curl -s "http://localhost:$(dfx info replica-port)/_/dashboard" | grep -c '<h3>Execution state</h3>')"
 echo "Approx num canisters: $num_canisters"
 popd
