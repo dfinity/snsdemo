@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
@@ -14,7 +15,6 @@ clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_ID
 clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 dfx canister --network "$DFX_NETWORK" call sns_swap finalize_swap '(record {})' | tee ,sns-sale-finalize.idl
 

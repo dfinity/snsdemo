@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 # Source the clap.bash file ---------------------------------------------------
@@ -8,7 +9,6 @@ clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETW
 clap.define short=f long=format desc="The format: url or ip" variable=FORMAT default="url"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 export DFX_NETWORK
 
