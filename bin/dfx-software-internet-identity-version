@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
@@ -15,7 +16,6 @@ clap.define short=m long=mainnet desc="Get the version deployed in production" v
 clap.define short=h long=hash desc="Get the version of a given hash" variable=GET_HASH
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 : "If a canister is specified, verify that a network is specified as well"
 test -z "${CANISTER:-}" || {

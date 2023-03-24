@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
@@ -12,7 +13,6 @@ clap.define short=c long=commit desc="The IC commit of the binaries to install" 
 clap.define short=b long=bin desc="Diectory in which to install the executeble" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-set -euo pipefail
 
 install_linux() {
   URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/binaries/x86_64-linux/${EXEC_NAME}.gz"
