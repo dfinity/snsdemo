@@ -50,6 +50,22 @@ jobs:
         if: matrix.os != 'macos-11'
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
+      - name: Save state
+        if: matrix.os != 'macos-11'
+        run: bin/dfx-state-save --verbose
+      - name: Unzip to avoid double-zip in upload
+        if: matrix.os != 'macos-11'
+        run: |
+          mkdir state
+          cd state
+          unzip ../state.zip
+      - name: Upload state
+        if: matrix.os != 'macos-11'
+        uses: actions/upload-artifact@v3
+        with:
+          name: state
+          path: state
+          retention-days: 3
   demo_latest:
     runs-on: ${{ matrix.os }}
     strategy:
