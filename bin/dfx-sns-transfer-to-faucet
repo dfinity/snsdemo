@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+set -euo pipefail
+
+LEDGER_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' | idl2json | jq -r '.ledger | .[]')"
+
+PRINCIPAL="$(dfx identity get-principal)"
+
+BALANCE_E8S="$(dfx canister call "$LEDGER_CANISTER_ID" icrc1_balance_of "(record { owner=principal \"$PRINCIPAL\" })"|idl2json|jq 'gsub("_"; "") | tonumber')"
+
+FEE_E8S="$(dfx canister call $LEDGER_CANISTER_ID icrc1_fee '(record
+{})'|idl2json|jq -r 'gsub("_"; "") | tonumber')"
+
+from_e8s() {
+  amount_e8s="$1"
+  amount="$(awk "BEGIN {printf \"%.8f\", $amount_e8s * 0.00000001}")"
+  echo "$amount"
+}
+
+AMOUNT="$(from_e8s "$((BALANCE_E8S - FEE_E8S))")"
+FEE="$(from_e8s "$FEE_E8S")"
+
+FAUCET_ADDRESS="jg6qm-uw64t-m6ppo-oluwn-ogr5j-dc5pm-lgy2p-eh6px-hebcd-5v73i-nqe"
+
+bin/dfx-sns-quill transfer --amount "$AMOUNT" --fee "$FEE" "$FAUCET_ADDRESS"

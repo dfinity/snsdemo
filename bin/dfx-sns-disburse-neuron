@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+set -euo pipefail
+
+GOVERNANCE_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' | idl2json | jq -r '.governance | .[]')"
+
+NEURON_ID="$(dfx canister call "$GOVERNANCE_CANISTER_ID" list_neurons '(record {limit=10})'|idl2json|jq -r '.neurons[] | select(.dissolve_state[].DissolveDelaySeconds == "0") | .id[].id | join("; ")')"
+
+dfx canister call "$GOVERNANCE_CANISTER_ID" manage_neuron "(record { subaccount = vec { ${NEURON_ID} }; command = opt (variant { Disburse = record { } }) })"
