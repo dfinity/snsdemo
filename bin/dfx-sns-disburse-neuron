@@ -13,6 +13,6 @@ set -euo pipefail
 
 GOVERNANCE_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' | idl2json | jq -r '.governance | .[]')"
 
-NEURON_ID="$(dfx canister call "$GOVERNANCE_CANISTER_ID" list_neurons '(record {limit=10})'|idl2json|jq -r '.neurons[] | select(.dissolve_state[].DissolveDelaySeconds == "0") | .id[].id | join("; ")')"
+NEURON_ID="$(dfx canister call "$GOVERNANCE_CANISTER_ID" list_neurons '(record {limit=10})' | idl2json | jq -r '.neurons[] | select(.dissolve_state[].DissolveDelaySeconds == "0") | .id[].id | join("; ")')"
 
 dfx canister call "$GOVERNANCE_CANISTER_ID" manage_neuron "(record { subaccount = vec { ${NEURON_ID} }; command = opt (variant { Disburse = record { } }) })"
