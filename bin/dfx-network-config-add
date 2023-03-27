@@ -5,7 +5,7 @@ PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
 print_help() {
-	cat <<-EOF
+  cat <<-EOF
 
 	Adds a static testnet to the local network config.
 
