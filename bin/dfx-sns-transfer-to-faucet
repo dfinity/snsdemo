@@ -17,7 +17,7 @@ PRINCIPAL="$(dfx identity get-principal)"
 
 BALANCE_E8S="$(dfx canister call "$LEDGER_CANISTER_ID" icrc1_balance_of "(record { owner=principal \"$PRINCIPAL\" })" | idl2json | jq 'gsub("_"; "") | tonumber')"
 
-FEE_E8S="$(dfx canister call $LEDGER_CANISTER_ID icrc1_fee '(record
+FEE_E8S="$(dfx canister call "$LEDGER_CANISTER_ID" icrc1_fee '(record
 {})' | idl2json | jq -r 'gsub("_"; "") | tonumber')"
 
 from_e8s() {
