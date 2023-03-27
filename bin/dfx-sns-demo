@@ -84,9 +84,12 @@ sleep 1
 
 ./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK"
 sleep 1
-dfx-sns-sale-buy --network "$DFX_NETWORK"
+./bin/dfx-sns-sale-buy --network "$DFX_NETWORK"
 sleep 1
 ./bin/dfx-sns-sale-finalize --network "$DFX_NETWORK"
 sleep 1
+./bin/dfx-sns-disburse-neuron --network "$DFX_NETWORK"
+sleep 1
+./bin/dfx-sns-transfer-to-faucet --network "$DFX_NETWORK"
 
 : "Demo finished!  Hope you enjoyed the show."
