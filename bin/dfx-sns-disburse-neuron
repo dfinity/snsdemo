@@ -22,9 +22,9 @@ export DFX_NETWORK
 
 GOVERNANCE_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' | idl2json | jq -r '.governance | .[]')"
 
-PRINCIPAL="$(dfx identity get-principal)"
+PRINCIPAL="$(dfx identity get-principal --network "$DFX_NETWORK")"
 
 NEURON_ID="$(dfx canister call "$GOVERNANCE_CANISTER_ID" list_neurons "(record
-{of_principal=opt principal \"$PRINCIPAL\"; limit=100})" | idl2json | jq -r '.neurons[] | select(.dissolve_state[].DissolveDelaySeconds == "0") | .id[].id | join("; ")')"
+{of_principal=opt principal \"$PRINCIPAL\"; limit=100})" --network "$DFX_NETWORK" | idl2json | jq -r '.neurons[] | select(.dissolve_state[].DissolveDelaySeconds == "0") | .id[].id | join("; ")')"
 
-dfx canister call "$GOVERNANCE_CANISTER_ID" manage_neuron "(record { subaccount = vec { ${NEURON_ID} }; command = opt (variant { Disburse = record { } }) })"
+dfx canister call "$GOVERNANCE_CANISTER_ID" manage_neuron "(record { subaccount = vec { ${NEURON_ID} }; command = opt (variant { Disburse = record { } }) })" --network "$DFX_NETWORK"
