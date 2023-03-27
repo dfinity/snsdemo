@@ -127,7 +127,7 @@ while [ \$# -ne 0 ]; do
         case "\$param" in
                 $clap_flag_match
                 "-?"|--help)
-			print_help
+			[[ "$(type -t print_help)" != function ]] || print_help
 			echo
                         usage
                         exit 0;;
