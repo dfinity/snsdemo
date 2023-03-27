@@ -29,7 +29,7 @@ TICKET_RESPONSE_JSON="$(echo "$TICKET_RESPONSE" | idl2json)"
 TICKET_ID="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Ok.ticket[0].ticket_id')"
 TICKET_CREATION_TIME="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Ok.ticket[0].creation_time')"
 
-set dfx-sns-quill --network local pay --amount-icp-e8s "$AMOUNT_E8S" --ticket-id "$TICKET_ID" --ticket-creation-time "$TICKET_CREATION_TIME"
+set dfx-sns-quill --network "$DFX_NETWORK" pay --amount-icp-e8s "$AMOUNT_E8S" --ticket-id "$TICKET_ID" --ticket-creation-time "$TICKET_CREATION_TIME"
 echo "${@}"
 "${@}" || {
   echo "ERROR: Failed to participate in SNS swap."
