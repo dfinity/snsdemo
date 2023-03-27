@@ -3,6 +3,18 @@ set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 export PATH="$SOURCE_DIR:$PATH"
 
+print_help() {
+	cat <<-EOF
+
+	Returns the path to the PEM file for a dfx identity.
+
+	Note: At a given time, a given identity may not have a PEM file.
+	      This command will return the path to where the PEM would
+	      be even if it does not exist.
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options

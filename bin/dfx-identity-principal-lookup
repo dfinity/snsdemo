@@ -3,6 +3,20 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
+print_help() {
+	cat <<-EOF
+
+	Prints a list of the principals of all the DFX identities.
+
+	Note: This is useful for users with multiple identities
+	      who struggle to remember which identity they used
+	      to create a given canister.  They  can get the
+	      canister controller and then look it up in their
+	      list of principals.
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options

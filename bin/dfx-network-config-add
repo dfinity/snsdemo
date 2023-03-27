@@ -4,6 +4,18 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
+print_help() {
+	cat <<-EOF
+
+	Adds a static testnet to the local network config.
+
+	Note: Static testnets are defined in the IC repo.
+	      The user must have the ic repo checked out
+	      locally.
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
