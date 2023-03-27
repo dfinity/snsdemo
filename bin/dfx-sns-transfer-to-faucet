@@ -21,14 +21,14 @@ set -euo pipefail
 
 export DFX_NETWORK
 
-LEDGER_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' | idl2json | jq -r '.ledger | .[]')"
+LEDGER_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' --network "$DFX_NETWORK"| idl2json | jq -r '.ledger | .[]')"
 
-PRINCIPAL="$(dfx identity get-principal)"
+PRINCIPAL="$(dfx identity get-principal --network "$DFX_NETWORK")"
 
-BALANCE_E8S="$(dfx canister call "$LEDGER_CANISTER_ID" icrc1_balance_of "(record { owner=principal \"$PRINCIPAL\" })" | idl2json | jq 'gsub("_"; "") | tonumber')"
+BALANCE_E8S="$(dfx canister call "$LEDGER_CANISTER_ID" icrc1_balance_of "(record { owner=principal \"$PRINCIPAL\" })" --network "$DFX_NETWORK" | idl2json | jq 'gsub("_"; "") | tonumber')"
 
 FEE_E8S="$(dfx canister call "$LEDGER_CANISTER_ID" icrc1_fee '(record
-{})' | idl2json | jq -r 'gsub("_"; "") | tonumber')"
+{})' --network "$DFX_NETWORK" | idl2json | jq -r 'gsub("_"; "") | tonumber')"
 
 from_e8s() {
   amount_e8s="$1"
@@ -42,4 +42,4 @@ FEE="$(from_e8s "$FEE_E8S")"
 # See https://github.com/dfinity/nns-dapp/blob/main/frontend/src/lib/api/dev.api.ts
 FAUCET_ADDRESS="jg6qm-uw64t-m6ppo-oluwn-ogr5j-dc5pm-lgy2p-eh6px-hebcd-5v73i-nqe"
 
-bin/dfx-sns-quill transfer --amount "$AMOUNT" --fee "$FEE" "$FAUCET_ADDRESS"
+bin/dfx-sns-quill --network "$DFX_NETWORK" transfer --amount "$AMOUNT" --fee "$FEE" "$FAUCET_ADDRESS"
