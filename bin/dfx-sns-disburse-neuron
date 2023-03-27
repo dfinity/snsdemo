@@ -20,7 +20,7 @@ set -euo pipefail
 
 export DFX_NETWORK
 
-GOVERNANCE_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' | idl2json | jq -r '.governance | .[]')"
+GOVERNANCE_CANISTER_ID="$(dfx canister call sns_root list_sns_canisters '(record {})' --network "$DFX_NETWORK" | idl2json | jq -r '.governance | .[]')"
 
 PRINCIPAL="$(dfx identity get-principal --network "$DFX_NETWORK")"
 
