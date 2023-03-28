@@ -2,6 +2,15 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
+print_help() {
+  cat <<-EOF
+
+	Gives a user toy ICP, taken from an affluent friar
+	deployed with every local testnet.
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
@@ -20,6 +29,8 @@ check_moneybags() {
   dfx identity get-principal --identity ident-1 >/dev/null 2>/dev/null
 }
 # Imports an identity that has a billion toy ICP on testnets.
+# The key is as specified in the `dfx nns` documentation: https://internetcomputer.org/docs/current/references/cli-reference/dfx-nns#_dfx_nns_install
+# and implemented in the sdk repo: https://github.com/dfinity/sdk/search?q=ident-1
 make_moneybags() {
   (
     set -euo pipefail

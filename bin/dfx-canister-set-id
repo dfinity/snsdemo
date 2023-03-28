@@ -4,6 +4,18 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
+print_help() {
+  cat <<-EOF
+
+	Records the ID of a canister in the dfx state.
+
+	After this command has completed, this will return the specified ID:
+
+	dfx canister id <CANISTER_NAME> --network <DFX_NETWORK>
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
