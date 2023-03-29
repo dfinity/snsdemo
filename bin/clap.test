@@ -3,6 +3,7 @@ set -euo pipefail
 
 (
   set -euo pipefail
+  echo "Testing with all features"
   script() {
     set -euo pipefail
     # Script header:
@@ -48,10 +49,19 @@ set -euo pipefail
 
   (
     echo "Help text is printed with other args"
-    EXPECTED_NETWORK=foo
-    output="$(script --network "$EXPECTED_NETWORK" --help)"
-    echo "$output" | grep HELP_TEXT || {
+    output="$(script --help)"
+    echo "$output" | grep -q HELP_TEXT || {
       echo "ERROR: Expected to see help text"
+      echo "Output: $output"
+      exit 1
+    }
+    echo "$output" | grep -qE -- '-n --network: *The dfx network to use' || {
+      echo "ERROR: Expected to see the --network argument in the help text"
+      echo "Output: $output"
+      exit 1
+    }
+    echo "$output" | grep -qE -- '--verbose *: *show debug info' || {
+      echo "ERROR: Expected to see the --verbose argument in the help text"
       echo "Output: $output"
       exit 1
     }
@@ -73,6 +83,31 @@ set -euo pipefail
     EXPECTED="true"
     [[ "${DFX_PRODLIKE:-}" == "$EXPECTED" ]] || {
       echo "ERROR: DFX_PRODLIKE not set to expected value '$EXPECTED': '${DFX_PRODLIKE:-}'"
+      exit 1
+    }
+  )
+)
+
+(
+  set -euo pipefail
+  echo "Testing with minimal features"
+  script() {
+    set -euo pipefail
+    # Script header:
+    SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    # Source the clap.bash file ---------------------------------------------------
+    source "$SOURCE_DIR/clap.bash"
+    # Define options
+    # Source the output file ----------------------------------------------------------
+    source "$(clap.build)"
+  }
+
+  (
+    echo "Help text is printed with default args"
+    output="$(script --help)"
+    echo "$output" | grep -qE -- '--verbose *: *show debug info' || {
+      echo "ERROR: Expected to see the --verbose argument in the help text"
+      echo "Output: $output"
       exit 1
     }
   )
