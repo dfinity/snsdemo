@@ -52,7 +52,7 @@ jobs:
           ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
       - name: Save state
         if: matrix.os != 'macos-11'
-        run: bin/dfx-state-save --verbose
+        run: bin/dfx-state-save --verbose --state state.zip
       - name: Upload state
         if: matrix.os != 'macos-11'
         uses: actions/upload-artifact@v3
