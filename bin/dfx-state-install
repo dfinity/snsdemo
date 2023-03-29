@@ -17,7 +17,7 @@ help_text() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=f long=state desc="The state file to save to" variable=DFX_STATE_FILE default="state.zip"
+clap.define short=f long=state desc="The state file to save to" variable=DFX_STATE_FILE default="$(dfx cache show)/state.zip"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
