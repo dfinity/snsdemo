@@ -23,7 +23,12 @@ export DFX_NETWORK
 case "${FORMAT}" in
 url)
   if [[ "$DFX_NETWORK" == "local" ]]; then
-    echo "http://localhost:$(cd "$(realpath "/proc/$(pgrep icx-proxy | head -n1)/cwd")" && dfx info replica-port)"
+    REPLICA_PORT="$(dfx info replica-port 2>/dev/null || true)"
+    [[ "${REPLICA_PORT:-}" != "" ]] || {
+      # The above command can fail if not run in the same directory as the replica working directory.
+      REPLICA_PORT="$(cd "$(realpath "/proc/$(pgrep icx-proxy | head -n1)/cwd")" && dfx info replica-port)"
+    }
+    echo "http://localhost:$REPLICA_PORT"
   elif [[ "${DFX_NETWORK:-}" =~ mainnet|ic ]]; then
     echo "https://ic0.app"
   else
