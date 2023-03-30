@@ -18,6 +18,21 @@ clap.define short=i long=identities desc="The identities to save" variable=DFX_I
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+case "$(uname)" in
+Linux)
+  REPLICA_STATE_DIR=".local/share/dfx"
+  ;;
+Darwin)
+  REPLICA_STATE_DIR="Library/Application Support/org.dfinity.dfx/network/local"
+  ;;
+*)
+  {
+    echo "ERROR: Unsupported OS: $(uname)"
+    exit 1
+  }
+  ;;
+esac
+
 # Get the absolute path to the output file and make sure that teh containing dir exists.
 DFX_STATE_DIR="$(dirname "$DFX_STATE_FILE")"
 mkdir -p "$DFX_STATE_DIR"
@@ -28,7 +43,7 @@ IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
 
 # Get global state
 pushd "$HOME"
-zip -r "$DFX_STATE_FILE" .local/share/dfx .config/dfx/networks.json
+zip -r "$DFX_STATE_FILE" "$REPLICA_STATE_DIR" .config/dfx/networks.json
 for id in "${DFX_IDENTITIES[@]}"; do
   zip -r "$DFX_STATE_FILE" ".config/dfx/identity/${id}"
 done
