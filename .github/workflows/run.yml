@@ -63,7 +63,7 @@ jobs:
           echo "Making sure the replica is dead"
           ./bin/dfx-network-stop
           sleep 1
-          eco "Saving state"
+          echo "Saving state"
           ./bin/dfx-state-save --verbose
       - name: Upload state
         uses: actions/upload-artifact@v3
