@@ -20,10 +20,10 @@ source "$(clap.build)"
 
 case "$(uname)" in
 Linux)
-  REPLICA_STATE_DIR=".local/share/dfx"
+  DFX_DATA_DIR=".local/share/dfx"
   ;;
 Darwin)
-  REPLICA_STATE_DIR="Library/Application Support/org.dfinity.dfx/network/local"
+  DFX_DATA_DIR="Library/Application Support/org.dfinity.dfx/network/local"
   ;;
 *)
   {
@@ -43,7 +43,7 @@ IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
 
 # Get global state
 pushd "$HOME"
-zip -r "$DFX_STATE_FILE" "$REPLICA_STATE_DIR" .config/dfx/networks.json
+zip -r "$DFX_STATE_FILE" "$DFX_DATA_DIR" .config/dfx/networks.json
 for id in "${DFX_IDENTITIES[@]}"; do
   zip -r "$DFX_STATE_FILE" ".config/dfx/identity/${id}"
 done
