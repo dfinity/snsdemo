@@ -2,6 +2,14 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
+print_help() {
+  cat <<-EOF
+	
+	Provides the address of a server that can be used for NNS proposals.
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
@@ -16,6 +24,8 @@ case "${FORMAT}" in
 url)
   if [[ "$DFX_NETWORK" == "local" ]]; then
     echo "http://localhost:$(dfx info replica-port)"
+  elif [[ "${DFX_NETWORK:-}" =~ mainnet|ic ]]; then
+    echo "https://ic0.app"
   else
     jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
   fi
