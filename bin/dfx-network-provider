@@ -23,7 +23,7 @@ export DFX_NETWORK
 case "${FORMAT}" in
 url)
   if [[ "$DFX_NETWORK" == "local" ]]; then
-    echo "http://localhost:$(dfx info replica-port)"
+    echo "http://localhost:$(cd "$(realpath "/proc/$(pgrep icx-proxy | head -n1)/cwd")" && dfx info replica-port)"
   elif [[ "${DFX_NETWORK:-}" =~ mainnet|ic ]]; then
     echo "https://ic0.app"
   else
