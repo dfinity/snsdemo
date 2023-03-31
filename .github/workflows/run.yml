@@ -53,7 +53,7 @@ jobs:
       - name: Save state
         if: matrix.os != 'macos-11'
         run: |
-          # How can you tell that I don't trust dfx stop
+          # Stop the replica to let it persist all its state before we save the state.
           dfx stop
           echo "Waiting for replica to stop"
           for (( i=100; i>0; i-- )); do
