@@ -1,3 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# TODO: `dfx nns import` should have done this but it currently doesn't.
+
+jq -s '.[0] * .[1]' dfx.json <(
+  cat <<EOF
+{
+  "canisters": {
+    "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm",
+      "shrink": false,
+      "remote": {
+        "candid": "internet_identity.did",
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai",
+          "__default": "qhbym-qaaaa-aaaaa-aaafq-cai"
+        }
+      }
+    }
+  }
+}
+EOF
+) >dfx.new
+mv dfx.new dfx.json
+
+mkdir declarations
+
+cat <<'EOF' >declarations/internet_identity.did
 type UserNumber = nat64;
 type PublicKey = blob;
 type CredentialId = blob;
@@ -328,3 +359,4 @@ service : (opt InternetIdentityInit) -> {
     fetch_entries: () -> (vec BufferedArchiveEntry);
     acknowledge_entries: (sequence_number: nat64) -> ();
 }
+EOF

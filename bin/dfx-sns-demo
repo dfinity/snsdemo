@@ -62,6 +62,8 @@ dfx identity use snsdemo8
 # jq '.*(.canisters | to_entries | map(select(.key | startswith("nns-")) | .value.remote.id[env.DFX_NETWORK] = .value.remote.id.local) |from_entries | {canisters:.})' dfx.json | sponge dfx.json
 sleep 1
 dfx nns import --network-mapping "$DFX_NETWORK=local"
+# Performs functionality that should have been done by `dfx nns import`
+dfx-nns-import
 sleep 1
 dfx sns import
 sleep 1
