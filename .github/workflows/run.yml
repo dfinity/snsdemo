@@ -52,7 +52,7 @@ jobs:
           ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
       - name: Save state
         run: |
-          # How can you tell that I don't trust dfx stop
+          # Stop the replica to let it persist all its state before we save the state.
           dfx stop
           echo "Waiting for replica to stop"
           for (( i=100; i>0; i-- )); do
@@ -64,7 +64,7 @@ jobs:
           ./bin/dfx-network-stop
           sleep 1
           echo "Saving state"
-          ./bin/dfx-state-save --verbose
+          bin/dfx-state-save --verbose --state state.zip
       - name: Upload state
         uses: actions/upload-artifact@v3
         with:
