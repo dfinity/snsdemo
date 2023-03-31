@@ -65,6 +65,7 @@ jobs:
           ./bin/dfx-network-stop
           sleep 1
           echo "Saving state"
+          bin/dfx-state-save --verbose --state state.zip
       - name: Upload state
         if: matrix.os != 'macos-11'
         uses: actions/upload-artifact@v3
