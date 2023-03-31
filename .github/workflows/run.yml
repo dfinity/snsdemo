@@ -52,7 +52,19 @@ jobs:
           ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
       - name: Save state
         if: matrix.os != 'macos-11'
-        run: bin/dfx-state-save --verbose
+        run: |
+          # How can you tell that I don't trust dfx stop
+          dfx stop
+          echo "Waiting for replica to stop"
+          for (( i=100; i>0; i-- )); do
+              echo "$i"
+              pgrep replica || break
+              sleep 1
+          done
+          echo "Making sure the replica is dead"
+          ./bin/dfx-network-stop
+          sleep 1
+          echo "Saving state"
       - name: Upload state
         if: matrix.os != 'macos-11'
         uses: actions/upload-artifact@v3
