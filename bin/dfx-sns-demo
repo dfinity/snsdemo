@@ -91,5 +91,7 @@ sleep 1
 ./bin/dfx-sns-disburse-neuron --network "$DFX_NETWORK"
 sleep 1
 ./bin/dfx-sns-transfer-to-faucet --network "$DFX_NETWORK"
+sleep 1
+./bin/dfx-ii-create-dummy-anchor --network "$DFX_NETWORK"
 
 : "Demo finished!  Hope you enjoyed the show."

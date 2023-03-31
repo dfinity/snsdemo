@@ -1,21 +1,17 @@
 {
   "canisters": {
-    "smiley_dapp_assets": {
-      "dependencies": [
-        "smiley_dapp"
-      ],
-      "frontend": {
-        "entrypoint": "src/smiley_dapp_assets/src/index.html"
-      },
-      "source": [
-        "src/smiley_dapp_assets/assets",
-        "dist/smiley_dapp_assets/"
-      ],
-      "type": "assets"
-    },
-    "smiley_dapp": {
-      "main": "src/smiley_dapp/main.mo",
-      "type": "motoko"
+  "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm",
+      "shrink": false,
+      "remote": {
+        "candid": "internet_identity.did",
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai",
+          "local": "qhbym-qaaaa-aaaaa-aaafq-cai"
+        }
+      }
     }
   },
   "defaults": {
