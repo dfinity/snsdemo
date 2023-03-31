@@ -31,10 +31,10 @@ trap clean_up EXIT
 DECLARATIONS_DIR="$(realpath "$SOURCE_DIR/../declarations")"
 II_DID_FILE="$DECLARATIONS_DIR/internet_identity.did"
 
-dfx identity export "$DFX_IDENTITY" | openssl ec -out "$IDENTITY_PUB_KEY_FILE" -pubout -outform der 2> /dev/null
+dfx identity export "$DFX_IDENTITY" | openssl ec -out "$IDENTITY_PUB_KEY_FILE" -pubout -outform der 2>/dev/null
 
 echo "Fetching captcha."
-CHALLENGE_KEY="$(dfx canister call internet_identity create_challenge --candid "$II_DID_FILE" --network "$DFX_NETWORK"| idl2json | jq -r .challenge_key)"
+CHALLENGE_KEY="$(dfx canister call internet_identity create_challenge --candid "$II_DID_FILE" --network "$DFX_NETWORK" | idl2json | jq -r .challenge_key)"
 
 PUB_KEY_BLOB=$(hexdump -ve '1/1 "%.2x"' "$IDENTITY_PUB_KEY_FILE" | sed 's/../\\&/g')
 
@@ -55,7 +55,7 @@ add_device() {
   DEVICE_KEY_TYPE="$2"
   DEVICE_PURPOSE="$3"
   set dfx canister call internet_identity add "(${ANCHOR}, record { alias = \"\"; protection = variant { unprotected }; pubkey = blob \"${DEVICE_PUB_KEY_BLOB}\"; key_type = variant { ${DEVICE_KEY_TYPE} }; purpose = variant { ${DEVICE_PURPOSE} }; })" --candid "$II_DID_FILE" --network "$DFX_NETWORK"
-  "$@" > /dev/null
+  "$@" >/dev/null
 }
 
 echo "Adding backup device for anchor $ANCHOR."
