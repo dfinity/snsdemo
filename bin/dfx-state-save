@@ -18,6 +18,21 @@ clap.define short=i long=identities desc="The identities to save" variable=DFX_I
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+case "$(uname)" in
+Linux)
+  DFX_DATA_DIR=".local/share/dfx"
+  ;;
+Darwin)
+  DFX_DATA_DIR="Library/Application Support/org.dfinity.dfx/network/local"
+  ;;
+*)
+  {
+    echo "ERROR: Unsupported OS: $(uname)"
+    exit 1
+  }
+  ;;
+esac
+
 # Get the absolute path to the output file and make sure that the containing dir exists.
 DFX_STATE_DIR="$(dirname "$DFX_STATE_FILE")"
 mkdir -p "$DFX_STATE_DIR"
