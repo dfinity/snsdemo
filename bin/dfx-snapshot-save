@@ -38,7 +38,7 @@ DFX_SNAPSHOT_DIR="$(dirname "$DFX_SNAPSHOT_FILE")"
 mkdir -p "$DFX_SNAPSHOT_DIR"
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_DIR")/$(basename "$DFX_SNAPSHOT_FILE")"
 DFX_SNAPSHOT_TEMP_FILE="$(mktemp "${DFX_SNAPSHOT_FILE}.tmp.XXXX")"
-DFX_SNAPSHOT_TEMP_COMPRESSED="$(mktemp "${DFX_SNAPSHOT_FILE}.tmp.xz/.XXXX")"
+DFX_SNAPSHOT_TEMP_COMPRESSED="$(mktemp "${DFX_SNAPSHOT_FILE}.tmp.xz.XXXX")"
 
 # Put the identities to save into an array
 IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
