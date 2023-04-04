@@ -20,10 +20,10 @@ source "$(clap.build)"
 
 case "$(uname)" in
 Linux)
-  DFX_DATA_DIR=".local/share/dfx"
+  DFX_SNAPSHOT_DIR=".local/share/dfx"
   ;;
 Darwin)
-  DFX_DATA_DIR="Library/Application Support/org.dfinity.dfx/network/local"
+  DFX_SNAPSHOT_DIR="Library/Application Support/org.dfinity.dfx/network/local"
   ;;
 *)
   {
