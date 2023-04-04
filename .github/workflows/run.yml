@@ -65,13 +65,13 @@ jobs:
           ./bin/dfx-network-stop
           sleep 1
           echo "Saving state"
-          bin/dfx-state-save --verbose --snapshot state.zip
+          bin/dfx-snapshot-save --verbose --snapshot state.tar.xz
       - name: Upload state
         if: matrix.os != 'macos-11'
         uses: actions/upload-artifact@v3
         with:
           name: snsdemo
-          path: state.zip
+          path: state.tar.xz
           retention-days: 3
   demo_latest:
     runs-on: ${{ matrix.os }}
