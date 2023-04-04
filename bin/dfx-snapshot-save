@@ -13,7 +13,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="state.zip"
+clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="state.tar.xz"
 clap.define short=i long=identities desc="The identities to save" variable=DFX_IDENTITIES default="snsdemo8,ident-1"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
@@ -37,19 +37,24 @@ esac
 DFX_SNAPSHOT_DIR="$(dirname "$DFX_SNAPSHOT_FILE")"
 mkdir -p "$DFX_SNAPSHOT_DIR"
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_DIR")/$(basename "$DFX_SNAPSHOT_FILE")"
+DFX_SNAPSHOT_TEMP_FILE="$(mktemp "${DFX_SNAPSHOT_TEMP_FILE}.XXXX")"
+DFX_SNAPSHOT_TEMP_COMPRESSED="$(mktemp "${DFX_SNAPSHOT_TEMP_FILE}.XXXX")"
 
 # Put the identities to save into an array
 IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
 
 # Get global state
 pushd "$HOME"
-zip -r "$DFX_SNAPSHOT_FILE" "$DFX_DATA_DIR" .config/dfx/networks.json
+tar --create --file "$DFX_SNAPSHOT_TEMP_FILE" .local/share/dfx .config/dfx/networks.json
 for id in "${DFX_IDENTITIES[@]}"; do
-  zip -r "$DFX_SNAPSHOT_FILE" ".config/dfx/identity/${id}"
+  tar --apend --file "$DFX_SNAPSHOT_TEMP_FILE" ".config/dfx/identity/${id}"
 done
 
 # Get local project state
 popd
 if test -d .dfx; then
-  zip -r "$DFX_SNAPSHOT_FILE" .dfx
+  tar --append --file "$DFX_SNAPSHOT_FILE" .dfx
 fi
+xz < "$DFX_SNAPSHOT_TEMP_FILE" > "$DFX_SNAPSHOT_TEMP_COMPRESSED"
+rm "$DFX_SNAPSHOT_TEMP_FILE"
+mv "$DFX_SNAPSHOT_TEMP_COMPRESSED" "$DFX_SNAPSHOT_FILE"
