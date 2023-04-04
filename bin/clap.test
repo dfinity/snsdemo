@@ -4,6 +4,7 @@ set -euo pipefail
 (
   set -euo pipefail
   echo "Testing with all features"
+  WHACKY_DEFAULT="<booby 'trap'!>"
   script() {
     set -euo pipefail
     # Script header:
@@ -17,6 +18,7 @@ set -euo pipefail
     clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
     clap.define short=p long=prodlike desc="Make it like prod (experimental)" variable=DFX_PRODLIKE nargs=0 default="false"
     clap.define short=I long=ii_release desc="The release of II to use" variable=DFX_II_RELEASE default=""
+    clap.define long=whacky-defgault desc="Value with fun characters in the default" variable=WHACKY default="${WHACKY_DEFAULT}"
     clap.define long=just_long desc="An option without a short flag" variable=DFX_LONG_OPTION default=""
     clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
       . "$SOURCE_DIR/versions.bash"
@@ -84,6 +86,15 @@ set -euo pipefail
     EXPECTED="true"
     [[ "${DFX_PRODLIKE:-}" == "$EXPECTED" ]] || {
       echo "ERROR: DFX_PRODLIKE not set to expected value '$EXPECTED': '${DFX_PRODLIKE:-}'"
+      exit 1
+    }
+  )
+
+  (
+    echo "Default variables are handled safely"
+    script
+    [[ "$WHACKY" == "$WHACKY_DEFAULT" ]] || {
+      echo "ERROR: WHACKY not set to expected default value '$WHACKY_DEFAULT': '${WHACKY:-}'"
       exit 1
     }
   )
