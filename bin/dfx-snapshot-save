@@ -53,7 +53,7 @@ done
 # Get local project state
 popd
 if test -d .dfx; then
-  tar --append --file "$DFX_SNAPSHOT_FILE" .dfx
+  tar --append --file "$DFX_SNAPSHOT_TEMP_FILE" .dfx
 fi
 xz <"$DFX_SNAPSHOT_TEMP_FILE" >"$DFX_SNAPSHOT_TEMP_COMPRESSED"
 rm "$DFX_SNAPSHOT_TEMP_FILE"
