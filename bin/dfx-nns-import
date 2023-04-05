@@ -26,7 +26,7 @@ EOF
 ) >dfx.new
 mv dfx.new dfx.json
 
-mkdir declarations
+mkdir -p declarations
 
 cat <<'EOF' >declarations/internet_identity.did
 type UserNumber = nat64;

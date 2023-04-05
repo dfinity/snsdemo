@@ -20,10 +20,10 @@ source "$(clap.build)"
 
 case "$(uname)" in
 Linux)
-  DFX_SNAPSHOT_DIR=".local/share/dfx"
+  LOCAL_REPLICA_DATA_DIR=".local/share/dfx"
   ;;
 Darwin)
-  DFX_SNAPSHOT_DIR="Library/Application Support/org.dfinity.dfx/network/local"
+  LOCAL_REPLICA_DATA_DIR="Library/Application Support/org.dfinity.dfx/network/local"
   ;;
 *)
   {
@@ -45,7 +45,7 @@ IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
 
 # Get global state
 pushd "$HOME"
-tar --create --file "$DFX_SNAPSHOT_TEMP_FILE" .local/share/dfx .config/dfx/networks.json
+tar --create --file "$DFX_SNAPSHOT_TEMP_FILE" "$LOCAL_REPLICA_DATA_DIR" .config/dfx/networks.json
 for id in "${DFX_IDENTITIES[@]}"; do
   tar --append --file "$DFX_SNAPSHOT_TEMP_FILE" ".config/dfx/identity/${id}"
 done
