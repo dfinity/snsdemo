@@ -21,7 +21,7 @@ clap.define short=s long=snapshot desc="The file to restore.  If several paths a
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-readarray -td: DFX_SNAPSHOT_FILE_CANDIDATES < <(echo "$DFX_SNAPSHOT_FILE")
+readarray -td: DFX_SNAPSHOT_FILE_CANDIDATES < <(printf "%s" "$DFX_SNAPSHOT_FILE")
 for CANDIDATE in "${DFX_SNAPSHOT_FILE_CANDIDATES[@]}"; do
   if test -e "$CANDIDATE"; then
     DFX_SNAPSHOT_FILE="$(realpath "$CANDIDATE")"
