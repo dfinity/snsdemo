@@ -20,6 +20,9 @@ source "$(clap.build)"
 
 export DFX_NETWORK
 
+# Work-around required to be able to run `dfx info`.
+# A proper fix is in dfx 0.14.0.
+# TODO: Remove this once we use dfx 0.14.0.
 get_home() {
   eval echo "~$USER"
 }
