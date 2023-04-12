@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+	
+	Creates and saves a snapshot for use in CI.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="state.tar.xz"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+dfx-sns-demo
+dfx-sns-demo-mksns
+dfx-sns-sale-buy
+dfx-sns-sale-finalize
+dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
+dfx stop
+echo "Waiting for replica to stop"
+for (( i=100; i>0; i-- )); do
+    echo "$i"
+    pgrep replica || break
+    sleep 1
+done
+echo "Making sure the replica is dead"
+dfx-network-stop
+sleep 1
+echo "Saving state"
+dfx-snapshot-save --verbose --snapshot "$DFX_SNAPSHOT_FILE"
