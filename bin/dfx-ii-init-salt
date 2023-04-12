@@ -8,7 +8,7 @@ print_help() {
   cat <<-EOF
 
   Initialize the randomness in Internet Identity.
-  Otherwise this will be done the first time a user registers and this will fail
+  Otherwise this will be done the first time a user signs in and this will fail
   if done multiple times simultaneously.
 	EOF
 }
