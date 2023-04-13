@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Adds ckbtc canisters to the local dfx.json and populates the corresponding wasm and did files.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=c long=commit desc="Commit of the IC repo to download canisters from" variable=IC_COMMIT default="3b1e62d3dcfa0e2e7364e4578482e0d15fb0201b"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+WASM_DIR="wasms"
+CANDID_DIR="candid"
+LOCAL_PREFIX="ckbtc_"
+
+test -e dfx.json || {
+  echo "ERROR: No dfx.json found.  Please run this from inside a dfx project."
+  exit 1
+} >&2
+
+mkdir -p "$WASM_DIR"
+mkdir -p "$CANDID_DIR"
+
+: Get the wasms
+get_wasm() {
+  local remote_name="$1"
+  local local_name="$2"
+  if test -e "$local_name"; then
+    echo "Skipping $local_name as it already exists"
+  else
+    local url="https://download.dfinity.systems/ic/$IC_COMMIT/canisters/${remote_name}.gz"
+    echo "Getting  $local_name from $url..."
+    curl -sSL "$url" -o "${local_name}.gz"
+    gunzip "${local_name}.gz"
+  fi
+}
+pushd "$WASM_DIR"
+get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter.wasm"
+get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ckbtc_ledger.wasm"
+get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}ckbtc_index.wasm"
+popd
+
+: Get the candid files
+get_did() {
+  local remote_name="$1"
+  local local_name="$2"
+  if test -e "$local_name"; then
+    echo "Skipping $local_name as it already exists"
+  else
+    local url="https://raw.githubusercontent.com/dfinity/ic/$IC_COMMIT/${remote_name}"
+    echo "Getting  $local_name from $url..."
+    curl -sSLf --retry 5 "$url" -o "$local_name"
+  fi
+}
+pushd "$CANDID_DIR"
+get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did ckbtc_minter.did
+get_did rs/rosetta-api/icrc1/ledger/icrc1.did ckbtc_ledger.did
+get_did rs/rosetta-api/icrc1/index/index.did ckbtc_index.did
+popd
+
+: Update dfx.json
+jq -s '.[0] * .[1]' dfx.json "${SOURCE_DIR}/dfx-ckbtc-dfx.json" | sponge dfx.json
