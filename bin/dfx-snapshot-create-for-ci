@@ -19,9 +19,11 @@ clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSH
 source "$(clap.build)"
 
 dfx-sns-demo
+# Create and finalize an additional SNS
 dfx-sns-demo-mksns
 dfx-sns-sale-buy
 dfx-sns-sale-finalize
+# Create lots of SNS
 dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
 dfx stop
 echo "Waiting for replica to stop"

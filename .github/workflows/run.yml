@@ -40,32 +40,18 @@ jobs:
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
       - name: Run the demo with the current default ic commits
+        if: matrix.os == 'macos-11'
         run: bin/dfx-sns-demo
       - name: Create and finalize an additional SNS
+        if: matrix.os == 'macos-11'
         run: |
           ./bin/dfx-sns-demo-mksns
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
-      - name: Create lots of SNS
-        if: matrix.os != 'macos-11'
-        run: |
-          ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
-      - name: Save state
-        if: matrix.os != 'macos-11'
-        run: |
-          # Stop the replica to let it persist all its state before we save the state.
-          dfx stop
-          echo "Waiting for replica to stop"
-          for (( i=100; i>0; i-- )); do
-              echo "$i"
-              pgrep replica || break
-              sleep 1
-          done
-          echo "Making sure the replica is dead"
-          ./bin/dfx-network-stop
           sleep 1
-          echo "Saving state"
-          bin/dfx-snapshot-save --verbose --snapshot state.tar.xz
+      - name: Run the demo and create the snapshot for CI
+        if: matrix.os != 'macos-11'
+        run: ./bin/dfx-snapshot-create-for-ci --snapshot state.tar.xz
       - name: Upload state
         if: matrix.os != 'macos-11'
         uses: actions/upload-artifact@v3
