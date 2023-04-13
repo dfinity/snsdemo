@@ -27,10 +27,10 @@ dfx-sns-sale-finalize
 dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
 dfx stop
 echo "Waiting for replica to stop"
-for (( i=100; i>0; i-- )); do
-    echo "$i"
-    pgrep replica || break
-    sleep 1
+for ((i = 100; i > 0; i--)); do
+  echo "$i"
+  pgrep replica || break
+  sleep 1
 done
 echo "Making sure the replica is dead"
 dfx-network-stop
