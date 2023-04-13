@@ -47,8 +47,8 @@ get_wasm() {
 }
 pushd "$WASM_DIR"
 get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter.wasm"
-get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ckbtc_ledger.wasm"
-get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}ckbtc_index.wasm"
+get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger.wasm"
+get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}index.wasm"
 popd
 
 : Get the candid files
@@ -72,35 +72,42 @@ popd
 : Update dfx.json
 jq -s '.[0] * .[1]' dfx.json "${SOURCE_DIR}/dfx-ckbtc-dfx.json" | sponge dfx.json
 
-: Verify that all filea re present and correct
-for canister in minter ledger index ; do
-	canister_config="$(n="$LOCAL_PREFIX$canister" jq '.canisters[env.n]' dfx.json)"
-	[[ "$canister_config" != "null" ]] || {
-	    printf "ERROR: %s\n" "$LOCAL_PREFIX$canister should be in dfx.json"
-	    exit 1
-	} 2>&1
-        canister_wasm_path="$(printf "%s" "$canister_config" | jq .wasm)"
-	[[ "$canister_wasm_path" != "null" ]] || {
-	    printf "ERROR: %s\n" "$LOCAL_PREFIX$canister config in dfx.json should include \"wasm\": <PATH TO WASM>"
-	    exit 1
-	} >&2
-        test -e "$canister_wasm_path" || {
-	    printf "ERROR: %s\n" "Wasm for $LOCAL_PREFIX$canister for found at the path given in dfx.json: '$canister_wasm_path'"
-	    exit 1
-	} >&2
-        canister_did_path="$(printf "%s" "$canister_config" | jq .candid)"
-	[[ "$canister_did_path" != "null" ]] || {
-	    printf "ERROR: %s\n" "$LOCAL_PREFIX$canister config in dfx.json should include \"candid\": <PATH TO .did FILE>"
-	    exit 1
-	} >&2
-        test -e "$canister_did_path" || {
-	    printf "ERROR: %s\n" "Candid for $LOCAL_PREFIX$canister for found at the path given in dfx.json: '$canister_did_path'"
-	    exit 1
-	} >&2
-        if command -v idl2json
-	then idl2json < "$canister_did_path" >/dev/null || {
-	    printf "ERROR: %s\n" "Candid for $LOCAL_PREFIX$canister at '$canister_did_path' is not a valid did file."
-	    exit 1
-	} >&2
-	fi
+: Verify that all file are present and correct
+for canister in minter ledger index; do
+  : "Check that the config is in dfx.json:"
+  canister_config="$(n="$LOCAL_PREFIX$canister" jq '.canisters[env.n]' dfx.json)"
+  [[ "$canister_config" != "null" ]] || {
+    printf "ERROR: %s\n" "$LOCAL_PREFIX$canister should be in dfx.json"
+    exit 1
+  } 2>&1
+  : "Check that there is a wasm file at the indicated location"
+  canister_wasm_path="$(printf "%s" "$canister_config" | jq -r .wasm)"
+  [[ "$canister_wasm_path" != "null" ]] || {
+    printf "ERROR: %s\n" "$LOCAL_PREFIX$canister config in dfx.json should include \"wasm\": <PATH TO WASM>"
+    exit 1
+  } >&2
+  test -e "$canister_wasm_path" || {
+    printf "ERROR: %s\n" "Wasm for $LOCAL_PREFIX$canister not found at the path given in dfx.json: '$canister_wasm_path'"
+    exit 1
+  } >&2
+  : "... is the file a wasm file?"
+  file "$canister_wasm_path" | grep -q wasm || {
+    printf "ERROR: %s\n" "Wasm for $LOCAL_PREFIX$canister at '$canister_wasm_path' is not a wasm file."
+    exit 1
+  } >&2
+  : "Check that the candid file is present and correct"
+  canister_did_path="$(printf "%s" "$canister_config" | jq -r .candid)"
+  [[ "$canister_did_path" != "null" ]] || {
+    printf "ERROR: %s\n" "$LOCAL_PREFIX$canister config in dfx.json should include \"candid\": <PATH TO .did FILE>"
+    exit 1
+  } >&2
+  test -e "$canister_did_path" || {
+    printf "ERROR: %s\n" "Candid for $LOCAL_PREFIX$canister not found at the path given in dfx.json: '$canister_did_path'"
+    exit 1
+  } >&2
+  : "... Basic check - does the candid file define a service?"
+  grep -E '^service ' "$canister_did_path" >/dev/null || {
+    printf "ERROR: %s\n" "Candid for $LOCAL_PREFIX$canister at '$canister_did_path' is not a valid did file."
+    exit 1
+  } >&2
 done
