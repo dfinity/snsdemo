@@ -15,7 +15,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=c long=commit desc="Commit of the IC repo to download canisters from" variable=IC_COMMIT default="3b1e62d3dcfa0e2e7364e4578482e0d15fb0201b"
+clap.define short=c long=commit desc="Commit of the IC repo to download canisters from" variable=DFX_IC_COMMIT default="$DFX_IC_COMMIT"
 clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="ckbtc_"
 clap.define long=check desc="Check whether the canisters have been imported" variable=DFX_CHECK nargs=0
 # Source the output file ----------------------------------------------------------
@@ -41,7 +41,7 @@ ckbtc_import() {
     if test -e "$local_name"; then
       echo "Skipping $local_name as it already exists"
     else
-      local url="https://download.dfinity.systems/ic/$IC_COMMIT/canisters/${remote_name}.gz"
+      local url="https://download.dfinity.systems/ic/$DFX_IC_COMMIT/canisters/${remote_name}.gz"
       echo "Getting  $local_name from $url..."
       curl -sSL "$url" -o "${local_name}.gz"
       gunzip "${local_name}.gz"
@@ -60,7 +60,7 @@ ckbtc_import() {
     if test -e "$local_name"; then
       echo "Skipping $local_name as it already exists"
     else
-      local url="https://raw.githubusercontent.com/dfinity/ic/$IC_COMMIT/${remote_name}"
+      local url="https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/${remote_name}"
       echo "Getting  $local_name from $url..."
       curl -sSLf --retry 5 "$url" -o "$local_name"
     fi
@@ -72,7 +72,10 @@ ckbtc_import() {
   popd
 
   : Update dfx.json
-  jq -s '.[0] * .[1]' dfx.json "${SOURCE_DIR}/dfx-ckbtc-dfx.json" | sponge dfx.json
+  jq ' .canisters["\(env.LOCAL_PREFIX)ledger"] = { build: "true", candid: "candid/\(env.LOCAL_PREFIX)ledger.did", wasm: "wasms/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai" } }}
+     | .canisters["\(env.LOCAL_PREFIX)minter"] = { build: "true", candid: "candid/\(env.LOCAL_PREFIX)minter.did", wasm: "wasms/\(env.LOCAL_PREFIX)minter.wasm", type: "custom", remote: { id: {} }}
+     | .canisters["\(env.LOCAL_PREFIX)index" ] = { build: "true", candid: "candid/\(env.LOCAL_PREFIX)index.did",  wasm: "wasms/\(env.LOCAL_PREFIX)index.wasm",  type: "custom", remote: { id: {mainnet: "n5wcd-faaaa-aaaar-qaaea-cai"} }}
+  ' dfx.json | sponge dfx.json
 }
 
 ckbtc_import_check() {
