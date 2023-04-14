@@ -22,12 +22,15 @@ jobs:
       - name: Create snapshot
         id: snapshot
         run: |
-          path="snsdemo_snapshot_${{ matrix.os }}.tar.xz"
-          echo "path=$path" >> "$GITHUB_OUTPUT"
-          if false
-          then bin/dfx-snapshot-mk-stock --snapshot "$path"
-          else echo foo > "$path"
+          if true # set to false when testing
+          then
+               path="snsdemo_snapshot_${{ matrix.os }}.tar.xz"
+               bin/dfx-snapshot-mk-stock --snapshot "$path"
+          else
+               path="snsdemo_snapshot_${{ matrix.os }}.test"
+               echo foo > "$path"
           fi
+          echo "path=$path" >> "$GITHUB_OUTPUT"
       - name: Release if applicable
         run: |
           set -x
