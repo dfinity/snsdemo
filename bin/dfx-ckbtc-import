@@ -72,6 +72,7 @@ ckbtc_import() {
   popd
 
   : Update dfx.json
+  LOCAL_PREFIX="${LOCAL_PREFIX:-}" \
   jq ' .canisters["\(env.LOCAL_PREFIX)ledger"] = { build: "true", candid: "candid/\(env.LOCAL_PREFIX)ledger.did", wasm: "wasms/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai" } }}
      | .canisters["\(env.LOCAL_PREFIX)minter"] = { build: "true", candid: "candid/\(env.LOCAL_PREFIX)minter.did", wasm: "wasms/\(env.LOCAL_PREFIX)minter.wasm", type: "custom", remote: { id: {} }}
      | .canisters["\(env.LOCAL_PREFIX)index" ] = { build: "true", candid: "candid/\(env.LOCAL_PREFIX)index.did",  wasm: "wasms/\(env.LOCAL_PREFIX)index.wasm",  type: "custom", remote: { id: {mainnet: "n5wcd-faaaa-aaaar-qaaea-cai"} }}
