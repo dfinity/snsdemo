@@ -69,7 +69,14 @@ jobs:
             else gh release create --title "Release for tags/$tag" --draft --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
             fi
             : Optionally, make the release public
-            [[ "$tag" != release-* ]] || { echo "Making release public" ; gh release edit "$tag" --draft=false ; }
+            [[ "$tag" != release-* ]] || {
+                    echo "Making release public"
+                    gh release edit "$tag" --draft=false
+                    latest_release_name="$(gh release view --json tagName --jq .tagName)"
+                    if [[ "$latest_release_name" != release-* ]] || [[ "$latest_release_name" < "$tag" ]] ; then
+                      gh release edit "$tag" --latest=true
+                    fi
+            }
           done
           # If this was triggered by a push to main, update the 'tip' release.
           # This can be tested by pushing to a branch called 'test-release'.
