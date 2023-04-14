@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -euo pipefail
 
 test_install() {
-  local flags="${@}"
+	(
+	local flags=("${@}")
   echo "Before importing, checking for ckBTC should fail:"
   if bin/dfx-ckbtc-import --check "${flags[@]}"; then
     echo "ERROR: Check should fail without ckBTC canisters"
@@ -12,6 +13,7 @@ test_install() {
   bin/dfx-ckbtc-import "${flags[@]}"
   echo "After importing, checking for ckBTC should succeed"
   bin/dfx-ckbtc-import --check "${flags[@]}"
+) |& sed 's/^/    /g'
 }
 
 (

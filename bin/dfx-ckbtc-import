@@ -66,9 +66,9 @@ ckbtc_import() {
     fi
   }
   pushd "$CANDID_DIR"
-  get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did ckbtc_minter.did
-  get_did rs/rosetta-api/icrc1/ledger/icrc1.did ckbtc_ledger.did
-  get_did rs/rosetta-api/icrc1/index/index.did ckbtc_index.did
+  get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter.did"
+  get_did rs/rosetta-api/icrc1/ledger/icrc1.did "${LOCAL_PREFIX}ledger.did"
+  get_did rs/rosetta-api/icrc1/index/index.did "${LOCAL_PREFIX}index.did"
   popd
 
   : Update dfx.json
