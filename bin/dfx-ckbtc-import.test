@@ -28,7 +28,9 @@ test_install() {
 (
   echo "Installation with a prefix should work"
   for prefix in "" foo; do
+	  {
 	  echo "Installing with prefix '${prefix:-}'"
-    test_install --prefix "$prefix" | indent
+    test_install --prefix "$prefix"
+} |& indent
   done
 )
