@@ -2,11 +2,6 @@ name: Create a snapshot image
 on:
   push:
   workflow_dispatch:
-    inputs:
-      no_cache:
-        description: 'no-cache'
-        default: false
-        type: boolean
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
