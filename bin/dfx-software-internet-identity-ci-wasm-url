@@ -8,6 +8,8 @@ PATH="$SOURCE_DIR:$PATH"
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="latest"
+# See https://github.com/dfinity/internet-identity#flavors
+clap.define short=f long=flavor desc="production, test, or dev" variable=DFX_II_FLAVOR default="test"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -17,4 +19,4 @@ RELEASE_NAME="$(dfx-software-internet-identity-version --verbose "${DFX_II_RELEA
 test -n "${RELEASE_NAME:-}" || {
   echo "ERROR: Could not find release '${DFX_II_RELEASE}'"
 } >&2
-echo "https://github.com/dfinity/internet-identity/releases/download/${RELEASE_NAME}/internet_identity_test.wasm"
+echo "https://github.com/dfinity/internet-identity/releases/download/${RELEASE_NAME}/internet_identity_${DFX_II_FLAVOR}.wasm"
