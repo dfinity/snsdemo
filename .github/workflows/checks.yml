@@ -49,5 +49,13 @@ jobs:
               set -euxo pipefail
               echo "This modifies files, so make sure the state is clean before and after"
               git clean -dfx
+              echo "Before importing, checking for ckBTC should fail:"
+              if bin/dfx-ckbtc-import --check; then
+                   echo "ERROR: Check should fail without ckBTC canisters"
+                   exit 1
+              fi
+              echo "Now import"
               bin/dfx-ckbtc-import
+              echo "After importing, checking for ckBTC should succeed"
+              bin/dfx-ckbtc-import --check
               git clean -dfx
