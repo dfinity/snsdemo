@@ -61,25 +61,21 @@ jobs:
           set -x
           artefacts=(snapshot_${{ matrix.os }}.tar.xz)
           ls -l "${artefacts[@]}"
-          # Create or update releases for every tag pointing at this commit
+          : Creates or update releases for every tag pointing at this commit
           for tag in $(git tag --points-at HEAD) ; do
             : Creates or updates a release for the tag
             if gh release view "$tag"
             then gh release upload --clobber "$tag" "${artefacts[@]}" || true
-            else gh release create --title "Release for tags/$tag" --draft --latest=false --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
+            else gh release create --title "Release for tags/$tag" --draft --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
             fi
             : Optionally, make the release public
             [[ "$tag" != release-* ]] || {
                     echo "Making release public"
                     gh release edit "$tag" --draft=false
-                    latest_release_name="$(gh release view --json tagName --jq .tagName)"
-                    if [[ "$latest_release_name" != release-* ]] || [[ "$latest_release_name" < "$tag" ]] ; then
-                      gh release edit "$tag" --latest=true
-                    fi
             }
           done
-          # If this was triggered by a push to main, update the 'tip' release.
-          # This can be tested by pushing to a branch called 'test-release'.
+          : Updates 'tip' release, if this was triggered by a push to main or 'test-release'.
+          : This can be exercised without a PR by pushing to 'test-release'.
           if [[ "${{github.event_name}}" == 'push' ]] && ( [[ "${{github.ref_name}}" == 'main' ]] || [[ "${{github.ref_name}}" == 'test-release' ]] ) ; then
             gh release upload --clobber tip "${artefacts[@]}" || true
           fi
