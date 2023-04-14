@@ -19,43 +19,46 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Add user path
-        run: |
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          echo "$PWD/bin" >> $GITHUB_PATH
-      - name: Unbork mac
-        if: matrix.os == 'macos-11'
-        run: |
-          brew install bash
-          echo "/usr/local/bin" >> $GITHUB_PATH
-          echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-      - name: Install dependencies
-        run: ./bin/dfx-sns-demo-install --verbose
-      - name: Set up SNS state and create one finalized SNS
-        run: bin/dfx-sns-demo
-      - name: Save state
-        run: |
-          # Stop the replica to let it persist all its state before we save the state.
-          dfx stop
-          echo "Waiting for replica to stop"
-          for (( i=100; i>0; i-- )); do
-              echo "$i"
-              pgrep replica || break
-              sleep 1
-          done
-          echo "Making sure the replica is dead"
-          ./bin/dfx-network-stop
-          sleep 1
-          echo "Saving state"
-          bin/dfx-snapshot-save --verbose --snapshot snapshot_${{ matrix.os }}.tar.xz
-      - name: Upload state
-        uses: actions/upload-artifact@v3
-        with:
-          name: snsdemo
-          path: snapshot_${{ matrix.os }}.tar.xz
-          retention-days: 3
+      - name: Fake data
+        run: echo foo > snapshot_${{ matrix.os }}.tar.xz
+#      - name: Add user path
+#        run: |
+#          echo "$HOME/.local/bin" >> $GITHUB_PATH
+#          echo "$PWD/bin" >> $GITHUB_PATH
+#      - name: Unbork mac
+#        if: matrix.os == 'macos-11'
+#        run: |
+#          brew install bash
+#          echo "/usr/local/bin" >> $GITHUB_PATH
+#          echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+#      - name: Install dependencies
+#        run: ./bin/dfx-sns-demo-install --verbose
+#      - name: Set up SNS state and create one finalized SNS
+#        run: bin/dfx-sns-demo
+#      - name: Save state
+#        run: |
+#          # Stop the replica to let it persist all its state before we save the state.
+#          dfx stop
+#          echo "Waiting for replica to stop"
+#          for (( i=100; i>0; i-- )); do
+#              echo "$i"
+#              pgrep replica || break
+#              sleep 1
+#          done
+#          echo "Making sure the replica is dead"
+#          ./bin/dfx-network-stop
+#          sleep 1
+#          echo "Saving state"
+#          bin/dfx-snapshot-save --verbose --snapshot snapshot_${{ matrix.os }}.tar.xz
+#      - name: Upload state
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: snsdemo
+#          path: snapshot_${{ matrix.os }}.tar.xz
+#          retention-days: 3
       - name: Release if applicable
         run: |
+          set -x
           artefacts=(snapshot_${{ matrix.os }}.tar.xz)
           ls -l "${artefacts[@]}"
           # Create or update releases for every tag pointing at this commit
