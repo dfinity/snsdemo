@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+indent() {
+  sed 's/^/    /g'
+}
+
 test_install() {
 	(
 	local flags=("${@}")
@@ -13,7 +17,7 @@ test_install() {
   bin/dfx-ckbtc-import "${flags[@]}"
   echo "After importing, checking for ckBTC should succeed"
   bin/dfx-ckbtc-import --check "${flags[@]}"
-) |& sed 's/^/    /g'
+) |& indent
 }
 
 (
@@ -24,6 +28,7 @@ test_install() {
 (
   echo "Installation with a prefix should work"
   for prefix in "" foo; do
-    test_install --prefix "$prefix"
+	  echo "Installing with prefix '${prefix:-}'"
+    test_install --prefix "$prefix" | indent
   done
 )
