@@ -17,6 +17,7 @@ test_install() {
     bin/dfx-ckbtc-import "${flags[@]}"
     echo "After importing, checking for ckBTC should succeed"
     bin/dfx-ckbtc-import --check "${flags[@]}"
+    false
   ) |& indent
 }
 
@@ -34,3 +35,5 @@ test_install() {
     } |& indent
   done
 )
+
+echo "$(basename "$0") PASSED"
