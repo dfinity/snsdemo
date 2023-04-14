@@ -18,11 +18,8 @@ clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSH
 source "$(clap.build)"
 
 : Set up SNS state and create one finalized SNS
-./bin/dfx-sns-demo-install --verbose
+bin/dfx-sns-demo
 
-#      - name: Save state
-#        run: |
-#
 : Stop the replica to let it persist all its state before we save the state.
 dfx stop
 
