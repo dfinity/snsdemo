@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
 set -euxo pipefail
-echo "This modifies files, so make sure the state is clean before and after"
-git clean -dfx
-echo "Before importing, checking for ckBTC should fail:"
-if bin/dfx-ckbtc-import --check; then
-  echo "ERROR: Check should fail without ckBTC canisters"
-  exit 1
-fi
-echo "Now import"
-bin/dfx-ckbtc-import
-echo "After importing, checking for ckBTC should succeed"
-bin/dfx-ckbtc-import --check
-git clean -dfx
+
+test_install() {
+  local flags="${@}"
+  echo "Before importing, checking for ckBTC should fail:"
+  if bin/dfx-ckbtc-import --check "${flags[@]}"; then
+    echo "ERROR: Check should fail without ckBTC canisters"
+    exit 1
+  fi
+  echo "Now import"
+  bin/dfx-ckbtc-import "${flags[@]}"
+  echo "After importing, checking for ckBTC should succeed"
+  bin/dfx-ckbtc-import --check "${flags[@]}"
+}
+
+(
+  echo "Default canister installation should work"
+  test_install
+)
+
+(
+  echo "Installation with a prefix should work"
+  for prefix in "" foo; do
+    test_install --prefix "$prefix"
+  done
+)
