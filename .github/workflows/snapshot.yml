@@ -66,7 +66,7 @@ jobs:
             : Creates or updates a release for the tag
             if gh release view "$tag"
             then gh release upload --clobber "$tag" "${artefacts[@]}" || true
-            else gh release create --title "Release for tags/$tag" --draft --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
+            else gh release create --title "Release for tags/$tag" --draft --latest=false --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
             fi
             : Optionally, make the release public
             [[ "$tag" != release-* ]] || {
