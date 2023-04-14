@@ -1,0 +1,75 @@
+name: Create a snapshot image
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      no_cache:
+        description: 'no-cache'
+        default: false
+        type: boolean
+env:
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  demo_current:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Add user path
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$PWD/bin" >> $GITHUB_PATH
+      - name: Unbork mac
+        if: matrix.os == 'macos-11'
+        run: |
+          brew install bash
+          echo "/usr/local/bin" >> $GITHUB_PATH
+          echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: ./bin/dfx-sns-demo-install --verbose
+      - name: Set up SNS state and create one finalized SNS
+        run: bin/dfx-sns-demo
+      - name: Save state
+        run: |
+          # Stop the replica to let it persist all its state before we save the state.
+          dfx stop
+          echo "Waiting for replica to stop"
+          for (( i=100; i>0; i-- )); do
+              echo "$i"
+              pgrep replica || break
+              sleep 1
+          done
+          echo "Making sure the replica is dead"
+          ./bin/dfx-network-stop
+          sleep 1
+          echo "Saving state"
+          bin/dfx-snapshot-save --verbose --snapshot snapshot_${{ matrix.os }}.tar.xz
+      - name: Upload state
+        uses: actions/upload-artifact@v3
+        with:
+          name: snsdemo
+          path: snapshot_${{ matrix.os }}.tar.xz
+          retention-days: 3
+      - name: Release if applicable
+        run: |
+          artefacts=(snapshot_${{ matrix.os }}.tar.xz)
+          ls -l "${artefacts[@]}"
+          # Create or update releases for every tag pointing at this commit
+          for tag in $(git tag --points-at HEAD) ; do
+            : Creates or updates a release for the tag
+            if gh release view "$tag"
+            then gh release upload --clobber "$tag" "${artefacts[@]}" || true
+            else gh release create --title "Release for tags/$tag" --draft --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
+            fi
+            : Optionally, make the release public
+            [[ "$tag" != release-* ]] || { echo "Making release public" ; gh release edit "$tag" --draft=false ; }
+          done
+          # If this was triggered by a push to main, update the 'tip' release.
+          # This can be tested by pushing to a branch called 'test-release'.
+          if [[ "${{github.event_name}}" == 'push' ]] && ( [[ "${{github.ref_name}}" == 'main' ]] || [[ "${{github.ref_name}}" == 'test-release' ]] ) ; then
+            gh release upload --clobber "$tag" "${artefacts[@]}" || true
+          fi
