@@ -18,13 +18,12 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=c long=commit desc="Commit of the IC repo to download canisters from" variable=DFX_IC_COMMIT default="$DFX_IC_COMMIT"
 clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="ckbtc_"
 clap.define long=check desc="Check whether the canisters have been imported" variable=DFX_CHECK nargs=0
+clap.define long=wasm_dir desc="Where to store the imported wasm files" variable=WASM_DIR default="wasms" # Matches `dfx nns import`
+clap.define long=candid_dir desc="Where to store the imported candid files" variable=CANDID_DIR default="candid" # Matches `dfx nns import`
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-# These match `dfx nns import`:
-WASM_DIR="wasms"
-CANDID_DIR="candid"
-
+# Imports wasm, candid and populate dfx.json
 ckbtc_import() {
   test -e dfx.json || {
     echo "ERROR: No dfx.json found.  Please run this from inside a dfx project."
@@ -79,6 +78,7 @@ ckbtc_import() {
   ' dfx.json | sponge dfx.json
 }
 
+# Checks whether ckbtc canisters have already been installed.
 ckbtc_import_check() {
   : Verify that all file are present and correct
   for canister in minter ledger index; do
