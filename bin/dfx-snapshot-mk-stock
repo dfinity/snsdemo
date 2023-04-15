@@ -21,13 +21,26 @@ source "$(clap.build)"
 bin/dfx-sns-demo
 
 : "Wait for a snapshot"
-tree "$HOME/.local/share/dfx/network"
-SNAPSHOT_DIR="$HOME/.local/share/dfx/network/local/state/replicated_state/node-100/state/checkpoints/"
-snapshots_now="$(ls "$SNAPSHOT_DIR" || true)"
+case "$(uname)" in
+Darwin) SHARE_DIR="$HOME/Library/Application Support/org.dfinity.dfx" ;;
+*) SHARE_DIR="$HOME/Library/Application Support/org.dfinity.dfx" ;;
+esac
+test -d "$SHARE_DIR" || {
+  echo "ERROR: Share dir does not exist at: '$CHECKPOINT_DIR'"
+  exit 1
+} >&2
+tree "$SHARE_DIR/network/local"
+REPLICA_CONFIG="${SHARE_DIR}/network/local/state/replicated_state/ic.json5"
+CHECKPOINT_DIR="$(jq -r .state_manager.state_root "$REPLICA_CONFIG")/checkpoints"
+test -d "$CHECKPOINT_DIR" || {
+  echo "ERROR: Checkpoint dir does not exist at: '$CHECKPOINT_DIR'"
+  exit 1
+} >&2
+snapshots_now="$(ls "$SNAPSHOT_DIR")"
 for ((i = 300; i > 0; i++)); do
   snapshots_later="$(ls "$SNAPSHOT_DIR" || true)"
   [[ "${snapshots_now:-}" == "$snapshots_later" ]] || break
-  print '\rTries: % 4d' "$i" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
+  printf '\rTries: % 4d' "$i" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
   sleep 5
 done
 printf '\n' # \n == newline == advance the paper in the typewriter.  Finishes the countdown.
