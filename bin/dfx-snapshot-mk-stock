@@ -22,7 +22,16 @@ bin/dfx-sns-demo
 
 : "Wait for a snapshot"
 SNAPSHOT_DIR="$HOME/.local/share/dfx/network/local/state/replicated_state/node-100/state/checkpoints/"
-watch --chgexit ls "$SNAPSHOT_DIR"
+snapshots_now="$(ls "$SNAPSHOT_DIR")"
+for ((i = 300; i > 0; i++)); do
+  snapshots_later="$(ls "$SNAPSHOT_DIR")"
+  [[ "${snapshots_now:-}" == "$snapshots_later" ]] || break
+  print '\rTries: % 4d' "$i" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
+  sleep 5
+done
+printf '\n' # \n == newline == advance the paper in the typewriter.  Finishes the countdown.
+echo "Snapshot change (if any):"
+diff <(echo "${snapshots_now:-}") <(echo "${snapshots_later:-}") && echo "No change" || true
 sleep 5 # Make sure the snapshot is fully populated.  I don't know how to check for this.  It _may_ be atomic.
 
 : Stop the replica to let it persist all its state before we save the state.
