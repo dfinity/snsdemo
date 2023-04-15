@@ -19,8 +19,8 @@ clap.define short=g long=global desc="Store in the global cache" variable=DFX_GL
 source "$(clap.build)"
 
 [[ "${DFX_GLOBAL_CACHE:-}" != "true" ]] || {
-	DFX_SNAPSHOT_FILE="$(dfx cache show)/snapshots/$(basename "$DFX_SNAPSHOT_FILE")"
-	mkdir -p "$(dirname "$DFX_SNAPSHOT_FILE")"
+  DFX_SNAPSHOT_FILE="$(dfx cache show)/snapshots/$(basename "$DFX_SNAPSHOT_FILE")"
+  mkdir -p "$(dirname "$DFX_SNAPSHOT_FILE")"
 }
 
 echo "Restoring state..."
