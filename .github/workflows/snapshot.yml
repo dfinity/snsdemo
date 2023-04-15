@@ -25,7 +25,7 @@ jobs:
           else
                path="snsdemo_snapshot_${{ matrix.os }}.tar.xz"
                time bin/dfx-sns-demo-install --verbose
-               time bin/dfx-snapshot-mk-stock --snapshot "$path" --verbose
+               time bin/dfx-snapshot-stock-make --snapshot "$path" --verbose
           fi
           echo "path=$path" >> "$GITHUB_OUTPUT"
       - name: Time snapshot start
