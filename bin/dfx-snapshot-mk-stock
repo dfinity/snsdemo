@@ -20,6 +20,11 @@ source "$(clap.build)"
 : Set up SNS state and create one finalized SNS
 bin/dfx-sns-demo
 
+: "Wait for a snapshot"
+SNAPSHOT_DIR="$HOME/.local/share/dfx/network/local/state/replicated_state/node-100/state/checkpoints/"
+watch --chgexit ls "$SNAPSHOT_DIR"
+sleep 5 # Make sure the snapshot is fully populated.  I don't know how to check for this.  It _may_ be atomic.
+
 : Stop the replica to let it persist all its state before we save the state.
 dfx stop
 
