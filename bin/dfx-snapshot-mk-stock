@@ -27,4 +27,4 @@ dfx-network-wait-for-checkpoint --timeout 600
 dfx-network-stop
 
 echo "Saving state"
-dfx-snapshot-save --verbose --snapshot "$DFX_SNAPSHOT_FILE"
+dfx-snapshot-save --snapshot "$DFX_SNAPSHOT_FILE"
