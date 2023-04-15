@@ -14,9 +14,12 @@ export DFX_NETWORK
 if [[ "$DFX_NETWORK" == "local" ]]; then
   : "Ask for a clean shutdown"
   dfx stop || true
+  : "Also send the equivalent of ctrl-c, which _should_ be equivalent, as dfx stop often fails"
+  ps af | grep -E '\<dfx\>.*\<s[t]art\>' | awk '{print $1}' | xargs --no-run-if-empty kill
+
   echo "Waiting for replica to stop..."
   for ((i = 100; i > 0; i--)); do
-    printf '\r % 4d' "$i"
+    printf '\r % 4d    ' "$i"
     pgrep replica || break
     sleep 1
   done
