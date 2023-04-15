@@ -23,14 +23,5 @@ source "$(clap.build)"
 	mkdir -p "$(dirname "$DFX_SNAPSHOT_FILE")"
 }
 
-: Set up SNS state and create one finalized SNS
-dfx-sns-demo
-
-: "Wait for a checkpoint"
-dfx-network-wait-for-checkpoint --timeout 600
-
-: "Stop the replica gently but forcefully.  It must be stopped and should ideally have a clean state."
-dfx-network-stop
-
-echo "Saving state"
-dfx-snapshot-save --snapshot "$DFX_SNAPSHOT_FILE"
+echo "Restoring state..."
+dfx-snapshot-restore --snapshot "$DFX_SNAPSHOT_FILE"
