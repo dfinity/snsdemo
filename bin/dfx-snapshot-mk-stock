@@ -21,10 +21,11 @@ source "$(clap.build)"
 bin/dfx-sns-demo
 
 : "Wait for a snapshot"
+tree "$HOME/.local/share/dfx/network"
 SNAPSHOT_DIR="$HOME/.local/share/dfx/network/local/state/replicated_state/node-100/state/checkpoints/"
-snapshots_now="$(ls "$SNAPSHOT_DIR")"
+snapshots_now="$(ls "$SNAPSHOT_DIR" || true)"
 for ((i = 300; i > 0; i++)); do
-  snapshots_later="$(ls "$SNAPSHOT_DIR")"
+  snapshots_later="$(ls "$SNAPSHOT_DIR" || true)"
   [[ "${snapshots_now:-}" == "$snapshots_later" ]] || break
   print '\rTries: % 4d' "$i" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
   sleep 5
