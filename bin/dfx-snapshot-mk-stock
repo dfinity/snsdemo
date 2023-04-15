@@ -21,52 +21,10 @@ source "$(clap.build)"
 bin/dfx-sns-demo
 
 : "Wait for a checkpoint"
-# TODO: Move this to dfx-network-stop --after-checkpoint
-: "... Get directory with the shared dfx state"
-case "$(uname)" in
-Darwin) SHARE_DIR="$HOME/Library/Application Support/org.dfinity.dfx" ;;
-*) SHARE_DIR="$HOME/.local/share/dfx" ;;
-esac
-test -d "$SHARE_DIR" || {
-  echo "ERROR: Share dir does not exist at: '${SHARE_DIR:-}'"
-  exit 1
-} >&2
-: "... Get the local replica state checkpoints"
-tree "$SHARE_DIR/network/local"
-REPLICA_CONFIG="${SHARE_DIR}/network/local/state/replicated_state/ic.json5"
-CHECKPOINT_DIR="$(jq -r .state_manager.state_root "$REPLICA_CONFIG")/checkpoints"
-test -d "$CHECKPOINT_DIR" || {
-  echo "ERROR: Checkpoint dir does not exist at: '$CHECKPOINT_DIR'"
-  exit 1
-} >&2
-: "... Wait for the checkpoints to change."
-# Note: this needs to work on Mac as well as Linux, so basic polling is best.
-checkpoints_now="$(ls "$CHECKPOINT_DIR")"
-for ((i = 300; i > 0; i++)); do
-  checkpoints_later="$(ls "$CHECKPOINT_DIR" || true)"
-  [[ "${checkpoints_now:-}" == "$checkpoints_later" ]] || break
-  printf '\rTries: % 4d' "$i" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
-  sleep 5
-done
-printf '\n' # \n == newline == advance the paper in the typewriter.  Finishes the countdown.
-echo "Checkpoint change (if any):"
-diff <(echo "${checkpoints_now:-}") <(echo "${checkpoints_later:-}") && echo "No change" || true
-sleep 5 # Make sure the checkpoint is fully populated.  It _may_ be atomic, so the directory is created only when it is fully populated; I don't know.
+dfx-network-wait-for-checkpoint --timeout 600
 
-: Stop the replica to let it persist all its state before we save the state.
-# TODO: Move this to dfx-snapshot-save as we will always want to stop before snapshotting.
-dfx stop
-
-echo "Waiting for replica to stop"
-for ((i = 100; i > 0; i--)); do
-  printf '\r % 4d' "$i"
-  pgrep replica || break
-  sleep 1
-done
-echo
-
-echo "Making sure the replica is dead"
+: "Stop the replica gently but forcefully.  It must be stopped and should ideally have a clean state."
 dfx-network-stop
-sleep 1
+
 echo "Saving state"
 dfx-snapshot-save --verbose --snapshot "$DFX_SNAPSHOT_FILE"
