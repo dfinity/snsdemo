@@ -25,6 +25,10 @@ source "$(clap.build)"
 
 : Set up SNS state and create one finalized SNS
 dfx-sns-demo
+: "... Make sure that canister IDs are in the local config"
+for canister_name in nns-governance nns-sns-wasm sns_aggregator nns-dapp internet_identity; do
+  dfx-canister-set-id --canister_name "$canister_name" --canister_id "$(dfx canister id "$canister_name")"
+done
 
 : "Wait for a checkpoint"
 dfx-network-wait-for-checkpoint --timeout 600
