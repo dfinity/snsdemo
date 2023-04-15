@@ -41,9 +41,9 @@ test -d "$CHECKPOINT_DIR" || {
 } >&2
 : "... Wait for the checkpoints to change."
 # Note: this needs to work on Mac as well as Linux, so basic polling is best.
-checkpoints_now="$(ls "$SNAPSHOT_DIR")"
+checkpoints_now="$(ls "$CHECKPOINT_DIR")"
 for ((i = 300; i > 0; i++)); do
-  checkpoints_later="$(ls "$SNAPSHOT_DIR" || true)"
+  checkpoints_later="$(ls "$CHECKPOINT_DIR" || true)"
   [[ "${checkpoints_now:-}" == "$checkpoints_later" ]] || break
   printf '\rTries: % 4d' "$i" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
   sleep 5
