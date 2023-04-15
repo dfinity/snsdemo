@@ -21,7 +21,7 @@ jobs:
           then
                path="snsdemo_snapshot_${{ matrix.os }}.tar.xz"
                time bin/dfx-sns-demo-install --verbose
-               time bin/dfx-snapshot-mk-stock --snapshot "$path"
+               time bin/dfx-snapshot-mk-stock --snapshot "$path" --verbose
           else
                path="snsdemo_snapshot_${{ matrix.os }}.test"
                echo foo > "$path"

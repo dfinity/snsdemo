@@ -20,14 +20,15 @@ source "$(clap.build)"
 : Set up SNS state and create one finalized SNS
 bin/dfx-sns-demo
 
-: "Wait for a snapshot"
-: "... Get directory with th esharded dfx state"
+: "Wait for a checkpoint"
+# TODO: Move this to dfx-network-stop --after-checkpoint
+: "... Get directory with the shared dfx state"
 case "$(uname)" in
 Darwin) SHARE_DIR="$HOME/Library/Application Support/org.dfinity.dfx" ;;
-*) SHARE_DIR="$HOME/Library/Application Support/org.dfinity.dfx" ;;
+*) SHARE_DIR="$HOME/.local/share/dfx" ;;
 esac
 test -d "$SHARE_DIR" || {
-  echo "ERROR: Share dir does not exist at: '$CHECKPOINT_DIR'"
+  echo "ERROR: Share dir does not exist at: '${SHARE_DIR:-}'"
   exit 1
 } >&2
 : "... Get the local replica state checkpoints"
@@ -53,6 +54,7 @@ diff <(echo "${checkpoints_now:-}") <(echo "${checkpoints_later:-}") && echo "No
 sleep 5 # Make sure the checkpoint is fully populated.  It _may_ be atomic, so the directory is created only when it is fully populated; I don't know.
 
 : Stop the replica to let it persist all its state before we save the state.
+# TODO: Move this to dfx-snapshot-save as we will always want to stop before snapshotting.
 dfx stop
 
 echo "Waiting for replica to stop"
