@@ -18,7 +18,7 @@ clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSH
 source "$(clap.build)"
 
 : Set up SNS state and create one finalized SNS
-bin/dfx-sns-demo
+dfx-sns-demo
 
 : "Wait for a checkpoint"
 dfx-network-wait-for-checkpoint --timeout 600
