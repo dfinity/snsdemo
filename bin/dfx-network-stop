@@ -23,6 +23,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
     pgrep replica || break
     sleep 1
   done
+  echo
 
   : "Make sure that it is dead."
   sleep 1

@@ -1,5 +1,110 @@
 {
   "canisters": {
+    "internet_identity": {
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "remote": {
+        "candid": "internet_identity.did",
+        "id": {
+          "__default": "qhbym-qaaaa-aaaaa-aaafq-cai",
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "shrink": false,
+      "type": "custom",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm"
+    },
+    "nns-cycles-minting": {
+      "build": "",
+      "candid": "candid/nns-cycles-minting.did",
+      "remote": {
+        "id": {
+          "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-genesis-token": {
+      "build": "",
+      "candid": "candid/nns-genesis-token.did",
+      "remote": {
+        "id": {
+          "local": "renrk-eyaaa-aaaaa-aaada-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-governance": {
+      "build": "",
+      "candid": "candid/nns-governance.did",
+      "remote": {
+        "id": {
+          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-ledger": {
+      "build": "",
+      "candid": "candid/nns-ledger.did",
+      "remote": {
+        "id": {
+          "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-lifeline": {
+      "build": "",
+      "candid": "candid/nns-lifeline.did",
+      "remote": {
+        "id": {
+          "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-registry": {
+      "build": "",
+      "candid": "candid/nns-registry.did",
+      "remote": {
+        "id": {
+          "local": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-root": {
+      "build": "",
+      "candid": "candid/nns-root.did",
+      "remote": {
+        "id": {
+          "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-sns-wasm": {
+      "build": "",
+      "candid": "candid/nns-sns-wasm.did",
+      "remote": {
+        "id": {
+          "local": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "smiley_dapp": {
+      "main": "src/smiley_dapp/main.mo",
+      "type": "motoko"
+    },
     "smiley_dapp_assets": {
       "dependencies": [
         "smiley_dapp"
@@ -13,9 +118,66 @@
       ],
       "type": "assets"
     },
-    "smiley_dapp": {
-      "main": "src/smiley_dapp/main.mo",
-      "type": "motoko"
+    "sns_aggregator": {
+      "build": "true",
+      "candid": "placeholder",
+      "type": "custom",
+      "wasm": "placeholder"
+    },
+    "sns_governance": {
+      "build": "",
+      "candid": "candid/sns_governance.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "sgymv-uiaaa-aaaaa-aaaia-cai"
+        }
+      }
+    },
+    "sns_index": {
+      "build": "",
+      "candid": "candid/sns_index.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "sp3hj-caaaa-aaaaa-aaajq-cai"
+        }
+      }
+    },
+    "sns_ledger": {
+      "build": "",
+      "candid": "candid/sns_ledger.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "sbzkb-zqaaa-aaaaa-aaaiq-cai"
+        }
+      }
+    },
+    "sns_root": {
+      "build": "",
+      "candid": "candid/sns_root.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "q3fc5-haaaa-aaaaa-aaahq-cai"
+        }
+      }
+    },
+    "sns_swap": {
+      "build": "",
+      "candid": "candid/sns_swap.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "si2b5-pyaaa-aaaaa-aaaja-cai"
+        }
+      }
     }
   },
   "defaults": {
