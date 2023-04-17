@@ -6,10 +6,10 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 print_help() {
   cat <<-EOF
-
-  Initialize the randomness in Internet Identity.
-  Otherwise this will be done the first time a user signs in and this will fail
-  if done multiple times simultaneously.
+	
+	Initialize the randomness in Internet Identity.
+	Otherwise this will be done the first time a user signs in and this will fail
+	if done multiple times simultaneously.
 	EOF
 }
 
