@@ -21,7 +21,7 @@ jobs:
           if [[ "${TEST_RELEASE_PROCESS}" == true ]]
           then
                path="snsdemo_snapshot_${{ matrix.os }}.test"
-               echo foo > "$path"
+               echo "Guess what.  The file called test has test content.  Miracles will never cease." > "$path"
           else
                path="snsdemo_snapshot_${{ matrix.os }}.tar.xz"
                time bin/dfx-sns-demo-install --verbose
