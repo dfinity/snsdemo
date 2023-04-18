@@ -33,15 +33,14 @@ ckbtc_import() {
   : Add any missing fields to dfx.json
   # Note: The default values are placed first, so that they don't override any existing values.
   LOCAL_PREFIX="${LOCAL_PREFIX:-}" \
-	  WASM_DIR="${WASM_DIR:-}" \
-	  CANDID_DIR="${CANDID_DIR:-}" \
+    WASM_DIR="${WASM_DIR:-}" \
+    CANDID_DIR="${CANDID_DIR:-}" \
     jq -s '{canisters:
       { "\(env.LOCAL_PREFIX)ledger": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)ledger.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai"} }}
       , "\(env.LOCAL_PREFIX)minter": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)minter.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)minter.wasm", type: "custom", remote: { id: {} }}
       , "\(env.LOCAL_PREFIX)index" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)index.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)index.wasm",  type: "custom", remote: { id: {mainnet: "n5wcd-faaaa-aaaar-qaaea-cai"} }}
       }} * .[0]
   ' dfx.json | sponge dfx.json
-
 
   : Get the wasms
   mkdir -p "$WASM_DIR"
@@ -61,27 +60,26 @@ ckbtc_import() {
   get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter"
   get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger"
   get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}index"
-exit 1
 
   : Get the candid files
   mkdir -p "$CANDID_DIR"
   get_did() {
     local remote_name="$1"
     local local_name="$2"
-    if test -e "$local_name"; then
-      echo "Skipping $local_name as it already exists"
+    local local_path="$(c="$local_name" jq -re '.canisters[env.c].candid' dfx.json)"
+    if test -e "$local_path"; then
+      echo "Skipping $local_path as it already exists"
     else
       local url="https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/${remote_name}"
-      echo "Getting  $local_name from $url..."
-      curl -sSLf --retry 5 "$url" -o "$local_name"
+      echo "Getting  $local_path from $url..."
+      curl -sSLf --retry 5 "$url" -o "$local_path"
     fi
   }
-  pushd "$CANDID_DIR"
-  get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter.did"
-  get_did rs/rosetta-api/icrc1/ledger/icrc1.did "${LOCAL_PREFIX}ledger.did"
-  get_did rs/rosetta-api/icrc1/index/index.did "${LOCAL_PREFIX}index.did"
-  popd
+  get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
+  get_did rs/rosetta-api/icrc1/ledger/icrc1.did "${LOCAL_PREFIX}ledger"
+  get_did rs/rosetta-api/icrc1/index/index.did "${LOCAL_PREFIX}index"
 
+  : "Ckbtc canister import complete."
 }
 
 # Checks whether ckbtc canisters have already been installed.
