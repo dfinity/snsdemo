@@ -9,6 +9,7 @@ set -euo pipefail
     set -euo pipefail
     # Script header:
     SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    # shellcheck disable=SC2317
     print_help() {
       echo HELP_TEXT
     }
