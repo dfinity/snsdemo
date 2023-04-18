@@ -28,7 +28,7 @@ jobs:
                time bin/dfx-snapshot-stock-make --snapshot "$snapshot_path" --verbose
           fi
           echo "snapshot_path=$path" >> "$GITHUB_OUTPUT"
-      - name: Time snapshot start
+      - name: Time snapshot start # See GitHub for the duration of this step.
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
         run: bin/dfx-snapshot-restore --snapshot "${{ steps.snapshot.outputs.path }}"
       - name: Stop dfx
