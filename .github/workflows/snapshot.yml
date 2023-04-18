@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 env:
   GH_TOKEN: ${{ github.token }}
-  TEST_RELEASE_PROCESS: false
+  TEST_RELEASE_PROCESS: false # Set to true if you wish to exercise github triggers without spending time creating real artefacts.
 jobs:
   demo_current:
     runs-on: ${{ matrix.os }}
