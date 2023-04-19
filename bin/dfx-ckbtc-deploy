@@ -19,6 +19,8 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="ckbtc_"
+clap.define short=y long=yes desc="Deploy even if there are existing ckbtc canisters." variable=DFX_YES nargs=0
+clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE default="reinstall"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -30,8 +32,8 @@ source "$(clap.build)"
   exit 1
 } >&2
 
-dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK"
-dfx canister create "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK"
+dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}ledger canister already exists"
+dfx canister create "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}minter canister already exists"
 
 MINTERID="$(dfx canister id "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK")"
 echo "$MINTERID"
@@ -51,7 +53,7 @@ dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant
        kyt_fee = opt 13_333;
        kyt_principal = null;
    }
-})" --mode=reinstall
+})" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
 echo "Step 3: deploying ledger canister..."
 PRINCIPAL="$(dfx identity get-principal)"
@@ -70,10 +72,10 @@ dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant
          cycles_for_archive_creation = opt 4_000_000_000_000;
      };
  }
-})" --mode=reinstall
+})" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
 
 echo "Step 4: deploying index canister..."
-dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode=reinstall
+dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" --upgrade-unchanged
 
 # Example to mint ckBTC
 
