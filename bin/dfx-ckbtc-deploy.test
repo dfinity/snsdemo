@@ -4,7 +4,7 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
 (
-  echo "\n\n==================================="
+  printf "\n\n===================================\n"
   echo "Should fail if ckbtc canisters have not been imported"
   git checkout dfx.json
   error_log="$(mktemp ,test_log.XXXXXXXX)"
@@ -19,7 +19,7 @@ PATH="$SOURCE_DIR:$PATH"
   rm "$error_log"
 )
 (
-  echo "\n\n==================================="
+  printf "\n\n===================================\n"
   echo "Should fail if ckbtc canisters have not been created"
   dfx-network-stop
   dfx start --clean --background
@@ -37,7 +37,7 @@ PATH="$SOURCE_DIR:$PATH"
   dfx-network-stop
 )
 (
-  echo "\n\n==================================="
+  printf "\n\n===================================\n"
   echo "Should fail if ckbtc canisters have not been populated"
   dfx-network-stop
   dfx start --clean --background
@@ -59,7 +59,7 @@ PATH="$SOURCE_DIR:$PATH"
   dfx-network-stop
 )
 (
-  echo "\n\n==================================="
+  printf "\n\n===================================\n"
   echo "Should succeed if canisters have been deployed"
   dfx-network-stop
   dfx start --clean --background
@@ -70,4 +70,4 @@ PATH="$SOURCE_DIR:$PATH"
   dfx-network-stop
 )
 
-echo SUCCESS
+printf "\n\n\nckbtc tests passed.\n"
