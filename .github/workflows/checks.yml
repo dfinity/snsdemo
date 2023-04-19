@@ -53,3 +53,10 @@ jobs:
               git clean -dfx
               bin/dfx-ckbtc-import.test
               git clean -dfx
+      - name: Deploy ckbtc works
+        run: |
+              set -euxo pipefail
+              echo "This modifies files, so make sure the state is clean before and after"
+              git clean -dfx
+              bin/dfx-ckbtc-deploy.test
+              git clean -dfx
