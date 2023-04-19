@@ -21,6 +21,8 @@ source "$(clap.build)"
 dfx-sns-demo
 
 : Set up ckbtc canisters
+dfx-ckbtc-import --prefix ckbtc_
+dfx-ckbtc-import --prefix ckbtc_test_
 dfx-ckbtc-deploy --prefix ckbtc_
 dfx-ckbtc-deploy --prefix ckbtc_test_
 
