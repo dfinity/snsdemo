@@ -44,10 +44,12 @@ PATH="$SOURCE_DIR:$PATH"
   dfx canister create "ckbtc_minter"
   error_log="$(mktemp ,test_log.XXXXXXXX)"
   if dfx-ckbtc-deploy --check 2>"$error_log" ; then
-    echo "ERROR: Should fail if ckbtc canisters are not in dfx.json"
+    echo "ERROR: Should fail if ckbtc canisters have the incorrect or no hash"
   fi
-  grep 'Failed to determine id for canister' "$error_log" || {
-    echo "The check should complain about missing canisters"
+  grep 'ERROR: Deployed ckbtc_ledger hash does not match.' "$error_log" || {
+    echo "ERROR: The check should complain about missing canisters."
+    echo "Actual error output:"
+    sed 's/^/    /g' "$error_log"
     exit 1
   }
   rm "$error_log"
