@@ -1,5 +1,36 @@
 {
   "canisters": {
+    "ckbtc_ledger": {
+      "build": "true",
+      "candid": "candid/ckbtc_ledger.did",
+      "wasm": "wasms/ckbtc_ledger.wasm",
+      "type": "custom",
+      "remote": {
+        "id": {
+          "mainnet": "mxzaz-hqaaa-aaaar-qaada-cai"
+        }
+      }
+    },
+    "ckbtc_minter": {
+      "build": "true",
+      "candid": "candid/ckbtc_minter.did",
+      "wasm": "wasms/ckbtc_minter.wasm",
+      "type": "custom",
+      "remote": {
+        "id": {}
+      }
+    },
+    "ckbtc_index": {
+      "build": "true",
+      "candid": "candid/ckbtc_index.did",
+      "wasm": "wasms/ckbtc_index.wasm",
+      "type": "custom",
+      "remote": {
+        "id": {
+          "mainnet": "n5wcd-faaaa-aaaar-qaaea-cai"
+        }
+      }
+    },
     "smiley_dapp_assets": {
       "dependencies": [
         "smiley_dapp"

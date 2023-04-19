@@ -22,9 +22,7 @@ dfx-sns-demo
 
 : Set up ckbtc canisters
 dfx-ckbtc-import --prefix ckbtc_
-dfx-ckbtc-import --prefix ckbtc_test_
 dfx-ckbtc-deploy --prefix ckbtc_ --yes
-dfx-ckbtc-deploy --prefix ckbtc_test_ --yes
 
 : "Wait for a checkpoint"
 dfx-network-wait-for-checkpoint --timeout 600
