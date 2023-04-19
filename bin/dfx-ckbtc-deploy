@@ -22,11 +22,11 @@ clap.define short=p long=prefix desc="Prefix for the local canister names" varia
 source "$(clap.build)"
 
 "${SOURCE_DIR}/dfx-ckbtc-import" --check --prefix "$LOCAL_PREFIX" || {
-	echo "ERROR: ckbtc canister data and files are not all present and correct."
-	echo "       Please run:"
-	echo "       dfx-ckbtc-import --prefix '$LOCAL_PREFIX'"
-	echo
-	exit 1
+  echo "ERROR: ckbtc canister data and files are not all present and correct."
+  echo "       Please run:"
+  echo "       dfx-ckbtc-import --prefix '$LOCAL_PREFIX'"
+  echo
+  exit 1
 } >&2
 
 dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK"
