@@ -107,5 +107,5 @@ check_ckbtc_deployment() {
   done
 }
 
-[[ "${DFX_CHECK}" == "true" ]] || deploy_ckbtc
+[[ "${DFX_CHECK:-}" == "true" ]] || deploy_ckbtc
 check_ckbtc_deployment
