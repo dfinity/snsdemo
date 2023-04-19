@@ -20,10 +20,12 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="ckbtc_"
 clap.define short=y long=yes desc="Deploy even if there are existing ckbtc canisters." variable=DFX_YES nargs=0
+clap.define short=c long=check desc="Check that the canisters are present and correct." variable=DFX_CHECK nargs=0
 clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE default="reinstall"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+: Check preconditions. This is always run.
 "${SOURCE_DIR}/dfx-ckbtc-import" --check --prefix "$LOCAL_PREFIX" || {
   echo "ERROR: ckbtc canister data and files are not all present and correct."
   echo "       Please run:"
@@ -32,16 +34,17 @@ source "$(clap.build)"
   exit 1
 } >&2
 
-dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}ledger canister already exists"
-dfx canister create "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}minter canister already exists"
+deploy_ckbtc() {
+  dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}ledger canister already exists"
+  dfx canister create "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}minter canister already exists"
 
-MINTERID="$(dfx canister id "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK")"
-echo "$MINTERID"
-LEDGERID="$(dfx canister id "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK")"
-echo "$LEDGERID"
+  MINTERID="$(dfx canister id "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK")"
+  echo "$MINTERID"
+  LEDGERID="$(dfx canister id "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK")"
+  echo "$LEDGERID"
 
-# echo "Step 2: deploying minter canister..."
-dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
+  # echo "Step 2: deploying minter canister..."
+  dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
   Init = record {
        btc_network = variant { Regtest };
        ledger_id = principal \"$LEDGERID\";
@@ -55,9 +58,9 @@ dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant
    }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
-echo "Step 3: deploying ledger canister..."
-PRINCIPAL="$(dfx identity get-principal)"
-dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
+  echo "Step 3: deploying ledger canister..."
+  PRINCIPAL="$(dfx identity get-principal)"
+  dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
   Init = record {
      token_symbol = \"ckBTC\";
      token_name = \"Token ckBTC\";
@@ -74,24 +77,35 @@ dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant
  }
 })" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
 
-echo "Step 4: deploying index canister..."
-dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+  echo "Step 4: deploying index canister..."
+  dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
-# Example to mint ckBTC
+  # Example to mint ckBTC
 
-# BTCADDRESS="$(dfx canister call "${LOCAL_PREFIX}minter" get_btc_address '(record {subaccount=null;})')"
-# dfx canister call "${LOCAL_PREFIX}minter" update_balance '(record {subaccount=null;})'
-# WITHDRAWALADDRESS="$(dfx canister call "${LOCAL_PREFIX}minter" get_withdrawal_account)"
-# echo $BTCADDRESS
-# echo $WITHDRAWALADDRESS
-#
-# cleaned_output=$(echo $WITHDRAWALADDRESS | sed -re 's/^\(|, \)$//g')
-#
-# dfx canister call "${LOCAL_PREFIX}ledger" icrc1_transfer "(record {from=null; to=$cleaned_output; amount=1000000; fee=null; memo=null; created_at_time=null;})"
-#
-# Execute the command to get the input string and save the result
-# dfx canister call "${LOCAL_PREFIX}minter" retrieve_btc '(record {fee = null; address="bcrt1qu9za0uzzd3kjjecgv7waqq0ynn8dl8l538q0xl"; amount=10000})'
+  # BTCADDRESS="$(dfx canister call "${LOCAL_PREFIX}minter" get_btc_address '(record {subaccount=null;})')"
+  # dfx canister call "${LOCAL_PREFIX}minter" update_balance '(record {subaccount=null;})'
+  # WITHDRAWALADDRESS="$(dfx canister call "${LOCAL_PREFIX}minter" get_withdrawal_account)"
+  # echo $BTCADDRESS
+  # echo $WITHDRAWALADDRESS
+  #
+  # cleaned_output=$(echo $WITHDRAWALADDRESS | sed -re 's/^\(|, \)$//g')
+  #
+  # dfx canister call "${LOCAL_PREFIX}ledger" icrc1_transfer "(record {from=null; to=$cleaned_output; amount=1000000; fee=null; memo=null; created_at_time=null;})"
+  #
+  # Execute the command to get the input string and save the result
+  # dfx canister call "${LOCAL_PREFIX}minter" retrieve_btc '(record {fee = null; address="bcrt1qu9za0uzzd3kjjecgv7waqq0ynn8dl8l538q0xl"; amount=10000})'
 
-echo "Step 5: transfer ckBTC to principal..."
-# record { owner= principal “”;}
-dfx canister call "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" icrc1_transfer "(record {from=null; to=record { owner= principal \"73avq-yvrvj-kuzxq-kttlj-nkaz4-tecy6-biuud-3ymeg-guvci-naire-uqe\";}; amount=1000000; fee=null; memo=null; created_at_time=null;})"
+  echo "Step 5: transfer ckBTC to principal..."
+  # record { owner= principal “”;}
+  dfx canister call "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" icrc1_transfer "(record {from=null; to=record { owner= principal \"73avq-yvrvj-kuzxq-kttlj-nkaz4-tecy6-biuud-3ymeg-guvci-naire-uqe\";}; amount=1000000; fee=null; memo=null; created_at_time=null;})"
+}
+
+check_ckbtc_deployment() {
+  for canister in "${LOCAL_PREFIX}ledger" "${LOCAL_PREFIX}minter"; do
+    : "Verify that the deployed canister matches the local wasm"
+    dfx-canister-check-wasm-hash --canister "$canister"
+  done
+}
+
+[[ "${DFX_CHECK}" == "true" ]] || deploy_ckbtc
+check_ckbtc_deployment
