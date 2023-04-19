@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Creates a snapshot of a stock environment, for use in CI tests.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="stock-snsdemo-snapshot.tar.xz"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+: Set up SNS state and create one finalized SNS
+dfx-sns-demo
+
+: "Wait for a checkpoint"
+dfx-network-wait-for-checkpoint --timeout 600
+
+: "Stop the replica gently but forcefully.  It must be stopped and should ideally have a clean state."
+dfx-network-stop
+
+echo "Saving state"
+dfx-snapshot-save --snapshot "$DFX_SNAPSHOT_FILE"
