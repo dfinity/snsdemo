@@ -37,6 +37,8 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-20.04
     steps:
+      - name: Install apt-dependencies
+        run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
       - uses: actions/checkout@v3
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
@@ -44,3 +46,10 @@ jobs:
           SHELLCHECK_OPTS: -e SC1090 -e SC2119 -e SC1091 -e SC2121 -e SC2155 -e SC2094 -e SC2015
       - name: Clap works
         run: ./bin/clap.test
+      - name: Import ckbtc works
+        run: |
+              set -euxo pipefail
+              echo "This modifies files, so make sure the state is clean before and after"
+              git clean -dfx
+              bin/dfx-ckbtc-import.test
+              git clean -dfx

@@ -20,13 +20,22 @@ source "$(clap.build)"
 
 export DFX_NETWORK
 
+# Work-around required to be able to run `dfx info`.
+# A proper fix is in dfx 0.14.0.
+# TODO: Remove this once we use dfx 0.14.0.
+get_home() {
+  eval echo "~$USER"
+}
+
 case "${FORMAT}" in
 url)
   if [[ "$DFX_NETWORK" == "local" ]]; then
     REPLICA_PORT="$(dfx info replica-port 2>/dev/null || true)"
     [[ "${REPLICA_PORT:-}" != "" ]] || {
       # The above command can fail if not run in the same directory as the replica working directory.
-      REPLICA_PORT="$(cd "$(realpath "/proc/$(pgrep icx-proxy | head -n1)/cwd")" && dfx info replica-port)"
+      DFX_EXEC_DIR="$(lsof -p $(pgrep icx-proxy) | grep cwd | awk '{print $NF}')"
+      cd "$DFX_EXEC_DIR"
+      REPLICA_PORT="$(HOME="$(get_home)" dfx info replica-port)"
     }
     echo "http://localhost:$REPLICA_PORT"
   elif [[ "${DFX_NETWORK:-}" =~ mainnet|ic ]]; then
