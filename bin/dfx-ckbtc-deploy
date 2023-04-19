@@ -75,7 +75,7 @@ dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant
 })" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
 
 echo "Step 4: deploying index canister..."
-dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" --upgrade-unchanged
+dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
 # Example to mint ckBTC
 
