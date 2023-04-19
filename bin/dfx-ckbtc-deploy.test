@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+(
+  echo "Should fail if ckbtc canisters have not been imported"
+  git checkout dfx.json
+  error_log="$(mktemp ,test_log.XXXXXXXX)"
+  if dfx-ckbtc-deploy --check 2>"$error_log" ; then
+    echo "ERROR: Should fail if ckbtc canisters are not in dfx.json"
+    exit 1
+  fi
+  grep 'ckbtc canister data and files are not all present and correct' "$error_log" || {
+    echo "The check should complain about ckbtc canisters missing in dfx.json"
+    exit 1
+  }
+  rm "$error_log"
+)
+(
+  echo "Should fail if ckbtc canisters have not been created"
+  dfx-network-stop
+  dfx start --clean --background
+  git checkout dfx.json
+  dfx-ckbtc-import
+  error_log="$(mktemp ,test_log.XXXXXXXX)"
+  if dfx-ckbtc-deploy --check 2>"$error_log" ; then
+    echo "ERROR: Should fail if ckbtc canisters are not in dfx.json"
+  fi
+  grep 'Failed to determine id for canister' "$error_log" || {
+    echo "The check should complain about missing canisters"
+    exit 1
+  }
+  rm "$error_log"
+  dfx-network-stop
+)
+(
+  echo "Should fail if ckbtc canisters have not been populated"
+  dfx-network-stop
+  dfx start --clean --background
+  git checkout dfx.json
+  dfx-ckbtc-import
+  dfx canister create "ckbtc_ledger"
+  dfx canister create "ckbtc_minter"
+  error_log="$(mktemp ,test_log.XXXXXXXX)"
+  if dfx-ckbtc-deploy --check 2>"$error_log" ; then
+    echo "ERROR: Should fail if ckbtc canisters are not in dfx.json"
+  fi
+  grep 'Failed to determine id for canister' "$error_log" || {
+    echo "The check should complain about missing canisters"
+    exit 1
+  }
+  rm "$error_log"
+  dfx-network-stop
+)
+
+echo SUCCESS
