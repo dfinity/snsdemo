@@ -12,7 +12,16 @@ source "$(clap.build)"
 export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
+  : "Ask for a clean shutdown"
   dfx stop || true
+  echo "Waiting for replica to stop..."
+  for ((i = 100; i > 0; i--)); do
+    printf '\r % 4d' "$i"
+    pgrep replica || break
+    sleep 1
+  done
+
+  : "Make sure that it is dead."
   sleep 1
   pkill -9 dfx || true
   pkill -9 replica || true
