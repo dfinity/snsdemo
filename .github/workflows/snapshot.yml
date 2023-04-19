@@ -6,7 +6,7 @@ env:
   GH_TOKEN: ${{ github.token }}
   TEST_RELEASE_PROCESS: false # Set to true if you wish to exercise github triggers without spending time creating real artefacts.
 jobs:
-  demo_current:
+  mk_snapshot:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -27,7 +27,7 @@ jobs:
                time bin/dfx-sns-demo-install --verbose
                time bin/dfx-snapshot-stock-make --snapshot "$snapshot_path" --verbose
           fi
-          echo "snapshot_path=$path" >> "$GITHUB_OUTPUT"
+          echo "path=$snapshot_path" >> "$GITHUB_OUTPUT"
       - name: Time snapshot start # See GitHub for the duration of this step.
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
         run: bin/dfx-snapshot-restore --snapshot "${{ steps.snapshot.outputs.path }}"
