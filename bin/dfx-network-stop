@@ -13,7 +13,7 @@ export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
   : "Send the equivalent of ctrl-c"
-  pgrep --full '\<dfx\>.*\<start\>' | xargs --no-run-if-empty kill
+  pgrep --full '\<dfx\>.*\<start\>' | xargs --no-run-if-empty kill || true
   echo "Waiting for replica to stop..."
   for ((i = 100; i > 0; i--)); do
     printf '\r % 4d' "$i"
