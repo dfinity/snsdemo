@@ -30,4 +30,4 @@ if command -v dfx >/dev/null; then
 fi
 
 export DFX_VERSION
-sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+sh -ci "$(curl --retry 5 -fsSL https://internetcomputer.org/install.sh)"
