@@ -6,7 +6,6 @@ on:
   pull_request:
 env:
   GH_TOKEN: ${{ github.token }}
-  LATEST_WORKS: false # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
 jobs:
   #  readme:
   #    runs-on: ${{ matrix.os }}
@@ -75,7 +74,7 @@ jobs:
           path: state.tar.xz
           retention-days: 3
   demo_latest:
-    if: env.LATEST_WORKS == 'true'
+    if: false # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
