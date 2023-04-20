@@ -75,7 +75,7 @@ jobs:
           path: state.tar.xz
           retention-days: 3
   demo_latest:
-    if: ${{ env.LATEST_WORKS }}
+    if: env.LATEST_WORKS == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
