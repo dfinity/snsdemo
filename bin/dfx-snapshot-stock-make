@@ -20,6 +20,10 @@ source "$(clap.build)"
 : Set up SNS state and create one finalized SNS
 dfx-sns-demo
 
+: Set up ckbtc canisters
+dfx-ckbtc-import --prefix ckbtc_
+dfx-ckbtc-deploy --prefix ckbtc_ --yes
+
 : "Wait for a checkpoint"
 dfx-network-wait-for-checkpoint --timeout 600
 

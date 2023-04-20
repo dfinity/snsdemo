@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+(
+  printf "\n\n===================================\n"
+  echo "Should fail if ckbtc canisters have not been imported"
+  git checkout dfx.json
+  error_log="$(mktemp ,test_log.XXXXXXXX)"
+  if dfx-ckbtc-deploy --check 2>"$error_log"; then
+    echo "ERROR: Should fail if ckbtc canisters are not in dfx.json"
+    exit 1
+  fi
+  grep 'ckbtc canister data and files are not all present and correct' "$error_log" || {
+    echo "The check should complain about ckbtc canisters missing in dfx.json"
+    exit 1
+  }
+  rm "$error_log"
+)
+(
+  printf "\n\n===================================\n"
+  echo "Should fail if ckbtc canisters have not been created"
+  dfx-network-stop
+  dfx start --clean --background
+  git checkout dfx.json
+  dfx-ckbtc-import
+  error_log="$(mktemp ,test_log.XXXXXXXX)"
+  if dfx-ckbtc-deploy --check 2>"$error_log"; then
+    echo "ERROR: Should fail if ckbtc canisters are not in dfx.json"
+  fi
+  grep 'Failed to determine id for canister' "$error_log" || {
+    echo "The check should complain about missing canisters"
+    exit 1
+  }
+  rm "$error_log"
+  dfx-network-stop
+)
+(
+  printf "\n\n===================================\n"
+  echo "Should fail if ckbtc canisters have not been populated"
+  dfx-network-stop
+  dfx start --clean --background
+  git checkout dfx.json
+  dfx-ckbtc-import
+  dfx canister create "ckbtc_ledger" --no-wallet
+  dfx canister create "ckbtc_minter" --no-wallet
+  error_log="$(mktemp ,test_log.XXXXXXXX)"
+  if dfx-ckbtc-deploy --check 2>"$error_log"; then
+    echo "ERROR: Should fail if ckbtc canisters have the incorrect or no hash"
+  fi
+  grep 'ERROR: Deployed ckbtc_ledger hash does not match.' "$error_log" || {
+    echo "ERROR: The check should complain about missing canisters."
+    echo "Actual error output:"
+    sed 's/^/    /g' "$error_log"
+    exit 1
+  }
+  rm "$error_log"
+  dfx-network-stop
+)
+(
+  printf "\n\n===================================\n"
+  echo "Should succeed if canisters have been deployed"
+  dfx-network-stop
+  dfx start --clean --background
+  git checkout dfx.json
+  dfx-ckbtc-import
+  dfx-ckbtc-deploy --yes
+  dfx-ckbtc-deploy --check
+  dfx-network-stop
+)
+
+printf "\n\n\nckbtc tests passed.\n"
