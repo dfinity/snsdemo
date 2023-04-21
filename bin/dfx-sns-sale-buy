@@ -41,7 +41,7 @@ set dfx-sns-quill --network "$DFX_NETWORK" pay --amount-icp-e8s "$AMOUNT_E8S" --
 echo "${@}"
 FAILED=false
 
-if !("${@}" | tee ,sns-sale-buy.idl); then
+if ! ("${@}" | tee ,sns-sale-buy.idl); then
   FAILED=true
 fi
 
