@@ -2,7 +2,7 @@
 
 This repository has a collection of tools to make it easier to manage
 environments with SNS projects and other dependencies. If this sounds vague it's
-because it's a bit of a kitchen sync. Some of them are described below.
+because it's a bit of a kitchen sink. Some of them are described below.
 
 
 The official documentation for SNS testing has moved [here](https://internetcomputer.org/docs/current/developer-docs/integrations/sns/get-sns/local-testing).
