@@ -8,7 +8,7 @@ export PATH
 print_help() {
   cat <<-EOF
 
-	Deploy s astock set of canisters and state:
+	Deploys a stock set of canisters and state:
 	 - NNS canisters including root, governance, ledger and others.
 	 - SNS canisters and applies the configuration required to make additional canisters.
 	 - CKBTC canisters (incomplete)
@@ -20,8 +20,8 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=ic_commit desc="The IC commit to use" variable=DFX_IC_COMMIT default="$(dfx-software ic current)"
-clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
-clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
+clap.define short=x long=ic_dir desc="Directory containing the ic source code; needed for deployments to static testnets" variable=IC_REPO_DIR default="$HOME/dfn/ic"
+clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code; needed for deployments to static testnets" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
