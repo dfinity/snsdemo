@@ -57,8 +57,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
 
   dfx start --clean --background
   dfx nns install
-  dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
-  dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
+  dfx-nns-import
 
   II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE:-latest}" --flavor "dev")"
   curl --retry 5 --fail -sSL "${II_WASM_URL}" -o internet_identity_dev.wasm
