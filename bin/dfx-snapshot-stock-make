@@ -28,3 +28,5 @@ dfx-network-stop
 
 echo "Saving state"
 dfx-snapshot-save --snapshot "$DFX_SNAPSHOT_FILE"
+
+echo "Snapshot saved to $DFX_SNAPSHOT_FILE"

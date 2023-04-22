@@ -16,8 +16,8 @@ export DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY
 export DFX_IDENTITY_PEM="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
 export DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
-# The due date of the sale must be greater than 1 day at thetime of NNS proposal execution
-SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 14 * 24 * 3600')"
+# The due date of the sale must be greater than 1 day at the time of NNS proposal execution
+SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 90 * 24 * 3600')"
 SNS_SWAP="$(dfx canister id sns_swap --network "$DFX_NETWORK")"
 SNS_TOKENS_E8s=314100000000
 TOKEN_SYMBOL="$(awk '/token_symbol:/{print $2}' sns.yml || echo SOMETHING)"
