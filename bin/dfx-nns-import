@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# TODO: `dfx nns import` should have done this but it currently doesn't.
+# Polyfill for dfx nns import, to fix some issues that should be fixed upstream.
+# There is a PR for upstream, but it will take time to be released.
+
+dfx nns import
 
 jq -s '.[0] * .[1]' dfx.json <(
   cat <<EOF
 {
   "canisters": {
+    "nns-dapp": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/nns-dapp/blob/proposal-86037/rs/nns-dapp.did",
+      "wasm": "https://github.com/dfinity/nns-dapp/releases/download/tip/nns-dapp_t2.wasm",
+      "remote": {
+        "id": {
+          "ic": "qoctq-giaaa-aaaaa-aaaea-cai",
+          "mainnet": "qoctq-giaaa-aaaaa-aaaea-cai",
+	  "local": "qsgjb-riaaa-aaaaa-aaaga-cai",
+	  "__default": "qsgjb-riaaa-aaaaa-aaaga-cai"
+        }
+      }
+    },
     "internet_identity": {
       "type": "custom",
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
@@ -28,6 +44,11 @@ mv dfx.new dfx.json
 
 mkdir -p declarations
 
+: Get nns-dapp candid...
+# Warning: The path to the did file has changed; do not parameterize.  Fix upstream.
+curl --retry 5 --fail --silent "$NNS_DAPP_DID_URL" -o declarations/nns-dapp.did
+
+: Get internet_identity candid...
 cat <<'EOF' >declarations/internet_identity.did
 type UserNumber = nat64;
 type PublicKey = blob;
