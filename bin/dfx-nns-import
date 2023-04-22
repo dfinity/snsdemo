@@ -12,7 +12,7 @@ jq -s '.[0] * .[1]' dfx.json <(
   "canisters": {
     "nns-dapp": {
       "type": "custom",
-      "candid": "https://github.com/dfinity/nns-dapp/blob/proposal-86037/rs/nns-dapp.did",
+      "candid": "https://raw.githubusercontent.com/dfinity/nns-dapp/proposal-86037/rs/nns-dapp.did",
       "wasm": "https://github.com/dfinity/nns-dapp/releases/download/tip/nns-dapp_t2.wasm",
       "remote": {
         "id": {
@@ -46,7 +46,8 @@ mkdir -p declarations
 
 : Get nns-dapp candid...
 # Warning: The path to the did file has changed; do not parameterize.  Fix upstream.
-curl --retry 5 --fail --silent "$NNS_DAPP_DID_URL" -o declarations/nns-dapp.did
+NNS_DAPP_DID_URL="$(jq -r '.canisters["nns-dapp"].candid' dfx.json)"
+curl --retry 5 --fail --silent "$NNS_DAPP_DID_URL" >declarations/nns-dapp.did
 
 : Get internet_identity candid...
 cat <<'EOF' >declarations/internet_identity.did
@@ -381,3 +382,5 @@ service : (opt InternetIdentityInit) -> {
     acknowledge_entries: (sequence_number: nat64) -> ();
 }
 EOF
+
+: FIN
