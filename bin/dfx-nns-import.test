@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
 
-nns_canisters=(nns-registry nns-governance nns-ledger nns-root nns-cycles-minting nns-lifeline nns-genesis-token nns-identity nns-ui nns-sns-wasm nns-ic-ckbtc-minter internet_identity nns-dapp)
+nns_canisters=(nns-registry nns-governance nns-ledger nns-root nns-cycles-minting nns-lifeline nns-genesis-token nns-sns-wasm internet_identity nns-dapp) # Omitted: nns-identity nns-ui nns-ic-ckbtc-minter
 networks=(ic local toy)
 
 (
+  printf "\n=====================================\n\n"
   echo "dfx-nns-import sets the required values for a local import"
   for network in "${networks[@]}"; do
+    git checkout dfx.json
     dfx-nns-import --network "$network"
     for canister in "${nns_canisters[@]}"; do
       dfx canister id "$canister" >/dev/null || {
         echo "ERROR: Did not import canister ID for $canister"
         exit 1
       }
-      [[ "$(c="$canister" jq '.canisters[env.c]')" != "null" ]] || {
+      [[ "$(c="$canister" jq '.canisters[env.c]' dfx.json)" != "null" ]] || {
         echo "ERROR: Did not import canister ID for $canister"
         exit 1
       }
     done
   done
+  echo "Check passed"
 )
