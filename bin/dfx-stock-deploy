@@ -40,6 +40,14 @@ dfx-sns-demo-mksns --network "$DFX_NETWORK"
 dfx-ckbtc-import --prefix ckbtc_
 dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
 
+: Set frontend canister IDs
+# TODO: These _should_ be set by `dfx nns import` but are not.  That _should_ be the one and only
+# place where they are set.  They _are_ set by dfx-network-deploy but that setting seems to have
+# been wiped somehow.  So concentrate the code in the dfx-nns-import polyfill, test it and remove
+# other places, like below, where it is set.
+dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
+dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
+
 : Add the nns root as a controller to the frontend canisters
 NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
 for canister in nns-dapp internet_identity; do
