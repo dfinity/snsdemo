@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+print_help() {
+  cat <<-EOF
+	
+	Casts a vote on a proposal.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=N long=neuron desc="The neuron ID" variable=DFX_NEURON_ID
+clap.define short=i long=identity desc="The dfx identity to use.  The identity principal must control the neuron." variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=p long=proposal desc="Proposal number" variable=DFX_PROPOSAL
+clap.define short=v long=vote desc="Vote yes/no" variable=DFX_VOTE default=yes
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+test -z "${DFX_VERBOSE:-}" || set -x
+
+case "${DFX_VOTE:-}" in
+yes | YES) DFX_VOTE_NUM=1 ;;
+no | NO) DFX_VOTE_NUM=0 ;;
+*) {
+  echo "ERROR: Please vote either yes or no."
+  exit 1
+} >&2 ;;
+esac
+
+[ "${DFX_NEURON_ID:-}" != "" ] || {
+  DFX_NEURON_ID="$(dfx-neuron-id --network "$DFX_NETWORK" 2>/dev/null)"
+}
+[ "${DFX_NEURON_ID:-}" != "" ] || {
+  echo "Please provide a neuron ID"
+  exit 1
+}
+
+dfx --identity "$DFX_IDENTITY" canister --network="$DFX_NETWORK" call nns-governance manage_neuron --type=idl '(record {id=opt record {id='"$DFX_NEURON_ID"'}; command=opt variant {RegisterVote=record {vote='"$DFX_VOTE_NUM"'; proposal=opt record {id='"$DFX_PROPOSAL"'}}}})'
+
+#(record { command = opt variant { RegisterVote = record {} } })
