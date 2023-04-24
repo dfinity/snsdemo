@@ -18,7 +18,9 @@ source "$(clap.build)"
 
 dfx canister --network "$DFX_NETWORK" call sns_swap finalize_swap '(record {})' | tee ,sns-sale-finalize.idl
 
-if idl2json <,sns-sale-finalize.idl | jq 'to_entries | map({key: .key, value: {failure: .value[0].failure}} | select((.value.failure != 0) and (.value.failure != null)))| from_entries | select (. != {})' | grep .; then
+ERROR_MESSAGE="$(idl2json <,sns-sale-finalize.idl | jq -r '.error_message')"
+
+if [ "${ERROR_MESSAGE}" != "null" ]; then
   {
     echo "There were errors in the finalization."
     exit 1
