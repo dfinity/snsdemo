@@ -49,7 +49,7 @@ if grep --quiet 'Panicked' ,sns-sale-buy.idl; then
   FAILED=true
 fi
 
-if [ "$FAILED" = "true" ]; then
+[[ "$FAILED" == "false" ]] || {
   echo "ERROR: Failed to participate in SNS swap."
   echo "Ticket response:"
   echo "$TICKET_RESPONSE"
@@ -60,4 +60,4 @@ if [ "$FAILED" = "true" ]; then
   echo "Ticket creation time:"
   echo "$TICKET_CREATION_TIME"
   exit 1
-fi
+} >&2
