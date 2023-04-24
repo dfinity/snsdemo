@@ -17,12 +17,8 @@ clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSH
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-: Set up SNS state and create one finalized SNS
-dfx-sns-demo
-
-: Set up ckbtc canisters
-dfx-ckbtc-import --prefix ckbtc_
-dfx-ckbtc-deploy --prefix ckbtc_ --yes
+: Create stock state
+dfx-stock-deploy
 
 : "Wait for a checkpoint"
 dfx-network-wait-for-checkpoint --timeout 600
@@ -32,3 +28,5 @@ dfx-network-stop
 
 echo "Saving state"
 dfx-snapshot-save --snapshot "$DFX_SNAPSHOT_FILE"
+
+echo "Snapshot saved to $DFX_SNAPSHOT_FILE"
