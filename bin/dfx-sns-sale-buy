@@ -29,9 +29,27 @@ TICKET_RESPONSE_JSON="$(echo "$TICKET_RESPONSE" | idl2json)"
 TICKET_ID="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Ok.ticket[0].ticket_id')"
 TICKET_CREATION_TIME="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Ok.ticket[0].creation_time')"
 
+if [ "$TICKET_ID" = "null" ]; then
+  echo "Didn't get a new ticket ID. Checking the response for an existing ticket ID."
+  TICKET_ID="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Err.existing_ticket[0].ticket_id')"
+  TICKET_CREATION_TIME="$(echo "$TICKET_RESPONSE_JSON" | jq -r '.result[0].Err.existing_ticket[0].creation_time')"
+fi
+
+echo "TICKET_ID: $TICKET_ID"
+
 set dfx-sns-quill --network "$DFX_NETWORK" pay --amount-icp-e8s "$AMOUNT_E8S" --ticket-id "$TICKET_ID" --ticket-creation-time "$TICKET_CREATION_TIME"
 echo "${@}"
-"${@}" || {
+FAILED=false
+
+if ! ("${@}" | tee ,sns-sale-buy.idl); then
+  FAILED=true
+fi
+
+if grep --quiet 'Panicked' ,sns-sale-buy.idl; then
+  FAILED=true
+fi
+
+[[ "$FAILED" == "false" ]] || {
   echo "ERROR: Failed to participate in SNS swap."
   echo "Ticket response:"
   echo "$TICKET_RESPONSE"
@@ -42,4 +60,4 @@ echo "${@}"
   echo "Ticket creation time:"
   echo "$TICKET_CREATION_TIME"
   exit 1
-}
+} >&2
