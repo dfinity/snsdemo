@@ -103,7 +103,7 @@ deploy_ckbtc() {
 check_ckbtc_deployment() {
   for canister in "${LOCAL_PREFIX}ledger" "${LOCAL_PREFIX}minter"; do
     : "Verify that the deployed canister matches the local wasm"
-    dfx-canister-check-wasm-hash --canister "$canister"
+    dfx-canister-check-wasm-hash --canister "$canister" --network "$DFX_NETWORK"
   done
 }
 
