@@ -20,6 +20,12 @@ source "$(clap.build)"
 : Set up SNS state and create one finalized SNS
 dfx-sns-demo
 
+: Add 10 more finalized SNS projects.
+dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
+
+: Add 1 open SNS project.
+dfx-sns-demo-mksns
+
 : Set up ckbtc canisters
 dfx-ckbtc-import --prefix ckbtc_
 dfx-ckbtc-deploy --prefix ckbtc_ --yes
@@ -32,3 +38,5 @@ dfx-network-stop
 
 echo "Saving state"
 dfx-snapshot-save --snapshot "$DFX_SNAPSHOT_FILE"
+
+echo "Snapshot saved to $DFX_SNAPSHOT_FILE"
