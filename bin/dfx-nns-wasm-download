@@ -28,7 +28,7 @@ help_text() {
 		  Default: '$DOWNLOAD_DIR'
 		  The download dir is printed on stdout for use by other programs.
 
-		--commit <DFX_IC_COMMIT>
+		--ic_commit <DFX_IC_COMMIT>
 		  Commit in the IC repo.
 		  Note: Not all commits are available as artifacts to download.
 
@@ -54,7 +54,7 @@ while (($# > 0)); do
     } >&2
     shift 1
     ;;
-  --ic-commit)
+  --ic_commit)
     DFX_IC_COMMIT="$1"
     shift 1
     ;;
