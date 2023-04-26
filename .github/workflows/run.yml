@@ -74,7 +74,7 @@ jobs:
           path: state.tar.xz
           retention-days: 3
   demo_latest:
-    if: false # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
+    if: true # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
