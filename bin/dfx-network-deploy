@@ -56,7 +56,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   curl "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/sns-wasm-canister.wasm.gz" | gunzip >"${WASM_DIR}/sns-wasm-canister.wasm"
 
   dfx start --clean --background
-  dfx-nns-wasm-download --ic_commit "$DFX_IC_COMMIT"
+  dfx-nns-wasm-download --ic_commit "$DFX_IC_COMMIT" --download-dir "$(dfx cache show)/wasms"
   dfx nns install
   dfx-nns-import
 
