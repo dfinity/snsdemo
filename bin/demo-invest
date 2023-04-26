@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-. .demo-env || true
-
-echo "$(./bin/dfx-url nns-dapp)/#/project/$(jq -r '.sns_root[env.DFX_NETWORK]' canister_ids.json)"
