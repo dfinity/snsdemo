@@ -137,7 +137,7 @@ get_wasm governance-canister_test.wasm nns-governance.wasm governance-canister.w
 get_wasm ledger-canister_notify-method.wasm nns-ledger.wasm
 get_wasm root-canister.wasm nns-root.wasm
 get_wasm cycles-minting-canister.wasm nns-cmc.wasm
-get_wasm lifeline.wasm nns-lifeline.wasm
+get_wasm lifeline_canister.wasm nns-lifeline.wasm lifeline.wasm
 get_wasm sns-wasm-canister.wasm nns-sns-wasm.wasm
 get_wasm genesis-token-canister.wasm
 get_wasm identity-canister.wasm
