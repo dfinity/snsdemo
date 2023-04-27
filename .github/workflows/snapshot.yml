@@ -52,7 +52,10 @@ jobs:
           path: "snsdemo_snapshot_${{ matrix.os }}.test"
       - name: Start snapshot # See GitHub for the duration of this step.
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
-        run: bin/dfx-snapshot-restore --snapshot "${{ steps.download_snapshot.outputs.download-path }}"
+        run: |
+                set -euxo pipefail
+                ls -l "${{ steps.download_snapshot.outputs.download-path }}"
+                bin/dfx-snapshot-restore --snapshot "${{ steps.download_snapshot.outputs.download-path }}/snsdemo_snapshot_${{ matrix.os }}.tar.xz"
       - name: Test snapshot
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
         run: bin/dfx-sns-demo-healthcheck
