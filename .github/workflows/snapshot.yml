@@ -41,9 +41,15 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
     steps:
-      - name: Checkout
+      - name: Checkout snsdemo
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
         uses: actions/checkout@v3
+      - name: Add snsdemo tools to path
+        if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
+        run: echo "$PWD/bin" >> $GITHUB_PATH
+      - name: Install dfx
+        if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
+        run: dfx-software-dfx-install
       - name: Download shapshot
         uses: actions/download-artifact@v3
         id: download_snapshot
