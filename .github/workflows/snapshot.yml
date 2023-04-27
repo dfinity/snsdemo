@@ -28,10 +28,36 @@ jobs:
                time bin/dfx-snapshot-stock-make --snapshot "$snapshot_path" --verbose
           fi
           echo "path=$snapshot_path" >> "$GITHUB_OUTPUT"
-      - name: Time snapshot start # See GitHub for the duration of this step.
+      - uses: actions/upload-artifact@v3
+        with:
+          name: snsdemo_snapshot_${{ matrix.os }}
+          path: ${{ steps.snapshot.outputs.path }}
+          retention-days: 3
+  test_snapshot:
+    needs: mk_snapshot
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+    steps:
+      - name: Checkout
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
-        run: bin/dfx-snapshot-restore --snapshot "${{ steps.snapshot.outputs.path }}"
+        uses: actions/checkout@v3
+      - name: Download shapshot
+        uses: actions/download-artifact@v3
+        id: download_snapshot
+        with:
+          name: "snsdemo_snapshot_${{ matrix.os }}"
+          path: "snsdemo_snapshot_${{ matrix.os }}.test"
+      - name: Start snapshot # See GitHub for the duration of this step.
+        if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
+        run: bin/dfx-snapshot-restore --snapshot "${{ steps.download_snapshot.outputs.download-path }}"
+      - name: Test snapshot
+        if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
+        run: bin/dfx-sns-demo-healthcheck
       - name: Stop dfx
+        if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
         run: dfx stop
       - name: Release if applicable
         run: |
