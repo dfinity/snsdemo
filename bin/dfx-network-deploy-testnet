@@ -17,6 +17,7 @@ clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source c
 source "$(clap.build)"
 
 export DFX_NETWORK
+[[ "${DFX_IC_COMMIT:-}" != "latest" ]] || DFX_IC_COMMIT="$(dfx-software ic latest --ic_dir "$IC_REPO_DIR")"
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
   echo NOT APPLICABLE
