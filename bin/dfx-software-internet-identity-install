@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -xeuo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+  Fetches and installs the internet-identity canister wasm file.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="latest"
+# See https://github.com/dfinity/internet-identity#flavors
+clap.define short=f long=flavor desc="production, test, or dev" variable=DFX_II_FLAVOR default="dev"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+echo "network $DFX_NETWORK, release $DFX_II_RELEASE, flavor $DFX_II_FLAVOR"
+
+II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE}" --flavor "${DFX_II_FLAVOR}")"
+
+# If II_WASM_URL ends with .gz, unzip the result
+if [[ "${II_WASM_URL}" =~ \.gz$ ]]; then
+  curl --retry 5 --fail -sSL "${II_WASM_URL}" | gunzip >internet_identity_dev.wasm
+else 
+  curl --retry 5 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
+fi
+
+dfx canister install internet_identity --wasm internet_identity_dev.wasm --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}"
