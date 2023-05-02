@@ -31,10 +31,9 @@ test -n "${RELEASE_NAME:-}" || {
 } >&2
 
 WASM_FILE="internet_identity_${DFX_II_FLAVOR}.wasm"
-RELEASE_NAME="release-2023-04-12"
 
 # If the release is later than 2023-04-12, only .gz files are available
-if [[ "${RELEASE_NAME}" > "release-2023-04-12" ]]; then
+if ! [[ "${RELEASE_NAME}" =~ "^release-[0-9]{4}-[0-9]{2}-[0-9]{2}$" && "${RELEASE_NAME}" < "release-2023-04-28" ]]; then
   WASM_FILE="${WASM_FILE}.gz"
 fi
 
