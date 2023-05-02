@@ -25,11 +25,7 @@ echo "network $DFX_NETWORK, release $DFX_II_RELEASE, flavor $DFX_II_FLAVOR"
 
 II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE}" --flavor "${DFX_II_FLAVOR}")"
 
-# If II_WASM_URL ends with .gz, unzip the result
-if [[ "${II_WASM_URL}" =~ \.gz$ ]]; then
-  curl --retry 5 --fail -sSL "${II_WASM_URL}" | gunzip >internet_identity_dev.wasm
-else
-  curl --retry 5 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
-fi
+# The URL might point to a .gz file, but dfx can install gzipped wasms directly.
+curl --retry 5 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
 
 dfx canister install internet_identity --wasm internet_identity_dev.wasm --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}"
