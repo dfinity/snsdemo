@@ -61,9 +61,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
   dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
 
-  II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE:-latest}" --flavor "dev")"
-  curl --retry 5 --fail -sSL "${II_WASM_URL}" -o internet_identity_dev.wasm
-  dfx canister install internet_identity --wasm internet_identity_dev.wasm --upgrade-unchanged --mode reinstall --yes
+  dfx-software-internet-identity-install --release "${DFX_II_RELEASE:-latest}" --flavor "dev" --network local
 else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
