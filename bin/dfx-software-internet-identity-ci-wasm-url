@@ -17,7 +17,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="latest"
+clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="pinned"
 # See https://github.com/dfinity/internet-identity#flavors
 clap.define short=f long=flavor desc="production, test, or dev" variable=DFX_II_FLAVOR default="test"
 # Source the output file ----------------------------------------------------------
