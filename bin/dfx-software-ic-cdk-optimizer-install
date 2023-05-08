@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Install ic-cdk optimizer.
+
+	Note: This tool is end-of-life.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=v long=version desc="The version to install" variable=VERSION default="0.3.6"
+clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+OS="$(uname)"
+
+optimizer_version() {
+  ic-cdk-optimizer --version | awk '{print $2}'
+}
+
+check_optimizer() {
+  [[ "$(optimizer_version &>/dev/null)" == "$VERSION" ]]
+}
+
+install_optimizer() {
+  case "$OS" in
+  Linux)
+    curl --retry 5 -L --fail "https://github.com/dfinity/cdk-rs/releases/download/${VERSION}/ic-cdk-optimizer-${VERSION}-ubuntu-20.04.tar.gz" |
+      gunzip |
+      tar -x --to-stdout "ic-cdk-optimizer-${VERSION}-ubuntu-20.04/ic-cdk-optimizer" |
+      install -m 755 /dev/stdin "$USER_BIN/ic-cdk-optimizer"
+    ;;
+  Darwin)
+    temp="$(mktemp ic-cdk-optimizer-XXXXXXX)"
+    curl --retry 5 -L --fail "https://github.com/dfinity/cdk-rs/releases/download/${VERSION}/ic-cdk-optimizer-${VERSION}-macos-latest.tar.gz" |
+      gunzip |
+      tar -x --to-stdout "ic-cdk-optimizer-${VERSION}-macos-latest/ic-cdk-optimizer" >"$temp"
+    install -m 755 "$USER_BIN/ic-cdk-optimizer"
+    ;;
+  *)
+    {
+      echo "ERROR: Sorry, this platform is unsupported.  PRs are welcome."
+      exit 1
+    } >&2
+    ;;
+  esac
+}
+
+check_optimizer || {
+  install_optimizer
+  check_optimizer
+}
