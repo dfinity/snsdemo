@@ -34,11 +34,13 @@ else
   (
     set -euxo pipefail
     echo "Deploying internet-identity and nns-dapp"
-    cd "$ND_REPO_DIR"
-    rm -f canister_ids.json
+    cp canister_ids.json "$ND_REPO_DIR"
+    pushd "$ND_REPO_DIR"
     ./deploy.sh --ii "$DFX_NETWORK"
     ./deploy.sh --sns-aggregator "$DFX_NETWORK"
     ./deploy.sh --nns-dapp "$DFX_NETWORK"
+    popd
+    cp "$ND_REPO_DIR/canister_ids.json" canister_ids.json
   ) || say fail fail fail
 
 fi
