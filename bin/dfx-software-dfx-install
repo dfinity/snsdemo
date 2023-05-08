@@ -14,8 +14,14 @@ source "$(clap.build)"
 [[ "${DFX_VERSION}" != "latest" ]] || DFX_VERSION=""
 DFX_VERSION="${DFX_VERSION#v}"
 
+# Install the dfx cache if it hasn't been installed already
+lazy_dfx_cache_install() {
+  test -d "$(dfx cache show)" || dfx cache install
+}
+
 if command -v dfx && [[ "$(dfx --version | awk '{print $2}')" == "${DFX_VERSION:-}" ]]; then
-  echo "dfx v$DFX_VERSION already installed.  Nothing to do."
+  echo "dfx v$DFX_VERSION already installed."
+  lazy_dfx_cache_install
   exit 0
 fi
 
@@ -31,3 +37,4 @@ fi
 
 export DFX_VERSION
 sh -ci "$(curl --retry 5 -fsSL https://internetcomputer.org/install.sh)"
+lazy_dfx_cache_install

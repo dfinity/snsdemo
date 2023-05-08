@@ -9,6 +9,7 @@ export DFX_NETWORK=""
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
+clap.define short=l long=pinned desc="Get the pinned version from versions.bash" variable=GET_PINNED nargs=0
 clap.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
 clap.define short=n long=network desc="Get the version deployed on the given network" variable=DFX_NETWORK default=""
 clap.define short=c long=canister desc="Get the version deployed to the given canster of the specified network" variable=CANISTER
@@ -30,12 +31,17 @@ test -z "${DFX_NETWORK:-}" || {
   fi
 }
 
+STRATEGY="${STRATEGY:-${GET_PINNED:+pinned}}"
 STRATEGY="${STRATEGY:-${GET_LATEST:+latest}}"
 STRATEGY="${STRATEGY:-${GET_URL:+url}}"
 STRATEGY="${STRATEGY:-${GET_MAINNET:+mainnet}}"
 STRATEGY="${STRATEGY:-${GET_HASH:+hash}}"
 STRATEGY="${STRATEGY:-${DFX_NETWORK:+network}}"
 case "${STRATEGY}" in
+pinned)
+  . "$SOURCE_DIR/versions.bash"
+  echo "$INTERNET_IDENTITY_RELEASE"
+  ;;
 latest)
   gh release list --exclude-drafts --limit 1 --repo dfinity/internet-identity | awk '{print $1}' | awk -F: '{print $1}'
   ;;
@@ -63,8 +69,9 @@ hash)
   ;;
 "")
   # Best guess. NOT guaranteed to be stable.
-  guess="${1:-latest}"
+  guess="${1:-pinned}"
   case "${guess:-}" in
+  pinned) dfx-software-internet-identity-version --pinned ;;
   latest) dfx-software-internet-identity-version --latest ;;
   mainnet) dfx-software-internet-identity-version --mainnet ;;
   release-*) echo "${guess}" ;;
