@@ -13,7 +13,7 @@ clap.define short=l long=pinned desc="Get the pinned version from versions.bash"
 clap.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
 clap.define short=n long=network desc="Get the version deployed on the given network" variable=DFX_NETWORK default=""
 clap.define short=c long=canister desc="Get the version deployed to the given canster of the specified network" variable=CANISTER
-clap.define short=m long=mainnet desc="Get the version deployed in production" variable=GET_MAINNET
+clap.define short=m long=mainnet desc="Get the version deployed in production" variable=GET_MAINNET nargs=0
 clap.define short=h long=hash desc="Get the version of a given hash" variable=GET_HASH
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
