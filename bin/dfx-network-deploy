@@ -36,6 +36,7 @@ if [[ "${DFX_PRODLIKE:-}" == "true" ]]; then
   DFX_II_RELEASE="$(dfx-software-internet-identity-version --mainnet)"
 fi
 
+# Creates core NNS canisters.  Reserves canister IDs for II and nns-dapp.
 if [[ "$DFX_NETWORK" == "local" ]]; then
   # Run locally; can be configured by e.g. changing the wasm files in the cache
   dfx-network-stop --network "$DFX_NETWORK"
@@ -67,14 +68,16 @@ else
   dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
   dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
 
-  : Set up ckbtc canisters
-  dfx-ckbtc-import --prefix ckbtc_
-  dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
-
-  : Install Internet Identity, NNS and aggregator
-  dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+  dfx canister create internet_identity --no-wallet --network "$DFX_NETWORK" --provisional-create-canister-effective-canister-id qhbym-qaaaa-aaaaa-aaafq-cai
+  dfx canister create nns-dapp --no-wallet --network "$DFX_NETWORK" --provisional-create-canister-effective-canister-id qsgjb-riaaa-aaaaa-aaaga-cai
 fi
 
-# However the network is deloyed, we also need a placeholder for the aggregator canister.
+: Set up ckbtc canisters
+dfx-ckbtc-import --prefix ckbtc_
+dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
+
+: Install Internet Identity, NNS and aggregator
+dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+
+# Create entries in dfx.json
 jq '.canisters.sns_aggregator = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
-dfx canister create sns_aggregator --no-wallet --network "$DFX_NETWORK"
