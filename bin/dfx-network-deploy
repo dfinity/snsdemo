@@ -91,5 +91,5 @@ done
 for canister in ckbtc_ledger ckbtc_minter ckbtc_index internet_identity nns-dapp sns_aggregator; do
   echo "Check $canister:"
   c="$canister" jq -e '.canisters[env.c]' dfx.json
-  dfx canister id "$canister"
+  dfx canister id "$canister" --network "$DFX_NETWORK"
 done
