@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Print functions exported by a canister.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+# The only meaningful export from canister wasms is function names.
+canister_nm=(wasm-nm -je)
+
+canister_wasm="$1"
+case "$(file "$canister_wasm")" in
+*gzip*) "${canister_nm[@]}" <(gunzip <"$canister_wasm") ;;
+*) "${canister_nm[@]}" "$canister_wasm" ;;
+esac

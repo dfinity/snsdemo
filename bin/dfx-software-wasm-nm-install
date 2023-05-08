@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Installs wasm-nm.
+
+	wasm-nm prints the symbols in a wasm binary, similar to 'nm' for native executables.
+
+	Canister wasms are typically compressed, so need to be decompressed before use, or
+	use dfx-canister-nm.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=v long=version desc="The version of wasm-nm to install" variable=VERSION default="0.2.0"
+clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+
+wasm_nm_version() {
+  wasm-nm --version | awk '{print $2}'
+}
+wasm_nm_check() {
+  [[ "$(wasm_nm_version 2>/dev/null)" == "$VERSION" ]]
+}
+wasm_nm_install() {
+  cargo install wasm-nm@"$VERSION"
+}
+
+if wasm_nm_check; then
+  echo "Version $VERSION is already installed."
+else
+  echo "Installing wasm-nm $VERSION..."
+  wasm_nm_install
+  echo "  Checking installation..."
+  wasm_nm_check
+  echo "  Installation successful."
+fi
