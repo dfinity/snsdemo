@@ -4,10 +4,20 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
+print_help() {
+  cat <<-EOF
+
+	Outputs the URL of the wasm file for the internet-identity canister.
+	The URL may or may not end with .gz (and be correspondingly gzipped),
+	depending on the release date.
+
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="latest"
+clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="pinned"
 # See https://github.com/dfinity/internet-identity#flavors
 clap.define short=f long=flavor desc="production, test, or dev" variable=DFX_II_FLAVOR default="test"
 # Source the output file ----------------------------------------------------------
@@ -19,4 +29,12 @@ RELEASE_NAME="$(dfx-software-internet-identity-version --verbose "${DFX_II_RELEA
 test -n "${RELEASE_NAME:-}" || {
   echo "ERROR: Could not find release '${DFX_II_RELEASE}'"
 } >&2
-echo "https://github.com/dfinity/internet-identity/releases/download/${RELEASE_NAME}/internet_identity_${DFX_II_FLAVOR}.wasm"
+
+WASM_FILE="internet_identity_${DFX_II_FLAVOR}.wasm"
+
+# If the release is later than 2023-04-12, only .gz files are available
+if ! [[ "${RELEASE_NAME}" =~ ^release-[0-9]{4}-[0-9]{2}-[0-9]{2}$ && "${RELEASE_NAME}" < "release-2023-04-28" ]]; then
+  WASM_FILE="${WASM_FILE}.gz"
+fi
+
+echo "https://github.com/dfinity/internet-identity/releases/download/${RELEASE_NAME}/${WASM_FILE}"
