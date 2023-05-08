@@ -30,6 +30,19 @@ cd "$(dirname "$(realpath "$0")")/.."
 : Set up SNS state and create one finalized SNS
 dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR"
 
+: Set up ckbtc canisters
+dfx-ckbtc-import --prefix ckbtc_
+dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
+
+: Install Internet Identity, NNS and aggregator
+dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+
+: Add the nns root as a controller to the frontend canisters
+NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
+for canister in nns-dapp internet_identity; do
+  dfx canister --network "$DFX_NETWORK" update-settings "$canister" --add-controller "$NNS_ROOT"
+done
+
 : Add 1 open SNS project.
 dfx-sns-demo-mksns --network "$DFX_NETWORK"
 
@@ -39,9 +52,3 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
 else
   echo "... Skipping as fast deployment is broken for remote networks"
 fi
-
-: Add the nns root as a controller to the frontend canisters
-NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
-for canister in nns-dapp internet_identity; do
-  dfx canister --network "$DFX_NETWORK" update-settings "$canister" --add-controller "$NNS_ROOT"
-done

@@ -7,9 +7,11 @@ print_help() {
   cat <<-EOF
 
 	Deploys a testnet with:
-	* NNS canisters
-	* An empty placeholder for the sns_aggregator canister.
+	* Core NNS canisters.
+	* Placeholder canisters for ii, nns-dapp and the sns_aggregator.
 
+	Note: This is a minimal abstraction over dfx nns deploy and static testnet deployments
+	      that each deploy the core NNS canisters in their own way.
 	EOF
 }
 
@@ -53,12 +55,6 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
   dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
 
-  : Set up ckbtc canisters
-  dfx-ckbtc-import --prefix ckbtc_
-  dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
-
-  : Install Internet Identity
-  dfx-software-internet-identity-install --release "${DFX_II_RELEASE:-pinned}" --flavor "dev" --network local
 else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
@@ -71,13 +67,3 @@ else
   dfx canister create internet_identity --no-wallet --network "$DFX_NETWORK" --provisional-create-canister-effective-canister-id qhbym-qaaaa-aaaaa-aaafq-cai
   dfx canister create nns-dapp --no-wallet --network "$DFX_NETWORK" --provisional-create-canister-effective-canister-id qsgjb-riaaa-aaaaa-aaaga-cai
 fi
-
-: Set up ckbtc canisters
-dfx-ckbtc-import --prefix ckbtc_
-dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
-
-: Install Internet Identity, NNS and aggregator
-dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
-
-# Create entries in dfx.json
-jq '.canisters.sns_aggregator = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
