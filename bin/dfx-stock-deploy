@@ -40,10 +40,6 @@ else
   echo "... Skipping as fast deployment is broken for remote networks"
 fi
 
-: Set up ckbtc canisters
-dfx-ckbtc-import --prefix ckbtc_
-dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
-
 : Add the nns root as a controller to the frontend canisters
 NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
 for canister in nns-dapp internet_identity; do
