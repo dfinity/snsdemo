@@ -37,6 +37,7 @@ else
     cd "$ND_REPO_DIR"
     rm -f canister_ids.json
     ./deploy.sh --ii "$DFX_NETWORK"
+    ./deploy.sh --sns-aggregator "$DFX_NETWORK"
     ./deploy.sh --nns-dapp "$DFX_NETWORK"
   ) || say fail fail fail
 
