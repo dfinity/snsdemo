@@ -56,6 +56,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
 
 else
+  rm -f canister_ids.json
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
   # out before we can resonably ask people to do this.
