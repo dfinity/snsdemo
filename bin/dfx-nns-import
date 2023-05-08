@@ -4,7 +4,7 @@ set -euo pipefail
 # Polyfill for dfx nns import, to fix some issues that should be fixed upstream.
 # There is a PR for upstream, but it will take time to be released.
 
-dfx nns import
+dfx nns import --network-mapping "$DFX_NETWORK=local"
 
 jq -s '.[0] * .[1]' dfx.json <(
   cat <<EOF
