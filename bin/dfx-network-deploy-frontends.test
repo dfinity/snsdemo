@@ -34,7 +34,7 @@ canister_is_declared_and_installed() {
     fi
   done
   : "Note: For full functionality, the nns-dapp needs other canisters to be installed first.  However that is not our concern here."
-  dfx-network-deploy-frontends
+  dfx-network-deploy-frontends --verbose
   for canister in nns-dapp sns_aggregator internet_identity; do
     canister_is_declared_and_installed "$canister"
   done

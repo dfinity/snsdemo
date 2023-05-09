@@ -55,7 +55,7 @@ test -d "$ND_REPO_DIR" || {
   : "Get the updated canister IDs"
   mkdir -p "$(dirname "$CANISTER_IDS_FILE")"
   cp "$ND_REPO_DIR/$CANISTER_IDS_FILE" "$CANISTER_IDS_FILE"
-  test -z "${DFX_VERBOSE:-}" || cat "$CANISTER_IDS_FILE"
+  cat "$CANISTER_IDS_FILE"
 ) || say fail fail fail
 
 jq '.canisters.sns_aggregator = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
