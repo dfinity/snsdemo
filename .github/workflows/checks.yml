@@ -76,3 +76,15 @@ jobs:
           git clean -dfx
           bin/dfx-ckbtc-deploy.test
           git clean -dfx
+  frontend-checks:
+    needs: formatting
+    name: Frontend deploy tools
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install apt-dependencies
+        run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
+      - uses: actions/checkout@v3
+      - name: Install dfx
+        run: ./bin/dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
+      - name: Dep[loying frontend canisters works
+        run: bin/dfx-network-deploy-frontends.test

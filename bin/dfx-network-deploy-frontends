@@ -18,27 +18,48 @@ source "$(clap.build)"
 
 export DFX_NETWORK
 
-if [[ "$DFX_NETWORK" == "local" ]]; then
-  echo NOT APPLICABLE
-else
-  # Run remotely with one of the predefined configurations.
-  # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
-  # out before we can resonably ask people to do this.
-  IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
-  ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
-  test -d "$ND_REPO_DIR" || {
-    echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
-    exit 1
-  } >&2
+# Run remotely with one of the predefined configurations.
+# Note: This is still relatively slow and error prone.  Points of friction need to be ironed
+# out before we can resonably ask people to do this.
+IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
+ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
+test -d "$ND_REPO_DIR" || {
+  echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
+  exit 1
+} >&2
 
-  (
-    set -euxo pipefail
-    echo "Deploying internet-identity and nns-dapp"
-    cd "$ND_REPO_DIR"
-    rm -f canister_ids.json
-    ./deploy.sh --ii "$DFX_NETWORK"
-    ./deploy.sh --sns-aggregator "$DFX_NETWORK"
-    ./deploy.sh --nns-dapp "$DFX_NETWORK"
-  ) || say fail fail fail
+(
+  set -euxo pipefail
+  echo "Deploying frontend canisters"
+  : "nns-dapp needs to know other canister IDs, so export them to the nns-dapp repo:"
+  : "Note: This dance can be removed once we deploy wasms directly."
+  if [[ "$DFX_NETWORK" == "local" ]]; then
+    CANISTER_IDS_FILE=".dfx/local/canister_ids.json"
+  else
+    CANISTER_IDS_FILE="canister_ids.json"
+  fi
+  if test -e "$CANISTER_IDS_FILE"; then
+    mkdir -p "$(dirname "$ND_REPO_DIR/$CANISTER_IDS_FILE")"
+    cp "$CANISTER_IDS_FILE" "$ND_REPO_DIR/$CANISTER_IDS_FILE"
+  else
+    rm -f "$ND_REPO_DIR/$CANISTER_IDS_FILE"
+  fi
+  : "Go forth and deploy..."
+  pushd "$ND_REPO_DIR"
+  ./deploy.sh --ii "$DFX_NETWORK"
+  ./deploy.sh --sns-aggregator "$DFX_NETWORK"
+  ./deploy.sh --nns-dapp "$DFX_NETWORK"
+  : "... Make sure that the canister IDs are in the expected locations, not just in dfx remote sections...."
+  for canister in internet_identity nns-dapp sns_aggregator; do
+    dfx-canister-set-id --network "$DFX_NETWORK" --canister_name "$canister" --canister_id "$(dfx canister id --network "$DFX_NETWORK" "$canister")"
+  done
+  popd
+  : "Get the updated canister IDs"
+  mkdir -p "$(dirname "$CANISTER_IDS_FILE")"
+  cp "$ND_REPO_DIR/$CANISTER_IDS_FILE" "$CANISTER_IDS_FILE"
+  test -z "${DFX_VERBOSE:-}" || cat "$CANISTER_IDS_FILE"
+) || say fail fail fail
 
-fi
+jq '.canisters.sns_aggregator = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
+jq '.canisters.internet_identity = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
+jq '.canisters["nns-dapp"] = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
