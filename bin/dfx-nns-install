@@ -19,6 +19,9 @@ print_help() {
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
+  . "$SOURCE_DIR/versions.bash"
+  echo "$DFX_IC_COMMIT"
+)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
