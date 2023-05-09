@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+canister_is_declared_and_installed() {
+    : "Check that all the canister has a known canister ID and is listed in dfx.json."
+    canister="$1"
+    c="$canister" jq -e '.canisters[env.c]' dfx.json || {
+       echo "ERROR: Canister '$canister' not found in dfx.json."
+       exit 1
+    } >&2
+    dfx canister id "$canister" --network "$DFX_NETWORK" >/dev/null
+}
+
+(
+  echo "Default canister installation should work"
+  dfx stop
+  dfx start --clean --background
+  DFX_NETWORK="local"
+  : "First, none of the canisters should be installed"
+  for canister in internet_identity nns-dapp sns_aggregator; do
+	  if canister_is_declared_and_installed "$canister"
+	  then {
+	     echo "ERROR: Canister $canister should not be present on a clean installation."
+	     exit 1
+	  } >&2
+	  fi
+  done
+  : "Note: For full functionality, the nns-dapp needs other canisters to be installed first.  However that is not our concern here."
+  dfx-network-deploy-frontends
+  for canister in internet_identity nns-dapp sns_aggregator; do
+	  canister_is_declared_and_installed "$canister"
+  done
+  dfx stop
+)
+
+echo "$(basename "$0") PASSED"
+
