@@ -25,5 +25,20 @@ clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DF
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+WASMS_DIR="$(dfx cache show)/wasms"
+
+# The URL of the lifeline.wasm changed at some point. If the new URL exists for
+# the given commit, download it to prepopulate the wasms cache with the old
+# filename. This prevents 'dfx nns install' from trying to download it at the
+# old URL and failing.
+# If the new URL doesn't exist, we assume that dfx will succeed in installing it
+# on its own.
+NEW_LIFELINE_WASM_URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/lifeline_canister.wasm.gz"
+OLD_LIFELINE_FILE="${WASMS_DIR}/lifeline.wasm"
+
+# '--fail' to prevent writing an output file on failure and '|| true' to ignore
+# the error.
+curl --fail --location "$NEW_LIFELINE_WASM_URL" -o "$OLD_LIFELINE_FILE" || true
+
 export DFX_IC_COMMIT
 dfx nns install
