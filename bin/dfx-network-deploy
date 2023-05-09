@@ -10,8 +10,6 @@ print_help() {
 	* Core NNS canisters.
 	* Placeholder canisters for ii, nns-dapp and the sns_aggregator.
 
-	Note: This is a minimal abstraction over dfx nns deploy and static testnet deployments
-	      that each deploy the core NNS canisters in their own way.
 	EOF
 }
 
@@ -39,6 +37,11 @@ if [[ "${DFX_PRODLIKE:-}" == "true" ]]; then
 fi
 
 # Creates core NNS canisters.  Reserves canister IDs for II and nns-dapp.
+# Note: This is a minimal abstraction over dfx nns deploy and static testnet deployments
+#       that each deploy the core NNS canisters in their own way.  In the case of local
+#       deployments, II an dnns-dapp are also deployed but these are old versions and
+#       we will redeploy them once other required canisters such as ckbtc canisters are
+#       installed.
 if [[ "$DFX_NETWORK" == "local" ]]; then
   # Run locally; can be configured by e.g. changing the wasm files in the cache
   dfx-network-stop --network "$DFX_NETWORK"
