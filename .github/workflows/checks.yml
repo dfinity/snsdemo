@@ -96,6 +96,5 @@ jobs:
         run: |
           set -x
           mkdir ~/dfx
-          mv nns-dapp ~/dfx/nns-dapp
-          realpath ~/dfx/nns-dapp
+          mv "${GITHUB_WORKSPACE}/nns-dapp" ~/dfx/nns-dapp
           bin/dfx-network-deploy-frontends.test
