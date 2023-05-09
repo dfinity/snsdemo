@@ -94,6 +94,8 @@ jobs:
         run: ./bin/dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
       - name: Deploying frontend canisters works
         run: |
+          set -x
           mkdir ~/dfx
-          ln -s "$(realpath nns-dapp)" ~/dfx/nns-dapp
+          mv nns-dapp ~/dfx/nns-dapp
+          realpath ~/dfx/nns-dapp
           bin/dfx-network-deploy-frontends.test
