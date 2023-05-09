@@ -83,13 +83,13 @@ jobs:
     steps:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
+      - uses: actions/checkout@v3
       - name: Install nns-dapp repo - deprecated
         uses: actions/checkout@v3
         with:
           repository: 'dfinity/nns-dapp'
           path: 'nns-dapp'
           ref: 'nightly-2023-05-06'
-      - uses: actions/checkout@v3
       - name: Install dfx
         run: ./bin/dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
       - name: Deploying frontend canisters works
