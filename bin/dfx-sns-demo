@@ -57,7 +57,7 @@ dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$N
 dfx identity use snsdemo8
 
 sleep 1
-DFX_NETWORK=$DFX_NETWORK dfx-nns-import
+dfx-nns-import --network-mapping "$DFX_NETWORK=local"
 sleep 1
 dfx sns import
 sleep 1
