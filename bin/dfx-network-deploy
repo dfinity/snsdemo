@@ -7,8 +7,9 @@ print_help() {
   cat <<-EOF
 
 	Deploys a testnet with:
-	* Core NNS canisters.
-	* Placeholder canisters for ii, nns-dapp and the sns_aggregator.
+	* Core NNS canisters
+	* CKBTC canisters
+	* ii, nns-dapp and the sns_aggregator.
 
 	EOF
 }
