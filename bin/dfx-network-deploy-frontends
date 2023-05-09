@@ -11,6 +11,7 @@ clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_I
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
 )"
+clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
@@ -23,6 +24,7 @@ else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
   # out before we can resonably ask people to do this.
+  IC_REPO_DIR="${IC_REPO_DIR:-$HOME/dfn/ic-github/}"
   ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
   test -d "$ND_REPO_DIR" || {
     echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
