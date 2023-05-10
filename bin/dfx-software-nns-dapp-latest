@@ -2,7 +2,17 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
-. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+	cat <<-EOF
+	Prints the latest release of nns-dapp.
+
+	Deprecated:  Please use this instead:
+
+	  dfx-software-nns-dapp-version --latest
+
+	EOF
+}
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
@@ -10,4 +20,4 @@ source "$SOURCE_DIR/clap.bash"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-gh release list --exclude-drafts --limit 20 --repo dfinity/nns-dapp | grep -m1 proposal | sed -E 's/.*\<(proposal-[0-9]+).*/\1/g'
+dfx-software-nns-dapp-version --latest
