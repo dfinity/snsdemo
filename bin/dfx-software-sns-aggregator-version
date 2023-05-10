@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Gets the sns_aggregator release from any of:
+	- The pinned release
+	- The latest release
+	- TODO: The deployed commit on a given network
+	- TODO: The commit on mainnet (shortcut for a specific case of the above)
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=l long=pinned desc="Get the pinned version from versions.bash (default)" variable=GET_PINNED nargs=0
+clap.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+STRATEGY="${STRATEGY:-${GET_PINNED:+pinned}}"
+STRATEGY="${STRATEGY:-${GET_LATEST:+latest}}"
+STRATEGY="${STRATEGY:-pinned}" # Default - not guaranteed to be stable
+case "${STRATEGY}" in
+pinned)
+  . "$SOURCE_DIR/versions.bash"
+  echo "$SNS_AGGREGATOR_RELEASE"
+  ;;
+latest)
+  gh release list --exclude-drafts --exclude-pre-releases --limit 300 --repo dfinity/nns-dapp | grep -wEo 'proposal-[0-9]+-agg' | head -1
+  ;;
+*)
+  {
+    echo "ERROR: Unsupported strategy '${STRATEGY:-}'"
+    exit 1
+  } >&2
+  ;;
+esac
