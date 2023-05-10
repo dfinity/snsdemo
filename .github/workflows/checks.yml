@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: "Test the sns aggregator version command"
-        run: ./bin/dfx-software-nns-dapp-version.test
+        run: ./bin/dfx-software-sns-aggregator-version.test
         env:
           GH_TOKEN: ${{ github.token }}
   ckbtc-checks:
