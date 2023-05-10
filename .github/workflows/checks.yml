@@ -76,3 +76,13 @@ jobs:
           git clean -dfx
           bin/dfx-ckbtc-deploy.test
           git clean -dfx
+  nns-dapp-canister-checks:
+    needs: formatting
+    name: NNS dapp tools
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Test the nns-dapp version command"
+        run: ./bin/dfx-software-nns-dapp-version.test
+        env:
+          GH_TOKEN: ${{ github.token }}
