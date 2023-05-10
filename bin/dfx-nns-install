@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -xeuo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+print_help() {
+  cat <<-EOF
+
+	Wrapper script that calls 'dfx nns install' in a consistent and correct way
+	by:
+	* TODO: Downloading lifeline.wasm in advance to work around a bug where dfx
+	        uses the wrong URL for it.
+	* TODO: Clearing the wasms cache to avoid surprises in the canister versions
+	        that get installed.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
+  . "$SOURCE_DIR/versions.bash"
+  echo "$DFX_IC_COMMIT"
+)"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_IC_COMMIT
+dfx nns install

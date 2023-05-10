@@ -47,7 +47,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   curl "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/sns-wasm-canister.wasm.gz" | gunzip >"${WASM_DIR}/sns-wasm-canister.wasm"
 
   dfx start --clean --background
-  dfx nns install
+  dfx-nns-install --ic_commit "$DFX_IC_COMMIT"
   dfx-nns-import
   dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
   dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
@@ -61,7 +61,7 @@ else
   ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
   dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
   dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
-  dfx-network-deploy-frontends --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
+  dfx-network-deploy-frontends --network "$DFX_NETWORK" --nd_dir "${ND_REPO_DIR}"
 fi
 
 # However the network is deloyed, we also need a placeholder for the aggregator canister.
