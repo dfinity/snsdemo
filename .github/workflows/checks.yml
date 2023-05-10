@@ -52,6 +52,16 @@ jobs:
       - uses: actions/checkout@v3
       - name: Clap works
         run: ./bin/clap.test
+  sns-aggregator-canister-checks:
+    needs: formatting
+    name: SNS aggregator tools
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Test the sns aggregator version command"
+        run: ./bin/dfx-software-nns-dapp-version.test
+        env:
+          GH_TOKEN: ${{ github.token }}
   ckbtc-checks:
     needs: formatting
     name: CKBTC tools
