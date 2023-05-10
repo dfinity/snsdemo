@@ -62,6 +62,10 @@ jobs:
         run: ./bin/dfx-software-sns-aggregator-version.test
         env:
           GH_TOKEN: ${{ github.token }}
+      - name: "Test the aggregator wasm download command"
+        run: ./bin/dfx-software-sns-aggregator-ci-wasm-url.test
+        env:
+          GH_TOKEN: ${{ github.token }}
   ckbtc-checks:
     needs: formatting
     name: CKBTC tools
