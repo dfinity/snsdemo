@@ -32,7 +32,7 @@ pinned)
   echo "$NNS_DAPP_RELEASE"
   ;;
 latest)
-  gh release list --exclude-drafts --exclude-pre-releases --limit 100 --repo dfinity/nns-dapp | grep -Eo 'proposal-[0-9]+' | head -1
+  gh release list --exclude-drafts --exclude-pre-releases --limit 100 --repo dfinity/nns-dapp | grep -Eo '^proposal-[0-9]+$' | head -1
   ;;
 *)
   {
