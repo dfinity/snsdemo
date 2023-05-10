@@ -83,4 +83,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: "Test the nns-dapp version command"
-        run: ./dfx-software-nns-dapp-version.test
+        run: ./bin/dfx-software-nns-dapp-version.test
