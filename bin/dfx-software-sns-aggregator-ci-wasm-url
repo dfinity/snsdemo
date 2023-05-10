@@ -30,12 +30,12 @@ test -n "${RELEASE_NAME:-}" || {
 } >&2
 
 case "${DFX_FLAVOR:-}" in
-  prod|production) SUFFIX="" ;;
-  dev|development) SUFFIX="_dev" ;;
-  *) {
-      echo "ERROR: Unknown flavour: '${DFX_FLAVOR}'"
-      exit 1
-  } >&2 ;;
+prod | production) SUFFIX="" ;;
+dev | development) SUFFIX="_dev" ;;
+*) {
+  echo "ERROR: Unknown flavour: '${DFX_FLAVOR}'"
+  exit 1
+} >&2 ;;
 esac
 WASM_FILE="sns_aggregator${SUFFIX}.wasm"
 
