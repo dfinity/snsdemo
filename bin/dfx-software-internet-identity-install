@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xeuo pipefail
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
@@ -20,8 +20,6 @@ clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE
 clap.define short=f long=flavor desc="production, test, or dev" variable=DFX_II_FLAVOR default="dev"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
-
-echo "network $DFX_NETWORK, release $DFX_II_RELEASE, flavor $DFX_II_FLAVOR"
 
 II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE}" --flavor "${DFX_II_FLAVOR}")"
 
