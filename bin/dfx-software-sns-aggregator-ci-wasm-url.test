@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+for flavour in prod dev; do
+  (
+    echo "The $flavour sns_aggregator URL should be valid."
+    URL="$(dfx-software-sns-aggregator-ci-wasm-url --flavor "$flavour")"
+    [[ "${URL:-}" =~ ^https: ]] || {
+      echo "ERROR: The $flavour sns_aggregator download should be a valid URL: '$URL'"
+      exit 1
+    } >&2
+    DOWNLOAD="$(mktemp "sns_aggregator_${flavour}.XXXX")"
+    curl --no-progress-meter --retry 5 --fail -L "$URL" >"$DOWNLOAD"
+    dfx-canister-nm "$DOWNLOAD" | grep -q canister_query || {
+      echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
+      echo "       It should be:"
+      echo "       - A wasm file"
+      echo "       - With canister query calls"
+      echo "       - Optionally gzipped"
+      exit 1
+    } >&2
+  )
+done
+
+(
+  echo "The default flavour should be prod."
+  DEFAULT_URL="$(dfx-software-sns-aggregator-ci-wasm-url)"
+  PROD_URL="$(dfx-software-sns-aggregator-ci-wasm-url --flavor prod)"
+  [[ "${DEFAULT_URL:-}" == "${PROD_URL}" ]] || {
+    echo "ERROR: The default URL should be the production URL."
+    echo "  DEFAULT:    '${DEFAULT_URL}'"
+    echo "  PRODUCTION: '${PROD_URL}'"
+    exit 1
+  } >&2
+)
+
+echo "$(basename "$0") PASSED"

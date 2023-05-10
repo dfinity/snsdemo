@@ -6,7 +6,7 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-EOF
 
-  Fetches and installs the internet-identity canister wasm file.
+	Fetches and installs the internet-identity canister wasm file.
 
 	EOF
 }
