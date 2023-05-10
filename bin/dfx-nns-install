@@ -26,8 +26,9 @@ clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DF
 source "$(clap.build)"
 
 WASMS_DIR="$(dfx cache show)/wasms"
+mkdir -p $WASMS_DIR
 
-if [ -d $WASMS_DIR ]; then
+if [ "$(ls -A "$WASMS_DIR")" ]; then
   # 'dfx nns install' will use wasms present in $WASMS_DIR, even if they do not
   # match the requested DFX_IC_COMMIT. So we move anything in $WASMS_DIR out of
   # the way to guarantee a predictable experience.
@@ -43,8 +44,6 @@ if [ -d $WASMS_DIR ]; then
   }
 
   trap restore_backup EXIT
-else
-  mkdir -p $WASMS_DIR
 fi
 
 # The URL of the lifeline.wasm changed at some point. If the new URL exists for
