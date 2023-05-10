@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+(
+  echo "Using --pinned should get a release from the versions file"
+  ACTUAL_RELEASE="$(dfx-software-nns-dapp-version --pinned)"
+  EXPECTED_RELEASE="$(. "$SOURCE_DIR/versions.bash" && echo "${NNS_DAPP_RELEASE}")"
+  [[ "$ACTUAL_RELEASE" =~ ^proposal-[0-9]*$ ]] || {
+    echo "ERROR: The release is not a proposal tag: '$ACTUAL_RELEASE'"
+    exit 1
+  } >&2
+  [[ "$ACTUAL_RELEASE" == "$EXPECTED_RELEASE" ]] || {
+    echo "ERROR: The release does not correspond to a naive reading of the versions file."
+    echo "   EXPECTED: '$EXPECTED_RELEASE'"
+    echo "   ACTUAL:   '$ACTUAL_RELEASE'"
+    exit 1
+  } >&2
+)
+
+(
+  echo "Using --latest should get a release"
+  ACTUAL_RELEASE="$(dfx-software-nns-dapp-version --latest)"
+  [[ "$ACTUAL_RELEASE" =~ ^proposal-[0-9]*$ ]] || {
+    echo "ERROR: The release is not a proposal tag: '$ACTUAL_RELEASE'"
+    echo "Note:  This may fail legitimately if there have been many non-proposal"
+    echo "       releases since the last proposal.  This is unlikely but possible."
+    echo "       Please check."
+    exit 1
+  } >&2
+)
+
+(
+  echo "Providing no flags should provide the pinned version"
+  DEFAULT_RELEASE="$(dfx-software-nns-dapp-version)"
+  PINNED_RELEASE="$(dfx-software-nns-dapp-version --pinned)"
+  [[ "$DEFAULT_RELEASE" == "$PINNED_RELEASE" ]] || {
+    echo "ERROR: The default release does not match the pinned release."
+    echo "   PINNED:  '$PINNED_RELEASE'"
+    echo "   DEFAULT: '$DEFAULT_RELEASE'"
+    exit 1
+  } >&2
+)
+
+echo "$(basename "$0") PASSED"
