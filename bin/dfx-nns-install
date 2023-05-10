@@ -26,7 +26,7 @@ clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DF
 source "$(clap.build)"
 
 WASMS_DIR="$(dfx cache show)/wasms"
-mkdir -p $WASMS_DIR
+mkdir -p "$WASMS_DIR"
 
 if [ "$(ls -A "$WASMS_DIR")" ]; then
   # 'dfx nns install' will use wasms present in $WASMS_DIR, even if they do not
