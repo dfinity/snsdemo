@@ -17,7 +17,7 @@ function cleanup {
 trap cleanup EXIT
 
 for flavour in dev prod; do
-  for release in pinned latest proposal-115273-agg ; do
+  for release in pinned latest proposal-115273-agg; do
     (
       echo "Should install the $release $flavour sns_aggregator"
       : Clean up
