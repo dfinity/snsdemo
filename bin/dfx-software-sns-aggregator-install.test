@@ -17,7 +17,7 @@ function cleanup {
 trap cleanup EXIT
 
 for flavour in dev prod; do
-  for release in dev prod; do
+  for release in pinned latest proposal-115273-agg ; do
     (
       echo "Should install the $release $flavour sns_aggregator"
       : Clean up
@@ -25,7 +25,7 @@ for flavour in dev prod; do
       dfx-network-stop
       dfx start --clean --background 2>/dev/null
       : Install
-      dfx-software-sns-aggregator-install --release "$release" --flavour "$flavour"
+      dfx-software-sns-aggregator-install --release "$release" --flavor "$flavour"
       : The downloaded wasm should be the pinned, production version, not called 'pinned' or some mutable alias:
       SNS_AGGREGATOR_RELEASE="$(. "$SOURCE_DIR/versions.bash" && echo "$SNS_AGGREGATOR_RELEASE")"
       [[ "$SNS_AGGREGATOR_RELEASE" =~ ^proposal-[0-9]+-agg$ ]] || {
