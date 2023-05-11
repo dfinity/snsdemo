@@ -70,6 +70,8 @@ jobs:
         run: ./bin/dfx-software-sns-aggregator-ci-wasm-url.test --verbose
         env:
           GH_TOKEN: ${{ github.token }}
+      - name: Install dfx
+        run: ./bin/dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
       - name: "Test the aggregator wasm install command"
         run: ./bin/dfx-software-sns-aggregator-install.test --verbose
         env:
