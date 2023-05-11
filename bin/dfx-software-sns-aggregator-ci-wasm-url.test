@@ -45,6 +45,10 @@ for flavour in prod dev; do
       echo "       - A wasm file"
       echo "       - With canister query calls"
       echo "       - Optionally gzipped"
+      echo "Download file type:"
+      file "$DOWNLOAD"
+      echo "File stats:"
+      ls -l "$DOWNLOAD"
       exit 1
     } >&2
   )
