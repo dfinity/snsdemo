@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xeuo pipefail
+set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
 print_help() {
@@ -26,6 +26,25 @@ clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DF
 source "$(clap.build)"
 
 WASMS_DIR="$(dfx cache show)/wasms"
+mkdir -p "$WASMS_DIR"
+
+if [ "$(ls -A "$WASMS_DIR")" ]; then
+  # 'dfx nns install' will use wasms present in $WASMS_DIR, even if they do not
+  # match the requested DFX_IC_COMMIT. So we move anything in $WASMS_DIR out of
+  # the way to guarantee a predictable experience.
+  DFX_CACHE_WASMS_BACKUP_DIR="$HOME/dfx-cache-wasms-backup-$(date +"%Y%m%d_%H%M%S")"
+  mkdir -p "$DFX_CACHE_WASMS_BACKUP_DIR"
+  echo "Moving wasms from ${WASMS_DIR} to ${DFX_CACHE_WASMS_BACKUP_DIR}"
+  mv "$WASMS_DIR"/* "$DFX_CACHE_WASMS_BACKUP_DIR"
+
+  restore_backup() {
+    echo "Moving wasms from ${DFX_CACHE_WASMS_BACKUP_DIR} back to ${WASMS_DIR}"
+    mv "$DFX_CACHE_WASMS_BACKUP_DIR"/* "$WASMS_DIR"
+    rmdir "$DFX_CACHE_WASMS_BACKUP_DIR"
+  }
+
+  trap restore_backup EXIT
+fi
 
 # The URL of the lifeline.wasm changed at some point. If the new URL exists for
 # the given commit, download it to prepopulate the wasms cache with the old
