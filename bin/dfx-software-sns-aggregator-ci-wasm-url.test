@@ -39,7 +39,7 @@ for flavour in prod dev; do
     esac
     DOWNLOAD="$(mktemp "sns_aggregator_${flavour}.XXXX" --suffix=".wasm")"
     curl --no-progress-meter --retry 5 --fail -L "$URL" >"$DOWNLOAD"
-    dfx-canister-nm "$DOWNLOAD" > "${DOWNLOAD}.symbols"
+    dfx-canister-nm "$DOWNLOAD" >"${DOWNLOAD}.symbols"
     grep -q canister_query "${DOWNLOAD}.symbols" || {
       echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
       echo "       It should be:"
