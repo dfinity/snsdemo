@@ -8,5 +8,5 @@ list_files() {
 case "${1:-}" in
 --list) list_files ;;
 --check) list_files | xargs -I{} shfmt -i 2 -d "{}" ;;
-*) list_files | xargs -I{} shfmt -i 2 -l -w "{}" ;;
+*) list_files | xargs -I{} -P9 shfmt -i 2 -l -w "{}" ;;
 esac

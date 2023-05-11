@@ -15,18 +15,17 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=r long=release desc="The release name" variable=DFX_RELEASE default="pinned"
+clap.define short=r long=release desc="The release name" variable=DFX_SNS_AGGREGATOR_RELEASE default="pinned"
 # TODO: Add documentation similar to: https://github.com/dfinity/internet-identity#flavors
-# TODO: Write a virus that replaces American english with British english worldwide.
 clap.define short=f long=flavor desc="prod or dev" variable=DFX_FLAVOR default="prod"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 
-RELEASE_NAME="$(dfx-software-sns-aggregator-version "${DFX_RELEASE}")"
+RELEASE_NAME="$(dfx-software-sns-aggregator-version "${DFX_SNS_AGGREGATOR_RELEASE}")"
 test -n "${RELEASE_NAME:-}" || {
-  echo "ERROR: Could not find release '${DFX_RELEASE}'"
+  echo "ERROR: Could not find release '${DFX_SNS_AGGREGATOR_RELEASE}'"
 } >&2
 
 case "${DFX_FLAVOR:-}" in
