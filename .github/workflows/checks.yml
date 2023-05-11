@@ -65,7 +65,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - name: "Test the aggregator wasm download command"
-        run: ./bin/dfx-software-sns-aggregator-ci-wasm-url.test
+        run: ./bin/dfx-software-sns-aggregator-ci-wasm-url.test --verbose
         env:
           GH_TOKEN: ${{ github.token }}
   ckbtc-checks:
