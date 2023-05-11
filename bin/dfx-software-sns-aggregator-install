@@ -28,7 +28,7 @@ clap.define short=m long=mode desc="The install mode: install, reinstall, upgrad
 source "$(clap.build)"
 
 : 'Convert aliases such as "pinned" into actual release names...'
-DFX_RELEASE="$(dfx-software-sns-aggregator-version  "${DFX_RELEASE}")"
+DFX_RELEASE="$(dfx-software-sns-aggregator-version "${DFX_RELEASE}")"
 
 : 'Where to get teh wasm from...'
 WASM_URL="$(dfx-software-sns-aggregator-ci-wasm-url --release "${DFX_RELEASE}" --flavor "${DFX_FLAVOR}")"

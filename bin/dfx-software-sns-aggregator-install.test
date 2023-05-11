@@ -16,29 +16,33 @@ function cleanup {
 }
 trap cleanup EXIT
 
-(
-  echo "Should install the sns_aggregator"
-  : Clean up
-  git checkout dfx.json
-  dfx-network-stop
-  dfx start --clean --background 2>/dev/null
-  : Install
-  dfx-software-sns-aggregator-install
-  : The downloaded wasm should be the pinned, production version, not called 'pinned' or some mutable alias:
-  SNS_AGGREGATOR_RELEASE="$(. "$SOURCE_DIR/versions.bash" && echo "$SNS_AGGREGATOR_RELEASE")"
-  [[ "$SNS_AGGREGATOR_RELEASE" =~ ^proposal-[0-9]+-agg$ ]] || {
-    echo "ERROR: The pinned release should be a production release: '$SNS_AGGREGATOR_RELEASE'"
-    echo "       This seems to be a reasonable expectation.  Please amend this test otherwise."
-    exit 1
-  } >&2
-  WASM_FILE="wasms/sns_aggregator_${SNS_AGGREGATOR_RELEASE}_dev.wasm"
-    dfx-canister-nm "$WASM_FILE" | grep -q canister_query || {
-      echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
-      echo "       It should be:"
-      echo "       - A wasm file"
-      echo "       - With canister query calls"
-      echo "       - Optionally gzipped"
-      exit 1
-    } >&2
-  dfx-canister-check-wasm-hash --canister sns_aggregator --wasm "$WASM_FILE"
-)
+for flavour in dev prod; do
+  for release in dev prod; do
+    (
+      echo "Should install the $release $flavour sns_aggregator"
+      : Clean up
+      git checkout dfx.json
+      dfx-network-stop
+      dfx start --clean --background 2>/dev/null
+      : Install
+      dfx-software-sns-aggregator-install --release "$release" --flavour "$flavour"
+      : The downloaded wasm should be the pinned, production version, not called 'pinned' or some mutable alias:
+      SNS_AGGREGATOR_RELEASE="$(. "$SOURCE_DIR/versions.bash" && echo "$SNS_AGGREGATOR_RELEASE")"
+      [[ "$SNS_AGGREGATOR_RELEASE" =~ ^proposal-[0-9]+-agg$ ]] || {
+        echo "ERROR: The pinned $release $flavour release should refer to a proposal: '$SNS_AGGREGATOR_RELEASE'"
+        echo "       This seems to be a reasonable expectation.  Please amend this test otherwise."
+        exit 1
+      } >&2
+      WASM_FILE="wasms/sns_aggregator_${SNS_AGGREGATOR_RELEASE}_${flavour}.wasm"
+      dfx-canister-nm "$WASM_FILE" | grep -q canister_query || {
+        echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
+        echo "       It should be:"
+        echo "       - A wasm file"
+        echo "       - With canister query calls"
+        echo "       - Optionally gzipped"
+        exit 1
+      } >&2
+      dfx-canister-check-wasm-hash --canister sns_aggregator --wasm "$WASM_FILE"
+    )
+  done
+done
