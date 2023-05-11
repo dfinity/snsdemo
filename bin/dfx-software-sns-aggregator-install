@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Fetches and installs the sns_aggregator canister wasm file.
+
+	There are many ways in which this _could_ be done.  This command does
+	not attempt to cater for all circumstances.  In particular, this
+	implementation prioritizes the following:
+	- Simple installation in a repo that has no prior knowledge or preferences
+	  for how the sns_aggregator is installed.
+	- Test environments.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=r long=release desc="The release name" variable=DFX_RELEASE default="pinned"
+clap.define short=f long=flavor desc="prod or dev" variable=DFX_FLAVOR default="dev"
+clap.define short=m long=mode desc="The install mode: install, reinstall, upgrade" variable=DFX_MODE default="reinstall"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+: 'Convert aliases such as "pinned" into actual release names...'
+DFX_RELEASE="$(dfx-software-sns-aggregator-version  "${DFX_RELEASE}")"
+
+: 'Where to get teh wasm from...'
+WASM_URL="$(dfx-software-sns-aggregator-ci-wasm-url --release "${DFX_RELEASE}" --flavor "${DFX_FLAVOR}")"
+
+: 'Where to put the wasm...'
+# Note: We do NOT clobber the wasm pointed to by dfx.json.
+WASM_FILE="wasms/sns_aggregator_${DFX_RELEASE}_${DFX_FLAVOR}.wasm"
+
+: 'Get the wasm if it is not already there.'
+: 'We assume that releases are immutable, and the wasm filename contains the release and flavour.'
+test -e "$WASM_FILE" || {
+  echo "Downloading wasm from: $WASM_URL"
+  mkdir -p "$(dirname "$WASM_FILE")"
+  curl --retry 5 --fail -sSL "${WASM_URL}" >"${WASM_FILE}.tmp"
+  mv "${WASM_FILE}.tmp" "${WASM_FILE}"
+}
+
+: 'We need at least a minimal entry in dfx.json.'
+jq -e '.canisters.sns_aggregator' dfx.json >/dev/null || {
+  echo "Adding sns_aggregator to dfx.json..."
+  # TODO: Include API declaration .did files in release, so that we can get the candid.
+  jq -s '.[0] * .[1]' <(echo '{"canisters": { "sns_aggregator": { "type": "custom", "candid": "placeholder", "wasm": "'"${WASM_FILE}"'", "build": "true" }}}') dfx.json | sponge dfx.json
+}
+
+echo "Creating sns_aggregator canister..."
+dfx canister create sns_aggregator --network "${DFX_NETWORK}" || {
+  echo "Canister seems to exist already."
+}
+echo "Installing sns_aggregator..."
+dfx canister install sns_aggregator --wasm "$WASM_FILE" --upgrade-unchanged --mode "$DFX_MODE" --yes --network "${DFX_NETWORK}"
+echo "Checking sns_aggregator installation..."
+dfx-canister-check-wasm-hash --canister sns_aggregator --network "$DFX_NETWORK" --wasm "${WASM_FILE}"
+echo "Finished installing sns_aggregator.  Enjoy!"
