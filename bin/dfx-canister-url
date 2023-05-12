@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Prints the URL for a canister frontend.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=c long=canister desc="The canister name" variable=DFX_CANISTER
+clap.define short=o long=open desc="Open the URL ina  browser" variable=DFX_OPEN nargs=0
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+# Historically, the canister name was given as a positional argument.
+test -n "${DFX_CANISTER:-}" || (( $# != 1 )) || DFX_CANISTER="${1:-}"
+test -n "${DFX_CANISTER:-}" || {
+  echo "ERROR: Please specify a canister name or ID"
+  exit 1
+}
+
+export DFX_NETWORK
+export DFX_CANISTER
+
+while ! test -e dfx.json ; do
+  cd .. || {
+    echo "ERROR: dfx.json not found"
+    exit 1
+  }
+done
+
+# Some canisters have custom URLs, such as identity.ic0.app.
+# There is no standard for this.  There should be.  So we will start one:
+# For nns-dapp, dfx.json should include:
+# { "canisters": {
+#      "nns-dapp": {
+#        "url": {
+#          "ic": "https://nns.ic0.app",
+#          "mainnet": "https://nns.ic0.app"
+# } }  } }
+url="$(c="$DFX_CANISTER" n="$DFX_NETWORK" jq -r '.canisters[env.DFX_CANISTER].url[env.DFX_NETWORK] // ""' dfx.json)"
+
+# Not found?
+# Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.NETWORK_URL
+CANISTER_ID="$(dfx canister id "$DFX_CANISTER" 2>/dev/null || echo "$DFX_CANISTER")"
+export CANISTER_ID
+
+# The network URL may be in the local dfx.json or in the common config.
+test -n "${url:-}" || url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' dfx.json )"
+test -n "${url:-}" || url="$(jq -r '        .[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' "$HOME/.config/dfx/networks.json" )"
+
+# Still not found?  Maybe this is in production?
+test -n "$url" || [[ "$DFX_NETWORK" != "ic" ]] || url="https://${CANISTER_ID}.ic0.app"
+
+
+# Last try:  Assume the network is a testnet.
+test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.network"
+
+if [[ "${DFX_OPEN:-}" == "true" ]] ; then
+    command=xdg-open                      # Uses Linux default browser
+    command -v "$command" || command=open # Uses mac default browser
+    command -v "$command" || command=firefox
+    command -v "$command" || command=google-chrome
+    command -v "$command" || {
+      printf "ERROR: %s\n" "Unable to detect how to open your browser."
+      exit 1
+    } >&2
+else
+    command="echo"
+fi
+
+"$command" "$url"
