@@ -21,7 +21,7 @@ clap.define short=o long=open desc="Open the URL ina  browser" variable=DFX_OPEN
 source "$(clap.build)"
 
 # Historically, the canister name was given as a positional argument.
-test -n "${DFX_CANISTER:-}" || (( $# != 1 )) || DFX_CANISTER="${1:-}"
+test -n "${DFX_CANISTER:-}" || (($# != 1)) || DFX_CANISTER="${1:-}"
 test -n "${DFX_CANISTER:-}" || {
   echo "ERROR: Please specify a canister name or ID"
   exit 1
@@ -30,7 +30,7 @@ test -n "${DFX_CANISTER:-}" || {
 export DFX_NETWORK
 export DFX_CANISTER
 
-while ! test -e dfx.json ; do
+while ! test -e dfx.json; do
   cd .. || {
     echo "ERROR: dfx.json not found"
     exit 1
@@ -54,27 +54,26 @@ CANISTER_ID="$(dfx canister id "$DFX_CANISTER" 2>/dev/null || echo "$DFX_CANISTE
 export CANISTER_ID
 
 # The network URL may be in the local dfx.json or in the common config.
-test -n "${url:-}" || url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' dfx.json )"
-test -n "${url:-}" || url="$(jq -r '        .[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' "$HOME/.config/dfx/networks.json" )"
+test -n "${url:-}" || url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' dfx.json)"
+test -n "${url:-}" || url="$(jq -r '        .[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' "$HOME/.config/dfx/networks.json")"
 
 # Still not found?  Maybe this is in production?
 test -n "$url" || [[ "$DFX_NETWORK" != "ic" ]] || url="https://${CANISTER_ID}.ic0.app"
 
-
 # Last try:  Assume the network is a testnet.
 test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.network"
 
-if [[ "${DFX_OPEN:-}" == "true" ]] ; then
-    command=xdg-open                      # Uses Linux default browser
-    command -v "$command" || command=open # Uses mac default browser
-    command -v "$command" || command=firefox
-    command -v "$command" || command=google-chrome
-    command -v "$command" || {
-      printf "ERROR: %s\n" "Unable to detect how to open your browser."
-      exit 1
-    } >&2
+if [[ "${DFX_OPEN:-}" == "true" ]]; then
+  command=xdg-open                      # Uses Linux default browser
+  command -v "$command" || command=open # Uses mac default browser
+  command -v "$command" || command=firefox
+  command -v "$command" || command=google-chrome
+  command -v "$command" || {
+    printf "ERROR: %s\n" "Unable to detect how to open your browser."
+    exit 1
+  } >&2
 else
-    command="echo"
+  command="echo"
 fi
 
 "$command" "$url"
