@@ -65,10 +65,10 @@ test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.net
 
 if [[ "${DFX_OPEN:-}" == "true" ]]; then
   command=xdg-open                      # Uses Linux default browser
-  command -v "$command" || command=open # Uses mac default browser
-  command -v "$command" || command=firefox
-  command -v "$command" || command=google-chrome
-  command -v "$command" || {
+  command -v "$command" &>/dev/null || command=open # Uses mac default browser
+  command -v "$command" &>/dev/null || command=firefox
+  command -v "$command" &>/dev/null || command=google-chrome
+  command -v "$command" &>/dev/null || {
     printf "ERROR: %s\n" "Unable to detect how to open your browser."
     exit 1
   } >&2
