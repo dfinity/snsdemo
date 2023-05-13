@@ -20,7 +20,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
     printf '\r % 4d' "$i"
     sleep 1
   done
-  echo
+  printf "\n...stopped.\n"
 
   : "Make sure that it is dead."
   sleep 1
