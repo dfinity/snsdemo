@@ -64,7 +64,7 @@ test -n "$url" || [[ "$DFX_NETWORK" != "ic" ]] || url="https://${CANISTER_ID}.ic
 test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.network"
 
 if [[ "${DFX_OPEN:-}" == "true" ]]; then
-  command=xdg-open                      # Uses Linux default browser
+  command=xdg-open                                  # Uses Linux default browser
   command -v "$command" &>/dev/null || command=open # Uses mac default browser
   command -v "$command" &>/dev/null || command=firefox
   command -v "$command" &>/dev/null || command=google-chrome
