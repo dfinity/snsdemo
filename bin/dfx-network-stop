@@ -16,10 +16,11 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   pgrep --full '\<dfx\>.*\<start\>' | xargs --no-run-if-empty kill || true
   echo "Waiting for replica to stop..."
   for ((i = 100; i > 0; i--)); do
-    printf '\r % 4d' "$i"
     pgrep replica || break
+    printf '\r % 4d' "$i"
     sleep 1
   done
+  echo
 
   : "Make sure that it is dead."
   sleep 1
