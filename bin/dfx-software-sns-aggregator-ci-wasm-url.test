@@ -37,9 +37,20 @@ for flavour in prod dev; do
       } >&2
       ;;
     esac
-    DOWNLOAD="$(mktemp "sns_aggregator_${flavour}.XXXX")"
+    DOWNLOAD="$(mktemp "sns_aggregator_${flavour}.XXXX" --suffix=".wasm")"
     curl --no-progress-meter --retry 5 --fail -L "$URL" >"$DOWNLOAD"
-    dfx-canister-nm "$DOWNLOAD" | grep -q canister_query || {
+    curl_exit_code="$?"
+    ((curl_exit_code == 0)) || {
+      echo "ERROR: Curl failed with exit code $curl_exit_code but the test failed to stop."
+      exit 1
+    }
+    test -e "$DOWNLOAD" || {
+      echo "ERROR: The downloaded file is missing."
+      echo "       If curl returned zero this should not happen."
+      exit 1
+    }
+    dfx-canister-nm "$DOWNLOAD" >"${DOWNLOAD}.symbols"
+    grep -q canister_query "${DOWNLOAD}.symbols" || {
       echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
       echo "       It should be:"
       echo "       - A wasm file"
@@ -49,8 +60,11 @@ for flavour in prod dev; do
       file "$DOWNLOAD"
       echo "File stats:"
       ls -l "$DOWNLOAD"
+      echo "Symbols:"
+      cat "${DOWNLOAD}.symbols"
       exit 1
     } >&2
+    rm "$DOWNLOAD"
   )
 done
 
