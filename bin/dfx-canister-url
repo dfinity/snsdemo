@@ -29,6 +29,7 @@ test -n "${DFX_CANISTER:-}" || {
 
 export DFX_NETWORK
 export DFX_CANISTER
+export CANISTER_ID
 
 while ! test -e dfx.json; do
   cd .. || {
@@ -50,15 +51,15 @@ url="$(c="$DFX_CANISTER" n="$DFX_NETWORK" jq -r '.canisters[env.DFX_CANISTER].ur
 
 # Not found?
 # Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.NETWORK_URL
-CANISTER_ID="$(dfx canister id "$DFX_CANISTER" 2>/dev/null || echo "$DFX_CANISTER")"
-export CANISTER_ID
+test -n "${url:-}" || CANISTER_ID="$(dfx canister id --network  "$DFX_NETWORK" "$DFX_CANISTER")"
 
-# The network URL may be in the local dfx.json or in the common config.
+# .. Maybe this is in production.  Prioritize this so that prod builds are not easily affected by local configuration.
+test -n "$url" || [[ "$DFX_NETWORK" != "mainnet" ]] || url="https://${CANISTER_ID}.internetcomputer.org"
+test -n "$url" || [[ "$DFX_NETWORK" != "ic" ]] || url="https://${CANISTER_ID}.internetcomputer.org"
+# ... The network URL may be in the local dfx.json or in the common config.
 test -n "${url:-}" || url="$(jq -r '.networks[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' dfx.json)"
 test -n "${url:-}" || url="$(jq -r '        .[env.DFX_NETWORK].config.HOST // "" | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' "$HOME/.config/dfx/networks.json")"
 
-# Still not found?  Maybe this is in production?
-test -n "$url" || [[ "$DFX_NETWORK" != "ic" ]] || url="https://${CANISTER_ID}.ic0.app"
 
 # Last try:  Assume the network is a testnet.
 test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.network"
