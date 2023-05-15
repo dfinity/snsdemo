@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Some motivational speech.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+
+true ||
+(
+  echo "URL to local canisters should be correct"
+  : "Make sure the smiley dapp is deployed"
+  dfx-network-stop
+  dfx start --clean --background
+  dfx canister id smiley_dapp_assets &>/dev/null || {
+	  npm ci
+	  PATH="$PATH:node_modules/.bin" dfx deploy smiley_dapp_assets
+  } || {
+     echo "ERROR IN TEST SETUP: Unable to deploy smiley_dapp_assets"
+     exit 1
+  }
+  export CANISTER_ID
+  : "Make sure the URL we expect works"
+  CANISTER_ID="$(dfx canister id smiley_dapp_assets)"
+  EXPECTED_URL="http://${CANISTER_ID}.localhost:8080" # Note: This may change with new versions of dfx or custom config.
+  STRING_FROM_FRONTEND="powderblue"
+  curl --fail "$EXPECTED_URL" | grep -q -- "$STRING_FROM_FRONTEND" || {
+     echo "ERROR IN TEST SETUP: The expected URL should point to the smiley_dapp_assets."
+     echo "  EXPECTED_URL: $EXPECTED_URL"
+     exit 1
+  }
+  : "Compare with the actual URL"
+  ACTUAL_POSITIONAL_URL="$(dfx-canister-url smiley_dapp_assets)"
+  ACTUAL_FLAG_URL="$(dfx-canister-url --canister smiley_dapp_assets)"
+  ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local smiley_dapp_assets)"
+  ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local --canister smiley_dapp_assets)"
+  for actual_varname in ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK ; do
+     [[ "$EXPECTED_URL" == "${!actual_varname}" ]] || {
+       echo "The $actual_varname should be as expected:"
+       echo "EXPECTED:    $EXPECTED_URL"
+       echo "ACTUAL:      ${!actual_varname}"
+       exit 1
+     }
+  done
+  git checkout dfx.json
+)
+
+# TODO: Test custom URL
+(
+  echo "Custom URL should be used if available"
+  git checkout dfx.json
+  CUSTOM_URL="https://costa.concordia"
+  NETWORKS=( local somewhere )
+  for NETWORK in "${NETWORKS[@]}" ; do
+    c="$CUSTOM_URL" n="$NETWORK" jq '.canisters.smiley_dapp_assets.url[env.n] = (env.c)' dfx.json | sponge dfx.json
+    ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" smiley_dapp_assets)"
+    [[ "${CUSTOM_URL}" == "${ACTUAL_URL:-}" ]] || {
+	    echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
+	echo "  ACTUAL:   $ACTUAL_URL"
+        echo "  EXPECTED: $CUSTOM_URL"
+      exit 1
+    } >&2
+  done
+)
+
+# TODO: Test URL to mainnet
+
+# TODO: Test URL to static testnets
+
+echo "$(basename "$0") PASSED"
