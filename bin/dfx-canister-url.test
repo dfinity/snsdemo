@@ -83,9 +83,23 @@ fi
 trap cleanup EXIT
 ###############################
 
+(
+  echo "API URL to local canisters should be correct"
+  EXPECTED_URL="http://localhost:8080"
+  ACTUAL_URL="$(dfx-canister-url --canister smiley_dapp_assets --type api)"
+      [[ "$EXPECTED_URL" == "${ACTUAL_URL}" ]] || {
+        echo "The $actual_varname should be as expected:"
+        echo "EXPECTED:    $EXPECTED_URL"
+        echo "ACTUAL:      ${ACTUAL_URL}"
+        exit 1
+      }
+)
+
+
 true ||
   (
-    echo "URL to local canisters should be correct"
+    echo "Static URL to local canisters should be correct"
+    : "Note: We test this extensively, including deploying and verifying that the URL works, given that we can do so on github CI."
     : "Make sure the smiley dapp is deployed"
     dfx-network-stop
     dfx start --clean --background
@@ -121,6 +135,7 @@ true ||
     done
     git checkout dfx.json
   )
+
 
 # TODO: Test custom URL
 (

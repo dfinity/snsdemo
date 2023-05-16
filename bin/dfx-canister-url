@@ -5,9 +5,54 @@ PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
 print_help() {
-  cat <<-EOF
+  cat <<-"EOF"
 
 	Prints the URL for a canister frontend.
+
+	There are two types of URL:
+	- "api" that serve only API calls, not web pages.
+	- "static" that serve everything including web pages and API calls.
+
+	For the internet computer mainnet, the URLs of a canister are:
+	- api: https://icp-api.io  (regardless of canister ID)
+	- static: https://${CANISTER_ID}.icp0.io
+	Other domains _may_ work but are not supported by this tool.
+
+	Canisters may have custom static asset domains for a better user experience.
+	Such domains may be specified in dfx.json.  For example:
+	{ "canisters": {
+	    "my_canister": {
+	      "url": { "ic": "https://my-custom-url.com" },
+	      ...
+	    }
+	  }
+	}
+
+	If you are running a local replica with dfx start, the default canister URLs are:
+	- api:     http://localhost:8080
+	- static:  http://${CANISTER_ID}.localhost:8080
+	The port may be changed in your network configuration.
+
+	If you are running a replica on a remote test server, your setup is likely customized.
+	We recommend that you populate your global network config at ~/.config/dfx/networks.json
+	and provide the entries API_HOST and STATIC_HOST.  E.g.:
+	{
+	  "mytestnet": {
+	    "config": {
+	      "FETCH_ROOT_KEY": true,
+	      "API_HOST": "https://api.my_test_server",
+	      "STATIC_HOST": "https://my_test_server"
+	    },
+	    "providers": [
+	      "http://[2a00:fb01:111:111:111:1111:111:111]:8080"
+	    ],
+	    "type": "persistent"
+	  }
+	}
+	dfx-canister-url will then generate the following URLs:
+	- api:     https://api.my_test_server
+	- static:  https://${CANISTER_ID}.my_test_server
+	You can still override the URLs with custom entries in dfx.json.
 	EOF
 }
 
@@ -81,7 +126,15 @@ network_config() {
   ! test -e dfx.json || jq '.networks // {}' dfx.json
   ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || cat "$GLOBAL_NETWORK_CONFIG_FILE"
 }
-test -n "${url:-}" || url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re '.[env.DFX_NETWORK].config | .[env.h] // .HOST // empty | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' | head -n1)"
+test -n "${url:-}" || url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re '.[env.DFX_NETWORK].config | .[env.h] // .HOST // empty | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' | head -n1 || true)"
+
+# ... The network may be local
+test -n "${url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || {
+    case "$DFX_URL_TYPE" in
+    static) url="http://localhost:8080" ;;
+    api) url="http://${CANISTER_ID}:8080" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
+    esac
+}
 
 # Last try:  Assume the network is a testnet.
 test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.network"
