@@ -77,7 +77,7 @@ test -n "$url" || {
 # ... The network URL may be in the local dfx.json or in the common config.
 GLOBAL_NETWORK_CONFIG_FILE="$HOME/.config/dfx/networks.json"
 network_config() {
-	: "Getting the local and global network config..."
+  : "Getting the local and global network config..."
   ! test -e dfx.json || jq '.networks // {}' dfx.json
   ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || cat "$GLOBAL_NETWORK_CONFIG_FILE"
 }
