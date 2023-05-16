@@ -17,9 +17,10 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   echo "Waiting for replica to stop..."
   for ((i = 100; i > 0; i--)); do
     printf '\r % 4d' "$i"
-    pgrep replica || break
+    pgrep replica 2>/dev/null || break
     sleep 1
   done
+  printf "\n...stopped.\n"
 
   : "Make sure that it is dead."
   sleep 1
