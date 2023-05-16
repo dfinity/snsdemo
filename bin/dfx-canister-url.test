@@ -187,7 +187,6 @@ true ||
   done
 )
 
-
 # TODO: Test URL to static testnets
 
 echo "$(basename "$0") PASSED"
