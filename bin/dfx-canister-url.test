@@ -14,6 +14,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
+clap.define long=setup desc="Populate the global networks file for testing.  DO not test." variable=DFX_SETUP nargs=0
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -35,11 +36,11 @@ restore_global_network_config() {
 }
 cleanup() {
   (("$?" == 0)) || echo "EXIT FAIL" >&2
+  dfx-network-stop
   restore_global_network_config
   git checkout dfx.json
 }
 save_global_network_config
-trap cleanup EXIT
 global_mainnet_config() {
   cat <<-EOF >"$GLOBAL_NETWORK_CONFIG"
 	{
@@ -63,6 +64,13 @@ global_mainnet_config() {
 	}
 	EOF
 }
+if [[ "${DFX_SETUP:-}" == "true" ]] ; then
+  global_mainnet_config
+  echo "Backed up network config.  To restore:"
+  echo "  mv '$GLOBAL_NETWORK_CONFIG_SAVE' '$GLOBAL_NETWORK_CONFIG'"
+  exit 0
+fi
+#trap cleanup EXIT
 ###############################
 
 true ||
@@ -132,6 +140,10 @@ true ||
   global_mainnet_config
   for NETWORK in "${NETWORKS[@]}"; do
     c="$CANISTER_ID" n="$NETWORK" jq '.canisters.smiley_dapp_assets.remote.id[env.n] = (env.c)' dfx.json | sponge dfx.json
+    [[ "$(dfx canister id --network "$NETWORK" smiley_dapp_assets)" == "$CANISTER_ID" ]] || {
+      echo "ERROR in test setup: canister ID for smiley_dapp_assets on $NETWORK network not set correctly."
+      exit 1
+    }
     ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" smiley_dapp_assets)"
     [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
       echo "ERROR: The custom URL for network '${NETWORK}' should be returned."

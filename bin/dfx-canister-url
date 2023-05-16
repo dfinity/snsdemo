@@ -77,23 +77,11 @@ test -n "$url" || {
 # ... The network URL may be in the local dfx.json or in the common config.
 GLOBAL_NETWORK_CONFIG_FILE="$HOME/.config/dfx/networks.json"
 network_config() {
+	: "Getting the local and global network config..."
   ! test -e dfx.json || jq '.networks // {}' dfx.json
   ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || cat "$GLOBAL_NETWORK_CONFIG_FILE"
 }
-case "${DFX_URL_TYPE:-}" in
-static)
-  test -n "${url:-}" || url="$(network_config | jq -re '.[env.DFX_NETWORK].config | .STATIC_HOST // .HOST | first // ""')"
-  ;;
-api)
-  test -n "${url:-}" || url="$(network_config | jq -re '.[env.DFX_NETWORK].config | .API_HOST // .HOST | first // ""')"
-  ;;
-*)
-  {
-    echo "ERROR: Unsupported url type: '$DFX_URL_TYPE'"
-    exit 1
-  } >&2
-  ;;
-esac
+test -n "${url:-}" || url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re '.[env.DFX_NETWORK].config | .[env.h] // .HOST // empty | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' | head -n1)"
 
 # Last try:  Assume the network is a testnet.
 test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.network"
