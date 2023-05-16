@@ -62,7 +62,7 @@ URL_TYPES=(static api)
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=canister desc="The canister name" variable=DFX_CANISTER
-clap.define short=t long=type desc="The canister type (options: ${URL_TYPES[@]})" variable=DFX_URL_TYPE default=static
+clap.define short=t long=type desc="The canister type (options: ${URL_TYPES[*]})" variable=DFX_URL_TYPE default=static
 clap.define short=o long=open desc="Open the URL in a browser" variable=DFX_OPEN nargs=0
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
@@ -81,7 +81,6 @@ printf '%s\0' "${URL_TYPES[@]}" | grep -Fxqz -- "$DFX_URL_TYPE" || {
   printf "       * %s\n" "${URL_TYPES[@]}"
   exit 1
 } >&2
-PREFERRED_HOST="HOST_${DFX_URL_TYPE^^}"
 
 export DFX_NETWORK
 export DFX_CANISTER

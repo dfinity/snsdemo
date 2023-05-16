@@ -120,6 +120,7 @@ true ||
       exit 1
     }
     : "Compare with the actual URL"
+    export ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK
     ACTUAL_POSITIONAL_URL="$(dfx-canister-url smiley_dapp_assets)"
     ACTUAL_FLAG_URL="$(dfx-canister-url --canister smiley_dapp_assets)"
     ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local smiley_dapp_assets)"
