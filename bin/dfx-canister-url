@@ -107,13 +107,26 @@ url="$(jq -r '.canisters[env.DFX_CANISTER].url[env.DFX_NETWORK] // ""' dfx.json)
 
 # Not found?
 # Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.NETWORK_URL
-test -n "${url:-}" || CANISTER_ID="$(dfx canister id --network "$DFX_NETWORK" "$DFX_CANISTER")"
+canister_id() {
+  dfx canister id --network "$DFX_NETWORK" "$DFX_CANISTER"
+}
+inject_canister_id() {
+	read -r root_url
+	test -n "${root_url:-}" || return
+  case "$DFX_URL_TYPE" in
+	  static)
+		  local CANISTER_ID="$(canister_id)"
+		  printf "%s\n" "$root_url" | sed -E "s,^(https?://)?,&${CANISTER_ID}.,g"
+		  ;;
+	  *) printf "%s\n" "$root_url" ;;
+  esac
+}
 
 # .. Maybe this is in production.  Prioritize this so that production builds are not easily affected by local configuration.
 test -n "$url" || {
   if [[ "$DFX_NETWORK" == "ic" ]]; then
     case "$DFX_URL_TYPE" in
-    static) url="https://${CANISTER_ID}.icp0.io" ;;
+	    static) url="https://$(canister_id).icp0.io" ;;
     api) url="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
     esac
   fi
@@ -126,25 +139,13 @@ network_config() {
   ! test -e dfx.json || jq '.networks // {}' dfx.json
   ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || cat "$GLOBAL_NETWORK_CONFIG_FILE"
 }
-test -n "${url:-}" || url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re '.[env.DFX_NETWORK].config | .[env.h] // .HOST // empty | sub("^(?<p>https?://)";"\(.p)\(env.CANISTER_ID).")' | head -n1 || true)"
+test -n "${url:-}" || url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re '.[env.DFX_NETWORK].config | .[env.h] // .HOST // empty' | inject_canister_id || true)"
 
 # ... The network may be local
-test -n "${url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || {
-  case "$DFX_URL_TYPE" in
-  static) url="http://${CANISTER_ID}:8080" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
-  api) url="http://localhost:8080" ;;
-  esac
-}
+test -n "${url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || url="$(echo "http://localhost:8080" | inject_canister_id)"
 
 # Last try:  Assume the network is a testnet.
-test -n "$url" || {
-  PREFIX="https://"
-  DOMAIN="testnet.dfinity.network"
-  case "$DFX_URL_TYPE" in
-  static) url="${PREFIX}${CANISTER_ID}.${DFX_NETWORK}.${DOMAIN}" ;;
-  api) url="${PREFIX}${DOMAIN}" ;;
-  esac
-}
+test -n "$url" || url="$(echo "https://${DFX_NETWORK}.testnet.dfinity.network" | inject_canister_id)"
 
 if [[ "${DFX_OPEN:-}" == "true" ]]; then
   command=xdg-open                                  # Uses Linux default browser

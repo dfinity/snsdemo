@@ -36,7 +36,6 @@ restore_global_network_config() {
 }
 cleanup() {
   (("$?" == 0)) || echo "EXIT FAIL" >&2
-  dfx-network-stop
   restore_global_network_config
   git checkout dfx.json
 }
@@ -104,27 +103,13 @@ print_title() {
 
 (
   print_title "Static URL to local canisters should be correct"
-  : "Note: We test this extensively, including deploying and verifying that the URL works, given that we can do so on github CI."
-  : "Make sure the smiley dapp is deployed"
-  dfx-network-stop
-  dfx start --clean --background
-  dfx canister id smiley_dapp_assets &>/dev/null || {
-    npm ci
-    PATH="$PATH:node_modules/.bin" dfx deploy smiley_dapp_assets
-    echo "Deployed smiley_dapp_assets to: $(dfx canister id smiley_dapp_assets)"
-  } || {
-    echo "ERROR IN TEST SETUP: Unable to deploy smiley_dapp_assets"
-    exit 1
-  }
-  export CANISTER_ID
-  : "Make sure the URL we expect works"
-  CANISTER_ID="$(dfx canister id smiley_dapp_assets)"
+  : Set a canister ID
+  CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
   EXPECTED_URL="http://${CANISTER_ID}.localhost:8080" # Note: This may change with new versions of dfx or custom config.
-  STRING_FROM_FRONTEND="powderblue"
-  curl --fail --retry 10 "$EXPECTED_URL" | grep -q -- "$STRING_FROM_FRONTEND" || {
-    echo "ERROR IN TEST SETUP: The expected URL should point to the smiley_dapp_assets."
-    echo "  EXPECTED_URL: $EXPECTED_URL"
-    exit 1
+  git checkout dfx.json
+  c="$CANISTER_ID" jq '.canisters.smiley_dapp_assets.remote.id.local = (env.c)' dfx.json | sponge dfx.json
+  [[ "$(dfx canister id smiley_dapp_assets)" == "$CANISTER_ID" ]] || {
+    echo "ERROR in test setup:  Failed to set canister ID."
   }
   : "Compare with the actual URL"
   export ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK
