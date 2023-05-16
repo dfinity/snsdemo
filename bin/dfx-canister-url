@@ -130,10 +130,10 @@ test -n "${url:-}" || url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re 
 
 # ... The network may be local
 test -n "${url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || {
-    case "$DFX_URL_TYPE" in
-    static) url="http://${CANISTER_ID}:8080" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
-    api) url="http://localhost:8080" ;;
-    esac
+  case "$DFX_URL_TYPE" in
+  static) url="http://${CANISTER_ID}:8080" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
+  api) url="http://localhost:8080" ;;
+  esac
 }
 
 # Last try:  Assume the network is a testnet.
