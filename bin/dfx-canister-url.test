@@ -80,7 +80,7 @@ if [[ "${DFX_SETUP:-}" == "true" ]]; then
   echo "  mv '$GLOBAL_NETWORK_CONFIG_SAVE' '$GLOBAL_NETWORK_CONFIG'"
   exit 0
 fi
-#trap cleanup EXIT
+trap cleanup EXIT
 ###############################
 
 true ||

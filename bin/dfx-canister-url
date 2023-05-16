@@ -69,7 +69,7 @@ test -n "$url" || {
   if [[ "$DFX_NETWORK" == "ic" ]]; then
     case "$DFX_URL_TYPE" in
     static) url="https://${CANISTER_ID}.icp0.io" ;;
-    api) HOST="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
+    api) url="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
     esac
   fi
 }
