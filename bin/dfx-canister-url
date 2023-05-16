@@ -111,14 +111,14 @@ canister_id() {
   dfx canister id --network "$DFX_NETWORK" "$DFX_CANISTER"
 }
 inject_canister_id() {
-	read -r root_url
-	test -n "${root_url:-}" || return
+  read -r root_url
+  test -n "${root_url:-}" || return
   case "$DFX_URL_TYPE" in
-	  static)
-		  local CANISTER_ID="$(canister_id)"
-		  printf "%s\n" "$root_url" | sed -E "s,^(https?://)?,&${CANISTER_ID}.,g"
-		  ;;
-	  *) printf "%s\n" "$root_url" ;;
+  static)
+    local CANISTER_ID="$(canister_id)"
+    printf "%s\n" "$root_url" | sed -E "s,^(https?://)?,&${CANISTER_ID}.,g"
+    ;;
+  *) printf "%s\n" "$root_url" ;;
   esac
 }
 
@@ -126,7 +126,7 @@ inject_canister_id() {
 test -n "$url" || {
   if [[ "$DFX_NETWORK" == "ic" ]]; then
     case "$DFX_URL_TYPE" in
-	    static) url="https://$(canister_id).icp0.io" ;;
+    static) url="https://$(canister_id).icp0.io" ;;
     api) url="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
     esac
   fi

@@ -104,7 +104,7 @@ print_title() {
 (
   print_title "Static URL to local canisters should be correct"
   : Set a canister ID
-  CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
+  CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai"           # A real canister ID - it should resolve.
   EXPECTED_URL="http://${CANISTER_ID}.localhost:8080" # Note: This may change with new versions of dfx or custom config.
   git checkout dfx.json
   c="$CANISTER_ID" jq '.canisters.smiley_dapp_assets.remote.id.local = (env.c)' dfx.json | sponge dfx.json
