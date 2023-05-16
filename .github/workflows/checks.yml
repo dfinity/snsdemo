@@ -117,5 +117,5 @@ jobs:
           set -euxo pipefail
           echo "This modifies files, so make sure the state is clean before and after"
           git clean -dfx
-          bin/dfx-canister-url.test
+          bin/dfx-canister-url.test --verbose
           git clean -dfx
