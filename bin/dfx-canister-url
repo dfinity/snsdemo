@@ -70,7 +70,8 @@ source "$(clap.build)"
 # Historically, the canister name was given as a positional argument.
 test -n "${DFX_CANISTER:-}" || (($# != 1)) || DFX_CANISTER="${1:-}"
 test -n "${DFX_CANISTER:-}" || {
-  echo "ERROR: Please specify a canister name or ID"
+  echo "ERROR: Please specify a canister name"
+  : "TODO: Support canister IDs as well."
   exit 1
 }
 
