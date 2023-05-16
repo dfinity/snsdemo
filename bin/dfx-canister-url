@@ -137,7 +137,14 @@ test -n "${url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || {
 }
 
 # Last try:  Assume the network is a testnet.
-test -n "$url" || url="https://${CANISTER_ID}.${DFX_NETWORK}.testnet.dfinity.network"
+test -n "$url" || {
+  PREFIX="https://"
+  DOMAIN="testnet.dfinity.network"
+  case "$DFX_URL_TYPE" in
+  static) url="${PREFIX}${CANISTER_ID}.${DFX_NETWORK}.${DOMAIN}" ;;
+  api) url="${PREFIX}${DOMAIN}" ;;
+  esac
+}
 
 if [[ "${DFX_OPEN:-}" == "true" ]]; then
   command=xdg-open                                  # Uses Linux default browser
