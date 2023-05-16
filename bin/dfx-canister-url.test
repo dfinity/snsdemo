@@ -14,7 +14,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define long=setup desc="Populate the global networks file for testing.  DO not test." variable=DFX_SETUP nargs=0
+clap.define long=setup desc="Populate the global networks file for testing.  Do not test." variable=DFX_SETUP nargs=0
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -60,7 +60,17 @@ global_mainnet_config() {
 		"https://icp-api.io/"
 	      ],
 	      "type": "persistent"
+	    },
+	    "smallXX": {
+	      "config": {
+		"FETCH_ROOT_KEY": true
+	      },
+	      "providers": [
+		"https://1.2.3.4:999"
+	      ],
+	      "type": "persistent"
 	    }
+
 	}
 	EOF
 }
@@ -153,6 +163,30 @@ true ||
     } >&2
   done
 )
+
+(
+  echo "The mainnet API URLs should be correct"
+  git checkout dfx.json
+  NETWORKS=(ic mainnet)
+  CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
+  EXPECTED_URL="https://icp-api.io"
+  global_mainnet_config
+  for NETWORK in "${NETWORKS[@]}"; do
+    c="$CANISTER_ID" n="$NETWORK" jq '.canisters.smiley_dapp_assets.remote.id[env.n] = (env.c)' dfx.json | sponge dfx.json
+    [[ "$(dfx canister id --network "$NETWORK" smiley_dapp_assets)" == "$CANISTER_ID" ]] || {
+      echo "ERROR in test setup: canister ID for smiley_dapp_assets on $NETWORK network not set correctly."
+      exit 1
+    }
+    ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" --type api smiley_dapp_assets)"
+    [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
+      echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
+      echo "  ACTUAL:   $ACTUAL_URL"
+      echo "  EXPECTED_URL: $EXPECTED_URL"
+      exit 1
+    } >&2
+  done
+)
+
 
 # TODO: Test URL to static testnets
 
