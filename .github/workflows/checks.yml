@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install tools
-        run: ./bin/dfx-software-wasm-nm-install 
+        run: ./bin/dfx-software-wasm-nm-install
       - name: "Test the sns aggregator version command"
         run: ./bin/dfx-software-sns-aggregator-version.test
         env:
