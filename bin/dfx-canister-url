@@ -7,7 +7,7 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-"EOF"
 
-	Prints the URL for a canister frontend.
+	Prints the URL for a canister.
 
 	There are two types of URL:
 	- "api" that serve only API calls, not web pages.
