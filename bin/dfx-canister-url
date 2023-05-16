@@ -102,7 +102,7 @@ done
 #          "ic": "https://nns.ic0.app",
 #          "mainnet": "https://nns.ic0.app"
 # } }  } }
-url="$(c="$DFX_CANISTER" n="$DFX_NETWORK" jq -r '.canisters[env.DFX_CANISTER].url[env.DFX_NETWORK] // ""' dfx.json)"
+url="$(jq -r '.canisters[env.DFX_CANISTER].url[env.DFX_NETWORK] // ""' dfx.json)"
 
 # Not found?
 # Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.NETWORK_URL
