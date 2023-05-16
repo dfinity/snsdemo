@@ -11,13 +11,7 @@
         "src/smiley_dapp_assets/assets",
         "dist/smiley_dapp_assets/"
       ],
-      "type": "assets",
-      "remote": {
-        "id": {
-          "ic": "3r4gx-wqaaa-aaaaq-aaaia-cai",
-          "mainnet": "3r4gx-wqaaa-aaaaq-aaaia-cai"
-        }
-      }
+      "type": "assets"
     },
     "smiley_dapp": {
       "main": "src/smiley_dapp/main.mo",
