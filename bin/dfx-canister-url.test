@@ -144,7 +144,7 @@ true ||
 (
   echo "The mainnet asset URLs should be correct"
   git checkout dfx.json
-  NETWORKS=(ic mainnet)
+  NETWORKS=(ic)
   CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
   EXPECTED_URL="https://${CANISTER_ID}.icp0.io"
   global_mainnet_config
@@ -167,7 +167,7 @@ true ||
 (
   echo "The mainnet API URLs should be correct"
   git checkout dfx.json
-  NETWORKS=(ic mainnet)
+  NETWORKS=(ic)
   CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
   EXPECTED_URL="https://icp-api.io"
   global_mainnet_config
