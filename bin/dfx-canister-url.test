@@ -88,7 +88,7 @@ trap cleanup EXIT
   EXPECTED_URL="http://localhost:8080"
   ACTUAL_URL="$(dfx-canister-url --canister smiley_dapp_assets --type api)"
       [[ "$EXPECTED_URL" == "${ACTUAL_URL}" ]] || {
-        echo "The $actual_varname should be as expected:"
+        echo "The local canister api URL should be as expected:"
         echo "EXPECTED:    $EXPECTED_URL"
         echo "ACTUAL:      ${ACTUAL_URL}"
         exit 1
