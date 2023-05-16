@@ -22,20 +22,26 @@ export DFX_NETWORK
 ###############################
 #### GLOBAL NETWORK CONFIG ####
 GLOBAL_NETWORK_CONFIG="$HOME/.config/dfx/networks.json"
+GLOBAL_NETWORK_CONFIG_SAVE="$(mktemp "$GLOBAL_NETWORK_CONFIG.XXXXX")"
 save_global_network_config() {
-	if test -e "$GLOBAL_NETWORK_CONFIG" ; then
-  mv "$GLOBAL_NETWORK_CONFIG" "$GLOBAL_NETWORK_CONFIG.hide"
-	fi
+  if test -e "$GLOBAL_NETWORK_CONFIG"; then
+    mv "$GLOBAL_NETWORK_CONFIG" "$GLOBAL_NETWORK_CONFIG_SAVE"
+  fi
 }
 restore_global_network_config() {
-	if test -e "$GLOBAL_NETWORK_CONFIG.hide" ; then
-  mv "$GLOBAL_NETWORK_CONFIG.hide" "$GLOBAL_NETWORK_CONFIG"
-	fi
+  if test -e "$GLOBAL_NETWORK_CONFIG_SAVE"; then
+    mv "$GLOBAL_NETWORK_CONFIG_SAVE" "$GLOBAL_NETWORK_CONFIG"
+  fi
+}
+cleanup() {
+  (("$?" == 0)) || echo "EXIT FAIL" >&2
+  restore_global_network_config
+  git checkout dfx.json
 }
 save_global_network_config
-trap restore_global_network_config EXIT
+trap cleanup EXIT
 global_mainnet_config() {
-	cat <<-EOF > "$GLOBAL_NETWORK_CONFIG"
+  cat <<-EOF >"$GLOBAL_NETWORK_CONFIG"
 	{
 	    "mainnet": {
 	      "config": {
@@ -59,60 +65,58 @@ global_mainnet_config() {
 }
 ###############################
 
-
-
 true ||
-(
-  echo "URL to local canisters should be correct"
-  : "Make sure the smiley dapp is deployed"
-  dfx-network-stop
-  dfx start --clean --background
-  dfx canister id smiley_dapp_assets &>/dev/null || {
-	  npm ci
-	  PATH="$PATH:node_modules/.bin" dfx deploy smiley_dapp_assets
-  } || {
-     echo "ERROR IN TEST SETUP: Unable to deploy smiley_dapp_assets"
-     exit 1
-  }
-  export CANISTER_ID
-  : "Make sure the URL we expect works"
-  CANISTER_ID="$(dfx canister id smiley_dapp_assets)"
-  EXPECTED_URL="http://${CANISTER_ID}.localhost:8080" # Note: This may change with new versions of dfx or custom config.
-  STRING_FROM_FRONTEND="powderblue"
-  curl --fail "$EXPECTED_URL" | grep -q -- "$STRING_FROM_FRONTEND" || {
-     echo "ERROR IN TEST SETUP: The expected URL should point to the smiley_dapp_assets."
-     echo "  EXPECTED_URL: $EXPECTED_URL"
-     exit 1
-  }
-  : "Compare with the actual URL"
-  ACTUAL_POSITIONAL_URL="$(dfx-canister-url smiley_dapp_assets)"
-  ACTUAL_FLAG_URL="$(dfx-canister-url --canister smiley_dapp_assets)"
-  ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local smiley_dapp_assets)"
-  ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local --canister smiley_dapp_assets)"
-  for actual_varname in ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK ; do
-     [[ "$EXPECTED_URL" == "${!actual_varname}" ]] || {
-       echo "The $actual_varname should be as expected:"
-       echo "EXPECTED:    $EXPECTED_URL"
-       echo "ACTUAL:      ${!actual_varname}"
-       exit 1
-     }
-  done
-  git checkout dfx.json
-)
+  (
+    echo "URL to local canisters should be correct"
+    : "Make sure the smiley dapp is deployed"
+    dfx-network-stop
+    dfx start --clean --background
+    dfx canister id smiley_dapp_assets &>/dev/null || {
+      npm ci
+      PATH="$PATH:node_modules/.bin" dfx deploy smiley_dapp_assets
+    } || {
+      echo "ERROR IN TEST SETUP: Unable to deploy smiley_dapp_assets"
+      exit 1
+    }
+    export CANISTER_ID
+    : "Make sure the URL we expect works"
+    CANISTER_ID="$(dfx canister id smiley_dapp_assets)"
+    EXPECTED_URL="http://${CANISTER_ID}.localhost:8080" # Note: This may change with new versions of dfx or custom config.
+    STRING_FROM_FRONTEND="powderblue"
+    curl --fail "$EXPECTED_URL" | grep -q -- "$STRING_FROM_FRONTEND" || {
+      echo "ERROR IN TEST SETUP: The expected URL should point to the smiley_dapp_assets."
+      echo "  EXPECTED_URL: $EXPECTED_URL"
+      exit 1
+    }
+    : "Compare with the actual URL"
+    ACTUAL_POSITIONAL_URL="$(dfx-canister-url smiley_dapp_assets)"
+    ACTUAL_FLAG_URL="$(dfx-canister-url --canister smiley_dapp_assets)"
+    ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local smiley_dapp_assets)"
+    ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local --canister smiley_dapp_assets)"
+    for actual_varname in ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK; do
+      [[ "$EXPECTED_URL" == "${!actual_varname}" ]] || {
+        echo "The $actual_varname should be as expected:"
+        echo "EXPECTED:    $EXPECTED_URL"
+        echo "ACTUAL:      ${!actual_varname}"
+        exit 1
+      }
+    done
+    git checkout dfx.json
+  )
 
 # TODO: Test custom URL
 (
   echo "Custom URL should be used if available"
   git checkout dfx.json
   EXPECTED_URL="https://costa.concordia"
-  NETWORKS=( local somewhere )
-  for NETWORK in "${NETWORKS[@]}" ; do
+  NETWORKS=(local somewhere)
+  for NETWORK in "${NETWORKS[@]}"; do
     c="$EXPECTED_URL" n="$NETWORK" jq '.canisters.smiley_dapp_assets.url[env.n] = (env.c)' dfx.json | sponge dfx.json
     ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" smiley_dapp_assets)"
     [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
-	    echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
-	echo "  ACTUAL:   $ACTUAL_URL"
-        echo "  EXPECTED_URL: $EXPECTED_URL"
+      echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
+      echo "  ACTUAL:   $ACTUAL_URL"
+      echo "  EXPECTED_URL: $EXPECTED_URL"
       exit 1
     } >&2
   done
@@ -122,17 +126,17 @@ true ||
 (
   echo "The mainnet asset URLs should be correct"
   git checkout dfx.json
-  NETWORKS=( ic mainnet )
+  NETWORKS=(ic mainnet)
   CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
   EXPECTED_URL="https://${CANISTER_ID}.icp0.io"
   global_mainnet_config
-  for NETWORK in "${NETWORKS[@]}" ; do
+  for NETWORK in "${NETWORKS[@]}"; do
     c="$CANISTER_ID" n="$NETWORK" jq '.canisters.smiley_dapp_assets.remote.id[env.n] = (env.c)' dfx.json | sponge dfx.json
     ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" smiley_dapp_assets)"
     [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
-            echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
-        echo "  ACTUAL:   $ACTUAL_URL"
-        echo "  EXPECTED_URL: $EXPECTED_URL"
+      echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
+      echo "  ACTUAL:   $ACTUAL_URL"
+      echo "  EXPECTED_URL: $EXPECTED_URL"
       exit 1
     } >&2
   done

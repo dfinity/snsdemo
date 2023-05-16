@@ -13,7 +13,7 @@ print_help() {
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
-URL_TYPES=( static api )
+URL_TYPES=(static api)
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=canister desc="The canister name" variable=DFX_CANISTER
@@ -62,31 +62,37 @@ url="$(c="$DFX_CANISTER" n="$DFX_NETWORK" jq -r '.canisters[env.DFX_CANISTER].ur
 
 # Not found?
 # Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.NETWORK_URL
-test -n "${url:-}" || CANISTER_ID="$(dfx canister id --network  "$DFX_NETWORK" "$DFX_CANISTER")"
+test -n "${url:-}" || CANISTER_ID="$(dfx canister id --network "$DFX_NETWORK" "$DFX_CANISTER")"
 
 # .. Maybe this is in production.  Prioritize this so that production builds are not easily affected by local configuration.
 test -n "$url" || {
-	if [[ "$DFX_NETWORK" =~ ^(mainnet|ic)$ ]] ; then
-  case "$DFX_URL_TYPE" in
-  static) url="https://${CANISTER_ID}.icp0.io" ;;
-  api) HOST="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
-  esac
-	fi
+  if [[ "$DFX_NETWORK" == "ic" ]]; then
+    case "$DFX_URL_TYPE" in
+    static) url="https://${CANISTER_ID}.icp0.io" ;;
+    api) HOST="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
+    esac
+  fi
 }
 
 # ... The network URL may be in the local dfx.json or in the common config.
 GLOBAL_NETWORK_CONFIG_FILE="$HOME/.config/dfx/networks.json"
 network_config() {
-    ! test -e dfx.json || jq '.networks // {}' dfx.json
-    ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || cat "$GLOBAL_NETWORK_CONFIG_FILE"
+  ! test -e dfx.json || jq '.networks // {}' dfx.json
+  ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || cat "$GLOBAL_NETWORK_CONFIG_FILE"
 }
 case "${DFX_URL_TYPE:-}" in
-	static)
-		test -n "${url:-}" || url="$(network_config | jq -re '.[env.DFX_NETWORK].config | .STATIC_HOST // .HOST | first // ""')" ;;
-	api)
-		test -n "${url:-}" || url="$(jq -re '.networks[env.DFX_NETWORK].config.API_HOST // .networks[env.DFX_NETWORK].config.API_HOST // ""' dfx.json)"
-		test -n "${url:-}" || ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || url="$(jq -re '.[env.DFX_NETWORK].config.API_HOST // .[env.DFX_NETWORK].config.API_HOST' "$GLOBAL_NETWORK_CONFIG_FILE")"
-		;;
+static)
+  test -n "${url:-}" || url="$(network_config | jq -re '.[env.DFX_NETWORK].config | .STATIC_HOST // .HOST | first // ""')"
+  ;;
+api)
+  test -n "${url:-}" || url="$(network_config | jq -re '.[env.DFX_NETWORK].config | .API_HOST // .HOST | first // ""')"
+  ;;
+*)
+  {
+    echo "ERROR: Unsupported url type: '$DFX_URL_TYPE'"
+    exit 1
+  } >&2
+  ;;
 esac
 
 # Last try:  Assume the network is a testnet.
