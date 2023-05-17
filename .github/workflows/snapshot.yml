@@ -31,6 +31,8 @@ jobs:
       - name: Time snapshot start # See GitHub for the duration of this step.
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
         run: bin/dfx-snapshot-restore --snapshot "${{ steps.snapshot.outputs.path }}"
+      - name: "Verify that the stock state behaves as expected"
+        run: bin/dfx-stock-test
       - name: Stop dfx
         run: dfx stop
       - name: Release if applicable

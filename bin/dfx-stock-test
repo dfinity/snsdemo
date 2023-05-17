@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Tests that the stock deployment has the expected state.
+
+	The test may be applied to any stock deployment:
+	- To local dfx
+	- To a local dfx that has been frozen and reincarnated
+	- Remote testnets
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+source "$SOURCE_DIR/test_utils.bash"
+
+export DFX_NETWORK
+
+(
+  print_title "sns_aggregator should be installed"
+  curl --retry 5 --fail "$(dfx-canister-url sns_aggregator)" | grep -q "The aggregator collects information on all deployed SNS"
+)
