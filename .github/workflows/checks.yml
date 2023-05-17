@@ -61,7 +61,7 @@ jobs:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
       - name: Install tools
-        run: ./bin/dfx-software-wasm-nm-install 
+        run: ./bin/dfx-software-wasm-nm-install
       - name: "Test the sns aggregator version command"
         run: ./bin/dfx-software-sns-aggregator-version.test
         env:
@@ -110,3 +110,20 @@ jobs:
         run: ./bin/dfx-software-nns-dapp-version.test
         env:
           GH_TOKEN: ${{ github.token }}
+  dfx-canister-url-checks:
+    needs: formatting
+    name: Canister URL checks
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install apt-dependencies
+        run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
+      - uses: actions/checkout@v3
+      - name: Install dfx
+        run: ./bin/dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
+      - name: dfx-canister-url works
+        run: |
+          set -euxo pipefail
+          echo "This modifies files, so make sure the state is clean before and after"
+          git clean -dfx
+          bin/dfx-canister-url.test --verbose
+          git clean -dfx
