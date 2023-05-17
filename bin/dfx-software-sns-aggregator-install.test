@@ -29,7 +29,7 @@ for flavour in dev prod; do
       : The downloaded wasm should be the pinned, production version, not called 'pinned' or some mutable alias:
       SNS_AGGREGATOR_RELEASE="$(. "$SOURCE_DIR/versions.bash" && echo "$SNS_AGGREGATOR_RELEASE")"
       [[ "$SNS_AGGREGATOR_RELEASE" =~ ^proposal-[0-9]+-agg$ ]] || {
-        echo "ERROR: The pinned $release $flavour release should refer to a proposal: '$SNS_AGGREGATOR_RELEASE'"
+        echo "ERROR: The $release $flavour release should refer to a proposal: '$SNS_AGGREGATOR_RELEASE'"
         echo "       This seems to be a reasonable expectation.  Please amend this test otherwise."
         exit 1
       } >&2
