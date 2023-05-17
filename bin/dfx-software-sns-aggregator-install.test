@@ -34,12 +34,19 @@ for flavour in dev prod; do
         exit 1
       } >&2
       WASM_FILE="wasms/sns_aggregator_${SNS_AGGREGATOR_RELEASE}_${flavour}.wasm"
-      dfx-canister-nm "$WASM_FILE" | grep -q canister_query || {
+      dfx-canister-nm "$WASM_FILE" >"${WASM_FILE}.symbols"
+      grep -q canister_query "${WASM_FILE}.symbols" || {
         echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
         echo "       It should be:"
         echo "       - A wasm file"
         echo "       - With canister query calls"
         echo "       - Optionally gzipped"
+        echo "Download file type:"
+        file "${WASM_FILE}"
+        echo "File stats:"
+        ls -l "${WASM_FILE}"
+        echo "Symbols:"
+        cat "${WASM_FILE}.symbols"
         exit 1
       } >&2
       dfx-canister-check-wasm-hash --canister sns_aggregator --wasm "$WASM_FILE"
