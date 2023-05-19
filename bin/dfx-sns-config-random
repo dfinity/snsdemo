@@ -33,7 +33,7 @@ TOKEN_SYMBOL="$(
 )"
 TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
 PRINCIPAL="$(dfx identity get-principal)"
-# For original cotrollers, use:
+# For original controllers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
 
 SNS_INIT_PATH="$(dirname "$(realpath "$0")")/sns_init.yml"
@@ -42,6 +42,10 @@ SED_COMMANDS="s/TOKEN_NAME/$TOKEN_NAME/g;
               s/PRINCIPAL/$PRINCIPAL/g"
 
 if [ "${CONFIRMATION_TEXT:-}" ]; then
+  # Adds the confirmation_text by replacing the entire commented out line
+  # # confirmation_text: "CONFIRMATION_TEXT"
+  # with
+  # confirmation_text: "${CONFIRMATION_TEXT}"
   SED_COMMANDS="$SED_COMMANDS;s/# confirmation_text: \"CONFIRMATION_TEXT\"/confirmation_text: \"${CONFIRMATION_TEXT}\"/"
 fi
 
