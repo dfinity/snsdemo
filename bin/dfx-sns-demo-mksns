@@ -9,6 +9,7 @@ export PATH="$PATH:$HOME/.local/bin"
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define long=confirmation_text desc="A text that needs to be confirmed by the participants" variable=CONFIRMATION_TEXT default=""
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
@@ -16,7 +17,7 @@ cd "$(dirname "$(realpath "$0")")/.."
 
 ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
 
-./bin/dfx-sns-config-random --network "$DFX_NETWORK"
+./bin/dfx-sns-config-random --confirmation_text "${CONFIRMATION_TEXT:-}"
 dfx ledger top-up --amount 2.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
 ./bin/dfx-sns-deploy --network "$DFX_NETWORK"
 

@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+print_help() {
+  cat <<-EOF
+
+	Creates an sns.yml to configure an SNS swap.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define long=confirmation_text desc="A text that needs to be confirmed by the swap participants" variable=CONFIRMATION_TEXT default=""
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
 
 consonant() {
   openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
@@ -21,6 +36,15 @@ PRINCIPAL="$(dfx identity get-principal)"
 # For original cotrollers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
 
-sed "s/TOKEN_NAME/$TOKEN_NAME/g;s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g;s/PRINCIPAL/$PRINCIPAL/g" "$(dirname "$(realpath "$0")")"/sns_init.yml >sns.yml
+SNS_INIT_PATH="$(dirname "$(realpath "$0")")/sns_init.yml"
+SED_COMMANDS="s/TOKEN_NAME/$TOKEN_NAME/g;
+              s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g;
+              s/PRINCIPAL/$PRINCIPAL/g"
+
+if [ "${CONFIRMATION_TEXT:-}" ]; then
+  SED_COMMANDS="$SED_COMMANDS;s/# confirmation_text: \"CONFIRMATION_TEXT\"/confirmation_text: \"${CONFIRMATION_TEXT}\"/"
+fi
+
+sed "$SED_COMMANDS" "$SNS_INIT_PATH" >sns.yml
 
 echo "Created an SNS: $TOKEN_SYMBOL"
