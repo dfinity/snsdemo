@@ -73,7 +73,7 @@ create_all_sns() {
 
       ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK" --proposer "${DFX_PROPOSER:-${DEMO_USER}}"
 
-      ./bin/dfx-sns-config-random --network "$DFX_NETWORK"
+      ./bin/dfx-sns-config-random
       dfx ledger top-up --amount 4.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
       dfx wallet balance
       ./bin/dfx-sns-deploy --network "$DFX_NETWORK"
