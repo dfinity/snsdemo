@@ -176,6 +176,10 @@ initial_voting_period_seconds: 345600
 wait_for_quiet_deadline_increase_seconds: 86400
 #
 #
+# An optional text that if present needs to be confirmed by any participants.
+# confirmation_text: "CONFIRMATION_TEXT"
+#
+#
 # SNS INITIAL TOKEN DISTRIBUTION
 #
 # This field sets the initial token distribution. Initially, there is only support for
