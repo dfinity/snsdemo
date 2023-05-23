@@ -39,7 +39,7 @@ export DFX_VERSION
 DFX_INSTALL_SCRIPT="$(mktemp install-sh.XXXX)"
 DFX_INSTALL_SCRIPT_URL="https://internetcomputer.org/install.sh"
 
-trap "rm $DFX_INSTALL_SCRIPT" EXIT
+trap 'rm $DFX_INSTALL_SCRIPT' EXIT
 
 # install.sh is hosted on the IC and the canister is updated frequently so keep
 # trying if it doesn't work right away.
