@@ -67,16 +67,12 @@ ckbtc_import() {
     local remote_name="$1"
     local local_name="$2"
     local local_path="$(c="$local_name" jq -re '.canisters[env.c].candid' dfx.json)"
-    if test -e "$local_path"; then
-      echo "Skipping $local_path as it already exists"
-    else
-      local url="https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/${remote_name}"
-      echo "Getting  $local_path from $url..."
-      curl -sSLf --retry 5 "$url" -o "$local_path"
-    fi
+    local url="https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/${remote_name}"
+    echo "Getting  $local_path from $url..."
+    curl -sSLf --retry 5 "$url" -o "$local_path"
   }
   get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
-  get_did rs/rosetta-api/icrc1/ledger/icrc1.did "${LOCAL_PREFIX}ledger"
+  get_did rs/rosetta-api/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
   get_did rs/rosetta-api/icrc1/index/index.did "${LOCAL_PREFIX}index"
 
   : "Ckbtc canister import complete."
