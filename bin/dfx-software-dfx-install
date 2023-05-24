@@ -36,5 +36,22 @@ if command -v dfx >/dev/null; then
 fi
 
 export DFX_VERSION
-sh -ci "$(curl --retry 5 -fsSL https://internetcomputer.org/install.sh)"
+DFX_INSTALL_SCRIPT="$(mktemp install-sh.XXXX)"
+DFX_INSTALL_SCRIPT_URL="https://internetcomputer.org/install.sh"
+
+trap 'rm $DFX_INSTALL_SCRIPT' EXIT
+
+# install.sh is hosted on the IC and the canister is updated frequently so keep
+# trying if it doesn't work right away.
+# The --retry-max-time will be rounded up to "1 less than a power of 2" if it
+# isn't already. So this will keep trying for 511 seconds or just under 8.5 minutes.
+# The --retry value just needs to be large enough to reach --retry-max-time
+# seconds.
+curl \
+  --retry-max-time 500 \
+  --retry 100 \
+  --silent --show-error --location --fail \
+  --output "$DFX_INSTALL_SCRIPT" \
+  "$DFX_INSTALL_SCRIPT_URL"
+sh "$DFX_INSTALL_SCRIPT"
 lazy_dfx_cache_install
