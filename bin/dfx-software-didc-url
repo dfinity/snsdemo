@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Gets the download URL for didc.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=r long=release desc="The release to install" variable=DFX_DIDC_VERSION default="pinned"
+clap.define short=u long=uname desc="The operating system uname" variable=DFX_UNAME default="$(uname)"
+clap.define short=a long=arch desc="The architecture" variable=DFX_ARCH default="$(uname -m)"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+case "${DFX_UNAME}-${DFX_ARCH}" in
+	Darwin-*) FILENAME="didc-macos" ;;
+	Linux-x86_64) FILENAME="didc-linux64" ;;
+	Linux-armv7l) FILENAME="didc-arm" ;;
+	*) {
+		echo "ERROR: Unsupported platform: ${DFX_UNAME} on ${$DFX_ARCH}"
+		exit 1
+	} >&2 ;;
+esac
+
+# If the version is given as latest or pinned, look it up, else use the version as given.
+VERSION="$(dfx-software-didc-version "$DFX_DIDC_VERSION")"
+echo "https://github.com/dfinity/candid/releases/download/${VERSION}/${FILENAME}"
