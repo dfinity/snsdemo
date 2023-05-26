@@ -5,7 +5,7 @@ PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
 
 print_help() {
-	cat <<-EOF
+  cat <<-EOF
 
 	Recommends versions of didc to install.
 	EOF
@@ -32,5 +32,6 @@ latest)
   gh release list --exclude-drafts --exclude-pre-releases --limit 1 --repo dfinity/candid | awk '{print $1}' | awk -F: '{print $1}'
   ;;
 *)
-	echo "$STRATEGY" ;;
+  echo "$STRATEGY"
+  ;;
 esac

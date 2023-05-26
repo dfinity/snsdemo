@@ -25,9 +25,9 @@ curl --retry 5 --fail -sSL "${DIDC_URL}" >"$DOWNLOAD"
 BIN_DIR="$HOME/.local/bin"
 mkdir -p "$BIN_DIR"
 install -m 755 "$DOWNLOAD" "$BIN_DIR/didc"
-did_in_path="$( command -v didc 2>/dev/null )"
+did_in_path="$(command -v didc 2>/dev/null)"
 echo "Installed release $DFX_DIDC_VERSION at: $BIN_DIR/didc"
 [[ "$(realpath "${did_in_path:-}")" == "$(realpath "$BIN_DIR/didc")" ]] || {
-	echo "Please update your PATH:"
-	echo "  export PATH=\"$BIN_DIR:\$PATH\""
+  echo "Please update your PATH:"
+  echo "  export PATH=\"$BIN_DIR:\$PATH\""
 }

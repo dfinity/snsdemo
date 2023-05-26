@@ -21,13 +21,15 @@ clap.define short=a long=arch desc="The architecture" variable=DFX_ARCH default=
 source "$(clap.build)"
 
 case "${DFX_UNAME}-${DFX_ARCH}" in
-	Darwin-*) FILENAME="didc-macos" ;;
-	Linux-x86_64) FILENAME="didc-linux64" ;;
-	Linux-armv7l) FILENAME="didc-arm" ;;
-	*) {
-		echo "ERROR: Unsupported platform: ${DFX_UNAME} on ${$DFX_ARCH}"
-		exit 1
-	} >&2 ;;
+Darwin-*) FILENAME="didc-macos" ;;
+Linux-x86_64) FILENAME="didc-linux64" ;;
+Linux-armv7l) FILENAME="didc-arm" ;;
+*)
+  {
+    echo "ERROR: Unsupported platform: ${DFX_UNAME} on ${DFX_ARCH}"
+    exit 1
+  } >&2
+  ;;
 esac
 
 # If the version is given as latest or pinned, look it up, else use the version as given.
