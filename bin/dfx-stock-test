@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Tests that the stock deployment has the expected state.
+
+	The test may be applied to any stock deployment:
+	- To local dfx
+	- To a local dfx that has been frozen and reincarnated
+	- Remote testnets
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+source "$SOURCE_DIR/test_utils.bash"
+
+export DFX_NETWORK
+
+(
+  print_title "sns_aggregator should be installed"
+  index_html="$(mktemp --suffix .html index_XXXX)"
+  curl --silent --retry 5 --fail "$(dfx-canister-url sns_aggregator)" >"$index_html" || {
+    echo "ERROR: Should be able to get sns_aggregator home page."
+    exit 1
+  } >&2
+  expected_in_index="The aggregator collects information on all deployed SNS"
+  grep -q "$expected_in_index" "$index_html" || {
+    echo "ERROR: The aggregator home page should include the expected text."
+    echo "       - The home page may have changed; if so please update the expected text."
+    echo "       - The attempt to retrieve the home page may have got an error page or"
+    echo "         blank response.  If so, please make sure that the aggregator is"
+    echo "         installed correctly."
+    echo "EXPECTED TO FIND: '$expected_in_index'"
+    echo "IN PAGE CONTENT:"
+    cat "$index_html"
+    exit 1
+  } >&2
+)
+
+echo "$(basename "$0") PASSED"

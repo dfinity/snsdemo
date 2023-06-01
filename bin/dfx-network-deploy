@@ -19,6 +19,7 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=p long=prodlike desc="Make it like prod (experimental)" variable=DFX_PRODLIKE nargs=0
 clap.define short=I long=ii_release desc="The release of II to use" variable=DFX_II_RELEASE default=""
+clap.define short=A long=aggregator_release desc="The release of sns_aggregator to use" variable=DFX_AGGREGATOR_RELEASE default=""
 clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
@@ -64,6 +65,5 @@ else
   dfx-network-deploy-frontends --network "$DFX_NETWORK" --nd_dir "${ND_REPO_DIR}"
 fi
 
-# However the network is deloyed, we also need a placeholder for the aggregator canister.
-jq '.canisters.sns_aggregator = { type: "custom", candid: "placeholder", wasm: "placeholder", build: "true" }' dfx.json | sponge dfx.json
-dfx canister create sns_aggregator --no-wallet --network "$DFX_NETWORK"
+# However the network is deloyed, we also need an aggregator canister.
+dfx-software-sns-aggregator-install --network "$DFX_NETWORK" --release "${DFX_AGGREGATOR_RELEASE:-pinned}" --flavor dev

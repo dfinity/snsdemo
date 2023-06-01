@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Recommends versions of didc to install.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=p long=pinned desc="Get the pinned version from versions.bash" variable=GET_PINNED nargs=0
+clap.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+STRATEGY="${STRATEGY:-${GET_PINNED:+pinned}}"
+STRATEGY="${STRATEGY:-${GET_LATEST:+latest}}"
+STRATEGY="${STRATEGY:-${1:-}}"
+STRATEGY="${STRATEGY:-pinned}"
+case "${STRATEGY:-}" in
+pinned)
+  . "$SOURCE_DIR/versions.bash"
+  echo "$DIDC_VERSION"
+  ;;
+latest)
+  gh release list --exclude-drafts --exclude-pre-releases --limit 1 --repo dfinity/candid | awk '{print $1}' | awk -F: '{print $1}'
+  ;;
+*)
+  echo "$STRATEGY"
+  ;;
+esac
