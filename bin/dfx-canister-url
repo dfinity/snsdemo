@@ -96,7 +96,8 @@ while ! test -e dfx.json; do
 done
 
 # Some canisters have custom URLs, such as identity.ic0.app.
-url="$(jq -r '.canisters[env.DFX_CANISTER].url[env.DFX_NETWORK] // ""' dfx.json)"
+url=""
+[[ "${DFX_URL_TYPE:-}" != "static" ]] || url="$(jq -r '.canisters[env.DFX_CANISTER].url[env.DFX_NETWORK] // ""' dfx.json)"
 
 # Not found?
 # Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.NETWORK_URL
