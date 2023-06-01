@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+# We make changes to dfx.json.  Better undo any changes.
+function cleanup {
+  git checkout dfx.json
+  dfx stop
+}
+trap cleanup EXIT
+
+for flavour in dev prod; do
+  for release in pinned latest proposal-115273-agg; do
+    (
+      echo "Should install the $release $flavour sns_aggregator"
+      : Clean up
+      git checkout dfx.json
+      dfx-network-stop
+      dfx start --clean --background 2>/dev/null
+      : Install
+      dfx-software-sns-aggregator-install --release "$release" --flavor "$flavour"
+      : The downloaded wasm should be the pinned, production version, not called 'pinned' or some mutable alias:
+      SNS_AGGREGATOR_RELEASE="$(. "$SOURCE_DIR/versions.bash" && echo "$SNS_AGGREGATOR_RELEASE")"
+      [[ "$SNS_AGGREGATOR_RELEASE" =~ ^proposal-[0-9]+-agg$ ]] || {
+        echo "ERROR: The $release $flavour release should refer to a proposal: '$SNS_AGGREGATOR_RELEASE'"
+        echo "       This seems to be a reasonable expectation.  Please amend this test otherwise."
+        exit 1
+      } >&2
+      WASM_FILE="wasms/sns_aggregator_${SNS_AGGREGATOR_RELEASE}_${flavour}.wasm"
+      dfx-canister-nm "$WASM_FILE" >"${WASM_FILE}.symbols"
+      grep -q canister_query "${WASM_FILE}.symbols" || {
+        echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
+        echo "       It should be:"
+        echo "       - A wasm file"
+        echo "       - With canister query calls"
+        echo "       - Optionally gzipped"
+        echo "Download file type:"
+        file "${WASM_FILE}"
+        echo "File stats:"
+        ls -l "${WASM_FILE}"
+        echo "Symbols:"
+        cat "${WASM_FILE}.symbols"
+        exit 1
+      } >&2
+      dfx-canister-check-wasm-hash --canister sns_aggregator --wasm "$WASM_FILE"
+    )
+  done
+done
