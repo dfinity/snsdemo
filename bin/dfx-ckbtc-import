@@ -45,13 +45,14 @@ ckbtc_import() {
   : Get the wasms
   mkdir -p "$WASM_DIR"
   get_wasm() {
-    local remote_name="$1"
-    local local_name="$2"
-    local local_path="$(c="$local_name" jq -re '.canisters[env.c].wasm' dfx.json)"
+    local remote_name local_name local_path url
+    remote_name="$1"
+    local_name="$2"
+    local_path="$(c="$local_name" jq -re '.canisters[env.c].wasm' dfx.json)"
     if test -e "$local_path"; then
       echo "Skipping $local_path as it already exists"
     else
-      local url="https://download.dfinity.systems/ic/$DFX_IC_COMMIT/canisters/${remote_name}.gz"
+      url="https://download.dfinity.systems/ic/$DFX_IC_COMMIT/canisters/${remote_name}.gz"
       echo "Getting  $local_path from $url..."
       curl -sSL "$url" -o "${local_path}.gz"
       gunzip "${local_path}.gz"
@@ -64,10 +65,11 @@ ckbtc_import() {
   : Get the candid files
   mkdir -p "$CANDID_DIR"
   get_did() {
-    local remote_name="$1"
-    local local_name="$2"
-    local local_path="$(c="$local_name" jq -re '.canisters[env.c].candid' dfx.json)"
-    local url="https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/${remote_name}"
+    local remote_name local_name local_path url
+    remote_name="$1"
+    local_name="$2"
+    local_path="$(c="$local_name" jq -re '.canisters[env.c].candid' dfx.json)"
+    url="https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/${remote_name}"
     echo "Getting  $local_path from $url..."
     curl -sSLf --retry 5 "$url" -o "$local_path"
   }
