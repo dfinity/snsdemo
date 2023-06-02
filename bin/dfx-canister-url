@@ -23,6 +23,7 @@ print_help() {
 	{ "canisters": {
 	    "my_canister": {
 	      "url": { "ic": "https://my-custom-url.com" },
+	      "raw_url": { "ic": "https://my-custom-raw-url.com" },
 	      ...
 	    }
 	  }
@@ -106,7 +107,7 @@ else
 fi
 
 # Not found?
-# Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.NETWORK_URL
+# Each network also has a pattern for canister URLs of the form: https://CANISTER_ID.raw?.NETWORK_URL
 canister_id() {
   dfx canister id --network "$DFX_NETWORK" "$DFX_CANISTER"
 }
@@ -117,7 +118,7 @@ inject_canister_id() {
   static)
     local CANISTER_ID
     CANISTER_ID="$(canister_id)"
-    printf "%s\n" "$root_url" | sed -E "s,^(https?://)?,&${CANISTER_ID}.,g"
+    printf "%s\n" "$root_url" | sed -E "s,^(https?://)?,&${CANISTER_ID}${DFX_RAW:+.raw}.,g"
     ;;
   *) printf "%s\n" "$root_url" ;;
   esac
