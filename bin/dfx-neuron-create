@@ -22,7 +22,8 @@ test -e "$PEM" || {
 NEURONS_DIR="$HOME/.config/dfx/identity/$DFX_IDENTITY/neurons"
 mkdir -p "$NEURONS_DIR"
 NEURONS_FILE="$NEURONS_DIR/$DFX_NETWORK"
-export IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
+IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
+export IC_URL
 # Note: Quill send puts a pile of junk on stdout and has no option to put just the response(s) somewhere safe such as a file.
 
 set quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --amount "$ICP" --name 1

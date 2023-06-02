@@ -112,7 +112,8 @@ inject_canister_id() {
   test -n "${root_url:-}" || return
   case "$DFX_URL_TYPE" in
   static)
-    local CANISTER_ID="$(canister_id)"
+    local CANISTER_ID
+    CANISTER_ID="$(canister_id)"
     printf "%s\n" "$root_url" | sed -E "s,^(https?://)?,&${CANISTER_ID}.,g"
     ;;
   *) printf "%s\n" "$root_url" ;;

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-export PATH="$SOURCE_DIR:$PATH"
+PATH="$SOURCE_DIR:$PATH"
+export PATH
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
@@ -12,9 +13,10 @@ clap.define short=N long=neuron desc="The dfx network to use" variable=DFX_NEURO
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-export DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")}"
-export DFX_IDENTITY_PEM="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
-export DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
+DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")}"
+DFX_IDENTITY_PEM="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
+DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
+export DFX_NEURON_ID DFX_IDENTITY_PEM DFX_NNS_URL
 
 # The due date of the sale must be greater than 1 day at the time of NNS proposal execution
 SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 90 * 24 * 3600')"
