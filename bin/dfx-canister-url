@@ -98,7 +98,9 @@ done
 
 # Some canisters have custom URLs, such as identity.ic0.app.
 if [[ "${DFX_URL_TYPE:-}" == "static" ]]; then
-  url="$(jq -r '.canisters[env.DFX_CANISTER].url[env.DFX_NETWORK] // ""' dfx.json)"
+  key="${DFX_RAW:+raw_url}"
+  key="${key:-url}"
+  url="$(k="$key" jq -r '.canisters[env.DFX_CANISTER][env.k][env.DFX_NETWORK] // ""' dfx.json)"
 else
   url=""
 fi
@@ -125,7 +127,7 @@ inject_canister_id() {
 test -n "$url" || {
   if [[ "$DFX_NETWORK" == "ic" ]]; then
     case "$DFX_URL_TYPE" in
-    static) url="https://$(canister_id).icp0.io" ;;
+    static) url="https://$(canister_id)${DFX_RAW:+.raw}.icp0.io" ;;
     api) url="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
     esac
   fi
@@ -146,6 +148,7 @@ test -n "${url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || url="$(echo "http://l
 # Last try:  Assume the network is a testnet.
 test -n "$url" || url="$(echo "https://${DFX_NETWORK}.testnet.dfinity.network" | inject_canister_id)"
 
+# What to do with our hard won information.
 if [[ "${DFX_OPEN:-}" == "true" ]]; then
   command=xdg-open                                  # Uses Linux default browser
   command -v "$command" &>/dev/null || command=open # Uses mac default browser
