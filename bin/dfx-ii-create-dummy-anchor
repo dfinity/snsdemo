@@ -54,8 +54,9 @@ add_device() {
   DEVICE_PUB_KEY_BLOB="$1"
   DEVICE_KEY_TYPE="$2"
   DEVICE_PURPOSE="$3"
-  set dfx canister call internet_identity add "(${ANCHOR}, record { alias = \"\"; protection = variant { unprotected }; pubkey = blob \"${DEVICE_PUB_KEY_BLOB}\"; key_type = variant { ${DEVICE_KEY_TYPE} }; purpose = variant { ${DEVICE_PURPOSE} }; })" --candid "$II_DID_FILE" --network "$DFX_NETWORK"
-  "$@" >/dev/null
+  local command
+  command=( dfx canister call internet_identity add "(${ANCHOR}, record { alias = \"\"; protection = variant { unprotected }; pubkey = blob \"${DEVICE_PUB_KEY_BLOB}\"; key_type = variant { ${DEVICE_KEY_TYPE} }; purpose = variant { ${DEVICE_PURPOSE} }; })" --candid "$II_DID_FILE" --network "$DFX_NETWORK" )
+  "${command[@]}" >/dev/null
 }
 
 echo "Adding backup device for anchor $ANCHOR."
