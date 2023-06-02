@@ -146,6 +146,23 @@ print_title() {
 )
 
 (
+  print_title "Custom URLs should not be used for APIs"
+  git checkout dfx.json
+  EXPECTED_URL="http://localhost:8080"
+  NETWORKS=(local)
+  for NETWORK in "${NETWORKS[@]}"; do
+    c="$EXPECTED_URL" n="$NETWORK" jq '.canisters.smiley_dapp_assets.url[env.n] = (env.c)' dfx.json | sponge dfx.json
+    ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" --type api smiley_dapp_assets)"
+    [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
+      echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
+      echo "  ACTUAL:   $ACTUAL_URL"
+      echo "  EXPECTED_URL: $EXPECTED_URL"
+      exit 1
+    } >&2
+  done
+)
+
+(
   print_title "The mainnet asset URLs should be correct"
   git checkout dfx.json
   NETWORKS=(ic)
