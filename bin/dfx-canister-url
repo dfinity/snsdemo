@@ -127,28 +127,28 @@ inject_canister_id() {
   *) printf "%s\n" "$root_url" ;;
   esac
 }
-
-# .. Maybe this is in production.  Prioritize this so that production builds are not easily affected by local configuration.
-test -n "$url" || {
-  if [[ "$DFX_NETWORK" == "ic" ]]; then
-    case "$DFX_URL_TYPE" in
-    static) url="https://$(canister_id)${DFX_RAW:+.raw}.icp0.io" ;;
-    api) url="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
-    esac
-  fi
-}
-
-# ... The network URL may be in dfx.json or in the user's global network config, if it exists.
+# ... Network config may be in dfx.json (deprecated) or in the user's global network config, if it exists.
 GLOBAL_NETWORK_CONFIG_FILE="$HOME/.config/dfx/networks.json"
 network_config() {
   : "Getting the local and global network config..."
   jq '.networks // {}' dfx.json
   ! test -e "$GLOBAL_NETWORK_CONFIG_FILE" || cat "$GLOBAL_NETWORK_CONFIG_FILE"
 }
-test -n "${url:-}" || url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re '.[env.DFX_NETWORK].config | .[env.h] // .HOST // empty' | inject_canister_id || true)"
+network_url() {
+  local network_url
+  if [[ "$DFX_NETWORK" == "ic" ]]; then
+    case "$DFX_URL_TYPE" in
+    static) network_url="https://icp0.io" ;;
+    api) network_url="https://icp-api.io" ;; # Note: The canister ID is NOT provided as a subdomain and no web assets are served.
+    esac
+  fi
+  test -n "${network_url:-}" || network_url="$(network_config | h="${DFX_URL_TYPE^^}_HOST" jq -re '.[env.DFX_NETWORK].config | .[env.h] // .HOST // empty' | inject_canister_id || true)"
+  test -n "${network_url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || network_url="http://localhost:8080"
+  test -n "${network_url}" || network_url="https://${DFX_NETWORK}.testnet.dfinity.network"
+  echo "${network_url:-}"
+}
 
-# ... The network may be local
-test -n "${url}" || [[ "${DFX_NETWORK:-}" != "local" ]] || url="$(echo "http://localhost:8080" | inject_canister_id)"
+test -n "${url}" || url="$(network_url | inject_canister_id)"
 
 # Last try:  Assume the network is a testnet.
 test -n "$url" || url="$(echo "https://${DFX_NETWORK}.testnet.dfinity.network" | inject_canister_id)"
