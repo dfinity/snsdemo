@@ -112,12 +112,13 @@ print_title() {
     echo "ERROR in test setup:  Failed to set canister ID."
   }
   : "Compare with the actual URL"
-  export ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK
+  export ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK ACTUAL_POSITIONAL_URL_WITH_RAW
   ACTUAL_POSITIONAL_URL="$(dfx-canister-url smiley_dapp_assets)"
   ACTUAL_FLAG_URL="$(dfx-canister-url --canister smiley_dapp_assets)"
   ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local smiley_dapp_assets)"
   ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK="$(dfx-canister-url --network local --canister smiley_dapp_assets)"
-  for actual_varname in ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK; do
+  ACTUAL_POSITIONAL_URL_WITH_RAW="$(dfx-canister-url --raw smiley_dapp_assets)"
+  for actual_varname in ACTUAL_POSITIONAL_URL ACTUAL_FLAG_URL ACTUAL_POSITIONAL_URL_WITH_EXPLICIT_NETWORK ACTUAL_FLAG_URL_WITH_EXPLICIT_NETWORK ACTUAL_POSITIONAL_URL_WITH_RAW; do
     [[ "$EXPECTED_URL" == "${!actual_varname}" ]] || {
       echo "The $actual_varname should be as expected:"
       echo "EXPECTED:    $EXPECTED_URL"
@@ -186,6 +187,29 @@ print_title() {
 )
 
 (
+  print_title "The mainnet raw asset URLs should be correct"
+  git checkout dfx.json
+  NETWORKS=(ic)
+  CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
+  EXPECTED_URL="https://${CANISTER_ID}.raw.icp0.io"
+  global_mainnet_config
+  for NETWORK in "${NETWORKS[@]}"; do
+    c="$CANISTER_ID" n="$NETWORK" jq '.canisters.smiley_dapp_assets.remote.id[env.n] = (env.c)' dfx.json | sponge dfx.json
+    [[ "$(dfx canister id --network "$NETWORK" smiley_dapp_assets)" == "$CANISTER_ID" ]] || {
+      echo "ERROR in test setup: canister ID for smiley_dapp_assets on $NETWORK network not set correctly."
+      exit 1
+    }
+    ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" --raw smiley_dapp_assets)"
+    [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
+      echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
+      echo "  ACTUAL:   $ACTUAL_URL"
+      echo "  EXPECTED_URL: $EXPECTED_URL"
+      exit 1
+    } >&2
+  done
+)
+
+(
   print_title "The mainnet API URLs should be correct"
   git checkout dfx.json
   NETWORKS=(ic)
@@ -199,6 +223,28 @@ print_title() {
       exit 1
     }
     ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" --type api smiley_dapp_assets)"
+    [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
+      echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
+      echo "  ACTUAL:   $ACTUAL_URL"
+      echo "  EXPECTED_URL: $EXPECTED_URL"
+      exit 1
+    } >&2
+  done
+)
+(
+  print_title "The mainnet API URLs should ignore the raw flag"
+  git checkout dfx.json
+  NETWORKS=(ic)
+  CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
+  EXPECTED_URL="https://icp-api.io"
+  global_mainnet_config
+  for NETWORK in "${NETWORKS[@]}"; do
+    c="$CANISTER_ID" n="$NETWORK" jq '.canisters.smiley_dapp_assets.remote.id[env.n] = (env.c)' dfx.json | sponge dfx.json
+    [[ "$(dfx canister id --network "$NETWORK" smiley_dapp_assets)" == "$CANISTER_ID" ]] || {
+      echo "ERROR in test setup: canister ID for smiley_dapp_assets on $NETWORK network not set correctly."
+      exit 1
+    }
+    ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" --type api --raw smiley_dapp_assets)"
     [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
       echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
       echo "  ACTUAL:   $ACTUAL_URL"
