@@ -18,34 +18,34 @@ source "$SOURCE_DIR/clap.bash"
 source "$(clap.build)"
 
 canister_url_is_plausible() {
-	set -euo pipefail
-	local URL WASM_FILE
-	URL="${1:-}"
-	WASM_FILE="$(mktemp nns-dapp-XXXXX --suffix=.wasm)"
-	curl -sSLf "$URL"  > "$WASM_FILE"
-      dfx-canister-nm "$WASM_FILE" >"${WASM_FILE}.symbols"
-      grep -q canister_query "${WASM_FILE}.symbols" || {
-        echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
-        echo "       It should be:"
-        echo "       - A wasm file"
-        echo "       - With canister query calls"
-        echo "       - Optionally gzipped"
-	echo "Url: ${URL}"
-        echo "Download file type:"
-        file "${WASM_FILE}"
-        echo "File stats:"
-        ls -l "${WASM_FILE}"
-        echo "Symbols:"
-        cat "${WASM_FILE}.symbols"
-        exit 1
-      } >&2
+  set -euo pipefail
+  local URL WASM_FILE
+  URL="${1:-}"
+  WASM_FILE="$(mktemp nns-dapp-XXXXX --suffix=.wasm)"
+  curl -sSLf "$URL" >"$WASM_FILE"
+  dfx-canister-nm "$WASM_FILE" >"${WASM_FILE}.symbols"
+  grep -q canister_query "${WASM_FILE}.symbols" || {
+    echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
+    echo "       It should be:"
+    echo "       - A wasm file"
+    echo "       - With canister query calls"
+    echo "       - Optionally gzipped"
+    echo "Url: ${URL}"
+    echo "Download file type:"
+    file "${WASM_FILE}"
+    echo "File stats:"
+    ls -l "${WASM_FILE}"
+    echo "Symbols:"
+    cat "${WASM_FILE}.symbols"
+    exit 1
+  } >&2
 }
 
 (
   print_title "The nns-dapp wasm URLs should be correct"
-  for release in "" latest pinned proposal-122210 ; do
-	  URL="$(dfx-software-nns-dapp-ci-wasm-url ${relase:+--release "${release}"} )"
-	  canister_url_is_plausible "${URL:-}"
+  for release in "" latest pinned proposal-122210; do
+    URL="$(dfx-software-nns-dapp-ci-wasm-url ${relase:+--release "${release}"})"
+    canister_url_is_plausible "${URL:-}"
   done
 )
 
