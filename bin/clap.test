@@ -18,6 +18,7 @@ set -euo pipefail
     # Define options
     clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
     clap.define short=p long=prodlike desc="Make it like prod (experimental)" variable=DFX_PRODLIKE nargs=0 default="false"
+    clap.define short=t long=testlike desc="Make it like test (experimental)" variable=DFX_TESTLIKE nargs=0
     clap.define short=I long=ii_release desc="The release of II to use" variable=DFX_II_RELEASE default=""
     clap.define long=whacky-defgault desc="Value with fun characters in the default" variable=WHACKY default="${WHACKY_DEFAULT}"
     clap.define long=just_long desc="An option without a short flag" variable=DFX_LONG_OPTION default=""
@@ -87,6 +88,36 @@ set -euo pipefail
     EXPECTED="true"
     [[ "${DFX_PRODLIKE:-}" == "$EXPECTED" ]] || {
       echo "ERROR: DFX_PRODLIKE not set to expected value '$EXPECTED': '${DFX_PRODLIKE:-}'"
+      exit 1
+    }
+  )
+
+  (
+    echo "With nargs=0, if no default is provided it is blank"
+    script
+    EXPECTED=""
+    [[ "${DFX_TESTLIKE:-}" == "$EXPECTED" ]] || {
+      echo "ERROR: DFX_TESTLIKE should be '$EXPECTED' but is: '${DFX_TESTLIKE:-}'"
+      exit 1
+    }
+  )
+
+  (
+    echo "When --verbose is not passed, CLAP_VERBOSE is empty"
+    script
+    EXPECTED=""
+    [[ "${CLAP_VERBOSE:-}" == "$EXPECTED" ]] || {
+      echo "ERROR: CLAP_VERBOSE should be '$EXPECTED' but is: '${CLAP_VERBOSE:-}'"
+      exit 1
+    }
+  )
+
+  (
+    echo "When --verbose is passed, CLAP_VERBOSE is true"
+    script --verbose
+    EXPECTED="true"
+    [[ "${CLAP_VERBOSE:-}" == "$EXPECTED" ]] || {
+      echo "ERROR: CLAP_VERBOSE should be '$EXPECTED' but is: '${CLAP_VERBOSE:-}'"
       exit 1
     }
   )
