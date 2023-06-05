@@ -137,8 +137,7 @@ canister_url() {
   local url
   # Some canisters have custom URLs, such as identity.ic0.app.
   if [[ "${DFX_URL_TYPE:-}" == "static" ]]; then
-    key="${DFX_RAW:+raw_url}"
-    key="${key:-url}"
+    key="${DFX_RAW:+raw_}url"
     url="$(k="$key" jq -r '.canisters[env.DFX_CANISTER][env.k][env.DFX_NETWORK] // ""' dfx.json)"
   else
     url=""
