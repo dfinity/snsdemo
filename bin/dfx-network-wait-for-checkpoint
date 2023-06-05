@@ -50,5 +50,7 @@ done
 printf '\n' # \n == newline == advance the paper in the typewriter.  Finishes the countdown.
 
 echo "Checkpoint change (if any):"
-diff <(echo "${checkpoints_now:-}") <(echo "${checkpoints_later:-}") && echo "No change" || true
+if diff <(echo "${checkpoints_now:-}") <(echo "${checkpoints_later:-}"); then
+  echo "No change"
+fi
 sleep 5 # Make sure the checkpoint is fully populated.  It _may_ be atomic, so the directory is created only when it is fully populated; I don't know.
