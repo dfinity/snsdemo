@@ -25,7 +25,7 @@ function disk_image_exists() {
 
     # Mac buids can lag or be missing
     curl -fL --output /dev/null --silent --head --fail \
-      "https://download.dfinity.systems/ic/${GIT_REVISION}/binaries/x86_64-darwin/ic-admin.gz" || exit 1
+      "https://download.dfinity.systems/ic/${GIT_REVISION}/openssl-static-binaries/x86_64-darwin/ic-admin.gz" || exit 1
     curl -fL --output /dev/null --silent --head --fail \
       "https://download.dfinity.systems/ic/${GIT_REVISION}/binaries/x86_64-linux/ic-admin.gz" || exit 1
     # Syncing to the public repo may be slow
