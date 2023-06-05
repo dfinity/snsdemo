@@ -232,25 +232,19 @@ print_title() {
   done
 )
 (
-  print_title "The mainnet API URLs should ignore the raw flag"
+  print_title "There are no raw API URLs"
   git checkout dfx.json
-  NETWORKS=(ic)
+  NETWORKS=(local ic)
   CANISTER_ID="3r4gx-wqaaa-aaaaq-aaaia-cai" # A real canister ID - it should resolve.
   EXPECTED_URL="https://icp-api.io"
   global_mainnet_config
   for NETWORK in "${NETWORKS[@]}"; do
-    c="$CANISTER_ID" n="$NETWORK" jq '.canisters.smiley_dapp_assets.remote.id[env.n] = (env.c)' dfx.json | sponge dfx.json
-    [[ "$(dfx canister id --network "$NETWORK" smiley_dapp_assets)" == "$CANISTER_ID" ]] || {
-      echo "ERROR in test setup: canister ID for smiley_dapp_assets on $NETWORK network not set correctly."
-      exit 1
-    }
-    ACTUAL_URL="$(dfx-canister-url --network "$NETWORK" --type api --raw smiley_dapp_assets)"
-    [[ "${EXPECTED_URL}" == "${ACTUAL_URL:-}" ]] || {
-      echo "ERROR: The custom URL for network '${NETWORK}' should be returned."
-      echo "  ACTUAL:   $ACTUAL_URL"
-      echo "  EXPECTED_URL: $EXPECTED_URL"
-      exit 1
-    } >&2
+    if dfx-canister-url --network "$NETWORK" --type api --raw smiley_dapp_assets 2>/dev/null; then
+      {
+        echo "ERROR: The $NETWORK is not known to support raw API urls, so asking for one should have failed."
+        exit 1
+      }
+    fi
   done
 )
 
