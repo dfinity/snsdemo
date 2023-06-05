@@ -8,8 +8,6 @@ print_help() {
   cat <<-EOF
 
 	Outputs the URL of the wasm file for the nns-dapp canister.
-	The URL may or may not end with .gz (and be correspondingly gzipped),
-	depending on the release date.
 
 	EOF
 }
