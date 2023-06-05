@@ -29,8 +29,10 @@ PATH="$SOURCE_DIR:$PATH"
   if dfx-ckbtc-deploy --check 2>"$error_log"; then
     echo "ERROR: Should fail if ckbtc canisters are not in dfx.json"
   fi
-  grep 'Failed to determine id for canister' "$error_log" || {
-    echo "The check should complain about missing canisters"
+  grep 'Cannot find canister id' "$error_log" || {
+    echo "The check should complain about missing canisters:"
+    echo "Actual error log:"
+    cat "$error_log"
     exit 1
   }
   rm "$error_log"
