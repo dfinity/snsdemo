@@ -110,6 +110,10 @@ jobs:
         run: ./bin/dfx-software-nns-dapp-version.test
         env:
           GH_TOKEN: ${{ github.token }}
+      - name: "Test the nns-dapp url command"
+        run: ./bin/dfx-software-nns-dapp-ci-wasm-url.test
+        env:
+          GH_TOKEN: ${{ github.token }}
   dfx-canister-url-checks:
     needs: formatting
     name: Canister URL checks
