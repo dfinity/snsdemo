@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Fetches and installs the internet-identity canister wasm file.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=r long=release desc="The release name" variable=DFX_ND_RELEASE default="pinned"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+
+ND_WASM_URL="$(dfx-software-nns-dapp-ci-wasm-url --release "${DFX_ND_RELEASE}")"
+curl --retry 5 --fail -sSL "${ND_WASM_URL}" >nns-dapp.wasm
+
+: There is no standardization for how args are constructed.  We can use a pre-built set of arguments as long as all canister IDs, feature flags etc are exactly as in the upstream build.  E.g. there is no standardized way of passing in the IDs of a list of canisters.
+case "$DFX_NETWORK" in
+	ic|mainnet) ND_ARG_FILENAME=nns-dapp-arg-mainnet.bin ;;
+	*) ND_ARG_FILENAME=nns-dapp-arg-local.bin ;;
+esac
+
+if false # The PR for publishing arguments hasn't been merged yet
+then
+	ND_ARG_URL="${ND_WASM_URL%/*}/${ND_ARG_FILENAME}"
+	curl --retry 5 --fail -sSL "${ND_ARG_URL}" > "$ND_ARG_FILENAME"
+	cp "$ND_ARG_FILENAME" nns-dapp-arg.wasm
+else
+	echo "WARNING:  Using a toy config.  Please get the real arguments published and use those." >&2
+	cat <<-EOF > "$ND_ARG_FILENAME"
+	(opt record{
+	  args = vec {
+	    record{ 0="CYCLES_MINTING_CANISTER_ID"; 1="rkp4c-7iaaa-aaaaa-aaaca-cai" };
+	    record{ 0="DFX_NETWORK"; 1="local" };
+	    record{ 0="FEATURE_FLAGS"; 1="{\"ENABLE_CKBTC\":false,\"ENABLE_CKTESTBTC\":false,\"ENABLE_SIMULATE_MERGE_NEURONS\":false,\"ENABLE_SNS_AGGREGATOR\":true,\"ENABLE_SNS_VOTING\":true}" };
+	    record{ 0="FETCH_ROOT_KEY"; 1="true" };
+	    record{ 0="GOVERNANCE_CANISTER_ID"; 1="rrkah-fqaaa-aaaaa-aaaaq-cai" };
+	    record{ 0="HOST"; 1="http://localhost:8080" };
+	    record{ 0="IDENTITY_SERVICE_URL"; 1="http://qhbym-qaaaa-aaaaa-aaafq-cai.localhost:8080" };
+	    record{ 0="LEDGER_CANISTER_ID"; 1="ryjl3-tyaaa-aaaaa-aaaba-cai" };
+	    record{ 0="OWN_CANISTER_ID"; 1="qsgjb-riaaa-aaaaa-aaaga-cai" };
+	    record{ 0="OWN_CANISTER_URL"; 1="http://qsgjb-riaaa-aaaaa-aaaga-cai.localhost:8080" };
+	    record{ 0="ROBOTS"; 1="" };
+	    record{ 0="SNS_AGGREGATOR_URL"; 1="http://rwlgt-iiaaa-aaaaa-aaaaa-cai.localhost:8080" };
+	    record{ 0="TVL_CANISTER_ID"; 1="" };
+	    record{ 0="WASM_CANISTER_ID"; 1="qaa6y-5yaaa-aaaaa-aaafa-cai" };
+	  };
+	})
+EOF
+fi
+
+dfx canister install nns-dapp --wasm internet_identity_dev.wasm --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}" "$(cat "$ND_ARG_FILENAME")"
