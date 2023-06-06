@@ -20,8 +20,9 @@ clap.define short=r long=release desc="The release name" variable=DFX_ND_RELEASE
 source "$(clap.build)"
 
 
+ND_WASM_FILENAME="nns-dapp.wasm"
 ND_WASM_URL="$(dfx-software-nns-dapp-ci-wasm-url --release "${DFX_ND_RELEASE}")"
-curl --retry 5 --fail -sSL "${ND_WASM_URL}" >nns-dapp.wasm
+curl --retry 5 --fail -sSL "${ND_WASM_URL}" >"$ND_WASM_FILENAME"
 
 : There is no standardization for how args are constructed.  We can use a pre-built set of arguments as long as all canister IDs, feature flags etc are exactly as in the upstream build.  E.g. there is no standardized way of passing in the IDs of a list of canisters.
 case "$DFX_NETWORK" in
@@ -58,4 +59,24 @@ else
 EOF
 fi
 
-dfx canister install nns-dapp --wasm internet_identity_dev.wasm --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}" "$(cat "$ND_ARG_FILENAME")"
+: "If the canister is not in dfx.json, it needs to be added."
+# TODO: Make a command that imports just the nns-dapp.
+dfx-nns-import
+
+: "If the canister was remote, it isn't any more:"
+for network in "${DFX_NETWORK}" __default ; do
+DFX_NETWORK="$network" jq 'del(.canisters["nns-dapp"].remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+done
+
+: "Create canister, if needed"
+: "... it is easier to ask forgiveness than permission"
+dfx canister create nns-dapp --network "$DFX_NETWORK"
+	: "Check that the canister seems to be present and healthy"
+	if dfx canister info nns-dapp
+	then echo "Canister seems to exist."
+	else echo "Failed to create canister.  Please make sure that any old, dead canisters have been removed." >&2
+		exit 1
+	fi
+
+: "Install canister"
+dfx canister install nns-dapp --wasm "$ND_WASM_FILENAME" --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}" "$(cat "$ND_ARG_FILENAME")"
