@@ -19,25 +19,23 @@ clap.define short=r long=release desc="The release name" variable=DFX_ND_RELEASE
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-
 ND_WASM_FILENAME="nns-dapp.wasm"
 ND_WASM_URL="$(dfx-software-nns-dapp-ci-wasm-url --release "${DFX_ND_RELEASE}")"
 curl --retry 5 --fail -sSL "${ND_WASM_URL}" >"$ND_WASM_FILENAME"
 
-: There is no standardization for how args are constructed.  We can use a pre-built set of arguments as long as all canister IDs, feature flags etc are exactly as in the upstream build.  E.g. there is no standardized way of passing in the IDs of a list of canisters.
+: There is no standardization for how args are constructed. We can use a pre-built set of arguments as long as all canister IDs, feature flags etc are exactly as in the upstream build. E.g. there is no standardized way of passing in the IDs of a list of canisters.
 case "$DFX_NETWORK" in
-	ic|mainnet) ND_ARG_FILENAME=nns-dapp-arg-mainnet.bin ;;
-	*) ND_ARG_FILENAME=nns-dapp-arg-local.bin ;;
+ic | mainnet) ND_ARG_FILENAME=nns-dapp-arg-mainnet.bin ;;
+*) ND_ARG_FILENAME=nns-dapp-arg-local.bin ;;
 esac
 
-if false # The PR for publishing arguments hasn't been merged yet
-then
-	ND_ARG_URL="${ND_WASM_URL%/*}/${ND_ARG_FILENAME}"
-	curl --retry 5 --fail -sSL "${ND_ARG_URL}" > "$ND_ARG_FILENAME"
-	cp "$ND_ARG_FILENAME" nns-dapp-arg.wasm
+if false; then # The PR for publishing arguments hasn't been merged yet
+  ND_ARG_URL="${ND_WASM_URL%/*}/${ND_ARG_FILENAME}"
+  curl --retry 5 --fail -sSL "${ND_ARG_URL}" >"$ND_ARG_FILENAME"
+  cp "$ND_ARG_FILENAME" nns-dapp-arg.wasm
 else
-	echo "WARNING:  Using a toy config.  Please get the real arguments published and use those." >&2
-	cat <<-EOF > "$ND_ARG_FILENAME"
+  echo "WARNING:  Using a toy config.  Please get the real arguments published and use those." >&2
+  cat <<-EOF >"$ND_ARG_FILENAME"
 	(opt record{
 	  args = vec {
 	    record{ 0="CYCLES_MINTING_CANISTER_ID"; 1="rkp4c-7iaaa-aaaaa-aaaca-cai" };
@@ -64,19 +62,20 @@ fi
 dfx-nns-import
 
 : "If the canister was remote, it isn't any more:"
-for network in "${DFX_NETWORK}" __default ; do
-DFX_NETWORK="$network" jq 'del(.canisters["nns-dapp"].remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+for network in "${DFX_NETWORK}" __default; do
+  DFX_NETWORK="$network" jq 'del(.canisters["nns-dapp"].remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
 done
 
 : "Create canister, if needed"
 : "... it is easier to ask forgiveness than permission"
 dfx canister create nns-dapp --network "$DFX_NETWORK"
-	: "Check that the canister seems to be present and healthy"
-	if dfx canister info nns-dapp
-	then echo "Canister seems to exist."
-	else echo "Failed to create canister.  Please make sure that any old, dead canisters have been removed." >&2
-		exit 1
-	fi
+: "Check that the canister seems to be present and healthy"
+if dfx canister info nns-dapp; then
+  echo "Canister seems to exist."
+else
+  echo "Failed to create canister.  Please make sure that any old, dead canisters have been removed." >&2
+  exit 1
+fi
 
 : "Install canister"
 dfx canister install nns-dapp --wasm "$ND_WASM_FILENAME" --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}" "$(cat "$ND_ARG_FILENAME")"
