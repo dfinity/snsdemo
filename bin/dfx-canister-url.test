@@ -7,7 +7,7 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-EOF
 
-	Some motivational speech.
+	Verifies that dfx-canister-url works as advertised.
 	EOF
 }
 
