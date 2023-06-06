@@ -61,7 +61,8 @@ fi
 # TODO: Make a command that imports just the nns-dapp.
 dfx-nns-import
 
-: "If the canister was remote, it isn't any more:"
+: "If the canister was remote, it isn't any more."
+# Note: In previous versions of dfx, a __default remote entry did not prevent a canister from being created.  Now it does.
 for network in "${DFX_NETWORK}" __default; do
   DFX_NETWORK="$network" jq 'del(.canisters["nns-dapp"].remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
 done
@@ -70,7 +71,7 @@ done
 : "... it is easier to ask forgiveness than permission"
 dfx canister create nns-dapp --network "$DFX_NETWORK"
 : "Check that the canister seems to be present and healthy"
-if dfx canister info nns-dapp; then
+if dfx canister info nns-dapp --network "$DFX_NETWORK"; then
   echo "Canister seems to exist."
 else
   echo "Failed to create canister.  Please make sure that any old, dead canisters have been removed." >&2
