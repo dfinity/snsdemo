@@ -8,7 +8,7 @@ set -euo pipefail
   script() {
     set -euo pipefail
     # Script header:
-    SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    SOURCE_DIR="$(dirname "${BASH_SOURCE[0]}")"
     # shellcheck disable=SC2317
     print_help() {
       echo HELP_TEXT
@@ -138,7 +138,7 @@ set -euo pipefail
   script() {
     set -euo pipefail
     # Script header:
-    SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    SOURCE_DIR="$(dirname "${BASH_SOURCE[0]}")"
     # Source the clap.bash file ---------------------------------------------------
     source "$SOURCE_DIR/clap.bash"
     # Define options
