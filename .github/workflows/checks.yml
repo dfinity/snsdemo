@@ -54,6 +54,13 @@ jobs:
         os: [macos-11, macos-12, macos-13, ubuntu-20.04, ubuntu-22.04]
     steps:
       - uses: actions/checkout@v3
+      - name: Unbork mac
+        run: |
+          if command -v brew ; then
+            brew install bash
+            echo "/usr/local/bin" >> $GITHUB_PATH
+            echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+          fi
       - name: Clap works
         run: ./bin/clap.test
   sns-aggregator-canister-checks:
