@@ -72,10 +72,19 @@ done
 dfx canister create nns-dapp --network "$DFX_NETWORK"
 : "Check that the canister seems to be present and healthy"
 if dfx canister info nns-dapp --network "$DFX_NETWORK"; then
-  echo "Canister seems to exist."
+  : "Canister exists."
 else
-  echo "Failed to create canister.  Please make sure that any old, dead canisters have been removed." >&2
-  exit 1
+  {
+    echo "ERROR: Failed to create canister.  This can be due to a variety of reasons.  The following may help:"
+    echo "       - Read all error messages above."
+    echo "       - Refer to the manual: https://internetcomputer.org/docs/current/home"
+    echo "       - Ask on the forum (https://forum.dfinity.org/) with this context:"
+    echo "            The command used to create the canister:"
+    echo "               dfx canister create nns-dapp --network $DFX_NETWORK"
+    echo "            The command that indicates that the nns-dapp was not successfully installed:"
+    echo "               dfx canister info nns-dapp --network $DFX_NETWORK"
+    exit 1
+  } >&2
 fi
 
 : "Install canister"
