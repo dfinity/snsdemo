@@ -44,7 +44,7 @@ else
 					    "nns-dapp": {
 					      "type": "custom",
 					      "candid": "declarations/nns-dapp/nns-dapp.did",
-					      "wasm": "declarations/nns-dapp/nns-dapp.diddeclarations/nns-dapp/nns-dapp.wasm"
+					      "wasm": "declarations/nns-dapp/nns-dapp.wasm"
 					    }}}
 				EOF
       ) >dfx.json.new
