@@ -8,8 +8,8 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
-  . "$SOURCE_DIR/versions.bash"
-  echo "$DFX_IC_COMMIT"
+	. "$SOURCE_DIR/versions.bash"
+	echo "$DFX_IC_COMMIT"
 )"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 # Source the output file ----------------------------------------------------------
@@ -18,24 +18,54 @@ source "$(clap.build)"
 export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-  echo NOT APPLICABLE
+	echo NOT APPLICABLE
 else
-  # Run remotely with one of the predefined configurations.
-  # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
-  # out before we can resonably ask people to do this.
-  ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
-  test -d "$ND_REPO_DIR" || {
-    echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
-    exit 1
-  } >&2
+	# Run remotely with one of the predefined configurations.
+	# Note: This is still relatively slow and error prone.  Points of friction need to be ironed
+	# out before we can resonably ask people to do this.
+	ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
+	test -d "$ND_REPO_DIR" || {
+		echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
+		exit 1
+	} >&2
 
-  (
-    set -euxo pipefail
-    echo "Deploying internet-identity and nns-dapp"
-    cd "$ND_REPO_DIR"
-    rm -f canister_ids.json
-    ./deploy.sh --ii "$DFX_NETWORK"
-    ./deploy.sh --nns-dapp "$DFX_NETWORK"
-  ) || say fail fail fail
+	(
+		set -euxo pipefail
+		echo "Deploying internet-identity and nns-dapp"
+		bin/dfx-software-internet-identity-install --network "$DFX_NETWORK"
+		# TODO: Make this into dfx-nns-dapp-install
+		(
+		set -euxo pipefail
+			# Make sure the canister is in dfx.json
+			jq -s '.[0] * .[1]' dfx.json > dfx.json.new <(
+				cat <<-EOF
+					{
+					  "canisters": {
+					    "nns-dapp": {
+					      "type": "custom",
+					      "candid": "nns_dapp/nns-dapp.did",
+					      "wasm": "nns_dapp/nns-dapp.wasm"
+					    }}}
+				EOF
+			)
+			mv dfx.json.new dfx.json
+			# Make sure the canister exists
+			dfx canister info nns-dapp --network "$DFX_NETWORK" || {
+				dfx canister create nns-dapp --network "$DFX_NETWORK"
+			}
+			NNS_DAPP_FILES="nns_dapp"
+			mkdir "$NNS_DAPP_FILES"
+			RELEASE=""proposal-122799
+			curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/nns-dapp/$RELEASE/rs/nns-dapp.did" -o "$NNS_DAPP_FILES/nns-dapp.did"
+			curl -sSL --fail --retry 5 "https://github.com/dfinity/nns-dapp/releases/download/$RELEASE/nns-dapp.wasm" -o "$NNS_DAPP_FILES/nns-dapp.wasm"
+			(
+				# TODO: Publish args
+				cd "$ND_REPO_DIR"
+				./scripts/docker-build --network "$DFX_NETWORK"
+			)
+			cp "$ND_REPO_DIR/out/nns-dapp-arg-${DFX_NETWORK}.did" "$NNS_DAPP_FILES/nns-dapp-arg-${DFX_NETWORK}.did"
+			dfx canister install nns-dapp --wasm "$NNS_DAPP_FILES/nns-dapp.wasm" --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}" "$(cat "$NNS_DAPP_FILES/nns-dapp-arg-${DFX_NETWORK}.did")"
+		)
+	) || say fail fail fail
 
 fi
