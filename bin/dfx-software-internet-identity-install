@@ -27,7 +27,12 @@ II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RE
 curl --retry 5 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
 
 : "If the canister was remote, it isn't any more:"
-DFX_NETWORK="$DFX_NETWORK" jq 'del(.canisters.internet_identity.remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+for network in "$DFX_NETWORK" __default; do
+  DFX_NETWORK="$network" jq 'del(.canisters.internet_identity.remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+done
+
+dfx canister id --network "$DFX_NETWORK" internet_identity 2>/dev/null || dfx canister create --network "$DFX_NETWORK" internet_identity
+dfx canister info --network "$DFX_NETWORK" internet_identity
 
 : "Install the canister:"
 dfx canister install internet_identity --wasm internet_identity_dev.wasm --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}"
