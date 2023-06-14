@@ -56,14 +56,8 @@ dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$N
 # Make sure that we use snsdemo8, in case the network deployment needed to change that.
 dfx identity use snsdemo8
 
-# dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
-# The above does NOT include nns-sns-wasm.  So import for local (which does include the canister????) and then copy to the requested network.
-# dfx nns import
-# jq '.*(.canisters | to_entries | map(select(.key | startswith("nns-")) | .value.remote.id[env.DFX_NETWORK] = .value.remote.id.local) |from_entries | {canisters:.})' dfx.json | sponge dfx.json
 sleep 1
-dfx nns import --network-mapping "$DFX_NETWORK=local"
-# Performs functionality that should have been done by `dfx nns import`
-dfx-nns-import
+dfx-nns-import --network "$DFX_NETWORK"
 sleep 1
 dfx sns import
 sleep 1
