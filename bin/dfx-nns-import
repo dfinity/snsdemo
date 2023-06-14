@@ -12,7 +12,14 @@ print_help() {
 	- Canister IDs for mainnet and local
 
 	Note: This is a polyfill for dfx nns import.  Upstream provides most of
-	the data correctly now but still lacks controls for the II did file.
+	the data correctly now but still lacks some details.
+
+	Note: The dfx config supports only one .did file even though different
+	canister versions may be deployed to different networks.  This code
+	assumes that the canister versions are as defined in the
+	snsdemo/bin/versions file.  After a canister has been deployed, the most
+	reliable way of getting a did file is from the canister itself, _if_
+	it has populated the corresponding metadata accurately and completely.
 	EOF
 }
 
@@ -34,9 +41,12 @@ source "$(clap.build)"
 export DFX_NETWORK
 
 # Populates dfx.json and gets the did files
+# Note: dfx uses the DFX_IC_COMMIT env var to get the nns .did files.  This
+# works as long as the .did files are not moved in the ic repo.
 DFX_IC_COMMIT="$DFX_IC_COMMIT" dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
 
 # Update the II candid
+# Note: We need to get the correct .did file for II, as `dfx nns install` provides only an old, essentially empty, file.
 curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$(jq -r .canisters.internet_identity.candid dfx.json)"
 
 # Provide the correct frontend canister IDs
