@@ -9,9 +9,10 @@ print_help() {
 	Import NNS canister definitions, including:
 	- Entries in dfx.json
 	- Candid files
+	- Canister IDs for mainnet and local
 
-	Polyfill for dfx nns import.  Upstream provides most of the data
-	correctly now but still lacks controls for the II did file.
+	Note: This is a polyfill for dfx nns import.  Upstream provides most of
+	the data correctly now but still lacks controls for the II did file.
 	EOF
 }
 
@@ -20,17 +21,45 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=ic_commit desc="The git ref of the core NNS canisters" variable=DFX_IC_COMMIT default="$(
-      . "$SOURCE_DIR/versions.bash"
-      echo "$DFX_IC_COMMIT"
-    )"
+  . "$SOURCE_DIR/versions.bash"
+  echo "$DFX_IC_COMMIT"
+)"
 clap.define short=c long=ii_commit desc="The git ref of the internet_identity canister" variable=INTERNET_IDENTITY_RELEASE default="$(
-      . "$SOURCE_DIR/versions.bash"
-      echo "$INTERNET_IDENTITY_RELEASE"
-    )"
+  . "$SOURCE_DIR/versions.bash"
+  echo "$INTERNET_IDENTITY_RELEASE"
+)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+export DFX_NETWORK
+
 # Populates dfx.json and gets the did files
 DFX_IC_COMMIT="$DFX_IC_COMMIT" dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
+
 # Update the II candid
 curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$(jq -r .canisters.internet_identity.candid dfx.json)"
+
+# Provide the correct frontend canister IDs
+set_remote() {
+  (
+    id="$1"
+    canister="$2"
+    export id canister
+    jq '.canisters[env.canister].remote.id[env.DFX_NETWORK] = (env.id)' dfx.json | sponge dfx.json
+  )
+}
+case "${DFX_NETWORK}" in
+ic | mainnet)
+  set_remote qoctq-giaaa-aaaaa-aaaea-cai nns-dapp
+  set_remote rdmx6-jaaaa-aaaaa-aaadq-cai internet_identity
+  ;;
+local)
+  # `dfx nns install` installs canisters here:
+  set_remote qhbym-qaaaa-aaaaa-aaafq-cai internet_identity
+  set_remote qsgjb-riaaa-aaaaa-aaaga-cai nns-dapp
+  ;;
+*)
+  # Installation to other networks SHOULD be done in a way
+  # that also saves the canister IDs.
+  ;;
+esac
