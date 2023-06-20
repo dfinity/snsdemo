@@ -34,13 +34,13 @@ export DFX_NETWORK DFX_CANISTER_NAME DFX_REMOTE_CANISTER_NAME DFX_REMOTE_NETWORK
 
 check_args() {
   test -n "${DFX_CANISTER_NAME:-}" || {
-	  echo "ERROR: Please specify the name of the canister to import. (With --canister XXX)"
+    echo "ERROR: Please specify the name of the canister to import. (With --canister XXX)"
     exit 1
   } >&2
   DFX_REMOTE_CANISTER_NAME="${DFX_REMOTE_CANISTER_NAME:-${DFX_CANISTER_NAME}}"
   DFX_REMOTE_NETWORK="${DFX_REMOTE_NETWORK:-${DFX_NETWORK}}"
   test -n "${DFX_JSON:-}" || {
-	  echo "ERROR: Please specify the location of the remote dfx.json file. (With --json XXX)"
+    echo "ERROR: Please specify the location of the remote dfx.json file. (With --json XXX)"
     exit 1
   } >&2
 }
@@ -107,13 +107,13 @@ install_did() {
 }
 
 get_canister_id() {
-	test -n "${DFX_CANISTER_ID:-}" ||
-  DFX_CANISTER_ID="$(cd "$DOWNLOADS" && dfx canister id --network "$DFX_REMOTE_NETWORK" "$DFX_REMOTE_CANISTER_NAME")"
+  test -n "${DFX_CANISTER_ID:-}" ||
+    DFX_CANISTER_ID="$(cd "$DOWNLOADS" && dfx canister id --network "$DFX_REMOTE_NETWORK" "$DFX_REMOTE_CANISTER_NAME")"
 }
 
 populate_dfx_json() {
 
-    cat <<-EOF > "$DOWNLOADS/extract.json"
+  cat <<-EOF >"$DOWNLOADS/extract.json"
 	{
 	  "canisters": {
             "${DFX_CANISTER_NAME}": {
