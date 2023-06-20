@@ -16,8 +16,13 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=r long=release desc="The release name" variable=DFX_ND_RELEASE default="pinned"
+clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
+
+DFX_ND_RELEASE="$(dfx-software-nns-dapp-version "$DFX_ND_RELEASE")"
+
+ND_ASSETS_DIR="nns_dapp/$DFX_ND_RELEASE"
 
 ND_WASM_FILENAME="nns-dapp.wasm"
 ND_WASM_URL="$(dfx-software-nns-dapp-ci-wasm-url --release "${DFX_ND_RELEASE}")"
@@ -26,7 +31,7 @@ curl --retry 5 --fail -sSL "${ND_WASM_URL}" >"$ND_WASM_FILENAME"
 : There is no standardization for how args are constructed. We can use a pre-built set of arguments as long as all canister IDs, feature flags etc are exactly as in the upstream build. E.g. there is no standardized way of passing in the IDs of a list of canisters.
 case "$DFX_NETWORK" in
 ic | mainnet) ND_ARG_FILENAME=nns-dapp-arg-mainnet.bin ;;
-*) ND_ARG_FILENAME=nns-dapp-arg-local.bin ;;
+*) ND_ARG_FILENAME="nns-dapp-arg-${DFX_NETWORK}.bin" ;;
 esac
 
 if false; then # The PR for publishing arguments hasn't been merged yet

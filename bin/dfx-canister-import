@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Get details of a dependency from gitub, a local directory or similar.
+	- A dfx.json entry (excluding the build command, for security reasons, including remotes)
+	- The .did file
+	- The wasm, if available.
+
+	Example:
+	bin/dfx-canister-import --canister_name nns-governance --json https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/dfx.json --remote_name governance --remote_network mainnet --network small09
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define long=remote_network desc="The remote name of teh dfx network" variable=DFX_REMOTE_NETWORK
+clap.define short=c long=canister_name desc="The name of the canister to import" variable=DFX_CANISTER_NAME
+clap.define long=remote_name desc="The remote name of the canister, if different from the local name." variable=DFX_REMOTE_CANISTER_NAME
+clap.define short=i long=canister_id desc="The canister id on the given network." variable=DFX_CANISTER_ID
+clap.define short=j long=json desc="The path or URL of the dfx.json" variable=DFX_JSON
+clap.define short=d long=did desc="The path or URL of the .did file.  By default this is deduced from the location and contents of the dfx.json" variable=DFX_DID
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK DFX_CANISTER_NAME DFX_REMOTE_CANISTER_NAME DFX_REMOTE_NETWORK
+
+check_args() {
+  test -n "${DFX_CANISTER_NAME:-}" || {
+	  echo "ERROR: Please specify the name of the canister to import. (With --canister XXX)"
+    exit 1
+  } >&2
+  DFX_REMOTE_CANISTER_NAME="${DFX_REMOTE_CANISTER_NAME:-${DFX_CANISTER_NAME}}"
+  DFX_REMOTE_NETWORK="${DFX_REMOTE_NETWORK:-${DFX_NETWORK}}"
+  test -n "${DFX_JSON:-}" || {
+	  echo "ERROR: Please specify the location of the remote dfx.json file. (With --json XXX)"
+    exit 1
+  } >&2
+}
+
+is_url() {
+  [[ "${1#http}" != "$1" ]]
+}
+
+cp_uri() {
+  (
+    origin="$1"
+    destination="$2"
+    if is_url "$DFX_JSON"; then
+      curl -sSL --fail --retry 5 "$origin" -o "$destination"
+    else
+      cp "$origin" "$destination"
+    fi
+  )
+}
+
+setup_dirs() {
+  LOCAL_DIR="declarations/${DFX_CANISTER_NAME}"
+  DOWNLOADS="$LOCAL_DIR/downloads"
+  rm -fr "$LOCAL_DIR"
+  mkdir -p "$DOWNLOADS"
+}
+
+download_dfx_json() {
+  cp_uri "$DFX_JSON" "$DOWNLOADS/dfx.json"
+}
+check_dfx_json() {
+  jq -e '.canisters[env.DFX_REMOTE_CANISTER_NAME]' "$DOWNLOADS/dfx.json" >/dev/null || {
+    echo "ERROR: Canister '$DFX_REMOTE_CANISTER_NAME' not found in remote dfx.json."
+    echo "(A copy of the remote dfx.json is here: '$DOWNLOADS/dfx.json')"
+    exit 1
+  } >&2
+}
+try_download_canister_ids() {
+  cp_uri "${DFX_JSON%/dfx.json}/canister_ids.json" "$DOWNLOADS/canister_ids.json" 2>/dev/null || echo "WARNING: Unable to find canister_ids.json.  Proceeding without."
+}
+
+locate_did() {
+  # Finds the remote .did file.
+  #
+  # Prerequisite: download_dfx_json must have been called first.
+  #
+  # Outputs:
+  # - Sets DFX_DID
+  test -n "${DFX_DID:-}" || {
+    DFX_DID="$(jq -r '.canisters[env.DFX_REMOTE_CANISTER_NAME].candid // ""' "$DOWNLOADS/dfx.json")"
+    test -n "${DFX_DID:-}" || {
+      echo "ERROR: Candid file not found.  Please provide the location of the candid file. (With --did XXX)"
+      exit 1
+    } >&2
+    is_url "${DFX_DID:-}" || {
+      # If not a URL, it is a location relative to the dfx.json
+      DFX_DID="${DFX_JSON%/dfx.json}/${DFX_DID}"
+    }
+  }
+}
+
+install_did() {
+  cp_uri "$DFX_DID" "$LOCAL_DIR/${DFX_CANISTER_NAME}.did"
+}
+
+get_canister_id() {
+	test -n "${DFX_CANISTER_ID:-}" ||
+  DFX_CANISTER_ID="$(cd "$DOWNLOADS" && dfx canister id --network "$DFX_REMOTE_NETWORK" "$DFX_REMOTE_CANISTER_NAME")"
+}
+
+populate_dfx_json() {
+
+    cat <<-EOF > "$DOWNLOADS/extract.json"
+	{
+	  "canisters": {
+            "${DFX_CANISTER_NAME}": {
+               "type": "custom",
+               "build": "true",
+               "candid": "$LOCAL_DIR/${DFX_CANISTER_NAME}.did",
+               "wasm": "unimplemented!()",
+               "remote": { "id": { "$DFX_NETWORK": "$DFX_CANISTER_ID" } }
+            }
+          }
+	}
+	EOF
+  jq -s '.[1] * .[0]' dfx.json "$DOWNLOADS/extract.json" | sponge dfx.json
+}
+
+check_args
+setup_dirs
+download_dfx_json
+check_dfx_json
+try_download_canister_ids
+locate_did
+install_did
+get_canister_id
+populate_dfx_json
