@@ -10,18 +10,15 @@ networks=(ic local)
   printf "\n=====================================\n\n"
   echo "dfx-nns-import sets the required values for a local import"
   git checkout dfx.json
-  dfx-nns-import
-  for canister in "${nns_canisters[@]}"; do
-    for DFX_NETWORK in "${networks[@]}"; do
+  for DFX_NETWORK in "${networks[@]}"; do
+    git checkout dfx.json
+    dfx-nns-import --network "$DFX_NETWORK"
+    for canister in "${nns_canisters[@]}"; do
       dfx canister id "$canister" --network "$DFX_NETWORK" >/dev/null || {
         echo "ERROR: Did not import canister ID for $canister on network $DFX_NETWORK"
         exit 1
       }
     done
-    [[ "$(c="$canister" jq '.canisters[env.c]' dfx.json)" != "null" ]] || {
-      echo "ERROR: Did not import canister ID for $canister"
-      exit 1
-    }
   done
   git checkout dfx.json
   echo "Check passed"
