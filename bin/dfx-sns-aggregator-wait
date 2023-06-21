@@ -82,10 +82,15 @@ wait_for_sns_count() {
   : Wait for aggregator to get all SNSs
   for ((try = 300; try > 0; try--)); do
     num_sns="$(get_sns_count)"
-    (("$num_sns" < "$EXPECTED_NUM_SNS")) || break
+    if (("$num_sns" == "$EXPECTED_NUM_SNS")); then
+      return
+    fi
     printf "\r #SNS: % 4d   Tries remaining: %4d" "$num_sns" "$try"
     sleep 2
   done
+  echo
+  echo "Failed to get $EXPECTED_NUM_SNS SNSs"
+  exit 1
 }
 
 save_aggregator_config
