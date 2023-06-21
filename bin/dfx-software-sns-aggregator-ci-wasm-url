@@ -36,6 +36,6 @@ dev | development) SUFFIX="_dev" ;;
   exit 1
 } >&2 ;;
 esac
-WASM_FILE="sns_aggregator${SUFFIX}.wasm"
+WASM_FILE="sns_aggregator${SUFFIX}.wasm.gz"
 
 echo "https://github.com/dfinity/nns-dapp/releases/download/${RELEASE_NAME}/${WASM_FILE}"
