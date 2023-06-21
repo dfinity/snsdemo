@@ -50,7 +50,7 @@ for flavour in prod dev; do
       exit 1
     }
     dfx-canister-nm "$DOWNLOAD" >"${DOWNLOAD%.gz}.symbols"
-    grep -q canister_query "${DOWNLOAD}.symbols" || {
+    grep -q canister_query "${DOWNLOAD%.gz}.symbols" || {
       echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."
       echo "       It should be:"
       echo "       - A wasm file"
