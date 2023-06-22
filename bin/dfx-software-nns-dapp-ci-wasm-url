@@ -26,6 +26,6 @@ test -n "${RELEASE_NAME:-}" || {
   echo "ERROR: Could not find release '${DFX_ND_RELEASE}'"
 } >&2
 
-WASM_FILE="nns-dapp.wasm"
+WASM_FILE="nns-dapp.wasm.gz"
 
 echo "https://github.com/dfinity/nns-dapp/releases/download/${RELEASE_NAME}/${WASM_FILE}"
