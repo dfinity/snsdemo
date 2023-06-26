@@ -35,13 +35,6 @@ else
   } >&2
   (
     set -euxo pipefail
-    echo "Building custom canisters..."
-    cd "$ND_REPO_DIR"
-    ./e2e-tests/scripts/nns-canister-download
-    ./e2e-tests/scripts/nns-canister-build
-  )
-  (
-    set -euxo pipefail
     echo "Deploying testnet..."
     cd "$IC_REPO_DIR"
     git checkout "$DFX_IC_COMMIT"
