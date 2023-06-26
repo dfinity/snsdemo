@@ -7,6 +7,8 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=s long=icp desc="The amount of ICP to icp" variable=ICP default=1
 clap.define short=i long=DFX_IDENTITY desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define long=retries desc="The number of retries" variable=DFX_RETRIES default="20"
+clap.define long=retry_interval desc="The number of seconds between retries" variable=DFX_RETRY_SLEEP default="4"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=V long=verbose desc="Print progress" variable=DFX_VERBOSE nargs=0
 # Source the output file ----------------------------------------------------------
@@ -16,11 +18,11 @@ test -z "${DFX_VERBOSE:-}" || set -x
 retry() {
   (
     set -eu
-    for ((i = 0; i < ${DFX_RETRIES:-20}; i++)); do
+    for ((i = 0; i < DFX_RETRIES; i++)); do
       if "${@}"; then
         return
       else
-        sleep ${DFX_RETRY_SLEEP:-4}
+        sleep "${DFX_RETRY_SLEEP}"
       fi
     done
     {
