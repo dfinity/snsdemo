@@ -20,7 +20,7 @@ export DFX_NETWORK
 } >/dev/null 2>/dev/null || {
   echo "Canister nns-sns-wasm is not defined."
   echo "Please run:"
-  echo "    dfx nns import --network-mapping $DFX_NETWORK=local"
+  echo "    dfx-nns-import --network $DFX_NETWORK"
   exit 1
 } >&2
 SNS_TOKEN_SYMBOL="$(awk '/^token_symbol:/{print $2}' "$SNS_CONFIG")"

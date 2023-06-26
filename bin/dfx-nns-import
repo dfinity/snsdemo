@@ -1,386 +1,75 @@
 #!/usr/bin/env bash
 set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
 
-# Polyfill for dfx nns import, to fix some issues that should be fixed upstream.
-# There is a PR for upstream, but it will take time to be released.
+print_help() {
+  cat <<-EOF
 
-dfx nns import
+	Import NNS canister definitions, including:
+	- Entries in dfx.json
+	- Candid files
+	- Canister IDs for mainnet and local
 
-jq -s '.[0] * .[1]' dfx.json <(
-  cat <<EOF
-{
-  "canisters": {
-    "nns-dapp": {
-      "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/nns-dapp/proposal-86037/rs/nns-dapp.did",
-      "wasm": "https://github.com/dfinity/nns-dapp/releases/download/tip/nns-dapp_t2.wasm",
-      "remote": {
-        "id": {
-          "ic": "qoctq-giaaa-aaaaa-aaaea-cai",
-          "mainnet": "qoctq-giaaa-aaaaa-aaaea-cai",
-	  "local": "qsgjb-riaaa-aaaaa-aaaga-cai",
-	  "__default": "qsgjb-riaaa-aaaaa-aaaga-cai"
-        }
-      }
-    },
-    "internet_identity": {
-      "type": "custom",
-      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
-      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm",
-      "shrink": false,
-      "remote": {
-        "candid": "internet_identity.did",
-        "id": {
-          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai",
-          "__default": "qhbym-qaaaa-aaaaa-aaafq-cai"
-        }
-      }
-    }
-  }
+	Note: This is a polyfill for dfx nns import.  Upstream provides most of
+	the data correctly now but still lacks some details.
+
+	Note: The dfx config supports only one .did file even though different
+	canister versions may be deployed to different networks.  This code
+	assumes that the canister versions are as defined in the
+	snsdemo/bin/versions file.  After a canister has been deployed, the most
+	reliable way of getting a did file is from the canister itself, _if_
+	it has populated the corresponding metadata accurately and completely.
+	EOF
 }
-EOF
-) >dfx.new
-mv dfx.new dfx.json
 
-mkdir -p declarations
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=c long=ic_commit desc="The git ref of the core NNS canisters" variable=DFX_IC_COMMIT default="$(
+  . "$SOURCE_DIR/versions.bash"
+  echo "$DFX_IC_COMMIT"
+)"
+clap.define short=c long=ii_commit desc="The git ref of the internet_identity canister" variable=INTERNET_IDENTITY_RELEASE default="$(
+  . "$SOURCE_DIR/versions.bash"
+  echo "$INTERNET_IDENTITY_RELEASE"
+)"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
 
-: Get nns-dapp candid...
-# Warning: The path to the did file has changed; do not parameterize.  Fix upstream.
-NNS_DAPP_DID_URL="$(jq -r '.canisters["nns-dapp"].candid' dfx.json)"
-curl --retry 5 --fail --silent "$NNS_DAPP_DID_URL" >declarations/nns-dapp.did
+export DFX_NETWORK
 
-: Get internet_identity candid...
-cat <<'EOF' >declarations/internet_identity.did
-type UserNumber = nat64;
-type PublicKey = blob;
-type CredentialId = blob;
-type DeviceKey = PublicKey;
-type UserKey = PublicKey;
-type SessionKey = PublicKey;
-type FrontendHostname = text;
-type Timestamp = nat64;
+# Populates dfx.json and gets the did files
+# Note: dfx uses the DFX_IC_COMMIT env var to get the nns .did files.  This
+# works as long as the .did files are not moved in the ic repo.
+DFX_IC_COMMIT="$DFX_IC_COMMIT" dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
 
-type HeaderField = record {
-    text;
-    text;
-};
+# Update the II candid
+# Note: We need to get the correct .did file for II, as `dfx nns install` provides only an old, essentially empty, file.
+curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$(jq -r .canisters.internet_identity.candid dfx.json)"
 
-type HttpRequest = record {
-    method: text;
-    url: text;
-    headers: vec HeaderField;
-    body: blob;
-};
-
-type HttpResponse = record {
-    status_code: nat16;
-    headers: vec HeaderField;
-    body: blob;
-    upgrade : opt bool;
-    streaming_strategy: opt StreamingStrategy;
-};
-
-type StreamingCallbackHttpResponse = record {
-    body: blob;
-    token: opt Token;
-};
-
-type Token = record {};
-
-type StreamingStrategy = variant {
-    Callback: record {
-        callback: func (Token) -> (StreamingCallbackHttpResponse) query;
-        token: Token;
-    };
-};
-
-type Purpose = variant {
-    recovery;
-    authentication;
-};
-
-type KeyType = variant {
-    unknown;
-    platform;
-    cross_platform;
-    seed_phrase;
-};
-
-// This describes whether a device is "protected" or not.
-// When protected, a device can only be updated or removed if the
-// user is authenticated with that very device.
-type DeviceProtection = variant {
-    protected;
-    unprotected;
-};
-
-type Challenge = record {
-    png_base64: text;
-    challenge_key: ChallengeKey;
-};
-
-type DeviceData = record {
-    pubkey : DeviceKey;
-    alias : text;
-    credential_id : opt CredentialId;
-    purpose: Purpose;
-    key_type: KeyType;
-    protection: DeviceProtection;
-    origin: opt text;
-};
-
-// The same as `DeviceData` but with the `last_usage` field.
-// This field cannot be written, hence the separate type.
-type DeviceWithUsage = record {
-    pubkey : DeviceKey;
-    alias : text;
-    credential_id : opt CredentialId;
-    purpose: Purpose;
-    key_type: KeyType;
-    protection: DeviceProtection;
-    origin: opt text;
-    last_usage: opt Timestamp;
-};
-
-type RegisterResponse = variant {
-    // A new user was successfully registered.
-    registered: record {
-        user_number: UserNumber;
-    };
-    // No more registrations are possible in this instance of the II service canister.
-    canister_full;
-    // The challenge was not successful.
-    bad_challenge;
-};
-
-type AddTentativeDeviceResponse = variant {
-    // The device was tentatively added.
-    added_tentatively: record {
-        verification_code: text;
-        // Expiration date, in nanos since the epoch
-        device_registration_timeout: Timestamp;
-    };
-    // Device registration mode is off, either due to timeout or because it was never enabled.
-    device_registration_mode_off;
-    // There is another device already added tentatively
-    another_device_tentatively_added;
-};
-
-type VerifyTentativeDeviceResponse = variant {
-    // The device was successfully verified.
-    verified;
-    // Wrong verification code entered. Retry with correct code.
-    wrong_code: record {
-        retries_left: nat8
-    };
-    // Device registration mode is off, either due to timeout or because it was never enabled.
-    device_registration_mode_off;
-    // There is no tentative device to be verified.
-    no_device_to_verify;
-};
-
-type Delegation = record {
-    pubkey: PublicKey;
-    expiration: Timestamp;
-    targets: opt vec principal;
-};
-
-type SignedDelegation = record {
-    delegation: Delegation;
-    signature: blob;
-};
-
-type GetDelegationResponse = variant {
-    // The signed delegation was successfully retrieved.
-    signed_delegation: SignedDelegation;
-
-    // The signature is not ready. Maybe retry by calling `prepare_delegation`
-    no_such_delegation
-};
-
-type InternetIdentityStats = record {
-    users_registered: nat64;
-    storage_layout_version: nat8;
-    assigned_user_number_range: record {
-        nat64;
-        nat64;
-    };
-    archive_info: ArchiveInfo;
-    canister_creation_cycles_cost: nat64;
-    active_anchor_stats: opt ActiveAnchorStatistics;
-};
-
-// Configuration parameters related to the archive.
-type ArchiveConfig = record {
-    // The allowed module hash of the archive canister.
-    // Changing this parameter does _not_ deploy the archive, but enable archive deployments with the
-    // corresponding wasm module.
-    module_hash : blob;
-    // Buffered archive entries limit. If reached, II will stop accepting new anchor operations
-    // until the buffered operations are acknowledged by the archive.
-    entries_buffer_limit: nat64;
-    // The maximum number of entries to be transferred to the archive per call.
-    entries_fetch_limit: nat16;
-    // Polling interval to fetch new entries from II (in nanoseconds).
-    // Changes to this parameter will only take effect after an archive deployment.
-    polling_interval_ns: nat64;
-};
-
-// Information about the archive.
-type ArchiveInfo = record {
-    // Canister id of the archive or empty if no archive has been deployed yet.
-    archive_canister : opt principal;
-    // Configuration parameters related to the II archive.
-    archive_config: opt ArchiveConfig;
-};
-
-// Rate limit configuration.
-// Currently only used for `register`.
-type RateLimitConfig = record {
-    // Time it takes (in ns) for a rate limiting token to be replenished.
-    time_per_token_ns : nat64;
-    // How many tokens are at most generated (to accommodate peaks).
-    max_tokens: nat64;
-};
-
-type ActiveAnchorStatistics = record {
-    // Stats for the last completed collection period for daily and monthly active anchors
-    completed: CompletedActiveAnchorStats;
-    // ongoing periods for daily and monthly active anchors
-    ongoing: OngoingActiveAnchorStats;
-};
-
-type CompletedActiveAnchorStats = record {
-    daily_active_anchors: opt ActiveAnchorCounter;
-    monthly_active_anchors: opt ActiveAnchorCounter;
-};
-
-type OngoingActiveAnchorStats = record {
-    // Ongoing active anchor counter for the current 24 h time bucket.
-    daily_active_anchors: ActiveAnchorCounter;
-    // Monthly active users are collected using 30-day sliding windows.
-    // This vec contains up to 30 30-day active windows each offset by one day.
-    // The vec is sorted, new collection windows are added at the end.
-    monthly_active_anchors: vec ActiveAnchorCounter;
-};
-
-type ActiveAnchorCounter = record {
-    start_timestamp: Timestamp;
-    counter: nat64;
-};
-
-// Init arguments of II which can be supplied on install and upgrade.
-// Setting a value to null keeps the previous value.
-type InternetIdentityInit = record {
-    // Set lowest and highest anchor
-    assigned_user_number_range : opt record {
-        nat64;
-        nat64;
-    };
-    // Configuration parameters related to the II archive.
-    // Note: some parameters changes (like the polling interval) will only take effect after an archive deployment.
-    // See ArchiveConfig for details.
-    archive_config: opt ArchiveConfig;
-    // Set the amounts of cycles sent with the create canister message.
-    // This is configurable because in the staging environment cycles are required.
-    // The canister creation cost on mainnet is currently 100'000'000'000 cycles. If this value is higher thant the
-    // canister creation cost, the newly created canister will keep extra cycles.
-    canister_creation_cycles_cost : opt nat64;
-    // Rate limit for the `register` call.
-    register_rate_limit : opt RateLimitConfig;
-};
-
-type ChallengeKey = text;
-
-type ChallengeResult = record {
-    key : ChallengeKey;
-    chars : text;
-};
-
-// Extra information about registration status for new devices
-type DeviceRegistrationInfo = record {
-    // If present, the user has tentatively added a new device. This
-    // new device needs to be verified (see relevant endpoint) before
-    // 'expiration'.
-    tentative_device : opt DeviceData;
-    // The timestamp at which the anchor will turn off registration mode
-    // (and the tentative device will be forgotten, if any, and if not verified)
-    expiration: Timestamp;
-};
-
-// Information about the anchor
-type IdentityAnchorInfo = record {
-    // All devices that can authenticate to this anchor
-    devices : vec DeviceWithUsage;
-    // Device registration status used when adding devices, see DeviceRegistrationInfo
-    device_registration: opt DeviceRegistrationInfo;
-};
-
-type AnchorCredentials = record {
-    credentials : vec WebAuthnCredential;
-    recovery_credentials : vec WebAuthnCredential;
-    recovery_phrases: vec PublicKey;
-};
-
-type WebAuthnCredential = record {
-    credential_id : CredentialId;
-    pubkey: PublicKey;
-};
-
-type DeployArchiveResult = variant {
-    // The archive was deployed successfully and the supplied wasm module has been installed. The principal of the archive
-    // canister is returned.
-    success: principal;
-    // Initial archive creation is already in progress.
-    creation_in_progress;
-    // Archive deployment failed. An error description is returned.
-    failed: text;
-};
-
-type BufferedArchiveEntry = record {
-    anchor_number: UserNumber;
-    timestamp: Timestamp;
-    sequence_number: nat64;
-    entry: blob;
-};
-
-
-service : (opt InternetIdentityInit) -> {
-    init_salt: () -> ();
-    create_challenge : () -> (Challenge);
-    register : (DeviceData, ChallengeResult) -> (RegisterResponse);
-    add : (UserNumber, DeviceData) -> ();
-    update : (UserNumber, DeviceKey, DeviceData) -> ();
-    // Atomically replace device matching the device key with the new device data
-    replace : (UserNumber, DeviceKey, DeviceData) -> ();
-    remove : (UserNumber, DeviceKey) -> ();
-    // Returns all devices of the user (authentication and recovery) but no information about device registrations.
-    // Note: Clears out the 'alias' fields on the devices. Use 'get_anchor_info' to obtain the full information.
-    // Deprecated: Use 'get_anchor_credentials' instead.
-    lookup : (UserNumber) -> (vec DeviceData) query;
-    get_anchor_credentials : (UserNumber) -> (AnchorCredentials) query;
-    get_anchor_info : (UserNumber) -> (IdentityAnchorInfo);
-    get_principal : (UserNumber, FrontendHostname) -> (principal) query;
-    stats : () -> (InternetIdentityStats) query;
-
-    enter_device_registration_mode : (UserNumber) -> (Timestamp);
-    exit_device_registration_mode : (UserNumber) -> ();
-    add_tentative_device : (UserNumber, DeviceData) -> (AddTentativeDeviceResponse);
-    verify_tentative_device : (UserNumber, verification_code: text) -> (VerifyTentativeDeviceResponse);
-
-    prepare_delegation : (UserNumber, FrontendHostname, SessionKey, maxTimeToLive : opt nat64) -> (UserKey, Timestamp);
-    get_delegation: (UserNumber, FrontendHostname, SessionKey, Timestamp) -> (GetDelegationResponse) query;
-
-    http_request: (request: HttpRequest) -> (HttpResponse) query;
-    http_request_update: (request: HttpRequest) -> (HttpResponse);
-
-    deploy_archive: (wasm: blob) -> (DeployArchiveResult);
-    /// Returns a batch of entries _sorted by sequence number_ to be archived.
-    /// This is an update call because the archive information _must_ be certified.
-    /// Only callable by this IIs archive canister.
-    fetch_entries: () -> (vec BufferedArchiveEntry);
-    acknowledge_entries: (sequence_number: nat64) -> ();
+# Provide the correct frontend canister IDs
+set_remote() {
+  (
+    id="$1"
+    canister="$2"
+    export id canister
+    jq '.canisters[env.canister].remote.id[env.DFX_NETWORK] = (env.id)' dfx.json | sponge dfx.json
+  )
 }
-EOF
-
-: FIN
+case "${DFX_NETWORK}" in
+ic | mainnet)
+  set_remote qoctq-giaaa-aaaaa-aaaea-cai nns-dapp
+  set_remote rdmx6-jaaaa-aaaaa-aaadq-cai internet_identity
+  ;;
+local)
+  # `dfx nns install` installs canisters here:
+  set_remote qhbym-qaaaa-aaaaa-aaafq-cai internet_identity
+  set_remote qsgjb-riaaa-aaaaa-aaaga-cai nns-dapp
+  ;;
+*)
+  # Installation to other networks SHOULD be done in a way
+  # that also saves the canister IDs.
+  ;;
+esac
