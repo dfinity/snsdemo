@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Declares a new canister in dfx.json
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define long=name desc="The canister name" variable=DFX_CANISTER_NAME
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+[[ "${DFX_CANISTER_NAME:-}" != "" ]] || {
+	echo "ERROR: Please provide the name of the canister"
+	exit 1
+} >&2
+
+
+canister_config() {
+	cat <<-EOF
+	{
+	  "canisters": {
+	    "$DFX_CANISTER_NAME": {
+	      "build": "true",
+	      "candid": "declarations/$DFX_CANISTER_NAME/$DFX_CANISTER_NAME.did",
+	      "type": "custom",
+	      "wasm": "declarations/$DFX_CANISTER_NAME/$DFX_CANISTER_NAME.wasm.gz"
+	    }
+	  }
+	}
+	EOF
+}
+
+jq -s '.[0] * .[1]' <(canister_config) dfx.json | sponge dfx.json
