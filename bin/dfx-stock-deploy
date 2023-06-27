@@ -45,5 +45,8 @@ dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
 : Add the nns root as a controller to the frontend canisters
 NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
 for canister in nns-dapp internet_identity; do
-  dfx canister --network "$DFX_NETWORK" update-settings "$canister" --add-controller "$NNS_ROOT"
+  if dfx canister info "$canister" --network "$DFX_NETWORK" | grep -qw "$NNS_ROOT"
+  then echo "The nns-root ($NNS_ROOT) is already a controller of $canister."
+  else dfx canister --network "$DFX_NETWORK" update-settings "$canister" --add-controller "$NNS_ROOT"
+  fi
 done
