@@ -64,7 +64,7 @@ else
   dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}" # TODO RM dirs
   dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
   # dfx-network-deploy-frontends --network "$DFX_NETWORK" --nd_dir "${ND_REPO_DIR}"
-  ./bin/dfx-nns-propose-to-install-ii --network small09 --identity test-neuron-proposer --mode reinstall # TODO: Install the sepcified II instead of the latest.
+  ./bin/dfx-nns-propose-to-install-ii --network "$DFX_NETWORK" --identity test-neuron-proposer --mode reinstall # TODO: Install the sepcified II instead of the latest.
   # Install the aggregator
   dfx-software-sns-aggregator-install --network "$DFX_NETWORK" --release "${DFX_AGGREGATOR_RELEASE:-pinned}" --flavor dev
   : TODO: configure the nns dapp
