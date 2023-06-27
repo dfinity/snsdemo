@@ -11,13 +11,26 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define long=identity desc="The identity to use, or 'test-neuron-proposer'" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 clap.define long=mode desc="The install mode" variable=DFX_MODE default="upgrade"
-clap.define long=wasm desc="The wasm file" variable=WASM_FILE default="$(jq '.canisters[env.DFX_CANISTER_NAME].wasm' dfx.json)"
+clap.define long=wasm desc="The wasm file" variable=WASM_FILE default="declarations/internet_identity/internet_identity.wasm.gz"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 mkdir -p "$(dirname "$WASM_FILE")"
-test -e "$WASM_FILE" || curl --fail -sS "$(./bin/dfx-software-internet-identity-ci-wasm-url)" > "$WASM_FILE"
+test -e "$WASM_FILE" || {
+	tmp="$(mktemp)"
+	curl --fail -sSL "$(./bin/dfx-software-internet-identity-ci-wasm-url)" > "$tmp"
+	file "$tmp" | grep gzip || {
+	  echo "ERROR: Downloaded invalid wasm at: '$WASM_FILE'"
+	  exit 1
+	}
+	  mv "$tmp" "$WASM_FILE"
+}
+	file "$WASM_FILE" | grep gzip || {
+	  echo "ERROR: Downloaded invalid wasm"
+	  exit 1
+	}
 SHA="$(sha256sum "$WASM_FILE" | awk '{print $1}')"
 CANISTER_ID="rdmx6-jaaaa-aaaaa-aaadq-cai" # Production II
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
