@@ -50,5 +50,8 @@ else
     }
     (cd "testnet/env/$TESTNET/" && ./hosts --nns-nodes | awk '{printf "%s http://[%s]:8080\n", $1, $2}')
     dfx-network-delete --network "$DFX_NETWORK"
+
+    dfx-network-set-id --network "$DFX_NETWORK" --canister_name nns-dapp --canister_id qoctq-giaaa-aaaaa-aaaea-cai
+    dfx-network-set-id --network "$DFX_NETWORK" --canister_name internet_identity --canister_id rdmx6-jaaaa-aaaaa-aaadq-cai
   )
 fi

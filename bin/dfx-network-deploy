@@ -62,7 +62,9 @@ else
   ND_REPO_DIR="${ND_REPO_DIR:-$HOME/dfn/nns-dapp/}"
   dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
   dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
-  dfx-network-deploy-frontends --network "$DFX_NETWORK" --nd_dir "${ND_REPO_DIR}"
+  # dfx-network-deploy-frontends --network "$DFX_NETWORK" --nd_dir "${ND_REPO_DIR}"
+  # bin/dfx-software-internet-identity-install
+  bin/dfx-nns-propose-to-install-ii # Installed in standard canister, by proposal.
 fi
 
 # However the network is deloyed, we also need an aggregator canister.
