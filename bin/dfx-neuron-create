@@ -34,7 +34,6 @@ retry() {
 
 mk_neuron() {
   (
-    set -euo pipefail
     # Create a neuron
     PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
     test -e "$PEM" || {
