@@ -50,6 +50,8 @@ else
     }
     (cd "testnet/env/$TESTNET/" && ./hosts --nns-nodes | awk '{printf "%s http://[%s]:8080\n", $1, $2}')
     dfx-network-delete --network "$DFX_NETWORK"
+  )
+  (
     # Create entries in dfx.json for all the canisters that have been created.
     dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
     dfx-canister-set-id --network "$DFX_NETWORK" --canister_name nns-dapp --canister_id qoctq-giaaa-aaaaa-aaaea-cai
