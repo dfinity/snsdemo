@@ -2,28 +2,25 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
+DFX_CANISTER_NAME="internet_identity"
+export DFX_CANISTER_NAME
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define long=identity desc="The identity to use, or 'test-neuron-proposer'" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define long=mode desc="The install mode" variable=DFX_MODE default="upgrade"
+clap.define long=wasm desc="The wasm file" variable=WASM_FILE default="$(jq '.canisters[env.DFX_CANISTER_NAME].wasm' dfx.json)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
-
-
-
-: TODO: Get wasm
-
-
-WASM_FILE=internet_identity_dev.wasm
-test -e "$WASM_FILE" || DFX_NETWORK="$DFX_NETWORK" ./scripts/docker-build
+mkdir -p "$(dirname "$WASM_FILE")"
+test -e "$WASM_FILE" || curl --fail -sS "$(./bin/dfx-software-internet-identity-ci-wasm-url)" > "$WASM_FILE"
 SHA="$(sha256sum "$WASM_FILE" | awk '{print $1}')"
 CANISTER_ID="rdmx6-jaaaa-aaaaa-aaadq-cai" # Production II
-PROPOSER_NEURON="$(dfx-neuron-id --network "$DFX_NETWORK")"
-MODE=reinstall
 NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
-PEM="$(dfx-identity-pem --identity snsdemo8)"
 
 proposal_file="$(mktemp --suffix=.md propose-to-install-ii-XXXXXXXX)"
 cat <<EOF >"$proposal_file"
@@ -35,8 +32,22 @@ EOF
 ARG_FILE="$(mktemp internet_identity_arg_XXXX --suffix=bin)"
 echo '()' | didc encode | xxd -r -p > "$ARG_FILE"
 
+# If proposer
+if [[ "${DFX_IDENTITY}" == "test-neuron-proposer" ]]
+then	PROPOSER_ARGS=( --test-neuron-proposer )
+	PEM_ARGS=()
+else
+	PEM="$(dfx-identity-pem --identity "$DFX_IDENTITY")"
+	PEM_ARGS=( --secret-key-pem "$PEM" )
+	PROPOSER_NEURON="$(dfx-neuron-id --network "$DFX_NETWORK" --identity "$DFX_IDENTITY")"
+	test -n "${PROPOSER_NEURON}" || {
+	    echo "ERROR: $DFX_IDENTITY ahs no known neuron"
+	exit 1
+	} >&2
+	PROPOSER_ARGS=( --proposer "$PROPOSER_NEURON" )
+fi
 
-set ic-admin --nns-url "$NNS_URL" --secret-key-pem "$PEM" propose-to-change-nns-canister --proposer "$PROPOSER_NEURON" --canister-id "$CANISTER_ID" --mode "$MODE" --wasm-module-path "$WASM_FILE" --wasm-module-sha256 "$SHA" --summary-file "$proposal_file" --arg "$ARG_FILE"
+set ic-admin --nns-url "$NNS_URL" "${PEM_ARGS[@]}" propose-to-change-nns-canister "${PROPOSER_ARGS[@]}" --canister-id "$CANISTER_ID" --mode "$DFX_MODE" --wasm-module-path "$WASM_FILE" --wasm-module-sha256 "$SHA" --summary-file "$proposal_file" --arg "$ARG_FILE"
 echo "${@}"
 "${@}"
 
