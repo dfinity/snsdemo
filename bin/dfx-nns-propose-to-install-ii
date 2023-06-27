@@ -43,6 +43,7 @@ Upgrade internet_identity at canister $CANISTER_ID to wasm with hash $SHA
 EOF
 
 ARG_FILE="$(mktemp internet_identity_arg_XXXX --suffix=bin)"
+didc --version
 echo '()' | didc encode | xxd -r -p > "$ARG_FILE"
 
 # If proposer
