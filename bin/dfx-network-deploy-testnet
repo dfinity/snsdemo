@@ -33,13 +33,6 @@ else
     echo "Invalid directory for nns-dapp source code: $ND_REPO_DIR"
     exit 1
   } >&2
-  #(
-  #  set -euxo pipefail
-  #  echo "Building custom canisters..."
-  #  cd "$ND_REPO_DIR"
-  #  ./e2e-tests/scripts/nns-canister-download
-  #  ./e2e-tests/scripts/nns-canister-build
-  #)
   (
     set -euxo pipefail
     echo "Deploying testnet..."
