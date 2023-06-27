@@ -54,6 +54,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
 
   dfx-software-internet-identity-install --release "${DFX_II_RELEASE:-pinned}" --flavor "dev" --network local
+  dfx-software-sns-aggregator-install --network "$DFX_NETWORK" --release "${DFX_AGGREGATOR_RELEASE:-pinned}" --flavor dev
 else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
@@ -64,10 +65,10 @@ else
   dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
   # dfx-network-deploy-frontends --network "$DFX_NETWORK" --nd_dir "${ND_REPO_DIR}"
   ./bin/dfx-nns-propose-to-install-ii --network small09 --identity test-neuron-proposer --mode reinstall # TODO: Install teh sepcified II instead of the latest.
+  # Install the aggregator
+  dfx-software-sns-aggregator-install --network "$DFX_NETWORK" --release "${DFX_AGGREGATOR_RELEASE:-pinned}" --flavor dev
+
   : TODO: install the sns_aggregator
   : TODO: configure the nns dapp
   : TODO: install th enns dapp
 fi
-
-# However the network is deloyed, we also need an aggregator canister.
-dfx-software-sns-aggregator-install --network "$DFX_NETWORK" --release "${DFX_AGGREGATOR_RELEASE:-pinned}" --flavor dev
