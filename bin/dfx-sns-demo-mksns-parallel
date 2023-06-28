@@ -39,7 +39,7 @@ make_user() {
     dfx identity remove --quiet "$DEMO_USER" --drop-wallets 2>/dev/null || true
     dfx identity new --storage-mode=plaintext "$DEMO_USER"
     dfx identity use "$DEMO_USER"
-    dfx wallet balance
+    dfx wallet balance --network "$DFX_NETWORK"
     bin/dfx-ledger-get-icp --icp 5000 --network "$DFX_NETWORK"
     dfx ledger balance --network "$DFX_NETWORK"
     bin/dfx-neuron-create --icp 10 --network "$DFX_NETWORK"
@@ -75,7 +75,7 @@ create_all_sns() {
 
       ./bin/dfx-sns-config-random
       dfx ledger top-up --amount 4.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
-      dfx wallet balance
+      dfx wallet balance --network "$DFX_NETWORK"
       ./bin/dfx-sns-deploy --network "$DFX_NETWORK"
 
       dfx canister id sns_root --network "$DFX_NETWORK"
