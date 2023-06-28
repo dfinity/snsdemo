@@ -117,7 +117,14 @@ local_deployment_data="$(
     ROBOTS: env.ROBOTS,
     WASM_CANISTER_ID: env.WASM_CANISTER_ID,
     TVL_CANISTER_ID: env.TVL_CANISTER_ID,
-    GOVERNANCE_CANISTER_ID: env.GOVERNANCE_CANISTER_ID
+    GOVERNANCE_CANISTER_ID: env.GOVERNANCE_CANISTER_ID,
+    FETCH_ROOT_KEY: true,
+    FEATURE_FLAGS: (env.FEATURE_FLAGS // {
+          "ENABLE_SNS_VOTING": true,
+          "ENABLE_SNS_AGGREGATOR": true,
+          "ENABLE_CKBTC": true,
+          "ENABLE_CKTESTBTC": false
+  })
     } | del(..|select(. == null))'
 )"
 
