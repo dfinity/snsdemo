@@ -66,7 +66,7 @@ bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
 sleep 1
 dfx ledger balance --network "$DFX_NETWORK"
 sleep 1
-bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
+bin/dfx-neuron-create --icp 10000 --network "$DFX_NETWORK"
 sleep 1
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 sleep 1
