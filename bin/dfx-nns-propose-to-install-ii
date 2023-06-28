@@ -20,7 +20,7 @@ NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 mkdir -p "$(dirname "$WASM_FILE")"
 test -e "$WASM_FILE" || {
 	tmp="$(mktemp)"
-	curl --fail -sSL "$(./bin/dfx-software-internet-identity-ci-wasm-url)" > "$tmp"
+	curl --fail -sSL "$(./bin/dfx-software-internet-identity-ci-wasm-url --flavor dev)" > "$tmp"
 	file "$tmp" | grep gzip || {
 	  echo "ERROR: Downloaded invalid wasm at: '$WASM_FILE'"
 	  exit 1
