@@ -14,7 +14,6 @@ clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_ID
 source "$(clap.build)"
 
 export DFX_NETWORK
-set -x
 
 # Set the purchased amout to the maximum allowed, if requested.
 if [[ "${AMOUNT:-}" = "max" ]]; then
