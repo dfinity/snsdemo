@@ -17,7 +17,16 @@ export DFX_NETWORK
 
 # Set the purchased amout to the maximum allowed, if requested.
 if [[ "${AMOUNT:-}" = "max" ]]; then
-  AMOUNT_E8S="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK" | awk '/max_participant_icp_e8s/{gsub(/_/,""); print $3}')"
+  SWAP_STATE="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK")"
+  # Note: max_participant_icp_e8s may be null, so we wish to be careful to get just one integer value, if available.
+  #       idl2json + jq may offer a cleaner way of extracting this value but at the time of writing different
+  #       candid versions disagree about whether "0" may be parsed as a float, and this breaks parsing with idl2json.
+  AMOUNT_E8S="$(awk '/max_participant_icp_e8s/{gsub(/_/,""); if ($3 + 0 == $3) {print $3; exit 0}}' <(printf %s "$SWAP_STATE"))"
+  test -n "${AMOUNT_E8S:-}" || {
+    echo "ERROR: No max_participant_icp_e8s found for SNS but purchasing the max was requested."
+    printf "       Swap state:\n%s\n" "$SWAP_STATE"
+    exit 1
+  } >&2
 else
   AMOUNT_E8S="$((AMOUNT * 100000000))"
 fi
