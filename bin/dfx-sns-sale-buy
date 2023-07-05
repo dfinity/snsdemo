@@ -25,7 +25,7 @@ if [[ "${AMOUNT:-}" = "max" ]]; then
   AMOUNT_E8S="$(awk '/max_participant_icp_e8s/{gsub(/_/,""); if ($3 + 0 == $3) {print $3; exit 0}}' <(printf %s "$SWAP_STATE"))"
   test -n "${AMOUNT_E8S:-}" || {
     echo "ERROR: No max_participant_icp_e8s found for SNS but purchasing the max was requested."
-    printf "       Swap state:\n%s\n" "$SWAP_STATE
+    printf "       Swap state:\n%s\n" "$SWAP_STATE"
     exit 1
   } >&2
 else
