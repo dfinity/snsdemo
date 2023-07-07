@@ -40,8 +40,10 @@ the parameters passed to `ic-admin` from `bin/dfx-sns-sale-propose`.
 A new stock snapshot can be released by pushing a tag:
 
 ```
-git tag -a release-2013-45-56 -m "The new release"
-git push origin release-2013-45-56
+RELEASE="release-$(date +"%Y-%m-%d")"
+echo "$RELEASE"
+git tag -a "$RELEASE" -m "Release a new dfx snapshot"
+git push origin "$RELEASE"
 ```
 
 This will cause GitHub actions to create a new snapshot, which can be found
