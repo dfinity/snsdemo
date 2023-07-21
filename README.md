@@ -42,7 +42,7 @@ A new stock snapshot can be released by pushing a tag:
 ```
 RELEASE="release-$(date +"%Y-%m-%d")"
 echo "$RELEASE"
-git tag -a "$RELEASE" -m "Release a new dfx snapshot"
+git tag "$RELEASE"
 git push origin "$RELEASE"
 ```
 
