@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Imports the ID of a canister from another project.
+
+	Example:
+	 * Suppose that you have deployed canisters in ~/dfx/snsdemo/ to a local dfx testnet.
+	 * Suppose also that ~/dfx/nns-dapp defines some of the same canisters.
+	 * Finally, suppose that you wish to deploy nns-dapp from its project directory.
+	   For this you will need to know the canister ID for nns-dapp, but that is in
+	   ~/dfx/snsdemo/.
+	 * In ~/dfx/nns-dapp, run: dfx-canister-import-id --from ~/dfx/snsdemo/ nns-dapp
+	 * Now "dfx canister id nns-dapp" will give the same result in the two projects.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=c long=canister_name desc="The name of the canister" variable=DFX_CANISTER_NAME
+clap.define short=f long=from desc="The directory of the project to get the ID from." variable=DFX_SOURCE
+clap.define short=a long=all desc="Gets all available canisters defined in dfx.json" variable=DFX_ALL nargs=0
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+if test -z "${DFX_ALL:-}"; then
+  DFX_CANISTER_NAME="${DFX_CANISTER_NAME:-$1}"
+  dfx-canister-set-id --network "$DFX_NETWORK" --canister_name "$DFX_CANISTER_NAME" --canister_id "$(cd "$DFX_SOURCE" && dfx canister id --network "$DFX_NETWORK" "$DFX_CANISTER_NAME")"
+else
+  jq -r '.canisters | keys []' dfx.json | xargs -I{} "$0" --from "$DFX_SOURCE" --network "$DFX_NETWORK" --canister_name "{}" >/dev/null
+fi
