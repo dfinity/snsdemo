@@ -19,6 +19,17 @@ clap.define short=x long=ic_dir desc="Directory containing the ic source code; n
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+onSetupFailure() {
+  # Stop the replica because otherwise it continues outputting logs, obscuring
+  # the fact that the script has finished and making the error message hard to
+  # find.
+  dfx-network-stop
+  echo "❌ Something went wrong. Failed to create snapshot."
+  exit 1
+}
+
+trap onSetupFailure EXIT
+
 : Create stock state
 dfx-stock-deploy --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR"
 
@@ -30,6 +41,9 @@ dfx-network-wait-for-checkpoint --timeout 600
 
 : "Stop the replica gently but forcefully.  It must be stopped and should ideally have a clean state."
 dfx-network-stop
+
+: "We made it. Remove the trap."
+trap '' EXIT
 
 echo "Saving state"
 dfx-snapshot-save --snapshot "$DFX_SNAPSHOT_FILE"
