@@ -6,8 +6,10 @@ on:
     # check for new dfx versions weekly
     - cron: '30 3 * * FRI'
   workflow_dispatch:
+  # Provide an option to run this manually.
   push:
     branches:
+      # Development branch for this workflow:
       - "update-dfx"
 jobs:
   rust-update:
@@ -44,7 +46,7 @@ jobs:
           commit-message: Update dfx version
           committer: GitHub <noreply@github.com>
           author: gix-bot <gix-bot@users.noreply.github.com>
-          branch: bot-rust-update
+          branch: bot-dfx-update
           delete-branch: true
           title: 'Update dfx version'
           # Since the this is a scheduled job, a failure won't be shown on any
