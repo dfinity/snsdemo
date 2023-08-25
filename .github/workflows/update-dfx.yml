@@ -1,6 +1,6 @@
 # A GitHub Actions workflow that regularly checks for a new dfx
 # and creates a PR on new versions.
-name: Rust Update
+name: Update dfx
 on:
   schedule:
     # check for new dfx versions weekly
@@ -12,13 +12,13 @@ on:
       # Development branch for this workflow:
       - "update-dfx"
 jobs:
-  rust-update:
+  update-dfx:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        # First, check rust GitHub releases for a new version. We assume that the
+        # First, check dfx GitHub releases for a new version. We assume that the
         # latest version's tag name is the version.
-      - name: Check new rust version
+      - name: Check new dfx version
         id: update
         run: |
           current_dfx_version="$(jq -r .dfx dfx.json)"
@@ -35,7 +35,7 @@ jobs:
           else
             echo "updated=0" >> "$GITHUB_OUTPUT"
           fi
-        # If the rust-toolchain was updated, create a PR.
+        # If a newer dfx is available, create a PR.
       - name: Create Pull Request
         if: ${{ steps.update.outputs.updated == '1' }}
         uses: peter-evans/create-pull-request@v4
