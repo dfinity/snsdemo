@@ -28,7 +28,7 @@ jobs:
 
           if [ "$current_dfx_version" != "$latest_dfx_version" ]
           then
-            version="$latest_dfx_version" jq '.dfx=(.env.version)' dfx.json > dfx-new.json
+            version="$latest_dfx_version" jq '.dfx=(env.version)' dfx.json > dfx-new.json
             mv dfx-new.json dfx.json
             echo An update is available for dfx.
             git diff
