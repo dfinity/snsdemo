@@ -31,6 +31,7 @@ jobs:
             version="$latest_dfx_version" jq '.dfx=(.env.version)' dfx.json > dfx-new.json
             mv dfx-new.json dfx.json
             echo An update is available for dfx.
+            git diff
             echo "updated=1" >> "$GITHUB_OUTPUT"
           else
             echo "updated=0" >> "$GITHUB_OUTPUT"
