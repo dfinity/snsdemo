@@ -43,7 +43,7 @@ jobs:
         with:
           token: ${{ secrets.GIX_SNSDEMO_BOT_GH_TOKEN }}
           base: main
-          add-paths: ./dfx.json
+          add-paths: dfx.json
           commit-message: Update dfx version
           committer: GitHub <noreply@github.com>
           author: gix-bot <gix-bot@users.noreply.github.com>
