@@ -11,7 +11,6 @@ on:
     branches:
       # Development branch for this workflow:
       - "update-dfx"
-      - "import-action"
 jobs:
   update-dfx:
     runs-on: ubuntu-latest
@@ -59,7 +58,7 @@ jobs:
           # PR status. To notify the team, we send a message to our Slack channel on failure.
       - name: Notify Slack on failure
         uses: dfinity/internet-identity/.github/actions/slack@release-2023-08-28
-        #if: ${{ failure() }}
+        if: ${{ failure() }}
         with:
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           MESSAGE: "Dfx update failed"
