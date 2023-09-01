@@ -1,0 +1,69 @@
+# A GitHub Actions workflow that regularly makes a PR to update
+# the IC commit to the latest published commit.
+name: Update IC
+on:
+  schedule:
+    # check for new IC commit weekly
+    - cron: '30 3 * * MON'
+  workflow_dispatch:
+  # Provide an option to run this manually.
+  push:
+    branches:
+      # Development branch for this workflow:
+      - "update-ic"
+jobs:
+  update-ic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install tools
+        run: bin/dfx-software-more-install
+        # Clone the ic repo so that we can find the latest published commit.
+      - name: Checkout ic repo
+        uses: actions/checkout@v3
+        with:
+          repository: dfinity/ic
+          ref: master
+          fetch-depth: 100
+          path: ic
+      - name: Check new IC commit
+        id: update
+        run: |
+          current_ic_commit="$(./bin/dfx-software-ic-current)"
+          echo "Current IC commit: '$current_ic_commit'"
+          latest_ic_commit="$(./bin/dfx-software-ic-latest --ic_dir ic)"
+          echo "Latest IC commit: '$latest_ic_commit'"
+
+          if [ "$current_ic_commit" != "$latest_ic_commit" ]
+          then
+            # Update the DFX_IC_COMMIT in versions.bash:
+            awk -v version="$latest_ic_commit" -F= 'BEGIN{IFS=OFS="="}($1=="DFX_IC_COMMIT"){$2=version}{print}' bin/versions.bash |  sponge bin/versions.bash
+            echo An new IC commit is available.
+            git diff
+            echo "updated=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=0" >> "$GITHUB_OUTPUT"
+          fi
+        # If a newer commit is available, create a PR.
+      - name: Create Pull Request
+        if: ${{ steps.update.outputs.updated == '1' }}
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GIX_SNSDEMO_BOT_GH_TOKEN }}
+          base: main
+          add-paths: |
+            bin/versions.bash
+          commit-message: Update IC commit
+          committer: GitHub <noreply@github.com>
+          author: gix-bot <gix-bot@users.noreply.github.com>
+          branch: bot-ic-update
+          delete-branch: true
+          title: 'Update IC commit'
+          # Since the this is a scheduled job, a failure won't be shown on any
+          # PR status. To notify the team, we send a message to our Slack channel on failure.
+      - name: Notify Slack on failure
+        uses: dfinity/internet-identity/.github/actions/slack@release-2023-08-28
+        if: ${{ failure() }}
+        with:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          MESSAGE: "IC commit update failed"
