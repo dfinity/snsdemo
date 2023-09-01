@@ -31,7 +31,7 @@ jobs:
         run: |
           current_ic_commit="$(./bin/dfx-software-ic-current)"
           echo "Current IC commit: '$current_ic_commit'"
-          latest_ic_commit="$(./bin/dfx-software-ic-latest)"
+          latest_ic_commit="$(./bin/dfx-software-ic-latest --ic_dir ic)"
           echo "Latest IC commit: '$latest_ic_commit'"
 
           if [ "$current_ic_commit" != "$latest_ic_commit" ]
