@@ -261,8 +261,8 @@ initial_token_distribution:
     treasury_distribution:
       total_e8s: 293700000000
     swap_distribution:
-      total_e8s: 314100000000
-      initial_swap_amount_e8s: 314100000000
+      total_e8s: 1000314100000000
+      initial_swap_amount_e8s: 1000314100000000
     airdrop_distribution:
       airdrop_neurons:
         - controller: x4vjn-rrapj-c2kqe-a6m2b-7pzdl-ntmc4-riutz-5bylw-2q2bh-ds5h2-lae

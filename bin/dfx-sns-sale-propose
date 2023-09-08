@@ -21,7 +21,7 @@ export DFX_NEURON_ID DFX_IDENTITY_PEM DFX_NNS_URL
 # The due date of the sale must be greater than 1 day at the time of NNS proposal execution
 SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 90 * 24 * 3600')"
 SNS_SWAP="$(dfx canister id sns_swap --network "$DFX_NETWORK")"
-SNS_TOKENS_E8s=314100000000
+SNS_TOKENS_E8s=1000314100000000
 TOKEN_SYMBOL="$(awk '/token_symbol:/{print $2}' sns.yml || echo SOMETHING)"
 PROPOSAL_TITLE="Proposal to create an SNS-DAO for $TOKEN_SYMBOL"
 set ic-admin \
@@ -31,9 +31,9 @@ set ic-admin \
   --proposer "$DFX_NEURON_ID" \
   --min-participants 1 \
   --min-icp-e8s 5000000000 \
-  --max-icp-e8s 314100000000 \
+  --max-icp-e8s 1000314100000000 \
   --min-participant-icp-e8s 10000000 \
-  --max-participant-icp-e8s 314100000000 \
+  --max-participant-icp-e8s 1000314100000000 \
   --swap-due-timestamp-seconds "$SWAP_DUE_TIMESTAMP" \
   --sns-token-e8s "$SNS_TOKENS_E8s" \
   --target-swap-canister-id "$SNS_SWAP" \
