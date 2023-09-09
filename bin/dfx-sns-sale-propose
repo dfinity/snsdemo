@@ -30,7 +30,7 @@ set ic-admin \
   propose-to-open-sns-token-swap \
   --proposer "$DFX_NEURON_ID" \
   --min-participants 1 \
-  --min-icp-e8s 200000000000 \
+  --min-icp-e8s 5000000000 \
   --max-icp-e8s 314100000000 \
   --min-participant-icp-e8s 10000000 \
   --max-participant-icp-e8s 314100000000 \
