@@ -5,7 +5,7 @@
             "nns_sns_wasm_name": "governance"
         },
         "build": "",
-        "wasm": "sns-governance-canister.wasm",
+        "wasm": "sns-governance-canister_test.wasm",
         "candid": "../governance/canister/governance.did",
         "type": "custom"
       },
