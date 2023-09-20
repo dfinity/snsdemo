@@ -2,17 +2,20 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+
 . "$SOURCE_DIR/versions.bash"
+PINNED_VERSION="${QUILL_VERSION}"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=v long=version desc="The release to install" variable=QUILL_VERSION default="latest"
+clap.define short=v long=version desc="The release to install.  Options: Semantic version, latest, pinned." variable=QUILL_VERSION default="latest"
 clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 [[ "${QUILL_VERSION:-}" != "latest" ]] || QUILL_VERSION="$(dfx-software-quill-latest)"
+[[ "${QUILL_VERSION:-}" != "pinned" ]] || QUILL_VERSION="$PINNED_VERSION"
 QUILL_VERSION="${QUILL_VERSION#v}"
 
 if command -v quill && [[ "$(quill --version | awk '{print $2}')" == "$QUILL_VERSION" ]]; then
