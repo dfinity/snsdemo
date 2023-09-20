@@ -23,5 +23,5 @@ dfx-software-jq-install
 dfx-software-more-install
 dfx-software-openssl-install
 dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
-dfx-software-idl2json-install --version v0.8.5
-dfx-software-quill-install --version 0.4.0
+dfx-software-idl2json-install --version "${IDL2JSON_VERSION}"
+dfx-software-quill-install --version "${QUILL_VERSION}"
