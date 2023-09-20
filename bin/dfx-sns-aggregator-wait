@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Waits for a given number of SNSs to be available in the sns_aggregator.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=num_sns desc="The number of SNSs to wait for" variable=EXPECTED_NUM_SNS default="1"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+: Make sure the candid is available and of the right version.
+DID_FILE="$(jq -r .canisters.sns_aggregator.candid dfx.json)"
+dfx canister metadata sns_aggregator candid:service >"$DID_FILE"
+
+# Sadly, the output of `dfx canister call sns_aggregator get_canister_config`
+# which has format:
+# ```
+# (
+#   record {
+#     update_interval_ms = 120_000 : nat64;
+#     fast_interval_ms = 10_000 : nat64;
+#   },
+# )
+# ```
+# can not be used as input to `dfx canister call sns_aggregator reconfigure`
+# which should have format (note the `opt`):
+# ```
+# (
+#   opt record {
+#     update_interval_ms = 120000;
+#     fast_interval_ms = 10000;
+#   },
+# )
+# ```
+# So we convert to JSON and back to Candid.
+
+save_aggregator_config() {
+  SAVED_CONFIG="$(dfx canister call sns_aggregator get_canister_config | idl2json)"
+}
+
+set_aggregator_config() {
+  config="$1"
+  fast_interval_ms="$(jq -r .fast_interval_ms <<<"$config")"
+  update_interval_ms="$(jq -r .update_interval_ms <<<"$config")"
+  dfx canister call sns_aggregator reconfigure "(opt record { update_interval_ms = $update_interval_ms; fast_interval_ms = $fast_interval_ms; })"
+}
+
+restore_aggregator_config() {
+  echo
+  echo "Restoring aggregator config"
+  set_aggregator_config "$SAVED_CONFIG"
+}
+
+speed_up_aggregator() {
+  echo "Speeding up aggregator"
+  set_aggregator_config '{"fast_interval_ms": 100, "update_interval_ms": 100}'
+}
+
+get_sns_count() {
+  for ((page = 0; page < required_page_count; page++)); do
+    {
+      aggregator_url="http://$(dfx canister id sns_aggregator).localhost:8080/v1/sns/list/page/$page/slow.json"
+      curl -fsS "$aggregator_url" | jq length
+    } 2>/dev/null || true
+  done | awk '{i+=$1}END{print i}'
+}
+
+wait_for_sns_count() {
+  echo "Waiting for $EXPECTED_NUM_SNS SNSs"
+  page_size=10
+  required_page_count=$(((EXPECTED_NUM_SNS + page_size - 1) / page_size))
+
+  : Wait for aggregator to get all SNSs
+  for ((try = 300; try > 0; try--)); do
+    num_sns="$(get_sns_count)"
+    if (("$num_sns" == "$EXPECTED_NUM_SNS")); then
+      return
+    fi
+    printf "\r #SNS: % 4d   Tries remaining: %4d" "$num_sns" "$try"
+    sleep 2
+  done
+  echo
+  echo "Failed to get $EXPECTED_NUM_SNS SNSs"
+  exit 1
+}
+
+save_aggregator_config
+trap restore_aggregator_config EXIT
+
+speed_up_aggregator
+wait_for_sns_count
+: sns_aggregator config will be restored by the trap set above.

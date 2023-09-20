@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Outputs the URL of the wasm file for the nns-dapp canister.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=r long=release desc="The release name" variable=DFX_ND_RELEASE default="pinned"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+
+RELEASE_NAME="$(dfx-software-nns-dapp-version "${DFX_ND_RELEASE}")"
+test -n "${RELEASE_NAME:-}" || {
+  echo "ERROR: Could not find release '${DFX_ND_RELEASE}'"
+} >&2
+
+WASM_FILE="nns-dapp.wasm.gz"
+
+echo "https://github.com/dfinity/nns-dapp/releases/download/${RELEASE_NAME}/${WASM_FILE}"

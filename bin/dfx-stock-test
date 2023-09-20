@@ -28,7 +28,7 @@ export DFX_NETWORK
 
 (
   print_title "sns_aggregator should be installed"
-  index_html="$(mktemp --suffix .html index_XXXX)"
+  index_html="$(mktemp index_XXXX)"
   curl --silent --retry 5 --fail "$(dfx-canister-url sns_aggregator)" >"$index_html" || {
     echo "ERROR: Should be able to get sns_aggregator home page."
     exit 1
@@ -45,6 +45,16 @@ export DFX_NETWORK
     cat "$index_html"
     exit 1
   } >&2
+)
+
+(
+  print_title "sns_aggregator should have 12 SNSs"
+  # This means the second page should have 2 SNSs.
+  aggregator_url="http://$(dfx canister id sns_aggregator).localhost:8080/v1/sns/list/page/1/slow.json"
+  if [ "$(curl -fsS "$aggregator_url" | jq length)" != "2" ]; then
+    echo "ERROR: The aggragtor should have 12 SNSs." >&2
+    exit 1
+  fi
 )
 
 echo "$(basename "$0") PASSED"

@@ -1,0 +1,64 @@
+# A GitHub Actions workflow that regularly checks for a new dfx
+# and creates a PR on new versions.
+name: Update dfx
+on:
+  schedule:
+    # check for new dfx versions weekly
+    - cron: '30 3 * * FRI'
+  workflow_dispatch:
+  # Provide an option to run this manually.
+  push:
+    branches:
+      # Development branch for this workflow:
+      - "update-dfx"
+jobs:
+  update-dfx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        # First, check dfx GitHub releases for a new version. We assume that the
+        # latest version's tag name is the version.
+      - name: Check new dfx version
+        id: update
+        run: |
+          current_dfx_version="$(jq -r .dfx dfx.json)"
+          echo "Current dfx version: '$current_dfx_version'"
+          latest_dfx_version="$(curl -sSL https://sdk.dfinity.org/manifest.json | jq -r .tags.latest)"
+          echo "Latest dfx version: '$latest_dfx_version'"
+
+          if [ "$current_dfx_version" != "$latest_dfx_version" ]
+          then
+            for file in dfx.json dfx.json.original ; do
+              version="$latest_dfx_version" jq '.dfx=(env.version)' "$file" > "$file.new"
+              mv "$file.new" "$file"
+            done
+            echo An update is available for dfx.
+            git diff
+            echo "updated=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=0" >> "$GITHUB_OUTPUT"
+          fi
+        # If a newer dfx is available, create a PR.
+      - name: Create Pull Request
+        if: ${{ steps.update.outputs.updated == '1' }}
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GIX_SNSDEMO_BOT_GH_TOKEN }}
+          base: main
+          add-paths: |
+            dfx.json
+            dfx.json.original
+          commit-message: Update dfx version
+          committer: GitHub <noreply@github.com>
+          author: gix-bot <gix-bot@users.noreply.github.com>
+          branch: bot-dfx-update
+          delete-branch: true
+          title: 'Update dfx version'
+          # Since the this is a scheduled job, a failure won't be shown on any
+          # PR status. To notify the team, we send a message to our Slack channel on failure.
+      - name: Notify Slack on failure
+        uses: dfinity/internet-identity/.github/actions/slack@release-2023-08-28
+        if: ${{ failure() }}
+        with:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          MESSAGE: "Dfx update failed"

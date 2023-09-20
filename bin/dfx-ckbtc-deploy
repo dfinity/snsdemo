@@ -42,6 +42,7 @@ deploy_ckbtc() {
   echo "$MINTERID"
   LEDGERID="$(dfx canister id "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK")"
   echo "$LEDGERID"
+  KYT_PRINCIPAL="ymphz-l4rr5-iqzdh-wdp3p-wpfo7-getsa-xrafl-yfxtv-kxjmk-xrn4r-iae" # Placeholder
 
   # echo "Step 2: deploying minter canister..."
   dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
@@ -49,12 +50,12 @@ deploy_ckbtc() {
        btc_network = variant { Regtest };
        ledger_id = principal \"$LEDGERID\";
        ecdsa_key_name = \"dfx_test_key\";
-       retrieve_btc_min_amount = 0;
+       retrieve_btc_min_amount = 13_333;
        max_time_in_queue_nanos = 420_000_000_000;
        min_confirmations = opt 12;
        mode = variant { GeneralAvailability };
        kyt_fee = opt 13_333;
-       kyt_principal = null;
+       kyt_principal = opt principal \"$KYT_PRINCIPAL\";
    }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 

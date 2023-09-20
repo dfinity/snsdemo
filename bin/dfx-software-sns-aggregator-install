@@ -54,7 +54,7 @@ test -e "$WASM_FILE" || {
 jq -e '.canisters.sns_aggregator' dfx.json >/dev/null || {
   echo "Adding sns_aggregator to dfx.json..."
   # TODO: Include API declaration .did files in release, so that we can get the candid.
-  jq -s '.[0] * .[1]' <(echo '{"canisters": { "sns_aggregator": { "type": "custom", "candid": "placeholder", "wasm": "'"${WASM_FILE}"'", "build": "true" }}}') dfx.json | sponge dfx.json
+  jq -s '.[0] * .[1]' <(echo '{"canisters": { "sns_aggregator": { "type": "custom", "candid": "candid/sns_aggregator.did", "wasm": "'"${WASM_FILE}"'", "build": "true" }}}') dfx.json | sponge dfx.json
 }
 
 echo "Creating sns_aggregator canister..."
