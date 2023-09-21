@@ -2,17 +2,20 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+
 . "$SOURCE_DIR/versions.bash"
+PINNED_VERSION="$IDL2JSON_VERSION"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=v long=version desc="The release to install" variable=IDL2JSON_VERSION default="latest"
+clap.define short=v long=version desc="The release to install.  Options: Semantic version, latest, pinned." variable=IDL2JSON_VERSION default="pinned"
 clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 [[ "${IDL2JSON_VERSION:-}" != "latest" ]] || IDL2JSON_VERSION="$(dfx-software-idl2json-latest)"
+[[ "${IDL2JSON_VERSION:-}" != "pinned" ]] || IDL2JSON_VERSION="$PINNED_VERSION"
 IDL2JSON_VERSION="${IDL2JSON_VERSION#v}"
 
 if command -v idl2json && [[ "$(idl2json --version | awk '($1 == "idl2json"){print $2}')" == "${IDL2JSON_VERSION:-}" ]]; then

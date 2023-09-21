@@ -3,7 +3,6 @@ set -euo pipefail
 
 SOURCE_DIR="$(dirname "${BASH_SOURCE[0]}")"
 PATH="$SOURCE_DIR:$PATH"
-. "$SOURCE_DIR/versions.bash"
 
 print_help() {
   cat <<-EOF
@@ -23,5 +22,5 @@ dfx-software-jq-install
 dfx-software-more-install
 dfx-software-openssl-install
 dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
-dfx-software-idl2json-install --version v0.8.5
-dfx-software-quill-install --version 0.4.0
+dfx-software-idl2json-install --version pinned
+dfx-software-quill-install --version pinned
