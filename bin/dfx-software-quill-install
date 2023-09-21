@@ -9,7 +9,7 @@ PINNED_VERSION="${QUILL_VERSION}"
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=v long=version desc="The release to install.  Options: Semantic version, latest, pinned." variable=QUILL_VERSION default="latest"
+clap.define short=v long=version desc="The release to install.  Options: Semantic version, latest, pinned." variable=QUILL_VERSION default="pinned"
 clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
