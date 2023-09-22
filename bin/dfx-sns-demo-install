@@ -22,5 +22,6 @@ dfx-software-jq-install
 dfx-software-more-install
 dfx-software-openssl-install
 dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
+dfx extension install nns
 dfx-software-idl2json-install --version pinned
 dfx-software-quill-install --version pinned
