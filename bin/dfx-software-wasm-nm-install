@@ -19,7 +19,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=v long=version desc="The version of wasm-nm to install" variable=VERSION default="0.2.0"
+clap.define short=v long=version desc="The version of wasm-nm to install" variable=VERSION default="0.2.1"
 clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
