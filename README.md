@@ -1,4 +1,4 @@
-Test change with a TYOP.
+Test change with a TYPO.
 
 # SNS DEMO
 
