@@ -47,7 +47,7 @@ deploy_ckbtc() {
   # echo "Step 2: deploying minter canister..."
   dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
   Init = record {
-       btc_network = variant { Regtest };
+       btc_network = variant { Mainnet };
        ledger_id = principal \"$LEDGERID\";
        ecdsa_key_name = \"dfx_test_key\";
        retrieve_btc_min_amount = 13_333;
@@ -66,7 +66,8 @@ deploy_ckbtc() {
      token_symbol = \"ckBTC\";
      token_name = \"Token ckBTC\";
      minting_account = record { owner = principal \"$MINTERID\" };
-     transfer_fee = 11_500;
+     transfer_fee = 10;
+     max_memo_length = opt 64;
      metadata = vec {};
      initial_balances = vec { record { record { owner = principal \"$PRINCIPAL\"; }; 10_000_000; }; };
      archive_options = record {
