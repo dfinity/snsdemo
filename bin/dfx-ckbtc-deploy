@@ -35,14 +35,32 @@ source "$(clap.build)"
 } >&2
 
 deploy_ckbtc() {
+  # We create some canisters ahead of time because we need to know their IDs
+  # before deploying. Remaining canisters will be created when deployed.
+  dfx canister create "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}kyt canister already exists"
   dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}ledger canister already exists"
   dfx canister create "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}minter canister already exists"
 
+  KYT_ID="$(dfx canister id "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK")"
+  echo "$KYT_ID"
   MINTERID="$(dfx canister id "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK")"
   echo "$MINTERID"
   LEDGERID="$(dfx canister id "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK")"
   echo "$LEDGERID"
-  KYT_PRINCIPAL="ymphz-l4rr5-iqzdh-wdp3p-wpfo7-getsa-xrafl-yfxtv-kxjmk-xrn4r-iae" # Placeholder
+
+  # echo "Step 1: deploying kyt canister..."
+  DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
+  dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(variant {
+  InitArg = record {
+      minter_id = principal \"$MINTERID\";
+      maintainers = vec { principal \"$DFX_IDENTITY_PRINCIPAL\" };
+      mode = variant { AcceptAll };
+  }
+})" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+
+  # We use mode AcceptAll so the API key is not used, but without API key the
+  # KYT canister will refuse to accept any UTXOs.
+  dfx canister call ${LOCAL_PREFIX}kyt --network "$DFX_NETWORK" set_api_key '( record { api_key = "placeholder" } )'
 
   # echo "Step 2: deploying minter canister..."
   dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
@@ -55,12 +73,11 @@ deploy_ckbtc() {
        min_confirmations = opt 12;
        mode = variant { GeneralAvailability };
        kyt_fee = opt 13_333;
-       kyt_principal = opt principal \"$KYT_PRINCIPAL\";
+       kyt_principal = opt principal \"$KYT_ID\";
    }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
   echo "Step 3: deploying ledger canister..."
-  PRINCIPAL="$(dfx identity get-principal)"
   dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
   Init = record {
      token_symbol = \"ckBTC\";
@@ -69,11 +86,11 @@ deploy_ckbtc() {
      transfer_fee = 10;
      max_memo_length = opt 64;
      metadata = vec {};
-     initial_balances = vec { record { record { owner = principal \"$PRINCIPAL\"; }; 10_000_000; }; };
+     initial_balances = vec { record { record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\"; }; 10_000_000; }; };
      archive_options = record {
          num_blocks_to_archive = 10_000;
          trigger_threshold = 20_000;
-         controller_id = principal \"$PRINCIPAL\";
+         controller_id = principal \"$DFX_IDENTITY_PRINCIPAL\";
          cycles_for_archive_creation = opt 4_000_000_000_000;
      };
  }
@@ -103,9 +120,9 @@ deploy_ckbtc() {
 }
 
 check_ckbtc_deployment() {
-  for canister in "${LOCAL_PREFIX}ledger" "${LOCAL_PREFIX}minter"; do
+  for canister in kyt ledger minter index; do
     : "Verify that the deployed canister matches the local wasm"
-    dfx-canister-check-wasm-hash --canister "$canister" --network "$DFX_NETWORK"
+    dfx-canister-check-wasm-hash --canister "${LOCAL_PREFIX}$canister" --network "$DFX_NETWORK"
   done
 }
 

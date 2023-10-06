@@ -45,6 +45,7 @@ PATH="$SOURCE_DIR:$PATH"
   dfx start --clean --background
   git checkout dfx.json
   dfx-ckbtc-import
+  dfx canister create "ckbtc_kyt" --no-wallet
   dfx canister create "ckbtc_ledger" --no-wallet
   dfx canister create "ckbtc_minter" --no-wallet
   error_log="$(mktemp ,test_log.XXXXXXXX)"

@@ -36,7 +36,8 @@ ckbtc_import() {
     WASM_DIR="${WASM_DIR:-}" \
     CANDID_DIR="${CANDID_DIR:-}" \
     jq -s '{canisters:
-      { "\(env.LOCAL_PREFIX)ledger": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)ledger.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai"} }}
+      { "\(env.LOCAL_PREFIX)kyt" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)kyt.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)kyt.wasm",  type: "custom", remote: { id: {mainnet: "pjihx-aaaaa-aaaar-qaaka-cai"} }}
+      , "\(env.LOCAL_PREFIX)ledger": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)ledger.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai"} }}
       , "\(env.LOCAL_PREFIX)minter": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)minter.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)minter.wasm", type: "custom", remote: { id: {} }}
       , "\(env.LOCAL_PREFIX)index" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)index.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)index.wasm",  type: "custom", remote: { id: {mainnet: "n5wcd-faaaa-aaaar-qaaea-cai"} }}
       }} * .[0]
@@ -58,6 +59,7 @@ ckbtc_import() {
       gunzip "${local_path}.gz"
     fi
   }
+  get_wasm ic-ckbtc-kyt.wasm "${LOCAL_PREFIX}kyt"
   get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter"
   get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger"
   get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}index"
@@ -73,6 +75,7 @@ ckbtc_import() {
     echo "Getting  $local_path from $url..."
     curl -sSLf --retry 5 "$url" -o "$local_path"
   }
+  get_did rs/bitcoin/ckbtc/kyt/kyt.did "${LOCAL_PREFIX}kyt"
   get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
   get_did rs/rosetta-api/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
   get_did rs/rosetta-api/icrc1/index/index.did "${LOCAL_PREFIX}index"
@@ -83,7 +86,7 @@ ckbtc_import() {
 # Checks whether ckbtc canisters have already been installed.
 ckbtc_import_check() {
   : Verify that all file are present and correct
-  for canister in minter ledger index; do
+  for canister in kyt minter ledger index; do
     : "Check that the config is in dfx.json:"
     canister_config="$(n="$LOCAL_PREFIX$canister" jq '.canisters[env.n]' dfx.json)"
     [[ "$canister_config" != "null" ]] || {
