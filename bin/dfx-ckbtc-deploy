@@ -60,7 +60,7 @@ deploy_ckbtc() {
 
   # We use mode AcceptAll so the API key is not used, but without API key the
   # KYT canister will refuse to accept any UTXOs.
-  dfx canister call ${LOCAL_PREFIX}kyt --network "$DFX_NETWORK" set_api_key '( record { api_key = "placeholder" } )'
+  dfx canister call "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" set_api_key '( record { api_key = "placeholder" } )'
 
   # echo "Step 2: deploying minter canister..."
   dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
