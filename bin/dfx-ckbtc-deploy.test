@@ -52,7 +52,7 @@ PATH="$SOURCE_DIR:$PATH"
   if dfx-ckbtc-deploy --check 2>"$error_log"; then
     echo "ERROR: Should fail if ckbtc canisters have the incorrect or no hash"
   fi
-  grep 'ERROR: Deployed ckbtc_ledger hash does not match.' "$error_log" || {
+  grep 'ERROR: Deployed ckbtc_kyt hash does not match.' "$error_log" || {
     echo "ERROR: The check should complain about missing canisters."
     echo "Actual error output:"
     sed 's/^/    /g' "$error_log"
