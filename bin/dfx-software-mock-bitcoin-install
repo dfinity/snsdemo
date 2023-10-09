@@ -44,7 +44,7 @@ if ! jq -e '.canisters.bitcoin' dfx.json >/dev/null; then
   jq -s '.[0] * .[1]' <(echo '{"canisters": { "bitcoin": { "type": "custom", "candid": "candid/bitcoin_mock.did", "wasm": "'"${WASM_PATH}"'", "build": "true" }}}') dfx.json | sponge dfx.json
 fi
 
-if ! dfx canister create bitcoin --network "${DFX_NETWORK}" --specified-id "$HARD_CODED_BITCOIN_CANISTER_ID"; then 
+if ! dfx canister create bitcoin --network "${DFX_NETWORK}" --specified-id "$HARD_CODED_BITCOIN_CANISTER_ID"; then
   echo "Failed to create bitcoin canister." >&2
   exit 1
 fi
