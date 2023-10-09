@@ -30,9 +30,12 @@ if [[ "${DFX_IC_COMMIT}" == "pinned" ]]; then
   DFX_IC_COMMIT="$(dfx-software-ic-current)"
 fi
 
+WASM_DIR="wasms"
 WASM_FILE="bitcoin-mock-canister.wasm.gz"
-WASM_PATH="wasms/${WASM_FILE}"
+WASM_PATH="${WASM_DIR}/${WASM_FILE}"
 WASM_URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/${WASM_FILE}"
+
+mkdir -p "${WASM_DIR}"
 
 echo "Downloading mock bitcoin wasm from ${WASM_URL}"
 curl --retry 5 --fail --silent --show-error --location \
