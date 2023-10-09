@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+# The Bitcoin canister is accessed through the virtual management canister
+# and its ID is hard-coded in the execution environment, here:
+# https://github.com/dfinity/ic/blob/bb093eeca3d25b10f5eaa4e5843811c3201c941c/rs/config/src/execution_environment.rs#L100
+HARD_CODED_BITCOIN_CANISTER_ID="ghsi2-tqaaa-aaaan-aaaca-cai"
+
+git checkout dfx.json
+dfx-network-stop
+dfx start --clean --background
+
+trap 'dfx-network-stop' EXIT
+
+if dfx canister metadata "$HARD_CODED_BITCOIN_CANISTER_ID" --network local candid:service; then
+  echo "ERROR: bitcoin canister should not exist before installing."
+  exit 1
+fi
+
+dfx-software-mock-bitcoin-install --network local
+
+# push_utxo_to_address is known method on the mock bitcoin canister.
+if ! dfx canister metadata "$HARD_CODED_BITCOIN_CANISTER_ID" --network local candid:service | grep push_utxo_to_address; then
+  echo "ERROR: mock bitcoin canister should have been installed."
+  exit 1
+fi
+
+echo "PASSED: dfx-software-mock-bitcoin-install.test"

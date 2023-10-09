@@ -100,6 +100,13 @@ jobs:
           git clean -dfx
           bin/dfx-ckbtc-deploy.test
           git clean -dfx
+      - name: Install mock bitcoin canister works
+        run: |
+          set -euxo pipefail
+          echo "This modifies files, so make sure the state is clean before and after"
+          git clean -dfx
+          bin/dfx-software-mock-bitcoin-install.test
+          git clean -dfx
   nns-dapp-canister-checks:
     needs: formatting
     name: NNS dapp tools
