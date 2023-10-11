@@ -16,8 +16,8 @@ A stock snapshot can be created with
 ```
 ./bin/dfx-snapshot-stock-make
 ```
-Snapshots can be shared between Linux machines but Macs can only use
-snapshots created on the same machine (it seems).
+Snapshots can be shared between Linux machines but Macs can only use snapshots
+created on the same machine (it seems).
 
 Default pinned versions of the used canisters are defined in
 `bin/versions.bash`. If you want the latest versions on the canisters from the
