@@ -52,7 +52,7 @@ ckbtc_import() {
     local_path="$(c="$local_name" jq -re '.canisters[env.c].wasm' dfx.json)"
     url="https://download.dfinity.systems/ic/$DFX_IC_COMMIT/canisters/${remote_name}.gz"
     echo "Getting  $local_path from $url..."
-    curl -fsSL "$url" | gunzip > "${local_path}"
+    curl -fsSL "$url" | gunzip >"${local_path}"
   }
   get_wasm ic-ckbtc-kyt.wasm "${LOCAL_PREFIX}kyt"
   get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter"
