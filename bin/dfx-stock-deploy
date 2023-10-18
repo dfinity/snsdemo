@@ -22,6 +22,7 @@ clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETW
 clap.define short=c long=ic_commit desc="The IC commit to use" variable=DFX_IC_COMMIT default="$(dfx-software ic current)"
 clap.define short=x long=ic_dir desc="Directory containing the ic source code; needed for deployments to static testnets" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code; needed for deployments to static testnets" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
+clap.define long=parallel_sns_count desc="Number of additional SNSes to create in parallel after dfx-sns-demo finishes" variable=PARALLEL_SNS_COUNT default="10"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
@@ -39,8 +40,10 @@ dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_
 : Add 1 open SNS project.
 dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text"
 
-: Add 10 more finalized SNS projects.
-dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns 10 --majority snsdemo8
+: Add some more finalized SNS projects.
+if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
+  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8
+fi
 
 : Set up ckbtc canisters
 dfx-ckbtc-import --prefix ckbtc_
