@@ -70,7 +70,7 @@ get_sns_count() {
     {
       aggregator_url="http://$(dfx canister id sns_aggregator).localhost:8080/v1/sns/list/page/$page/slow.json"
       curl -fsS "$aggregator_url" | jq length
-    } 2>/dev/null || true
+    } || true
   done | awk '{i+=$1}END{print i}'
 }
 

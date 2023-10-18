@@ -41,7 +41,7 @@ dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_
 dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text"
 
 : Add some more finalized SNS projects.
-if [ "${PARELLEL_SNS_COUNT:-0}" -gt 0 ]; then
+if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
   dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8
 fi
 
