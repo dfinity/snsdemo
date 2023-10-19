@@ -72,6 +72,10 @@ min_icp_e8s: 100000000
 #
 fallback_controller_principal_ids:
   [hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe]
+
+min_direct_participation_icp_e8s: 100000000
+max_direct_participation_icp_e8s: 500000000
+neurons_fund_participation: false
 #
 # This field sets the initial token distribution. Initially, there is only support for
 # the FractionalDeveloperVotingPower strategy. The FractionalDeveloperVotingPower token
