@@ -19,7 +19,7 @@ DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 export DFX_NEURON_ID DFX_IDENTITY_PEM DFX_NNS_URL
 
 # The due date of the sale must be greater than 1 day at the time of NNS proposal execution
-SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 90 * 24 * 3600')"
+SWAP_DUE_TIMESTAMP="$(perl -e 'print time() + 14 * 24 * 3600')"
 SNS_SWAP="$(dfx canister id sns_swap --network "$DFX_NETWORK")"
 SNS_TOKENS_E8s=1000314100000000
 TOKEN_SYMBOL="$(awk '/token_symbol:/{print $2}' sns.yml || echo SOMETHING)"
