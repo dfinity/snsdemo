@@ -44,8 +44,9 @@ jobs:
         if: ${{ (github.event_name == 'schedule') || (github.ref_name == 'snapshot-schedule') }}
         id: tag
         run: |
+          set -euxo pipefail
           tag_name="$(date +release-%Y-%m-%d)"
-          if git tag -l "${tag_name}"
+          if git show-ref --tags --verify --quiet "refs/tags/${tag_name}";
           then
             echo "There is already a tag for today's release: ${tag_name}"
           else
