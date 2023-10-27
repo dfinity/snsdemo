@@ -41,14 +41,15 @@ jobs:
       - name: Stop dfx
         run: dfx stop
       - name: Tag if run on a schedule
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ (github.event_name == 'schedule') || (github.ref_name == 'snapshot-schedule') }}
         id: tag
         run: |
           tag_name="$(date +release-%Y-%m-%d)"
           if git tag -l "${tag_name}"
           then
-          echo "There is already a tag for today's release: ${tag_name}"
+            echo "There is already a tag for today's release: ${tag_name}"
           else
+            echo "Tagging as '${tag_name}'"
             git tag "${tag_name}"
             git push origin "refs/tags/${tag_name}"
           fi
