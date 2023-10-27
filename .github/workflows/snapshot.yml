@@ -2,6 +2,8 @@ name: Create a snapshot image
 on:
   push:
   workflow_dispatch:
+  schedule:
+    - cron: '30 3 * * WED'
 env:
   GH_TOKEN: ${{ github.token }}
   TEST_RELEASE_PROCESS: false # Set to true if you wish to exercise github triggers without spending time creating real artefacts.
@@ -15,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Create snapshot
         id: snapshot
         run: |
@@ -35,6 +39,18 @@ jobs:
         run: bin/dfx-stock-test
       - name: Stop dfx
         run: dfx stop
+      - name: Tag if run on a schedule
+        if: ${{ github.event_name == 'schedule' }}
+        id: tag
+        run: |
+          tag_name="$(date +release-%Y-%m-%d)"
+          if git tag -l "${tag_name}"
+          then
+          echo "There is already a tag for today's release: ${tag_name}"
+          else
+            git tag "${tag_name}"
+            git push origin "refs/tags/${tag_name}"
+          fi
       - name: Release if applicable
         run: |
           set -x
