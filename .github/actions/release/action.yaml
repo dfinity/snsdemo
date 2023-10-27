@@ -30,7 +30,6 @@ runs:
           }
         done
         : Updates 'tip' release, if this was triggered by a push to main or 'test-release'.
-        : This can be exercised without a PR by pushing to 'test-release'.
         if [[ "${{github.event_name}}" == 'push' ]] && ( [[ "${{github.ref_name}}" == 'main' ]] || [[ "${{github.ref_name}}" == 'test-release' ]] ) ; then
           gh release upload --clobber tip "${artefacts[@]}" || true
         fi
