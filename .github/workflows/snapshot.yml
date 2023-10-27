@@ -32,29 +32,12 @@ jobs:
         if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
         run: bin/dfx-snapshot-restore --snapshot "${{ steps.snapshot.outputs.path }}"
       - name: "Verify that the stock state behaves as expected"
+        id: test
         run: bin/dfx-stock-test
       - name: Stop dfx
         run: dfx stop
-      - name: Release if applicable
-        run: |
-          set -x
-          artefacts=( "${{ steps.snapshot.outputs.path }}" )
-          ls -l "${artefacts[@]}"
-          : Creates or update releases for every tag pointing at this commit
-          for tag in $(git tag --points-at HEAD) ; do
-            : Creates or updates a release for the tag
-            if gh release view "$tag"
-            then gh release upload --clobber "$tag" "${artefacts[@]}" || true
-            else gh release create --title "Release for tags/$tag" --draft --notes "Build artefacts from tag: $tag" "$tag" "${artefacts[@]}"
-            fi
-            : Optionally, make the release public
-            [[ "$tag" != release-* ]] || {
-                    echo "Making release public"
-                    gh release edit "$tag" --draft=false
-            }
-          done
-          : Updates 'tip' release, if this was triggered by a push to main or 'test-release'.
-          : This can be exercised without a PR by pushing to 'test-release'.
-          if [[ "${{github.event_name}}" == 'push' ]] && ( [[ "${{github.ref_name}}" == 'main' ]] || [[ "${{github.ref_name}}" == 'test-release' ]] ) ; then
-            gh release upload --clobber tip "${artefacts[@]}" || true
-          fi
+      - name: Release
+        uses: ./.github/actions/release
+        with:
+          artefacts: ${{ steps.snapshot.outputs.path }}
+          token: ${{ secrets.GITHUB_TOKEN }}
