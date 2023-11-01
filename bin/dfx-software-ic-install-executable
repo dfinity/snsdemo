@@ -15,7 +15,7 @@ clap.define short=b long=bin desc="Diectory in which to install the executeble" 
 source "$(clap.build)"
 
 install_linux() {
-  URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/binaries/x86_64-linux/${EXEC_NAME}.gz"
+  URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/openssl-static-binaries/x86_64-linux/${EXEC_NAME}.gz"
   echo "Downloading $URL"
   curl -fL "$URL" | gunzip | install -m 755 /dev/stdin "$USER_BIN/$EXEC_NAME"
 }
