@@ -60,8 +60,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
-      - name: Install tools
-        run: ./bin/dfx-software-wasm-nm-install
       - name: "Test the sns aggregator version command"
         run: ./bin/dfx-software-sns-aggregator-version.test
         env:
@@ -117,8 +115,6 @@ jobs:
         run: ./bin/dfx-software-nns-dapp-version.test
         env:
           GH_TOKEN: ${{ github.token }}
-      - name: Install tools
-        run: ./bin/dfx-software-wasm-nm-install
       - name: "Test the nns-dapp url command"
         run: ./bin/dfx-software-nns-dapp-ci-wasm-url.test
         env:
