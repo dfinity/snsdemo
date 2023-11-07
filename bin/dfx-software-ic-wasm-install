@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+. "$SOURCE_DIR/versions.bash"
+PINNED_VERSION="$IC_WASM_VERSION"
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=v long=version desc="The release to install.  Options: Semantic version, latest, pinned." variable=IC_WASM_VERSION default="pinned"
+clap.define short=b long=bin desc="Local directory for executables" variable=USER_BIN default="$HOME/.local/bin"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+[[ "${IC_WASM_VERSION:-}" != "latest" ]] || IC_WASM_VERSION="$(dfx-software-ic-wasm-latest)"
+[[ "${IC_WASM_VERSION:-}" != "pinned" ]] || IC_WASM_VERSION="$PINNED_VERSION"
+IC_WASM_VERSION="${IC_WASM_VERSION#v}"
+
+if command -v ic-wasm && [[ "$(ic-wasm --version | awk '($1 == "ic-wasm"){print $2}')" == "${IC_WASM_VERSION:-}" ]]; then
+  echo "ic-wasm v$IC_WASM_VERSION already installed.  Nothing to do."
+  exit 0
+fi
+
+mkdir -p "$USER_BIN"
+
+OS="$(uname)"
+
+get_url() {
+  case "$OS" in
+  Darwin)
+    echo "https://github.com/dfinity/ic-wasm/releases/download/v${IC_WASM_VERSION}/ic-wasm-macos"
+    ;;
+  Linux)
+    echo "https://github.com/dfinity/ic-wasm/releases/download/v${IC_WASM_VERSION}/ic-wasm-linux64"
+    ;;
+  esac
+}
+
+install_ic_wasm() {
+  case "$OS" in
+  Darwin)
+    (
+      cd "$USER_BIN"
+      tempfile="$(mktemp ic-wasm-XXXXXX)"
+      curl -LsSf "$URL" >"$tempfile"
+      chmod 644 "$tempfile"
+      mv "$tempfile" ic-wasm
+    )
+    ;;
+  Linux)
+    curl -LsSf "$URL" | install -m644 /dev/stdin ic-wasm
+    ;;
+  esac
+}
+
+URL="$(get_url)"
+DESTINATION="${USER_BIN}/ic-wasm"
+echo "Downloading $URL ..."
+install_ic_wasm
+echo "Installed ic-wasm at: $DESTINATION"
+
+CURRENT_IC_WASM="$(realpath "$(command -v ic-wasm 2>/dev/null || true)" || true)"
+[[ "$CURRENT_IC_WASM" == "$(realpath "$DESTINATION")" ]] || {
+  if test -z "${CURRENT_IC_WASM:-}"; then
+    echo "Please add this to your PATH: $USER_BIN"
+  else
+    echo "WARNING: You currently have a different ic-wasm in your path"
+  fi
+}
