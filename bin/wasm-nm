@@ -4,7 +4,7 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
 print_help() {
-	cat <<-EOF
+  cat <<-EOF
 
 		Polyfill for the now outdated wasm-nm.
 
@@ -25,28 +25,28 @@ clap.define short=j long=export desc="Just display the symbol names (no type)." 
 source "$(clap.build)"
 
 (($# == 1)) || {
-	echo "ERROR: Please provide the Wasm filename as a positional argument, like this:"
-	echo "       wasm-nm -e my-file.wasm"
-	exit 1
+  echo "ERROR: Please provide the Wasm filename as a positional argument, like this:"
+  echo "       wasm-nm -e my-file.wasm"
+  exit 1
 } >&2
 
 WASM_FILENAME="${1:-}"
 
 export_symbols() {
-	ic-wasm "${WASM_FILENAME:-}" info | sed -nE '/^Exported methods:/,/^]/p' | sed '1d;$d' | sed -E 's/.*"(.*)",/\1/;s/ *\(.*//g' | {
-		if [[ "${NO_TYPE:-}" == "true" ]]; then
-			cat
-		else
-			sed 's/^/e /g'
-		fi
-	}
+  ic-wasm "${WASM_FILENAME:-}" info | sed -nE '/^Exported methods:/,/^]/p' | sed '1d;$d' | sed -E 's/.*"(.*)",/\1/;s/ *\(.*//g' | {
+    if [[ "${NO_TYPE:-}" == "true" ]]; then
+      cat
+    else
+      sed 's/^/e /g'
+    fi
+  }
 }
 
 if [[ "${ONLY_EXPORT}" == "true" ]]; then
-	export_symbols
+  export_symbols
 else
-	{
-		echo "ERROR: Action not supported, sorry."
-		exit 1
-	} >&2
+  {
+    echo "ERROR: Action not supported, sorry."
+    exit 1
+  } >&2
 fi
