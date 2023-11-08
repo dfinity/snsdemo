@@ -49,9 +49,9 @@ DFX_IC_COMMIT="$DFX_IC_COMMIT" dfx nns import --network-mapping "$DFX_NETWORK=ma
 # Note: `dfx nns import` no longer provides a candid for II.
 II_CANDID_PATH="$(jq -r .canisters.internet_identity.candid dfx.json)"
 test -n "${II_CANDID_PATH:-}" || {
-    II_CANDID_PATH="candid/internet_identity.did"
-    mkdir -p "$(dirname "$II_CANDID_PATH")"
-    II_CANDID_PATH="$II_CANDID_PATH" jq '.canisters.internet_identity.candid = (env.II_CANDID_PATH)' dfx.json | sponge dfx.json
+  II_CANDID_PATH="candid/internet_identity.did"
+  mkdir -p "$(dirname "$II_CANDID_PATH")"
+  II_CANDID_PATH="$II_CANDID_PATH" jq '.canisters.internet_identity.candid = (env.II_CANDID_PATH)' dfx.json | sponge dfx.json
 }
 curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$II_CANDID_PATH"
 
