@@ -37,8 +37,10 @@ jobs:
           else
             echo "updated=0" >> "$GITHUB_OUTPUT"
           fi
-        # If a newer version is available, create a PR.
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Create Pull Request
+        # If a newer version is available, create a PR.
         if: ${{ steps.update.outputs.updated == '1' }}
         uses: peter-evans/create-pull-request@v4
         with:
