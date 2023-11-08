@@ -13,6 +13,8 @@ on:
       - "update-aggregator"
 concurrency:
   group: ${{ github.workflow }}
+env:
+  BRANCH_NAME: 'bot-aggregator-update'
 jobs:
   update-dfx:
     runs-on: ubuntu-latest
@@ -20,7 +22,7 @@ jobs:
       - name: Existing PR
         id: existing_pr
         run: |
-          echo number="$(gh pr list --base main --head bot-aggregator-update --json number --jq '.[].number')" >> "$GITHUB_OUTPUT"
+          echo number="$(gh pr list --base main --head "$BRANCH_NAME" --json number --jq '.[].number')" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
       - uses: actions/checkout@v3
@@ -62,7 +64,7 @@ jobs:
           commit-message: Update SNS Aggregator version
           committer: GitHub <noreply@github.com>
           author: gix-bot <gix-bot@users.noreply.github.com>
-          branch: bot-aggregator-update
+          branch: ${{ env.BRANCH_NAME }}
           delete-branch: true
           title: 'Update SNS aggregator version to ${{ steps.update.outputs.version }}'
           body: |
@@ -74,7 +76,6 @@ jobs:
 
             # Tests
               - Please see CI.
-
       - name: Notify Slack on failure
         # Since the this is a scheduled job, a failure won't be shown on any
         # PR status. To notify the team, we send a message to our Slack channel on failure.
