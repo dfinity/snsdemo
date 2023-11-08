@@ -1,5 +1,111 @@
 {
   "canisters": {
+    "internet_identity": {
+      "remote": {
+        "id": {
+          "local": "qhbym-qaaaa-aaaaa-aaafq-cai"
+        }
+      }
+    },
+    "nns-cycles-minting": {
+      "build": "",
+      "candid": "candid/nns-cycles-minting.did",
+      "remote": {
+        "id": {
+          "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-dapp": {
+      "remote": {
+        "id": {
+          "local": "qsgjb-riaaa-aaaaa-aaaga-cai"
+        }
+      }
+    },
+    "nns-genesis-token": {
+      "build": "",
+      "candid": "candid/nns-genesis-token.did",
+      "remote": {
+        "id": {
+          "local": "renrk-eyaaa-aaaaa-aaada-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-governance": {
+      "build": "",
+      "candid": "candid/nns-governance.did",
+      "remote": {
+        "id": {
+          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-ledger": {
+      "build": "",
+      "candid": "candid/nns-ledger.did",
+      "remote": {
+        "id": {
+          "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-lifeline": {
+      "build": "",
+      "candid": "candid/nns-lifeline.did",
+      "remote": {
+        "id": {
+          "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-registry": {
+      "build": "",
+      "candid": "candid/nns-registry.did",
+      "remote": {
+        "id": {
+          "local": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-root": {
+      "build": "",
+      "candid": "candid/nns-root.did",
+      "remote": {
+        "id": {
+          "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-sns-wasm": {
+      "build": "",
+      "candid": "candid/nns-sns-wasm.did",
+      "remote": {
+        "id": {
+          "local": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "smiley_dapp": {
+      "main": "src/smiley_dapp/main.mo",
+      "type": "motoko"
+    },
     "smiley_dapp_assets": {
       "dependencies": [
         "smiley_dapp"
@@ -13,9 +119,66 @@
       ],
       "type": "assets"
     },
-    "smiley_dapp": {
-      "main": "src/smiley_dapp/main.mo",
-      "type": "motoko"
+    "sns_aggregator": {
+      "build": "true",
+      "candid": "candid/sns_aggregator.did",
+      "type": "custom",
+      "wasm": "wasms/sns_aggregator_proposal-123011-agg_dev.wasm"
+    },
+    "sns_governance": {
+      "build": "",
+      "candid": "candid/sns_governance.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "br5f7-7uaaa-aaaaa-qaaca-cai"
+        }
+      }
+    },
+    "sns_index": {
+      "build": "",
+      "candid": "candid/sns_index.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "by6od-j4aaa-aaaaa-qaadq-cai"
+        }
+      }
+    },
+    "sns_ledger": {
+      "build": "",
+      "candid": "candid/sns_ledger.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "bw4dl-smaaa-aaaaa-qaacq-cai"
+        }
+      }
+    },
+    "sns_root": {
+      "build": "",
+      "candid": "candid/sns_root.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "be2us-64aaa-aaaaa-qaabq-cai"
+        }
+      }
+    },
+    "sns_swap": {
+      "build": "",
+      "candid": "candid/sns_swap.did",
+      "type": "custom",
+      "wasm": "",
+      "remote": {
+        "id": {
+          "local": "b77ix-eeaaa-aaaaa-qaada-cai"
+        }
+      }
     }
   },
   "defaults": {

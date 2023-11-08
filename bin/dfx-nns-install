@@ -68,6 +68,6 @@ CURRENT_PRINCIPAL="$(dfx identity get-principal)"
 # ... `dfx nns install` does not populate canister IDs in `dfx.json` so we need to provide the canister IDs ourselves.
 II_CANISTER_ID=qhbym-qaaaa-aaaaa-aaafq-cai
 ND_CANISTER_ID=qsgjb-riaaa-aaaaa-aaaga-cai
-for canister in "$II_CANISTER_ID" "$ND_CANISTER_ID" ; do
+for canister in "$II_CANISTER_ID" "$ND_CANISTER_ID"; do
   dfx canister update-settings "$canister" --add-controller "$CURRENT_PRINCIPAL" --identity anonymous
 done
