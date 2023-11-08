@@ -18,7 +18,7 @@ source "$SOURCE_DIR/clap.bash"
 source "$(clap.build)"
 
 # The only meaningful export from canister wasms is function names.
-canister_nm=(wasm-nm -je)
+canister_nm=(wasm-nm -j -e)
 
 canister_wasm="$1"
 case "$(file "$canister_wasm")" in
