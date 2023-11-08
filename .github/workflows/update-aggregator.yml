@@ -11,6 +11,8 @@ on:
     branches:
       # Development branch for this workflow:
       - "update-aggregator"
+concurrency:
+  group: ${{ github.workflow }}
 jobs:
   update-dfx:
     runs-on: ubuntu-latest
