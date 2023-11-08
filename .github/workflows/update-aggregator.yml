@@ -54,9 +54,19 @@ jobs:
           branch: bot-aggregator-update
           delete-branch: true
           title: 'Update SNS aggregator version to ${{ steps.update.outputs.version }}'
-          # Since the this is a scheduled job, a failure won't be shown on any
-          # PR status. To notify the team, we send a message to our Slack channel on failure.
+          body: |
+            # Motivation
+            A new version of the SNS aggregator is available.  We would like to keep the snapshots up to date.
+
+            # Changes
+            * Updated the pinned default SNS aggregator version.
+
+            # Tests
+              - Please see CI.
+
       - name: Notify Slack on failure
+        # Since the this is a scheduled job, a failure won't be shown on any
+        # PR status. To notify the team, we send a message to our Slack channel on failure.
         uses: dfinity/internet-identity/.github/actions/slack@release-2023-08-28
         if: ${{ failure() }}
         with:
