@@ -22,7 +22,7 @@ jobs:
       - name: Existing PR
         id: existing_pr
         run: |
-          echo number="$(gh pr list --base main --head "$BRANCH_NAME" --json number --jq '.[].number')" >> "$GITHUB_OUTPUT"
+          echo number="$(gh pr --repo dfinity/snsdemo list --base main --head "$BRANCH_NAME" --json number --jq '.[].number')" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
       - uses: actions/checkout@v3
