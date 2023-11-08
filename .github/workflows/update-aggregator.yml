@@ -15,10 +15,19 @@ jobs:
   update-dfx:
     runs-on: ubuntu-latest
     steps:
+      - name: Existing PR
+        id: existing_pr
+        run: |
+          echo number="$(gh pr list --base main --head bot-aggregator-update --json number --jq '.[].number')" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: actions/checkout@v3
+        if: ${{ steps.existing_pr.outputs.number == '' }}
       - name: Install tools
         run: bin/dfx-software-more-install
+        if: ${{ steps.existing_pr.outputs.number == '' }}
       - name: Look for new aggregator
+        if: ${{ steps.existing_pr.outputs.number == '' }}
         id: update
         run: |
           . bin/versions.bash
@@ -41,7 +50,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: Create Pull Request
         # If a newer version is available, create a PR.
-        if: ${{ steps.update.outputs.updated == '1' }}
+        if: ${{ (steps.update.outputs.updated == '1') == (steps.existing_pr.outputs.number == '') }}
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GIX_SNSDEMO_BOT_GH_TOKEN }}
