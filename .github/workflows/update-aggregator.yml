@@ -30,7 +30,7 @@ jobs:
           if [ "$current_version" != "$latest_version" ]
           then
             # Update the SNS_AGGREGATOR_RELEASE in versions.bash:
-            awk -v version="$latest_ic_commit" -F= 'BEGIN{IFS=OFS="="}($1=="SNS_AGGREGATOR_RELEASE"){$2=version}{print}' bin/versions.bash |  sponge bin/versions.bash
+            awk -v version="$latest_version" -F= 'BEGIN{IFS=OFS="="}($1=="SNS_AGGREGATOR_RELEASE"){$2=version}{print}' bin/versions.bash |  sponge bin/versions.bash
             echo "An update is available: $current_version -> $latest_version"
             echo "updated=1" >> "$GITHUB_OUTPUT"
             echo "version=$latest_version" >> "$GITHUB_OUTPUT"
