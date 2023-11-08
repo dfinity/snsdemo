@@ -40,9 +40,11 @@ ANCHOR_CREATION_RESPONSE="$(dfx canister call internet_identity register "(recor
 ANCHOR="$(echo "$ANCHOR_CREATION_RESPONSE" | idl2json | jq -r .registered.user_number)"
 
 # Verify that the anchor is a number:
+# ... Check whether a number is an integer (cross-platform solution):
 is_int() {
   test "${1:-}" -eq "${1:-}" 2>/dev/null
 }
+# ... Verify that the anchor is syntactically valid:
 is_int "$ANCHOR" || {
   echo "ERROR: Failed to register a new user."
   echo "Response:"
