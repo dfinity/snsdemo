@@ -1,0 +1,62 @@
+# A GitHub Actions workflow that regularly checks for a new SNS aggregator
+# and creates a PR when it finds one.
+name: Update aggregator
+on:
+  schedule:
+    # check for new versions weekly
+    - cron: '30 3 * * SAT'
+  workflow_dispatch:
+  # Provide an option to run this manually.
+  push:
+    branches:
+      # Development branch for this workflow:
+      - "update-aggregator"
+jobs:
+  update-dfx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install tools
+        run: bin/dfx-software-more-install
+      - name: Look for new aggregator
+        id: update
+        run: |
+          . bin/versions.bash
+          current_version="$SNS_AGGREGATOR_RELEASE"
+          echo "Current SNS aggregator version: '$current_version'"
+          latest_version="$(./bin/dfx-software-sns-aggregator-version --latest)"
+          echo "Latest SNS aggregator version: '$latest_version'"
+
+          if [ "$current_version" != "$latest_version" ]
+          then
+            # Update the SNS_AGGREGATOR_RELEASE in versions.bash:
+            awk -v version="$latest_ic_commit" -F= 'BEGIN{IFS=OFS="="}($1=="SNS_AGGREGATOR_RELEASE"){$2=version}{print}' bin/versions.bash |  sponge bin/versions.bash
+            echo "An update is available: $current_version -> $latest_version"
+            echo "updated=1" >> "$GITHUB_OUTPUT"
+            echo "version=$latest_version" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=0" >> "$GITHUB_OUTPUT"
+          fi
+        # If a newer version is available, create a PR.
+      - name: Create Pull Request
+        if: ${{ steps.update.outputs.updated == '1' }}
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GIX_SNSDEMO_BOT_GH_TOKEN }}
+          base: main
+          add-paths: |
+            bin/versions.bash
+          commit-message: Update SNS Aggregator version
+          committer: GitHub <noreply@github.com>
+          author: gix-bot <gix-bot@users.noreply.github.com>
+          branch: bot-aggregator-update
+          delete-branch: true
+          title: 'Update SNS aggregator version to ${{ steps.update.outputs.version }}'
+          # Since the this is a scheduled job, a failure won't be shown on any
+          # PR status. To notify the team, we send a message to our Slack channel on failure.
+      - name: Notify Slack on failure
+        uses: dfinity/internet-identity/.github/actions/slack@release-2023-08-28
+        if: ${{ failure() }}
+        with:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          MESSAGE: "SNS aggregator update failed"
