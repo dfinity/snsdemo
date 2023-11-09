@@ -46,7 +46,9 @@ export DFX_NETWORK
 DFX_IC_COMMIT="$DFX_IC_COMMIT" dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
 
 # Install II candid
-# Note: `dfx nns import` no longer provides a candid for II.
+# Note:
+# - In `dfx v0.14` `dfx nns import` provides the candid for II, but we update the canister and have to update the candid to  match.
+# - In `dfx v0.15.1` `dfx nns import` no longer provides a candid for II and doesn't create an entry for the candid path in `dfx.json`.  This is possibly a bug.
 II_CANDID_PATH="$(jq -r .canisters.internet_identity.candid dfx.json)"
 test -n "${II_CANDID_PATH:-}" || {
   II_CANDID_PATH="candid/internet_identity.did"
