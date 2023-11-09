@@ -62,7 +62,6 @@ curl --fail --location "$NEW_LIFELINE_WASM_URL" -o "$OLD_LIFELINE_FILE" || true
 export DFX_IC_COMMIT
 dfx nns install
 
-
 # As of dfx 0.15, the current user is no longer a controller of the internet_identity and nns-dapp canisters.
 # The current user needs to be added explicitly.
 CURRENT_PRINCIPAL="$(dfx identity get-principal)"
