@@ -58,4 +58,3 @@ jobs:
         uses: ./.github/actions/release
         with:
           artefacts: ${{ steps.snapshot.outputs.path }}
-          token: ${{ secrets.GITHUB_TOKEN }}
