@@ -69,5 +69,10 @@ CURRENT_PRINCIPAL="$(dfx identity get-principal)"
 II_CANISTER_ID=qhbym-qaaaa-aaaaa-aaafq-cai
 ND_CANISTER_ID=qsgjb-riaaa-aaaaa-aaaga-cai
 for canister in "$II_CANISTER_ID" "$ND_CANISTER_ID"; do
-  dfx canister update-settings "$canister" --add-controller "$CURRENT_PRINCIPAL" --identity anonymous
+  # If the current user is not already a controller...
+  dfx canister info "$canister" | awk '($1 == "Controllers:")' | grep -w "$CURRENT_PRINCIPAL" || {
+    # ... this is presumably dfx v0.15.1 or later and the anonymous user is a controller
+    # and can add the current user:
+    dfx canister update-settings "$canister" --add-controller "$CURRENT_PRINCIPAL" --identity anonymous
+  }
 done
