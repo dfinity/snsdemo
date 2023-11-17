@@ -53,7 +53,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
   dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
 
-  dfx-software-internet-identity-install --release "${DFX_II_RELEASE:-pinned}" --flavor "dev" --network local --mode reinstall
+  dfx-software-internet-identity-install --release "${DFX_II_RELEASE:-pinned}" --flavor "dev" --network local
 else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
