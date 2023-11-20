@@ -32,6 +32,15 @@ PATH="$SOURCE_DIR:$PATH"
 )
 
 (
+  echo "Using --mainnet should get a release"
+  ACTUAL_RELEASE="$(dfx-software-sns-aggregator-version --mainnet)"
+  [[ "$ACTUAL_RELEASE" =~ ^proposal-[0-9]*-agg$ ]] || {
+    echo "ERROR: The release on mainnet should be tagged proposal-[0-9]*-agg: '$ACTUAL_RELEASE'"
+    exit 1
+  } >&2
+)
+
+(
   echo "Providing no flags should provide the pinned version"
   DEFAULT_RELEASE="$(dfx-software-sns-aggregator-version)"
   PINNED_RELEASE="$(dfx-software-sns-aggregator-version --pinned)"

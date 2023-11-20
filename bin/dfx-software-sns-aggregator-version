@@ -20,16 +20,26 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=l long=pinned desc="Get the pinned version from versions.bash (default)" variable=GET_PINNED nargs=0
 clap.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
+clap.define short=m long=mainnet desc="Get the version on mainnet" variable=GET_MAINNET nargs=0
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 STRATEGY="${STRATEGY:-${GET_PINNED:+pinned}}"
 STRATEGY="${STRATEGY:-${GET_LATEST:+latest}}"
+STRATEGY="${STRATEGY:-${GET_MAINNET:+mainnet}}"
 STRATEGY="${STRATEGY:-pinned}" # Default - not guaranteed to be stable
 case "${STRATEGY}" in
 pinned)
   . "$SOURCE_DIR/versions.bash"
   echo "$SNS_AGGREGATOR_RELEASE"
+  ;;
+mainnet)
+  prod_commit="$(git ls-remote git@github.com:dfinity/nns-dapp.git aggregator-prod | awk '{print $1}')"
+  release_tag_with_prod_commit="$(git ls-remote git@github.com:dfinity/nns-dapp.git | grep "$prod_commit" | grep -oE 'proposal-[0-9]+-agg')"
+  # Assumption:  There is a release corresponding to the release tag.  Check:
+  gh release view "$release_tag_with_prod_commit" --repo dfinity/nns-dapp --json id | grep -q .
+  # Ok:
+  echo "$release_tag_with_prod_commit"
   ;;
 latest)
   gh release list --exclude-drafts --exclude-pre-releases --limit 300 --repo dfinity/nns-dapp | grep -wEo 'proposal-[0-9]+-agg' | head -1
