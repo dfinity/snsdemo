@@ -45,9 +45,27 @@ export DFX_NETWORK
 # works as long as the .did files are not moved in the ic repo.
 DFX_IC_COMMIT="$DFX_IC_COMMIT" dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
 
-# Update the II candid
-# Note: We need to get the correct .did file for II, as `dfx nns install` provides only an old, essentially empty, file.
-curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$(jq -r .canisters.internet_identity.candid dfx.json)"
+# Install II candid
+# Note:
+# - In `dfx v0.14` `dfx nns import` provides the candid for II, but we update the canister and have to update the candid to  match.
+# - In `dfx v0.15.1` `dfx nns import` no longer provides a candid for II and doesn't create an entry for the candid path in `dfx.json`.  This is possibly a bug.
+
+# ... Make sure that there is an entry for the `internet_identity` cainster in `dfx.json`
+jq '.canisters.internet_identity //= {
+    "build": "",
+    "candid": "candid/internet_identity.did",
+    "type": "custom",
+    "wasm": ""
+  }' dfx.json | sponge dfx.json
+# ... Make sure that the internet_identity candid path is declared
+II_CANDID_PATH="$(jq -r .canisters.internet_identity.candid dfx.json)"
+test -n "${II_CANDID_PATH:-}" || {
+  II_CANDID_PATH="candid/internet_identity.did"
+  mkdir -p "$(dirname "$II_CANDID_PATH")"
+  II_CANDID_PATH="$II_CANDID_PATH" jq '.canisters.internet_identity.candid = (env.II_CANDID_PATH)' dfx.json | sponge dfx.json
+}
+# ... Get the updated candid
+curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$II_CANDID_PATH"
 
 # Provide the correct frontend canister IDs
 set_remote() {
