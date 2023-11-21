@@ -18,8 +18,9 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=l long=pinned desc="Get the pinned version from versions.bash (default)" variable=GET_PINNED nargs=0
+clap.define short=p long=pinned desc="Get the pinned version from versions.bash (default)" variable=GET_PINNED nargs=0
 clap.define short=l long=latest desc="Get the latest version" variable=GET_LATEST nargs=0
+clap.define short=v long=version desc="Get a named version.  Common options: pinned latest" variable=STRATEGY
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
