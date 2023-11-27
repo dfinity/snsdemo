@@ -8,15 +8,15 @@ indent() {
 test_install() {
   (
     local flags=("${@}")
-    echo "Before importing, checking for ckBTC should fail:"
-    if bin/dfx-ckbtc-import --check "${flags[@]}"; then
-      echo "ERROR: Check should fail without ckBTC canisters"
+    echo "Before importing, checking for mytoken should fail:"
+    if bin/dfx-token-import --check "${flags[@]}"; then
+      echo "ERROR: Check should fail without myToken canisters"
       exit 1
     fi
     echo "Now import"
-    bin/dfx-ckbtc-import "${flags[@]}"
-    echo "After importing, checking for ckBTC should succeed"
-    bin/dfx-ckbtc-import --check "${flags[@]}"
+    bin/dfx-token-import "${flags[@]}"
+    echo "After importing, checking for mytoken should succeed"
+    bin/dfx-token-import --check "${flags[@]}"
   ) |& indent
 }
 

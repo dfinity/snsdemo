@@ -23,6 +23,10 @@ clap.define long=candid_dir desc="Where to store the imported candid files" vari
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+# TODO: Consider using ./bin/dfx-token-import for the ledger and index
+# canisters. KYT and minter are custom canisters, so they still need to be done
+# here.
+
 # Imports wasm, candid and populate dfx.json
 ckbtc_import() {
   test -e dfx.json || {
