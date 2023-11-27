@@ -7,7 +7,7 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-EOF
 
-	Adds ckbtc canisters to the local dfx.json and populates the corresponding wasm and did files.
+	Adds ledger and index canisters for a given ICRC-1 token to the local dfx.json and populates the corresponding wasm and did files.
 
 	EOF
 }
@@ -16,19 +16,15 @@ print_help() {
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=c long=commit desc="Commit of the IC repo to download canisters from" variable=DFX_IC_COMMIT default="$DFX_IC_COMMIT"
-clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="ckbtc_"
+clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="mytoken_"
 clap.define long=check desc="Check whether the canisters have been imported" variable=DFX_CHECK nargs=0
 clap.define long=wasm_dir desc="Where to store the imported wasm files" variable=WASM_DIR default="wasms"        # Matches `dfx nns import`
 clap.define long=candid_dir desc="Where to store the imported candid files" variable=CANDID_DIR default="candid" # Matches `dfx nns import`
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-# TODO: Consider using ./bin/dfx-token-import for the ledger and index
-# canisters. KYT and minter are custom canisters, so they still need to be done
-# here.
-
 # Imports wasm, candid and populate dfx.json
-ckbtc_import() {
+token_import() {
   test -e dfx.json || {
     echo "ERROR: No dfx.json found.  Please run this from inside a dfx project."
     exit 1
@@ -40,10 +36,8 @@ ckbtc_import() {
     WASM_DIR="${WASM_DIR:-}" \
     CANDID_DIR="${CANDID_DIR:-}" \
     jq -s '{canisters:
-      { "\(env.LOCAL_PREFIX)kyt" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)kyt.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)kyt.wasm",  type: "custom", remote: { id: {mainnet: "pjihx-aaaaa-aaaar-qaaka-cai"} }}
-      , "\(env.LOCAL_PREFIX)ledger": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)ledger.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai"} }}
-      , "\(env.LOCAL_PREFIX)minter": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)minter.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)minter.wasm", type: "custom", remote: { id: {} }}
-      , "\(env.LOCAL_PREFIX)index" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)index.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)index.wasm",  type: "custom", remote: { id: {mainnet: "n5wcd-faaaa-aaaar-qaaea-cai"} }}
+      { "\(env.LOCAL_PREFIX)ledger": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)ledger.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom" }
+      , "\(env.LOCAL_PREFIX)index" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)index.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)index.wasm",  type: "custom" }
       }} * .[0]
   ' dfx.json | sponge dfx.json
 
@@ -58,8 +52,6 @@ ckbtc_import() {
     echo "Getting  $local_path from $url..."
     curl -fsSL "$url" | gunzip >"${local_path}"
   }
-  get_wasm ic-ckbtc-kyt.wasm "${LOCAL_PREFIX}kyt"
-  get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter"
   get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger"
   get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}index"
 
@@ -74,18 +66,16 @@ ckbtc_import() {
     echo "Getting  $local_path from $url..."
     curl -sSLf --retry 5 "$url" -o "$local_path"
   }
-  get_did rs/bitcoin/ckbtc/kyt/kyt.did "${LOCAL_PREFIX}kyt"
-  get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
   get_did rs/rosetta-api/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
   get_did rs/rosetta-api/icrc1/index/index.did "${LOCAL_PREFIX}index"
 
-  : "Ckbtc canister import complete."
+  : "Token canister import complete."
 }
 
-# Checks whether ckbtc canisters have already been installed.
-ckbtc_import_check() {
+# Checks whether token canisters have already been installed.
+token_import_check() {
   : Verify that all file are present and correct
-  for canister in kyt minter ledger index; do
+  for canister in ledger index; do
     : "Check that the config is in dfx.json:"
     canister_config="$(n="$LOCAL_PREFIX$canister" jq '.canisters[env.n]' dfx.json)"
     [[ "$canister_config" != "null" ]] || {
@@ -129,7 +119,7 @@ ckbtc_import_check() {
 # M A I N #
 ###########
 if [[ "${DFX_CHECK:-}" == "true" ]]; then
-  ckbtc_import_check
+  token_import_check
 else
-  ckbtc_import
+  token_import
 fi

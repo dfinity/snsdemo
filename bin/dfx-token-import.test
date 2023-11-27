@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+indent() {
+  sed 's/^/    /g'
+}
+
+test_install() {
+  (
+    local flags=("${@}")
+    echo "Before importing, checking for mytoken should fail:"
+    if bin/dfx-token-import --check "${flags[@]}"; then
+      echo "ERROR: Check should fail without myToken canisters"
+      exit 1
+    fi
+    echo "Now import"
+    bin/dfx-token-import "${flags[@]}"
+    echo "After importing, checking for mytoken should succeed"
+    bin/dfx-token-import --check "${flags[@]}"
+  ) |& indent
+}
+
+(
+  echo "Default canister installation should work"
+  test_install
+)
+
+(
+  echo "Installation with a prefix should work"
+  for prefix in "" foo; do
+    {
+      echo "Installing with prefix '${prefix:-}'"
+      test_install --prefix "$prefix"
+    } |& indent
+  done
+)
+
+echo "$(basename "$0") PASSED"

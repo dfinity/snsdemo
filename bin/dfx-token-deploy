@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Original source: https://github.com/dfinity/ckBTC-Minter-Frontend/blob/master/local_deploy.sh
+# Via:             https://github.com/dfinity/nns-dapp/blob/main/scripts/ckbtc/deploy-ckbtc
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Installs ledger and index canisters for a given token.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="mytoken_"
+clap.define long=token desc="The token name/symbol" variable=TOKEN default="MyToken"
+clap.define short=y long=yes desc="Deploy even if there are existing canisters." variable=DFX_YES nargs=0
+clap.define short=c long=check desc="Check that the canisters are present and correct." variable=DFX_CHECK nargs=0
+clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE default="reinstall"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+: Check preconditions. This is always run.
+"${SOURCE_DIR}/dfx-token-import" --check --prefix "$LOCAL_PREFIX" || {
+  echo "ERROR: $TOKEN canister data and files are not all present and correct."
+  echo "       Please run:"
+  echo "       dfx-token-import --prefix '$LOCAL_PREFIX'"
+  echo
+  exit 1
+} >&2
+
+deploy_token() {
+  # We create some canisters ahead of time because we need to know their IDs
+  # before deploying. Remaining canisters will be created when deployed.
+  dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}ledger canister already exists"
+
+  LEDGERID="$(dfx canister id "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK")"
+  echo "$LEDGERID"
+
+  echo "Step 1: deploying ledger canister..."
+  DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
+  dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
+  Init = record {
+     token_symbol = \"$TOKEN\";
+     token_name = \"Token $TOKEN\";
+     minting_account = record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\" };
+     transfer_fee = 10;
+     max_memo_length = opt 64;
+     metadata = vec {};
+     initial_balances = vec { record { record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\"; }; 10_000_000; }; };
+     archive_options = record {
+         num_blocks_to_archive = 10_000;
+         trigger_threshold = 20_000;
+         controller_id = principal \"$DFX_IDENTITY_PRINCIPAL\";
+         cycles_for_archive_creation = opt 4_000_000_000_000;
+     };
+     feature_flags = opt record {
+         icrc2 = true;
+     };
+ }
+})" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
+
+  echo "Step 2: deploying index canister..."
+  dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+}
+
+check_token_deployment() {
+  for canister in ledger index; do
+    : "Verify that the deployed canister matches the local wasm"
+    dfx-canister-check-wasm-hash --canister "${LOCAL_PREFIX}$canister" --network "$DFX_NETWORK"
+  done
+}
+
+[[ "${DFX_CHECK:-}" == "true" ]] || deploy_token
+check_token_deployment

@@ -104,6 +104,20 @@ jobs:
           git clean -dfx
           bin/dfx-ckbtc-deploy.test
           git clean -dfx
+      - name: Import token works
+        run: |
+          set -euxo pipefail
+          echo "This modifies files, so make sure the state is clean before and after"
+          git clean -dfx
+          bin/dfx-token-import.test
+          git clean -dfx
+      - name: Deploy token works
+        run: |
+          set -euxo pipefail
+          echo "This modifies files, so make sure the state is clean before and after"
+          git clean -dfx
+          bin/dfx-token-deploy.test
+          git clean -dfx
       - name: Install mock bitcoin canister works
         run: |
           set -euxo pipefail

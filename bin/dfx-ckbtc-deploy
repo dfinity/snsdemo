@@ -25,6 +25,10 @@ clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE de
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+# TODO: Consider using ./bin/dfx-token-deploy for the ledger and index
+# canisters. KYT and minter are custom canisters, so they still need to be done
+# here.
+
 : Check preconditions. This is always run.
 "${SOURCE_DIR}/dfx-ckbtc-import" --check --prefix "$LOCAL_PREFIX" || {
   echo "ERROR: ckbtc canister data and files are not all present and correct."
