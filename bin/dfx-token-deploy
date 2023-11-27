@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# Original source: https://github.com/dfinity/ckBTC-Minter-Frontend/blob/master/local_deploy.sh
+# Via:             https://github.com/dfinity/nns-dapp/blob/main/scripts/ckbtc/deploy-ckbtc
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Installs ckbtc canisters.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="ckbtc_"
+clap.define short=y long=yes desc="Deploy even if there are existing ckbtc canisters." variable=DFX_YES nargs=0
+clap.define short=c long=check desc="Check that the canisters are present and correct." variable=DFX_CHECK nargs=0
+clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE default="reinstall"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+: Check preconditions. This is always run.
+"${SOURCE_DIR}/dfx-ckbtc-import" --check --prefix "$LOCAL_PREFIX" || {
+  echo "ERROR: ckbtc canister data and files are not all present and correct."
+  echo "       Please run:"
+  echo "       dfx-ckbtc-import --prefix '$LOCAL_PREFIX'"
+  echo
+  exit 1
+} >&2
+
+deploy_ckbtc() {
+  # We create some canisters ahead of time because we need to know their IDs
+  # before deploying. Remaining canisters will be created when deployed.
+  dfx canister create "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}kyt canister already exists"
+  dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}ledger canister already exists"
+  dfx canister create "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}minter canister already exists"
+
+  KYT_ID="$(dfx canister id "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK")"
+  echo "$KYT_ID"
+  MINTERID="$(dfx canister id "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK")"
+  echo "$MINTERID"
+  LEDGERID="$(dfx canister id "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK")"
+  echo "$LEDGERID"
+
+  # echo "Step 1: deploying kyt canister..."
+  DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
+  dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(variant {
+  InitArg = record {
+      minter_id = principal \"$MINTERID\";
+      maintainers = vec { principal \"$DFX_IDENTITY_PRINCIPAL\" };
+      mode = variant { AcceptAll };
+  }
+})" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+
+  # We use mode AcceptAll so the API key is not used, but without API key the
+  # KYT canister will refuse to accept any UTXOs.
+  dfx canister call "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" set_api_key '( record { api_key = "placeholder" } )'
+
+  # echo "Step 2: deploying minter canister..."
+  dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
+  Init = record {
+       btc_network = variant { Mainnet };
+       ledger_id = principal \"$LEDGERID\";
+       ecdsa_key_name = \"dfx_test_key\";
+       retrieve_btc_min_amount = 13_333;
+       max_time_in_queue_nanos = 10_000_000_000;
+       min_confirmations = opt 12;
+       mode = variant { GeneralAvailability };
+       kyt_fee = opt 13_333;
+       kyt_principal = opt principal \"$KYT_ID\";
+   }
+})" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+
+  echo "Step 3: deploying ledger canister..."
+  dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
+  Init = record {
+     token_symbol = \"ckBTC\";
+     token_name = \"Token ckBTC\";
+     minting_account = record { owner = principal \"$MINTERID\" };
+     transfer_fee = 10;
+     max_memo_length = opt 64;
+     metadata = vec {};
+     initial_balances = vec { record { record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\"; }; 10_000_000; }; };
+     archive_options = record {
+         num_blocks_to_archive = 10_000;
+         trigger_threshold = 20_000;
+         controller_id = principal \"$DFX_IDENTITY_PRINCIPAL\";
+         cycles_for_archive_creation = opt 4_000_000_000_000;
+     };
+     feature_flags = opt record {
+         icrc2 = true;
+     };
+ }
+})" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
+
+  echo "Step 4: deploying index canister..."
+  dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+
+  # Example to mint ckBTC
+
+  # BTCADDRESS="$(dfx canister call "${LOCAL_PREFIX}minter" get_btc_address '(record {subaccount=null;})')"
+  # dfx canister call "${LOCAL_PREFIX}minter" update_balance '(record {subaccount=null;})'
+  # WITHDRAWALADDRESS="$(dfx canister call "${LOCAL_PREFIX}minter" get_withdrawal_account)"
+  # echo $BTCADDRESS
+  # echo $WITHDRAWALADDRESS
+  #
+  # cleaned_output=$(echo $WITHDRAWALADDRESS | sed -re 's/^\(|, \)$//g')
+  #
+  # dfx canister call "${LOCAL_PREFIX}ledger" icrc1_transfer "(record {from=null; to=$cleaned_output; amount=1000000; fee=null; memo=null; created_at_time=null;})"
+  #
+  # Execute the command to get the input string and save the result
+  # dfx canister call "${LOCAL_PREFIX}minter" retrieve_btc '(record {fee = null; address="bcrt1qu9za0uzzd3kjjecgv7waqq0ynn8dl8l538q0xl"; amount=10000})'
+
+  echo "Step 5: transfer ckBTC to principal..."
+  # record { owner= principal “”;}
+  dfx canister call "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" icrc1_transfer "(record {from=null; to=record { owner= principal \"73avq-yvrvj-kuzxq-kttlj-nkaz4-tecy6-biuud-3ymeg-guvci-naire-uqe\";}; amount=1000000; fee=null; memo=null; created_at_time=null;})"
+}
+
+check_ckbtc_deployment() {
+  for canister in kyt ledger minter index; do
+    : "Verify that the deployed canister matches the local wasm"
+    dfx-canister-check-wasm-hash --canister "${LOCAL_PREFIX}$canister" --network "$DFX_NETWORK"
+  done
+}
+
+[[ "${DFX_CHECK:-}" == "true" ]] || deploy_ckbtc
+check_ckbtc_deployment

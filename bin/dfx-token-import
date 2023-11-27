@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Adds ckbtc canisters to the local dfx.json and populates the corresponding wasm and did files.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=c long=commit desc="Commit of the IC repo to download canisters from" variable=DFX_IC_COMMIT default="$DFX_IC_COMMIT"
+clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="ckbtc_"
+clap.define long=check desc="Check whether the canisters have been imported" variable=DFX_CHECK nargs=0
+clap.define long=wasm_dir desc="Where to store the imported wasm files" variable=WASM_DIR default="wasms"        # Matches `dfx nns import`
+clap.define long=candid_dir desc="Where to store the imported candid files" variable=CANDID_DIR default="candid" # Matches `dfx nns import`
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+# Imports wasm, candid and populate dfx.json
+ckbtc_import() {
+  test -e dfx.json || {
+    echo "ERROR: No dfx.json found.  Please run this from inside a dfx project."
+    exit 1
+  } >&2
+
+  : Add any missing fields to dfx.json
+  # Note: The default values are placed first, so that they don't override any existing values.
+  LOCAL_PREFIX="${LOCAL_PREFIX:-}" \
+    WASM_DIR="${WASM_DIR:-}" \
+    CANDID_DIR="${CANDID_DIR:-}" \
+    jq -s '{canisters:
+      { "\(env.LOCAL_PREFIX)kyt" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)kyt.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)kyt.wasm",  type: "custom", remote: { id: {mainnet: "pjihx-aaaaa-aaaar-qaaka-cai"} }}
+      , "\(env.LOCAL_PREFIX)ledger": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)ledger.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai"} }}
+      , "\(env.LOCAL_PREFIX)minter": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)minter.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)minter.wasm", type: "custom", remote: { id: {} }}
+      , "\(env.LOCAL_PREFIX)index" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)index.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)index.wasm",  type: "custom", remote: { id: {mainnet: "n5wcd-faaaa-aaaar-qaaea-cai"} }}
+      }} * .[0]
+  ' dfx.json | sponge dfx.json
+
+  : Get the wasms
+  mkdir -p "$WASM_DIR"
+  get_wasm() {
+    local remote_name local_name local_path url
+    remote_name="$1"
+    local_name="$2"
+    local_path="$(c="$local_name" jq -re '.canisters[env.c].wasm' dfx.json)"
+    url="https://download.dfinity.systems/ic/$DFX_IC_COMMIT/canisters/${remote_name}.gz"
+    echo "Getting  $local_path from $url..."
+    curl -fsSL "$url" | gunzip >"${local_path}"
+  }
+  get_wasm ic-ckbtc-kyt.wasm "${LOCAL_PREFIX}kyt"
+  get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter"
+  get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger"
+  get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}index"
+
+  : Get the candid files
+  mkdir -p "$CANDID_DIR"
+  get_did() {
+    local remote_name local_name local_path url
+    remote_name="$1"
+    local_name="$2"
+    local_path="$(c="$local_name" jq -re '.canisters[env.c].candid' dfx.json)"
+    url="https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/${remote_name}"
+    echo "Getting  $local_path from $url..."
+    curl -sSLf --retry 5 "$url" -o "$local_path"
+  }
+  get_did rs/bitcoin/ckbtc/kyt/kyt.did "${LOCAL_PREFIX}kyt"
+  get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
+  get_did rs/rosetta-api/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
+  get_did rs/rosetta-api/icrc1/index/index.did "${LOCAL_PREFIX}index"
+
+  : "Ckbtc canister import complete."
+}
+
+# Checks whether ckbtc canisters have already been installed.
+ckbtc_import_check() {
+  : Verify that all file are present and correct
+  for canister in kyt minter ledger index; do
+    : "Check that the config is in dfx.json:"
+    canister_config="$(n="$LOCAL_PREFIX$canister" jq '.canisters[env.n]' dfx.json)"
+    [[ "$canister_config" != "null" ]] || {
+      printf "ERROR: %s\n" "$LOCAL_PREFIX$canister should be in dfx.json"
+      exit 1
+    } 2>&1
+    : "Check that there is a wasm file at the indicated location"
+    canister_wasm_path="$(printf "%s" "$canister_config" | jq -r .wasm)"
+    [[ "$canister_wasm_path" != "null" ]] || {
+      printf "ERROR: %s\n" "$LOCAL_PREFIX$canister config in dfx.json should include \"wasm\": <PATH TO WASM>"
+      exit 1
+    } >&2
+    test -e "$canister_wasm_path" || {
+      printf "ERROR: %s\n" "Wasm for $LOCAL_PREFIX$canister not found at the path given in dfx.json: '$canister_wasm_path'"
+      exit 1
+    } >&2
+    : "... is the file a wasm file?"
+    file "$canister_wasm_path" | grep -q wasm || {
+      printf "ERROR: %s\n" "Wasm for $LOCAL_PREFIX$canister at '$canister_wasm_path' is not a wasm file."
+      exit 1
+    } >&2
+    : "Check that the candid file is present and correct"
+    canister_did_path="$(printf "%s" "$canister_config" | jq -r .candid)"
+    [[ "$canister_did_path" != "null" ]] || {
+      printf "ERROR: %s\n" "$LOCAL_PREFIX$canister config in dfx.json should include \"candid\": <PATH TO .did FILE>"
+      exit 1
+    } >&2
+    test -e "$canister_did_path" || {
+      printf "ERROR: %s\n" "Candid for $LOCAL_PREFIX$canister not found at the path given in dfx.json: '$canister_did_path'"
+      exit 1
+    } >&2
+    : "... Basic check - does the candid file define a service?"
+    grep -E '^service ' "$canister_did_path" >/dev/null || {
+      printf "ERROR: %s\n" "Candid for $LOCAL_PREFIX$canister at '$canister_did_path' is not a valid did file."
+      exit 1
+    } >&2
+  done
+}
+
+###########
+# M A I N #
+###########
+if [[ "${DFX_CHECK:-}" == "true" ]]; then
+  ckbtc_import_check
+else
+  ckbtc_import
+fi
