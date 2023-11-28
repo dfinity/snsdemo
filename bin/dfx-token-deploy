@@ -48,7 +48,7 @@ deploy_token() {
   dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
   Init = record {
      token_symbol = \"$TOKEN\";
-     token_name = \"Token $TOKEN\";
+     token_name = \"$TOKEN\";
      minting_account = record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\" };
      transfer_fee = 10;
      max_memo_length = opt 64;
