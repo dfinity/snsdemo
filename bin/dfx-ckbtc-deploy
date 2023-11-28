@@ -85,7 +85,7 @@ deploy_ckbtc() {
   dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
   Init = record {
      token_symbol = \"ckBTC\";
-     token_name = \"Token ckBTC\";
+     token_name = \"ckBTC\";
      minting_account = record { owner = principal \"$MINTERID\" };
      transfer_fee = 10;
      max_memo_length = opt 64;
