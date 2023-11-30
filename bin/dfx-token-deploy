@@ -20,6 +20,7 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="mytoken_"
 clap.define long=token desc="The token name/symbol" variable=TOKEN default="MyToken"
+clap.define long=decimals desc="Number of decimals to use in ledger canister" variable=DECIMALS default="8"
 clap.define short=y long=yes desc="Deploy even if there are existing canisters." variable=DFX_YES nargs=0
 clap.define short=c long=check desc="Check that the canisters are present and correct." variable=DFX_CHECK nargs=0
 clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE default="reinstall"
@@ -52,6 +53,7 @@ deploy_token() {
      minting_account = record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\" };
      transfer_fee = 10;
      max_memo_length = opt 64;
+     decimals = $DECIMALS;
      metadata = vec {};
      initial_balances = vec { record { record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\"; }; 10_000_000; }; };
      archive_options = record {
