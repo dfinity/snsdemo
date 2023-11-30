@@ -53,7 +53,7 @@ deploy_token() {
      minting_account = record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\" };
      transfer_fee = 10;
      max_memo_length = opt 64;
-     decimals = $DECIMALS;
+     decimals = opt $DECIMALS;
      metadata = vec {};
      initial_balances = vec { record { record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\"; }; 10_000_000; }; };
      archive_options = record {
