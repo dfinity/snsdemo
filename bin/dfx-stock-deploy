@@ -58,7 +58,7 @@ dfx-token-deploy --prefix cketh_ --token ckETH --decimals 18 --network "$DFX_NET
 FAUCET_ADDRESS="jg6qm-uw64t-m6ppo-oluwn-ogr5j-dc5pm-lgy2p-eh6px-hebcd-5v73i-nqe"
 # The current identity was set as minting account and minting is done by
 # transferring from the minting account.
-dfx canister call cketh_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=1_000_000_000_000_000:nat})"
+dfx canister call cketh_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000_000_000_000_000:nat})"
 
 : Add the nns root as a controller to the frontend canisters
 NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"

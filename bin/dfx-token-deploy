@@ -51,7 +51,7 @@ deploy_token() {
      token_symbol = \"$TOKEN\";
      token_name = \"$TOKEN\";
      minting_account = record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\" };
-     transfer_fee = 10;
+     transfer_fee = 2000_000_000_000;
      max_memo_length = opt 64;
      decimals = opt $DECIMALS;
      metadata = vec {};

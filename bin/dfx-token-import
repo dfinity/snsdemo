@@ -52,8 +52,8 @@ token_import() {
     echo "Getting  $local_path from $url..."
     curl -fsSL "$url" | gunzip >"${local_path}"
   }
-  get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger"
-  get_wasm ic-icrc1-index.wasm "${LOCAL_PREFIX}index"
+  get_wasm ic-icrc1-ledger-u256.wasm "${LOCAL_PREFIX}ledger"
+  get_wasm ic-icrc1-index-ng-u256.wasm "${LOCAL_PREFIX}index"
 
   : Get the candid files
   mkdir -p "$CANDID_DIR"
