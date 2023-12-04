@@ -70,7 +70,7 @@ deploy_token() {
 })" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
 
   echo "Step 2: deploying index canister..."
-  dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+  dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(opt variant { Init = record { ledger_id = principal \"$LEDGERID\" } })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 }
 
 check_token_deployment() {
