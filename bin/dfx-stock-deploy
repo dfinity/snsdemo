@@ -51,7 +51,13 @@ dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
 
 : Set up cketh canisters
 dfx-token-import --prefix cketh_ --commit "$DFX_IC_COMMIT"
-dfx-token-deploy --prefix cketh_ --token ckETH --decimals 18 --network "$DFX_NETWORK" --yes
+dfx-token-deploy \
+  --prefix cketh_ \
+  --token ckETH \
+  --decimals 18 \
+  --fee 2_000_000_000_000 \
+  --network "$DFX_NETWORK" \
+  --yes
 
 : Mint 10M ckETH into the faucet address.
 # See https://github.com/dfinity/nns-dapp/blob/main/frontend/src/lib/api/dev.api.ts
