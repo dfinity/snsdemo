@@ -21,6 +21,7 @@ clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETW
 clap.define short=p long=prefix desc="Prefix for the local canister names" variable=LOCAL_PREFIX default="mytoken_"
 clap.define long=token desc="The token name/symbol" variable=TOKEN default="MyToken"
 clap.define long=decimals desc="Number of decimals to use in ledger canister" variable=DECIMALS default="8"
+clap.define long=fee desc="The transaction fee to set" variable=FEE default="10"
 clap.define short=y long=yes desc="Deploy even if there are existing canisters." variable=DFX_YES nargs=0
 clap.define short=c long=check desc="Check that the canisters are present and correct." variable=DFX_CHECK nargs=0
 clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE default="reinstall"
@@ -51,7 +52,7 @@ deploy_token() {
      token_symbol = \"$TOKEN\";
      token_name = \"$TOKEN\";
      minting_account = record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\" };
-     transfer_fee = 10;
+     transfer_fee = $FEE;
      max_memo_length = opt 64;
      decimals = opt $DECIMALS;
      metadata = vec {};
@@ -69,7 +70,7 @@ deploy_token() {
 })" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
 
   echo "Step 2: deploying index canister..."
-  dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(record { ledger_id = principal \"$LEDGERID\" })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
+  dfx deploy "${LOCAL_PREFIX}index" --network "$DFX_NETWORK" --argument "(opt variant { Init = record { ledger_id = principal \"$LEDGERID\" } })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 }
 
 check_token_deployment() {
