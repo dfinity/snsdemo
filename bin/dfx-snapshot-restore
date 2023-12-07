@@ -23,13 +23,22 @@ clap.define short=l long=logfile desc="A file to save logs." variable=DFX_LOG_FI
 source "$(clap.build)"
 
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
-test -z "${DFX_LOG_FILE:-}" || DFX_LOG_ARGS=(--log file --logfile "${DFX_LOG_FILE}")
+dfx_start() {
+  dfx start --background
+}
+test -z "${DFX_LOG_FILE:-}" || DFX_LOG_FILE="$(realpath "$DFX_LOG_FILE")"
 
 pushd "$HOME"
 rm -fr .local/share/dfx
 tar --extract --xz --file "$DFX_SNAPSHOT_FILE"
 # Note: dfx start works here but not in the project dir.
-dfx start --background "${DFX_LOG_ARGS[@]}"
+# Note: dfx has a --logfile agument, however when run with --background, no data apart from a few headers is collected.
+if test -z "${DFX_LOG_FILE:-}"; then
+  dfx_start
+else
+  echo "Saving logs to:  $DFX_LOG_FILE"
+  dfx_start &>"${DFX_LOG_FILE}"
+fi
 num_canisters="$(curl -s "http://localhost:$(dfx info replica-port)/_/dashboard" | grep -c '<h3>Execution state</h3>')"
 echo "Approx num canisters: $num_canisters"
 popd
