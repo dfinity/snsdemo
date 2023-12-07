@@ -17,17 +17,19 @@ help_text() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="state.tar.xz"
+clap.define short=s long=snapshot desc="The snapshot file to load." variable=DFX_SNAPSHOT_FILE default="state.tar.xz"
+clap.define short=l long=logfile desc="A file to save logs." variable=DFX_LOG_FILE default=""
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
+test -z "${DFX_LOG_FILE:-}" || DFX_LOG_ARGS=(--log file --logfile "${DFX_LOG_FILE}")
 
 pushd "$HOME"
 rm -fr .local/share/dfx
 tar --extract --xz --file "$DFX_SNAPSHOT_FILE"
 # Note: dfx start works here but not in the project dir.
-dfx start --background
+dfx start --background "${DFX_LOG_ARGS[@]}"
 num_canisters="$(curl -s "http://localhost:$(dfx info replica-port)/_/dashboard" | grep -c '<h3>Execution state</h3>')"
 echo "Approx num canisters: $num_canisters"
 popd
