@@ -35,6 +35,7 @@ jobs:
             echo An update is available for dfx.
             git diff
             echo "updated=1" >> "$GITHUB_OUTPUT"
+            echo "title=Update dfx to version $latest_dfx_version" >> "$GITHUB_OUTPUT"
           else
             echo "updated=0" >> "$GITHUB_OUTPUT"
           fi
@@ -48,12 +49,13 @@ jobs:
           add-paths: |
             dfx.json
             dfx.json.original
-          commit-message: Update dfx version
+          commit-message: ${{ steps.update.outputs.title }}
           committer: GitHub <noreply@github.com>
           author: gix-bot <gix-bot@users.noreply.github.com>
           branch: bot-dfx-update
+          branch-suffix: timestamp
           delete-branch: true
-          title: 'Update dfx version'
+          title: ${{ steps.update.outputs.title }}
           # Since the this is a scheduled job, a failure won't be shown on any
           # PR status. To notify the team, we send a message to our Slack channel on failure.
       - name: Notify Slack on failure
