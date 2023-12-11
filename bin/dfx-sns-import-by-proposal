@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=p long=proposal_id desc="The ID of the SNS proposal" variable=PROPOSAL_ID
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+if [[ -z "${PROPOSAL_ID:-}" ]]; then
+  echo "Please specify --proposal_id"
+  exit 1
+fi
+
+try_import() {
+  local RESPONSE_JSON ERROR_MESSAGE
+
+  RESPONSE_JSON="$(dfx canister call nns-sns-wasm get_deployed_sns_by_proposal_id "(record {proposal_id = $PROPOSAL_ID:nat64})" | idl2json)"
+
+  ERROR_MESSAGE="$(jq -r '.get_deployed_sns_by_proposal_id_result[0].Error.message' <<<"$RESPONSE_JSON")"
+
+  if [[ "$ERROR_MESSAGE" != "null" ]]; then
+    echo "Error: $ERROR_MESSAGE" >&2
+    return 1
+  fi
+
+  : Fetch SNS canister IDs and import into dfx.json
+  jq -e '.get_deployed_sns_by_proposal_id_result[0].DeployedSns |
+    {
+      sns_governance: .governance_canister_id,
+      sns_index: .index_canister_id,
+      sns_ledger: .ledger_canister_id,
+      sns_root: .root_canister_id,
+      sns_swap: .swap_canister_id
+    } | {
+      canisters:
+        to_entries |
+        map({key: .key, value: {remote: {id: {local: .value[0]}}}}) |
+        from_entries
+    }' <<<"$RESPONSE_JSON" |
+    jq -se '.[1] * .[0]' - dfx.json | sponge dfx.json
+
+  echo "Successfully imported SNS canisters for proposal $PROPOSAL_ID"
+}
+
+SUCCESS=false
+
+for ((try = 20; try > 0; try--)); do
+  if try_import; then
+    SUCCESS=true
+    break
+  fi
+  echo -n "Trying $try more times... "
+  sleep 2
+done
+
+if [[ "$SUCCESS" = "false" ]]; then
+  echo "Failed to import SNS canisters for proposal $PROPOSAL_ID" >&2
+  exit 1
+fi
