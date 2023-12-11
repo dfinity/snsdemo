@@ -2,6 +2,13 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 
+print_help() {
+  cat <<-EOF
+
+	Import SNS canister IDs for the SNS created with the given proposal ID into dfx.json.
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options

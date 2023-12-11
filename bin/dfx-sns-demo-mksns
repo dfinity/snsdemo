@@ -5,6 +5,13 @@ DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
 PATH="$DEMO_BIN:$SOURCE_DIR:$PATH:$(dfx cache show)"
 export PATH="$PATH:$HOME/.local/bin"
 
+print_help() {
+  cat <<-EOF
+
+	Creates a new random SNS proposal and imports the SNS canister IDs into dfx.json.
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options

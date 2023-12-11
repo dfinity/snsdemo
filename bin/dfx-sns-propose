@@ -4,6 +4,13 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 export PATH
 
+print_help() {
+  cat <<-EOF
+
+	Create an SNS proposal using the 1-proposal flow based on the sns.yml file.
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
