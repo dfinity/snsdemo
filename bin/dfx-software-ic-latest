@@ -11,23 +11,31 @@ clap.define short=a long=after desc="First published commit after the given one"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-function disk_image_exists() {
+function downloads_exist() {
   (
     set -euo pipefail
 
-    curl -fL --output /dev/null --silent --head --fail \
-      "https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/disk-img/disk-img.tar.gz" ||
-      curl --output /dev/null --silent --head --fail \
-        "https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/disk-img.tar.gz" || exit 1
+    for file in \
+      "binaries/x86_64-darwin/ic-admin.gz" \
+      "binaries/x86_64-darwin/sns.gz" \
+      "binaries/x86_64-linux/ic-admin.gz" \
+      "binaries/x86_64-linux/sns.gz" \
+      "canisters/bitcoin-mock-canister.wasm.gz" \
+      "canisters/ic-ckbtc-kyt.wasm.gz" \
+      "canisters/ic-ckbtc-minter.wasm.gz" \
+      "canisters/ic-icrc1-index-ng-u256.wasm.gz" \
+      "canisters/ic-icrc1-index-ng.wasm.gz" \
+      "canisters/ic-icrc1-ledger-u256.wasm.gz" \
+      "canisters/ic-icrc1-ledger.wasm.gz" \
+      "canisters/sns-wasm-canister.wasm.gz"; do
 
-    curl -fL --output /dev/null --silent --head --fail \
-      "https://download.dfinity.systems/ic/$GIT_REVISION/guest-os/update-img/SHA256SUMS" || exit 1
+      curl --location --output /dev/null --silent --head --fail \
+        "https://download.dfinity.systems/ic/${GIT_REVISION}/$file" || {
+        echo "Missing $file"
+        exit 1
+      }
+    done
 
-    # Mac buids can lag or be missing
-    curl -fL --output /dev/null --silent --head --fail \
-      "https://download.dfinity.systems/ic/${GIT_REVISION}/openssl-static-binaries/x86_64-darwin/ic-admin.gz" || exit 1
-    curl -fL --output /dev/null --silent --head --fail \
-      "https://download.dfinity.systems/ic/${GIT_REVISION}/openssl-static-binaries/x86_64-linux/ic-admin.gz" || exit 1
     # Syncing to the public repo may be slow
     curl -fL --output /dev/null --silent --head --fail \
       "https://raw.githubusercontent.com/dfinity/ic/${GIT_REVISION}/rs/nns/dfx.json" || exit 1
@@ -49,4 +57,4 @@ function disk_image_exists() {
   else
     git log --format=format:%H "$IC_COMMIT"
   fi
-) | while read -r GIT_REVISION; do disk_image_exists && echo "$GIT_REVISION" && break; done
+) | while read -r GIT_REVISION; do downloads_exist && echo "$GIT_REVISION" && break; done
