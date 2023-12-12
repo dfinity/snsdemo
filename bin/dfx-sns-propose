@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+export PATH
+
+print_help() {
+  cat <<-EOF
+
+	Create an SNS proposal using the 1-proposal flow based on the sns.yml file.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=N long=neuron desc="The dfx network to use" variable=DFX_NEURON_ID default=""
+clap.define long=save-proposal-id-to desc="Passed to sns propose --save-to" variable=PROPOSAL_ID_FILE default=""
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")}"
+DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
+
+export DFX_IDENTITY
+
+bin-other/sns propose --neuron-id "$DFX_NEURON_ID" ${PROPOSAL_ID_FILE:+--save-to "$PROPOSAL_ID_FILE"} --network "$DFX_NNS_URL" sns.yml

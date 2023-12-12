@@ -5,6 +5,13 @@ DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
 PATH="$DEMO_BIN:$SOURCE_DIR:$PATH:$(dfx cache show)"
 export PATH="$PATH:$HOME/.local/bin"
 
+print_help() {
+  cat <<-EOF
+
+	Creates a new random SNS proposal and imports the SNS canister IDs into dfx.json.
+	EOF
+}
+
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
@@ -15,17 +22,27 @@ source "$(clap.build)"
 set -x
 cd "$(dirname "$(realpath "$0")")/.."
 
-./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK"
+: Generate the sns.yml file.
+./bin/dfx-sns-config-random --confirmation_text "${CONFIRMATION_TEXT:-}" --template_file "$SOURCE_DIR/sns_init.yaml"
 
-./bin/dfx-sns-config-random --confirmation_text "${CONFIRMATION_TEXT:-}"
+: Make sure we have enough resources.
 dfx ledger top-up --amount 2.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
-./bin/dfx-sns-deploy --network "$DFX_NETWORK"
+dfx canister deposit-cycles 180000000000000 --network "$DFX_NETWORK" "$(dfx canister id nns-sns-wasm --network "$DFX_NETWORK")"
 
+PROPOSAL_ID_FILE="$(mktemp)"
+
+: Create the 1-proposal.
+dfx-sns-propose --network "$DFX_NETWORK" --save-proposal-id-to "$PROPOSAL_ID_FILE"
+
+PROPOSAL_ID="$(jq '.id' "$PROPOSAL_ID_FILE")"
+rm "$PROPOSAL_ID_FILE"
+
+: Import the SNS canister IDs for the created proposal.
+dfx-sns-import-by-proposal --proposal_id "$PROPOSAL_ID" --network "$DFX_NETWORK"
+
+: Output the imported canister IDs.
 dfx canister id sns_root --network "$DFX_NETWORK"
 dfx canister id sns_governance --network "$DFX_NETWORK"
 dfx canister id sns_ledger --network "$DFX_NETWORK"
+dfx canister id sns_index --network "$DFX_NETWORK"
 dfx canister id sns_swap --network "$DFX_NETWORK"
-
-: hand over control of the dapp. Skipped...
-
-dfx-sns-sale-propose --network "$DFX_NETWORK"
