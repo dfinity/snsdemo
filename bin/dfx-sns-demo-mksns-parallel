@@ -60,7 +60,7 @@ become_user() {
   fi
 }
 
-# Create all the SNS canisters in parallel but do not open any swaps.
+# Start all the swaps in parallel.
 create_all_sns() {
   PROCESSES=()
   echo "I am $$"
@@ -71,16 +71,22 @@ create_all_sns() {
       make_user "$DEMO_USER"
       become_user "$DEMO_USER"
 
-      ./bin/dfx-sns-whitelist-me --network "$DFX_NETWORK" --proposer "${DFX_PROPOSER:-${DEMO_USER}}"
-
       ./bin/dfx-sns-config-random
       dfx ledger top-up --amount 4.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
       dfx wallet balance --network "$DFX_NETWORK"
-      ./bin/dfx-sns-deploy --network "$DFX_NETWORK"
+      dfx canister deposit-cycles 180000000000000 --network "$DFX_NETWORK" "$(dfx canister id nns-sns-wasm --network "$DFX_NETWORK")"
+
+      PROPOSAL_ID_FILE="$(mktemp)"
+      dfx-sns-propose --network "$DFX_NETWORK" --identity "$DFX_PROPOSER" --save-proposal-id-to "$PROPOSAL_ID_FILE"
+      PROPOSAL_ID="$(jq '.id' "$PROPOSAL_ID_FILE")"
+      rm "$PROPOSAL_ID_FILE"
+
+      dfx-sns-import-by-proposal --proposal_id "$PROPOSAL_ID" --network "$DFX_NETWORK"
 
       dfx canister id sns_root --network "$DFX_NETWORK"
       dfx canister id sns_governance --network "$DFX_NETWORK"
       dfx canister id sns_ledger --network "$DFX_NETWORK"
+      dfx canister id sns_index --network "$DFX_NETWORK"
       dfx canister id sns_swap --network "$DFX_NETWORK"
 
       : hand over control of the dapp. Skipped...
@@ -92,21 +98,21 @@ create_all_sns() {
   wait "${PROCESSES[@]}"
 }
 
-# Run all the swaps, one at a time.
+# Buy in and finalize all the swaps in parallel.
 swap_all_sns() {
+  PROCESSES=()
   for ((i = 0; i < NUM_SNS_TO_MAKE; i++)); do
     (
       DEMO_USER="snsdemo_$i"
       become_user "$DEMO_USER"
-      dfx-sns-sale-propose --network "$DFX_NETWORK" --identity "${DFX_PROPOSER:-${DEMO_USER}}"
-      sleep 1
       dfx-sns-sale-buy --network "$DFX_NETWORK"
       sleep 1
       ./bin/dfx-sns-sale-finalize --network "$DFX_NETWORK" --identity "${DFX_PROPOSER:-${DEMO_USER}}" || true
       sleep 1
-
-    )
+    ) &
+    PROCESSES+=($!)
   done
+  wait "${PROCESSES[@]}"
 }
 
 # MAIN

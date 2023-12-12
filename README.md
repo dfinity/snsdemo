@@ -32,7 +32,7 @@ specify a specific commit instead of `latest` and then you don't need to specify
 If you want to customize what is included in the snapshot, you can modify
 `bin/dfx-stock-deploy`.
 
-The SNSes that are being deployed are configure with `sns_init.yml` as well as
+The SNSes that are being deployed are configure with `sns_init.yaml` as well as
 the parameters passed to `ic-admin` from `bin/dfx-sns-sale-propose`.
 
 ### CI
