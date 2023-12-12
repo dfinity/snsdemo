@@ -24,4 +24,6 @@ source "$(clap.build)"
 DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")}"
 DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
+export DFX_IDENTITY
+
 bin-other/sns propose --neuron-id "$DFX_NEURON_ID" ${PROPOSAL_ID_FILE:+--save-to "$PROPOSAL_ID_FILE"} --network "$DFX_NNS_URL" sns.yml
