@@ -24,3 +24,4 @@ dfx-software-openssl-install
 dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
 dfx-software-idl2json-install --version pinned
 dfx-software-quill-install --version pinned
+dfx-software-ic-install-executable ic-admin sns
