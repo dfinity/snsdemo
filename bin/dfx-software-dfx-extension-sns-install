@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SOURCE_DIR="$(dirname "${BASH_SOURCE[0]}")"
+PATH="$SOURCE_DIR:$PATH"
+. "$SOURCE_DIR/versions.bash"
+
+print_help() {
+  cat <<-EOF
+	Installs the sns extension for dfx.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=v long=version desc="The version of the extension to install" variable=VERSION default="pinned"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+if [[ "$VERSION" = "pinned" ]]; then
+  VERSION="$DFX_SNS_EXTENSION_VERSION"
+fi
+
+if [[ "$VERSION" = "latest" ]]; then
+  VERSION_ARGS=()
+else
+  VERSION_ARGS=("--version" "$VERSION")
+fi
+
+is_installed() {
+  dfx extension list | grep -w sns
+}
+
+if is_installed; then
+  : "Unfortunately there is currently no way to check which version is installed or to upgrade to a different version."
+  echo "sns extension is already installed" >&2
+  exit 0
+fi
+
+dfx extension install sns "${VERSION_ARGS[@]}"
