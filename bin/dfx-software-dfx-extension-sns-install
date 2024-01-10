@@ -33,7 +33,7 @@ is_installed() {
 }
 
 if is_installed; then
-  : "Unfortunately there is currently no way to check which version is installed or to upgrade to a different version.
+  : "Unfortunately there is currently no way to check which version is installed or to upgrade to a different version."
   echo "sns extension is already installed" >&2
   exit 0
 fi
