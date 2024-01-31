@@ -12,9 +12,14 @@ A snapshot is an archive (`.tar.xz`) containing local replica state.
 
 ### Manual use
 
-A stock snapshot can be created with
+Dependencies can be installed with:
 ```
-./bin/dfx-snapshot-stock-make
+bin/dfx-sns-demo-install
+```
+
+A stock snapshot can be created with:
+```
+bin/dfx-snapshot-stock-make
 ```
 Snapshots can be shared between Linux machines but Macs can only use snapshots
 created on the same machine (it seems).
@@ -23,7 +28,7 @@ Default pinned versions of the used canisters are defined in
 `bin/versions.bash`. If you want the latest versions on the canisters from the
 IC repo, you can run
 ```
-./bin/dfx-snapshot-stock-make --ic_commit latest --ic_dir $YOUR_IC_REPO_PATH
+bin/dfx-snapshot-stock-make --ic_commit latest --ic_dir $YOUR_IC_REPO_PATH
 ```
 The IC repo directory is needed to find the latest usable commit. You can also
 specify a specific commit instead of `latest` and then you don't need to specify
