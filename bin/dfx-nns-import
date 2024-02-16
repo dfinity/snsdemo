@@ -67,6 +67,24 @@ test -n "${II_CANDID_PATH:-}" || {
 # ... Get the updated candid
 curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$II_CANDID_PATH"
 
+# ... Make sure that there is an entry for the `icp_index` cainster in `dfx.json`
+jq '.canisters.icp_index //= {
+    "build": "",
+    "candid": "candid/icp_index.did",
+    "type": "custom",
+    "wasm": ""
+  }' dfx.json | sponge dfx.json
+# ... Make sure that the internet_identity candid path is declared
+ICP_INDEX_CANDID_PATH="$(jq -r .canisters.icp_index.candid dfx.json)"
+test -n "${ICP_INDEX_CANDID_PATH:-}" || {
+  ICP_INDEX_CANDID_PATH="candid/icp_index.did"
+  mkdir -p "$(dirname "$ICP_INDEX_CANDID_PATH")"
+  ICP_INDEX_CANDID_PATH="$ICP_INDEX_CANDID_PATH" jq '.canisters.internet_identity.candid = (env.II_CANDID_PATH)' dfx.json | sponge dfx.json
+}
+# Download ICP Index canister .did file
+ICP_INDEX_CANDID_PATH="$(jq -r .canisters.icp_index.candid dfx.json)"
+curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/rs/rosetta-api/icp_ledger/index/index.did" -o "$ICP_INDEX_CANDID_PATH"
+
 # Provide the correct frontend canister IDs
 set_remote() {
   (
