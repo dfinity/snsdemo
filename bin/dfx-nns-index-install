@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Install ICP index locally as documented in:
+# https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/icp-index-local-setup
+
+LEDGER_CANISTER_ID=$(dfx canister id nns-ledger)
+
+dfx deploy nns-index --argument '(record {ledger_id = principal"'"${LEDGER_CANISTER_ID}"'";})'
+
+dfx canister call nns-index ledger_id '()'
+
+dfx canister call nns-index status '()'
