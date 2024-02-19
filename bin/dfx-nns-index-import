@@ -16,23 +16,25 @@ clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DF
 source "$(clap.build)"
 
 # ... Make sure that there is an entry for the `nns-index` cainster in `dfx.json`
-jq '.canisters.nns-index //= {
+jq '.canisters["nns-index"] //= {
     "build": "",
     "candid": "candid/nns-index.did",
     "type": "custom",
     "wasm": "wasms/nns-index.wasm"
   }' dfx.json | sponge dfx.json
 # ... Make sure that the internet_identity candid path is declared
-NNS_INDEX_CANDID_PATH="$(jq -r .canisters.nns-index.candid dfx.json)"
+echo "Setting the candid path for the nns-index canister"
+NNS_INDEX_CANDID_PATH="$(jq -r '.canisters["nns-index"].candid' dfx.json)"
+echo "NNS_INDEX_CANDID_PATH=$NNS_INDEX_CANDID_PATH"
 test -n "${NNS_INDEX_CANDID_PATH:-}" || {
   NNS_INDEX_CANDID_PATH="candid/nns-index.did"
   mkdir -p "$(dirname "$NNS_INDEX_CANDID_PATH")"
-  NNS_INDEX_CANDID_PATH="$NNS_INDEX_CANDID_PATH" jq '.canisters.internet_identity.candid = (env.II_CANDID_PATH)' dfx.json | sponge dfx.json
+  NNS_INDEX_CANDID_PATH="$NNS_INDEX_CANDID_PATH" jq '.canisters["nns-index"].candid = (env.II_CANDID_PATH)' dfx.json | sponge dfx.json
 }
 
 echo "Downloading ICP Index canister .did file"
 # Download ICP Index canister .did file
-NNS_INDEX_CANDID_PATH="$(jq -r .canisters.nns-index.candid dfx.json)"
+NNS_INDEX_CANDID_PATH="$(jq -r '.canisters["nns-index"].candid' dfx.json)"
 curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/ic/$DFX_IC_COMMIT/rs/rosetta-api/icp_ledger/index/index.did" -o "$NNS_INDEX_CANDID_PATH"
 
 # Download ICP index locally as documented in:
