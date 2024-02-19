@@ -76,6 +76,3 @@ for canister in "$II_CANISTER_ID" "$ND_CANISTER_ID"; do
     dfx canister update-settings "$canister" --add-controller "$CURRENT_PRINCIPAL" --identity anonymous
   }
 done
-
-# Install ICP Index canister
-dfx-nns-install-icp-index --ic_commit "$DFX_IC_COMMIT"
