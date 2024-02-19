@@ -14,8 +14,8 @@
             "nns_sns_wasm_name": "index"
         },
         "build": "",
-        "wasm": "ic-icrc1-index.wasm",
-        "candid": "../../rosetta-api/icrc1/index/index.did",
+        "wasm": "ic-icrc1-index-ng.wasm",
+        "candid": "../../rosetta-api/icrc1/index-ng/index-ng.did",
         "type": "custom"
       },
       "sns-ledger": {
