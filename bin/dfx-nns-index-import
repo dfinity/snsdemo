@@ -7,7 +7,7 @@ PATH="$SOURCE_DIR:$PATH"
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define long=wasm_dir desc="Where to store the imported wasm files" variable=WASM_DIR default="wasms"        # Matches `dfx nns import`
+clap.define long=wasm_dir desc="Where to store the imported wasm files" variable=WASM_DIR default="wasms" # Matches `dfx nns import`
 clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
