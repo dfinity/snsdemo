@@ -15,7 +15,7 @@
         },
         "build": "",
         "wasm": "ic-icrc1-index-ng.wasm",
-        "candid": "../../rosetta-api/icrc1/index/index.did",
+        "candid": "../../rosetta-api/icrc1/index-ng/index.did",
         "type": "custom"
       },
       "sns-ledger": {
