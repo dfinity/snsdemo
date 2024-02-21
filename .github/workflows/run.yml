@@ -37,6 +37,8 @@ jobs:
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+      - name: Install dfx
+        uses: dfinity/setup-dfx@main
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
       - name: Run the demo with the current default ic commits
@@ -93,6 +95,8 @@ jobs:
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
+      - name: Install dfx
+        uses: dfinity/setup-dfx@main
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
       # Clone the ic repo so that we can find the latest published commit. 
