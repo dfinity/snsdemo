@@ -46,6 +46,9 @@ IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
 # Get global state
 pushd "$HOME"
 tar --create --file "$DFX_SNAPSHOT_TEMP_FILE" "$LOCAL_REPLICA_DATA_DIR" .config/dfx/networks.json
+if [[ -f .config/dfx/version-manager.json ]]; then
+  tar --append --file "$DFX_SNAPSHOT_TEMP_FILE" .config/dfx/version-manager.json
+fi
 for id in "${DFX_IDENTITIES[@]}"; do
   tar --append --file "$DFX_SNAPSHOT_TEMP_FILE" ".config/dfx/identity/${id}"
 done
