@@ -22,14 +22,19 @@ make_user() {
   (
     DEMO_USER="$1"
     DEMODIR="$DEMO_USER_DIR/$1"
+    if [[ "$(uname)" == "Darwin" ]]; then
+      RELATIVE_DFX_DIR="Library/Application Support/org.dfinity.dfx"
+    else
+      RELATIVE_DFX_DIR=".local/share/dfx"
+    fi
     rm -fr "$DEMODIR"
-    mkdir -p "$DEMODIR/.config" "$DEMODIR/.local/share"
+    mkdir -p "$DEMODIR/.config" "$(dirname "$DEMODIR/$RELATIVE_DFX_DIR")"
     # Share some data:
     ln -s "$PWD/bin" "$DEMODIR/bin"
     ln -s "$PWD/logo.png" "$DEMODIR/logo.png"
     ln -s "$PWD/candid" "$DEMODIR/candid"
     ln -s "$PWD/bin-other" "$DEMODIR/bin-other"
-    ln -s "$HOME/.local/share/dfx" "$DEMODIR/.local/share/dfx"
+    ln -s "$HOME/$RELATIVE_DFX_DIR" "$DEMODIR/$RELATIVE_DFX_DIR"
     # Copy dfx.json and the user config
     cp dfx.json "$DEMODIR/"
     cp -R "$HOME/.config/dfx" "$DEMODIR/.config/dfx"
