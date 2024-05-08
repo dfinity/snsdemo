@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-NAME="$1"        # Full name passed as the first argument
-COMPACTED=""     # Initialize the compacted string without spaces
+NAME="$1"    # Full name passed as the first argument
+COMPACTED="" # Initialize the compacted string without spaces
 
 # Remove spaces and convert to uppercase
 COMPACTED=$(echo "$NAME" | tr -d ' ' | tr '[:lower:]' '[:upper:]')
