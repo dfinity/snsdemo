@@ -1,37 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-name="$1"      # Full name passed as the first argument
-symbol=""      # Initialize the resulting symbol
-total_length=0 # Target length of the symbol (3-5 characters)
-part_length=0  # Length of part from each word
-words=()       # Array to hold individual words
+NAME="$1"        # Full name passed as the first argument
+COMPACTED=""     # Initialize the compacted string without spaces
 
-# Split name into words and convert to uppercase
-IFS=' ' read -ra words <<<"$name"
-for i in "${!words[@]}"; do
-  words[$i]=$(echo "${words[$i]}" | tr '[:lower:]' '[:upper:]')
-done
+# Remove spaces and convert to uppercase
+COMPACTED=$(echo "$NAME" | tr -d ' ' | tr '[:lower:]' '[:upper:]')
 
-# Determine the part length from each word
-# Trying to balance contribution from each word while considering total length
-case ${#words[@]} in
-1) part_length=5 ;; # If only one word, we can use up to 5 letters
-*) part_length=2 ;; # Start with 2 letters per word in multi-word names
-esac
-
-# Construct the symbol from parts of each word
-for word in "${words[@]}"; do
-  if [[ $total_length -lt 5 ]]; then
-    # Calculate how many characters to take from the current word
-    current_part_length=$part_length
-    if [[ $((total_length + current_part_length)) -gt 5 ]]; then
-      current_part_length=$((5 - total_length))
-    fi
-    symbol+="${word:0:$current_part_length}"
-    total_length+=$current_part_length
-  fi
-done
-
-# Output the result
-echo "$symbol"
+# Output the first 3 to 5 characters (adjust as needed)
+echo "${COMPACTED:0:5}"
