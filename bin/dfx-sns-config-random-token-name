@@ -219,9 +219,9 @@ NOUN="${NOUNS[$RANDOM % ${#NOUNS[@]}]}"
 
 # Get random adjective
 if [ $((RANDOM % 2)) -eq 0 ]; then
-    ADJECTIVE="${ADJECTIVES[$RANDOM % ${#ADJECTIVES[@]}]}"
-    echo "${ADJECTIVE} ${NOUN}"
+  ADJECTIVE="${ADJECTIVES[$RANDOM % ${#ADJECTIVES[@]}]}"
+  echo "${ADJECTIVE} ${NOUN}"
 else
-    # No adjective
-    echo "${NOUN}"
+  # No adjective
+  echo "${NOUN}"
 fi

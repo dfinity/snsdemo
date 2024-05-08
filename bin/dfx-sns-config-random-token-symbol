@@ -1,36 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-name="$1"       # Full name passed as the first argument
-symbol=""       # Initialize the resulting symbol
-total_length=0  # Target length of the symbol (3-5 characters)
-part_length=0   # Length of part from each word
-words=()        # Array to hold individual words
+name="$1"      # Full name passed as the first argument
+symbol=""      # Initialize the resulting symbol
+total_length=0 # Target length of the symbol (3-5 characters)
+part_length=0  # Length of part from each word
+words=()       # Array to hold individual words
 
 # Split name into words and convert to uppercase
-IFS=' ' read -ra words <<< "$name"
+IFS=' ' read -ra words <<<"$name"
 for i in "${!words[@]}"; do
-    words[$i]=$(echo "${words[$i]}" | tr '[:lower:]' '[:upper:]')
+  words[$i]=$(echo "${words[$i]}" | tr '[:lower:]' '[:upper:]')
 done
 
 # Determine the part length from each word
 # Trying to balance contribution from each word while considering total length
 case ${#words[@]} in
-    1) part_length=5 ;;  # If only one word, we can use up to 5 letters
-    *) part_length=2 ;;  # Start with 2 letters per word in multi-word names
+1) part_length=5 ;; # If only one word, we can use up to 5 letters
+*) part_length=2 ;; # Start with 2 letters per word in multi-word names
 esac
 
 # Construct the symbol from parts of each word
 for word in "${words[@]}"; do
-    if [[ $total_length -lt 5 ]]; then
-        # Calculate how many characters to take from the current word
-        current_part_length=$part_length
-        if [[ $((total_length + current_part_length)) -gt 5 ]]; then
-            current_part_length=$((5 - total_length))
-        fi
-        symbol+="${word:0:$current_part_length}"
-        total_length+=$current_part_length
+  if [[ $total_length -lt 5 ]]; then
+    # Calculate how many characters to take from the current word
+    current_part_length=$part_length
+    if [[ $((total_length + current_part_length)) -gt 5 ]]; then
+      current_part_length=$((5 - total_length))
     fi
+    symbol+="${word:0:$current_part_length}"
+    total_length+=$current_part_length
+  fi
 done
 
 # Output the result

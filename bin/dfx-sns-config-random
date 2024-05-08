@@ -17,7 +17,6 @@ clap.define long=confirmation_text desc="A text that needs to be confirmed by th
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-
 TOKEN_NAME=$("$SOURCE_DIR/dfx-sns-config-random-token-name")
 TOKEN_SYMBOL=$("$SOURCE_DIR/dfx-sns-config-random-token-symbol" "$TOKEN_NAME")
 PRINCIPAL="$(dfx identity get-principal)"
