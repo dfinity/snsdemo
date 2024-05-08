@@ -73,7 +73,16 @@ set_remote() {
     id="$1"
     canister="$2"
     export id canister
-    jq '.canisters[env.canister].remote.id[env.DFX_NETWORK] = (env.id)' dfx.json | sponge dfx.json
+    jq '.canisters[env.canister] = {
+      "type": "custom",
+      "wasm": "",
+      "candid": (env.canister + ".did"),
+      "remote": {
+        "id": {
+          (env.DFX_NETWORK): (env.id)
+        }
+      }
+    }' dfx.json | sponge dfx.json
   )
 }
 case "${DFX_NETWORK}" in
