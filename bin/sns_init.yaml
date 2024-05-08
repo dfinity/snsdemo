@@ -60,7 +60,7 @@
 
 # Name of the SNS project. This may differ from the name of the associated
 # token. Must be a string of max length = 255.
-name: "TOKEN_SYMBOL"
+name: "TOKEN_NAME"
 
 # Description of the SNS project.
 # Must be a string of max length = 2,000.

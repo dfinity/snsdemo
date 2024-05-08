@@ -17,22 +17,9 @@ clap.define long=confirmation_text desc="A text that needs to be confirmed by th
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-consonant() {
-  openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
-}
-vowel() {
-  openssl rand -base64 100 | tr -dc AEIOUY | head -c 1
-}
 
-TOKEN_SYMBOL="$(
-  consonant
-  vowel
-  consonant
-  vowel
-  consonant
-  echo
-)"
-TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
+TOKEN_NAME=$("$SOURCE_DIR/dfx-sns-config-random-token-name")
+TOKEN_SYMBOL=$("$SOURCE_DIR/dfx-sns-config-random-token-symbol" "$TOKEN_NAME")
 PRINCIPAL="$(dfx identity get-principal)"
 # For original controllers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
@@ -51,4 +38,4 @@ fi
 
 sed "$SED_COMMANDS" "$SNS_INIT_PATH" >sns.yml
 
-echo "Created an SNS: $TOKEN_SYMBOL"
+echo "Created an SNS: $TOKEN_NAME ($TOKEN_SYMBOL)"
