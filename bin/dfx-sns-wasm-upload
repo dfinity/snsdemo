@@ -21,7 +21,7 @@ jq <"$SOURCE_DIR/sns_dfx.json" -r '.canisters | to_entries | map("\(.value.confi
   set $line
   UPLOAD_NAME="$1"
   WASM_FILE="wasms/$2"
-  set sns add-sns-wasm-for-tests \
+  set "sns" add-sns-wasm-for-tests \
     --network "$DFX_NETWORK" \
     --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" \
     --wasm-file "$WASM_FILE" "$UPLOAD_NAME"
