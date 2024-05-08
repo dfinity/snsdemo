@@ -4,14 +4,14 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 REPO_ROOT=$(git -C "$(dirname "$SOURCE_DIR")" rev-parse --show-toplevel)
 
 # Define the directory containing the images
-DIR=$(realpath "$REPO_ROOT/demo-assets");
+DIR=$(realpath "$REPO_ROOT/demo-assets")
 
 # File to store the current index
 INDEX_FILE="$DIR/_logo_current_index.txt"
 
 # Check if the index file exists; if not, create it and initialize with 0
 if [[ ! -f $INDEX_FILE ]]; then
-    echo 0 > "$INDEX_FILE"
+  echo 0 >"$INDEX_FILE"
 fi
 
 # Read the current index from the file
@@ -20,20 +20,19 @@ CURRENT_INDEX=$(cat "$INDEX_FILE")
 # Get a list of PNG images in the directory
 IMAGES=()
 while IFS= read -r -d '' file; do
-    IMAGES+=("$file")
+  IMAGES+=("$file")
 done < <(find "$DIR" -name "*.png" -print0)
-
 
 # Get the number of images
 NUM_IMAGES=${#IMAGES[@]}
 
 # Calculate the next index
-NEXT_INDEX=$(( (CURRENT_INDEX + 1) % NUM_IMAGES ))
+NEXT_INDEX=$(((CURRENT_INDEX + 1) % NUM_IMAGES))
 
 # Update the index file with the next index
-echo $NEXT_INDEX > "$INDEX_FILE"
+echo $NEXT_INDEX >"$INDEX_FILE"
 
-IMAGE_FULL_PATH=${IMAGES[$CURRENT_INDEX]};
+IMAGE_FULL_PATH=${IMAGES[$CURRENT_INDEX]}
 
 # Compute the relative path of the image
 IMAGE_RELATIVE_PATH="${IMAGE_FULL_PATH#"$REPO_ROOT"/}"
