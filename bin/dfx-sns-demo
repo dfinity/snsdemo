@@ -2,7 +2,7 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DEMO_BIN="$(realpath "${SOURCE_DIR}/..")/bin-other"
-PATH="$SOURCE_DIR:$DEMO_BIN:$HOME/.local/bin:$PATH:$(dfx cache show)"
+PATH="$SOURCE_DIR:$DEMO_BIN:$HOME/.local/bin:$PATH"
 export PATH
 
 # Source the clap.bash file ---------------------------------------------------
