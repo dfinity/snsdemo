@@ -54,6 +54,7 @@ jobs:
           set -euxo pipefail
           tag_name="$(date +release-%Y-%m-%d)"
           index=0
+          # If there is already a tag with the same name, try appending ".${next_integer}".
           while git show-ref --tags --verify --quiet "refs/tags/${tag_name}"; do
             echo "Tag ${tag_name} already exists."
             index=$((index + 1))
