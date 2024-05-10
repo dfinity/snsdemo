@@ -2,6 +2,11 @@ name: Create a snapshot image
 on:
   push:
   workflow_dispatch:
+    inputs:
+      make_release:
+        description: 'Make release'
+        default: false
+        type: boolean
   schedule:
     - cron: '30 3 * * WED'
 env:
@@ -42,20 +47,23 @@ jobs:
         run: bin/dfx-stock-test
       - name: Stop dfx
         run: dfx stop
-      - name: Tag if run on a schedule
-        if: ${{ (github.event_name == 'schedule') || (github.ref_name == 'snapshot-schedule') }}
+      - name: Tag if release should be created
+        if: ${{ (github.event_name == 'schedule') || (inputs.make_release)}}
         id: tag
         run: |
           set -euxo pipefail
           tag_name="$(date +release-%Y-%m-%d)"
-          if git show-ref --tags --verify --quiet "refs/tags/${tag_name}";
-          then
-            echo "There is already a tag for today's release: ${tag_name}"
-          else
-            echo "Tagging as '${tag_name}'"
-            git tag "${tag_name}"
-            git push origin "refs/tags/${tag_name}"
-          fi
+          index=0
+          # If there is already a tag with the same name, try appending ".${next_integer}".
+          while git show-ref --tags --verify --quiet "refs/tags/${tag_name}"; do
+            echo "Tag ${tag_name} already exists."
+            index=$((index + 1))
+            tag_name="$(date +release-%Y-%m-%d).${index}"
+            echo "Trying tag ${tag_name}."
+          done
+          echo "Tagging as '${tag_name}'"
+          git tag "${tag_name}"
+          git push origin "refs/tags/${tag_name}"
       - name: Release
         uses: ./.github/actions/release
         with:

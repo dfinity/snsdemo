@@ -37,14 +37,9 @@ the parameters passed to `ic-admin` from `bin/dfx-sns-sale-propose`.
 
 ### CI
 
-A new stock snapshot can be released by pushing a tag:
-
-```
-RELEASE="release-$(date +"%Y-%m-%d")"
-echo "$RELEASE"
-git tag "$RELEASE"
-git push origin "$RELEASE"
-```
+A new stock snapshot can be released by running the
+[Create a snapshot image workflow](https://github.com/dfinity/snsdemo/actions/workflows/snapshot.yml)
+and checking the "Make release" box.
 
 This will cause GitHub actions to create a new snapshot, which can be found
 [here](https://github.com/dfinity/snsdemo/tags).
