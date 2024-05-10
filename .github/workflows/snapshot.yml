@@ -48,7 +48,7 @@ jobs:
       - name: Stop dfx
         run: dfx stop
       - name: Tag if release should be created
-        if: ${{ (github.event_name == 'schedule') || (github.inputs.make_release == true)}}
+        if: ${{ (github.event_name == 'schedule') || (inputs.make_release)}}
         id: tag
         run: |
           set -euxo pipefail
