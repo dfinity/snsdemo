@@ -47,7 +47,7 @@ jobs:
         run: bin/dfx-stock-test
       - name: Stop dfx
         run: dfx stop
-      - name: Tag if run on a schedule
+      - name: Tag if release should be created
         if: ${{ (github.event_name == 'schedule') || (github.inputs.make_release == true)}}
         id: tag
         run: |
