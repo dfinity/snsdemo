@@ -40,10 +40,10 @@ get_current_version() {
 if is_installed; then
   current_version="$(get_current_version)"
   if [[ "$current_version" = "$VERSION" ]]; then
-    echo "$EXTENSION extension version $VERSION is already installed" >&2
+    echo "$EXTENSION extension version $VERSION is already installed."
     exit 0
   fi
-  echo "Uninstalling current $EXTENSION extension version $current_version" >&2
+  echo "Uninstalling current $EXTENSION extension version $current_version."
   dfx extension uninstall "$EXTENSION"
 fi
 
