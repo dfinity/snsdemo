@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SOURCE_DIR="$(dirname "${BASH_SOURCE[0]}")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+	Installs a dfx extension.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=e long=extension desc="The extension to install." variable=EXTENSION default=""
+clap.define short=v long=version desc="The version of the extension to install" variable=VERSION default="latest"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+if [[ -z "$EXTENSION" ]]; then
+  echo "Error: --extension must be set. For example to 'nns' or 'sns'." >&2
+  exit 1
+fi
+
+if [[ "$VERSION" = "latest" ]]; then
+  VERSION_ARGS=()
+else
+  VERSION_ARGS=("--version" "$VERSION")
+fi
+
+is_installed() {
+  dfx extension list | grep -w "$EXTENSION"
+}
+
+get_current_version() {
+  jq -r .version "$(dfx cache show)/extensions/$EXTENSION/extension.json"
+}
+
+if is_installed; then
+  current_version="$(get_current_version)"
+  if [[ "$current_version" = "$VERSION" ]]; then
+    echo "$EXTENSION extension version $VERSION is already installed."
+    exit 0
+  fi
+  echo "Uninstalling current $EXTENSION extension version $current_version."
+  dfx extension uninstall "$EXTENSION"
+fi
+
+dfx extension install "$EXTENSION" "${VERSION_ARGS[@]}"
+echo "Installed $EXTENSION dfx extension version $(get_current_version)"

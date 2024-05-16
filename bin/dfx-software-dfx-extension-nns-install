@@ -22,20 +22,4 @@ if [[ "$VERSION" = "pinned" ]]; then
   VERSION="$DFX_NNS_EXTENSION_VERSION"
 fi
 
-if [[ "$VERSION" = "latest" ]]; then
-  VERSION_ARGS=()
-else
-  VERSION_ARGS=("--version" "$VERSION")
-fi
-
-is_installed() {
-  dfx extension list | grep -w nns
-}
-
-if is_installed; then
-  : "Unfortunately there is currently no way to check which version is installed or to upgrade to a different version."
-  echo "nns extension is already installed" >&2
-  exit 0
-fi
-
-dfx extension install nns "${VERSION_ARGS[@]}"
+dfx-software-dfx-extension-install --extension nns --version "$VERSION"
