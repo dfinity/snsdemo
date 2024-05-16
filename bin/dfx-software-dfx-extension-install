@@ -48,4 +48,4 @@ if is_installed; then
 fi
 
 dfx extension install "$EXTENSION" "${VERSION_ARGS[@]}"
-echo "Installed $EXTENSION extension version $(get_current_version)"
+echo "Installed $EXTENSION dfx extension version $(get_current_version)"
