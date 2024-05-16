@@ -22,4 +22,4 @@ if [[ "$VERSION" = "pinned" ]]; then
   VERSION="$DFX_SNS_EXTENSION_VERSION"
 fi
 
-dfx-software-dfx-extension-install --extension nns --version "$VERSION"
+dfx-software-dfx-extension-install --extension sns --version "$VERSION"
