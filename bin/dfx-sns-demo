@@ -44,12 +44,12 @@ export DFX_IC_COMMIT
 } >&2
 
 sleep 1
-rm -fr "$HOME/.config/dfx/identity/snsdemo8"
-sleep 1
-dfx identity new --storage-mode=plaintext snsdemo8
-sleep 1
+if dfx identity get-principal --identity snsdemo8; then
+  rm -fr "$HOME/.config/dfx/identity/snsdemo8/neurons/local"
+else
+  dfx identity new --storage-mode=plaintext snsdemo8
+fi
 dfx identity use snsdemo8
-sleep 1
 
 sleep 1
 dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT"
