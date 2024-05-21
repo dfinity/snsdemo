@@ -15,6 +15,7 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=e long=extension desc="The extension to install." variable=EXTENSION default=""
 clap.define short=v long=version desc="The version of the extension to install" variable=VERSION default="latest"
+clap.define long=if-not-installed desc="Do nothing if the extension is already installed" variable=IF_NOT_INSTALLED nargs=0 default="false"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -38,6 +39,10 @@ get_current_version() {
 }
 
 if is_installed; then
+  if [[ "$IF_NOT_INSTALLED" = "true" ]]; then
+    echo "$EXTENSION extension is already installed."
+    exit 0
+  fi
   current_version="$(get_current_version)"
   if [[ "$current_version" = "$VERSION" ]]; then
     echo "$EXTENSION extension version $VERSION is already installed."
