@@ -15,6 +15,7 @@ print_help() {
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=v long=version desc="The version of the extension to install" variable=VERSION default="pinned"
+clap.define long=if-not-installed desc="Do nothing if the extension is already installed" variable=IF_NOT_INSTALLED nargs=0 default="false"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -22,4 +23,9 @@ if [[ "$VERSION" = "pinned" ]]; then
   VERSION="$DFX_NNS_EXTENSION_VERSION"
 fi
 
-dfx-software-dfx-extension-install --extension nns --version "$VERSION"
+ADDITIONAL_ARGS=()
+if [[ "$IF_NOT_INSTALLED" = "true" ]]; then
+  ADDITIONAL_ARGS+=("--if-not-installed")
+fi
+
+dfx-software-dfx-extension-install --extension nns --version "$VERSION" "${ADDITIONAL_ARGS[@]}"
