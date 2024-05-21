@@ -59,6 +59,7 @@ dfx identity use snsdemo8
 sleep 1
 dfx-nns-import --network "$DFX_NETWORK"
 sleep 1
+dfx-software-dfx-extension-sns-install --if-not-installed
 dfx sns import
 sleep 1
 
