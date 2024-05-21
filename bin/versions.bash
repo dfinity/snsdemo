@@ -2,7 +2,7 @@
 # shellcheck disable=SC2034 # Variables are expected to be unused in this file
 # Release from 2023-05-30 which includes geo restriction fields
 SNS_AGGREGATOR_RELEASE=proposal-125509-agg
-DFX_IC_COMMIT=9d21f31983eff399ffe369847b5fcbf0b1b944de
+DFX_IC_COMMIT=50242ca72dc2f6406bba67b88c8c573075b441ff
 INTERNET_IDENTITY_RELEASE=release-2023-10-27
 NNS_DAPP_RELEASE=proposal-121690
 DIDC_VERSION=2023-07-25
