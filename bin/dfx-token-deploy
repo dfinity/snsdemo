@@ -22,6 +22,7 @@ clap.define short=p long=prefix desc="Prefix for the local canister names" varia
 clap.define long=token desc="The token name/symbol" variable=TOKEN default="MyToken"
 clap.define long=decimals desc="Number of decimals to use in ledger canister" variable=DECIMALS default="8"
 clap.define long=fee desc="The transaction fee to set" variable=FEE default="10"
+clap.define long=logo-svg-file desc="SVG file to use as token logo" variable=LOGO_SVG_FILE default=""
 clap.define short=y long=yes desc="Deploy even if there are existing canisters." variable=DFX_YES nargs=0
 clap.define short=c long=check desc="Check that the canisters are present and correct." variable=DFX_CHECK nargs=0
 clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE default="reinstall"
@@ -47,6 +48,12 @@ deploy_token() {
 
   echo "Step 1: deploying ledger canister..."
   DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
+  if [[ -n "${LOGO_SVG_FILE:-}" ]]; then
+    LOGO_BASE64="$(base64 -i "$LOGO_SVG_FILE")"
+    TOKEN_METADATA="vec { record { \"icrc1:logo\"; variant { Text = \"data:image/svg+xml;base64,${LOGO_BASE64}\" }; } }"
+  else
+    TOKEN_METADATA="vec {}"
+  fi
   dfx deploy "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" --argument "(variant {
   Init = record {
      token_symbol = \"$TOKEN\";
@@ -55,7 +62,7 @@ deploy_token() {
      transfer_fee = $FEE;
      max_memo_length = opt 64;
      decimals = opt $DECIMALS;
-     metadata = vec {};
+     metadata = $TOKEN_METADATA;
      initial_balances = vec { record { record { owner = principal \"$DFX_IDENTITY_PRINCIPAL\"; }; 10_000_000; }; };
      archive_options = record {
          num_blocks_to_archive = 10_000;
