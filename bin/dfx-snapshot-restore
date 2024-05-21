@@ -33,4 +33,5 @@ echo "Approx num canisters: $num_canisters"
 popd
 rm -fr .dfx
 mv "$HOME/.dfx" .
+sleep 20
 dfx-sns-demo-healthcheck
