@@ -18,6 +18,8 @@ clap.define short=i long=identities desc="The identities to save" variable=DFX_I
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+date
+
 case "$(uname)" in
 Linux)
   LOCAL_REPLICA_DATA_DIR=".local/share/dfx"
@@ -64,3 +66,5 @@ fi
 xz <"$DFX_SNAPSHOT_TEMP_FILE" >"$DFX_SNAPSHOT_TEMP_COMPRESSED"
 rm "$DFX_SNAPSHOT_TEMP_FILE"
 mv "$DFX_SNAPSHOT_TEMP_COMPRESSED" "$DFX_SNAPSHOT_FILE"
+date
+ls -l "$DFX_SNAPSHOT_FILE"
