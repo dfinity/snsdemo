@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
-set -uexo pipefail
-for canister in nns-governance nns-sns-wasm sns_aggregator nns-dapp internet_identity; do
-  dfx canister info "$canister"
+set -ueo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=t long=timeout desc="The maximum number of seconds to wait" variable=TIMEOUT default=300
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+is_healthy() {
+  for canister in nns-governance nns-sns-wasm sns_aggregator nns-dapp internet_identity; do
+    if ! dfx canister info "$canister"; then
+      return 1
+    fi
+  done
+}
+
+
+SLEEP_TIME=5
+for ((countdown = TIMEOUT; countdown >= 0; countdown -= SLEEP_TIME)); do
+  if is_healthy; then
+    break
+  fi
+  printf 'Not healthy yet. Time remaining: % 8d seconds\n' "$countdown"
+  sleep "$SLEEP_TIME"
 done
+
 echo Basic health check passes
