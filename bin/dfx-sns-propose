@@ -26,4 +26,7 @@ DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
 export DFX_IDENTITY
 
+# We need to call 'sns propose' from the directory with the logo.png.
+pushd "$SOURCE_DIR/.."
 sns propose --neuron-id "$DFX_NEURON_ID" ${PROPOSAL_ID_FILE:+--save-to "$PROPOSAL_ID_FILE"} --network "$DFX_NNS_URL" sns.yml
+popd
