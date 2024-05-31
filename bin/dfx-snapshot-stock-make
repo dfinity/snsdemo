@@ -20,6 +20,11 @@ clap.define long=parallel_sns_count desc="Number of additional SNSes to create i
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+if pgrep replica; then
+  echo "❌ A replica is already running. Stop it before creating a snapshot."
+  exit 1
+fi
+
 onSetupFailure() {
   # Stop the replica because otherwise it continues outputting logs, obscuring
   # the fact that the script has finished and making the error message hard to
