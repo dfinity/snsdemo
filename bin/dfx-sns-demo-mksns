@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
-PATH="$DEMO_BIN:$SOURCE_DIR:$PATH"
-export PATH="$PATH:$HOME/.local/bin"
+export PATH="$SOURCE_DIR:$PATH:$HOME/.local/bin"
 
 print_help() {
   cat <<-EOF
@@ -20,10 +18,9 @@ clap.define long=confirmation_text desc="A text that needs to be confirmed by th
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
-cd "$(dirname "$(realpath "$0")")/.."
 
 : Generate the sns.yml file.
-./bin/dfx-sns-config-random --confirmation_text "${CONFIRMATION_TEXT:-}"
+dfx-sns-config-random --confirmation_text "${CONFIRMATION_TEXT:-}"
 
 : Make sure we have enough resources.
 dfx ledger top-up --amount 2.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"

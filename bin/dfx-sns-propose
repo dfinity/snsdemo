@@ -26,4 +26,10 @@ DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
 export DFX_IDENTITY
 
+# There needs to be a logo.png in the current directory. If there isn't, create
+# a symlink to the one in the snsdemo root directory.
+if [ ! -f logo.png ]; then
+  ln -s "$SOURCE_DIR/../logo.png" ./logo.png
+fi
+
 sns propose --neuron-id "$DFX_NEURON_ID" ${PROPOSAL_ID_FILE:+--save-to "$PROPOSAL_ID_FILE"} --network "$DFX_NNS_URL" sns.yml
