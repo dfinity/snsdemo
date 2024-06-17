@@ -32,4 +32,4 @@ if [ ! -f logo.png ]; then
   ln -s "$SOURCE_DIR/../logo.png" ./logo.png
 fi
 
-sns propose --neuron-id "$DFX_NEURON_ID" ${PROPOSAL_ID_FILE:+--save-to "$PROPOSAL_ID_FILE"} --network "$DFX_NNS_URL" sns.yml
+sns propose --neuron-id "$DFX_NEURON_ID" ${PROPOSAL_ID_FILE:+--save-to "$PROPOSAL_ID_FILE"} --skip-confirmation --network "$DFX_NNS_URL" sns.yml
