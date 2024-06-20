@@ -34,9 +34,6 @@ jobs:
 
       - name: Restore dfx.json
         run: cp dfx.json.original dfx.json
-      - name: Commit Formatting changes
-        uses: EndBug/add-and-commit@v9.1.1
-
       - name: Check formatting changes
         id: check_format
         run: |
@@ -47,7 +44,7 @@ jobs:
           fi
       - name: Commit Formatting changes
         if: steps.check_pat.outputs.has_pat == 'true' && steps.check_format.outputs.formatting_needed == 'true'
-        uses: EndBug/add-and-commit@v7.2.0
+        uses: EndBug/add-and-commit@v9.1.1
         with:
           add: .
           author_name: Formatting Committer
