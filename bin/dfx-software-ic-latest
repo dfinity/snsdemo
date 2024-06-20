@@ -52,7 +52,7 @@ if [[ "$(git rev-parse --is-inside-work-tree)" != "true" ]]; then
 fi
 
 (
-  git      fetch
+  git fetch
   if test -n "${IC_COMMIT_BEFORE:-}"; then
     IC_COMMIT="$(git log --pretty=%P -n 1 "$IC_COMMIT_BEFORE" | awk '{print $(NF)}')"
   elif test -n "${IC_COMMIT_AFTER:-}"; then
