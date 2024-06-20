@@ -22,12 +22,12 @@ jobs:
 
       - name: Checkout
         if: steps.check_pat.outputs.has_pat == 'true'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.GIX_CREATE_PR_PAT }}
       - name: Checkout without personal access token
         if: steps.check_pat.outputs.has_pat == 'false'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install shfmt
         run: sudo snap install --classic shfmt
