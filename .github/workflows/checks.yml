@@ -7,6 +7,8 @@ on:
 jobs:
   formatting:
     runs-on: ubuntu-20.04
+    env:
+      DFX_NETWORK: mainnet
 
     # In order to trigger the CLA after committing formatting changes, we need
     # to use the GIX_CREATE_PR_PAT token. This token is not available for all
