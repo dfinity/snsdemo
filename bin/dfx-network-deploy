@@ -49,7 +49,10 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
 
   # Output background replica output in a different color to make it easier to
   # distinguish from the output of foreground processes.
-  export DARK="$(tput setab 8; tput setaf 0)"
+  export DARK="$(
+    tput setab 8
+    tput setaf 0
+  )"
   export NORMAL="$(tput sgr0)"
   dfx start --clean --background 2>&1 | sed -e "s@.*@${DARK}&${NORMAL}@" &
 
