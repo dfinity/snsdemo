@@ -7,31 +7,61 @@ on:
 jobs:
   formatting:
     runs-on: ubuntu-20.04
-    env:
-      DFX_NETWORK: mainnet
+
+    # In order to trigger the CLA after committing formatting changes, we need
+    # to use the GIX_CREATE_PR_PAT token. This token is not available for all
+    # users. So on PRs where the token is not available, we don't commit
+    # changes and instead just fail if the formatting is incorrect.
     steps:
+      - name: Check if personal access token is available
+        id: check_pat
+        run: |
+          echo "has_pat=${{ secrets.GIX_CREATE_PR_PAT != '' }}" >> $GITHUB_OUTPUT
+
       - name: Checkout
+        if: steps.check_pat.outputs.has_pat == 'true'
         uses: actions/checkout@v3
-        if: ${{ github.event_name == 'pull_request' }}
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-      - name: Checkout
+          token: ${{ secrets.GIX_CREATE_PR_PAT }}
+      - name: Checkout without personal access token
+        if: steps.check_pat.outputs.has_pat == 'false'
         uses: actions/checkout@v3
-        if: ${{ github.event_name != 'pull_request' }}
+
       - name: Install shfmt
         run: sudo snap install --classic shfmt
       - name: Format shell scripts
         run: ./scripts/fmt-sh
+
       - name: Restore dfx.json
         run: cp dfx.json.original dfx.json
-      - name: Commit Formatting changes - will not trigger rebuild
+      - name: Commit Formatting changes
         uses: EndBug/add-and-commit@v9.1.1
-        if: ${{ github.event_name == 'pull_request' }}
+
+      - name: Check formatting changes
+        id: check_format
+        run: |
+          if git diff --exit-code; then
+            echo "formatting_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "formatting_needed=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Commit Formatting changes
+        if: steps.check_pat.outputs.has_pat == 'true' && steps.check_format.outputs.formatting_needed == 'true'
+        uses: EndBug/add-and-commit@v7.2.0
         with:
           add: .
           author_name: Formatting Committer
           author_email: "<nobody@example.com>"
           message: "Updating frontend formatting"
+          # do not pull: if this branch is behind, then we might as well let
+          # the pushing fail
+          pull_strategy: "NO-PULL"
+
+      - name: Fail for formatting issues without personal access token
+        if: steps.check_pat.outputs.has_pat == 'false' && steps.check_format.outputs.formatting_needed == 'true'
+        run: |
+          echo "Formatting changes are needed but couldn't be committed because the personal access token isn't available."
+          exit 1
   shell-checks:
     needs: formatting
     name: ShellCheck
