@@ -47,7 +47,12 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   : "Get the specified version of the nns-sns-wasm.wasm"
   curl "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/sns-wasm-canister.wasm.gz" | gunzip >"${WASM_DIR}/sns-wasm-canister.wasm"
 
-  dfx start --clean --background
+  # Output background replica output in a different color to make it easier to
+  # distinguish from the output of foreground processes.
+  export DARK="$(tput setab 8; tput setaf 0)"
+  export NORMAL="$(tput sgr0)"
+  dfx start --clean --background 2>&1 | sed -e "s@.*@${DARK}&${NORMAL}@" &
+
   dfx-nns-install --ic_commit "$DFX_IC_COMMIT"
   dfx-nns-import --network "$DFX_NETWORK"
   dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
