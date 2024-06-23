@@ -33,13 +33,17 @@ TOKEN_SYMBOL="$(
   echo
 )"
 TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
+SNS_LOGO=$("$SOURCE_DIR/dfx-sns-config-random-token-logo")
+TOKEN_LOGO=$("$SOURCE_DIR/dfx-sns-config-random-token-logo")
 PRINCIPAL="$(dfx identity get-principal)"
 # For original controllers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
 
-SED_COMMANDS="s/TOKEN_NAME/$TOKEN_NAME/g;
-              s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g;
-              s/PRINCIPAL/$PRINCIPAL/g"
+SED_COMMANDS="s|TOKEN_NAME|$TOKEN_NAME|g;
+              s|TOKEN_SYMBOL|$TOKEN_SYMBOL|g;
+              s|SNS_LOGO|$SNS_LOGO|g;
+              s|TOKEN_LOGO|$TOKEN_LOGO|g;
+              s|PRINCIPAL|$PRINCIPAL|g"
 
 if [ "${CONFIRMATION_TEXT:-}" ]; then
   # Adds the confirmation_text by replacing the entire commented out line
