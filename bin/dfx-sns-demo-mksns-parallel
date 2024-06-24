@@ -32,6 +32,7 @@ make_user() {
     # Share some data:
     ln -s "$PWD/bin" "$DEMODIR/bin"
     ln -s "$PWD/logo.png" "$DEMODIR/logo.png"
+    ln -s "$PWD/logos" "$DEMODIR/logos"
     ln -s "$PWD/candid" "$DEMODIR/candid"
     ln -s "$PWD/bin-other" "$DEMODIR/bin-other"
     ln -s "$HOME/$RELATIVE_DFX_DIR" "$DEMODIR/$RELATIVE_DFX_DIR"

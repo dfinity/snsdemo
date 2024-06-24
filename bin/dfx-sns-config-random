@@ -31,13 +31,15 @@ if [ $iteration -gt 0 ]; then
     TOKEN_SYMBOL="${TOKEN_SYMBOL}${iteration}"
     TOKEN_NAME="${TOKEN_NAME}${iteration}"
 fi
+TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
 PRINCIPAL="$(dfx identity get-principal)"
 # For original controllers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
 
-SED_COMMANDS="s/TOKEN_NAME/$TOKEN_NAME/g;
-              s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g;
-              s/PRINCIPAL/$PRINCIPAL/g"
+SED_COMMANDS="s|TOKEN_NAME|$TOKEN_NAME|g;
+              s|TOKEN_SYMBOL|$TOKEN_SYMBOL|g;
+              s|TOKEN_LOGO|$TOKEN_LOGO|g;
+              s|PRINCIPAL|$PRINCIPAL|g"
 
 if [ "${CONFIRMATION_TEXT:-}" ]; then
   # Adds the confirmation_text by replacing the entire commented out line
