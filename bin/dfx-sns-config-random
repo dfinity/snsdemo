@@ -14,6 +14,7 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define long=template_file desc="The sns init template yaml file" variable=SNS_INIT_PATH default="$SOURCE_DIR/sns_init.yaml"
 clap.define long=confirmation_text desc="A text that needs to be confirmed by the swap participants" variable=CONFIRMATION_TEXT default=""
+clap.define long=index desc="Sns index that is used to differentiate between different Snses" variable=INDEX default="0"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
