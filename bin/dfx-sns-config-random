@@ -18,22 +18,19 @@ clap.define long=index desc="Sns index that is used to differentiate between dif
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-consonant() {
-  openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
-}
-vowel() {
-  openssl rand -base64 100 | tr -dc AEIOUY | head -c 1
-}
 
-TOKEN_SYMBOL="$(
-  consonant
-  vowel
-  consonant
-  vowel
-  consonant
-  echo
-)"
-TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
+TOKEN_NAMES=("Alfa Centauri" "Bravo" "Charlie" "Delta" "Echo Alot" "Foxtrot" "Golf Stream" "Hotel" "India" "Juliett" "Kilo Byte" "Lima Bean" "Mike Box" "November" "Oscar" "PapaYa" "Quebec" "Romeo" "Sierra" "Tango" "Uniform" "Victor" "Whiskey" "X and Ray" "Yankee" "Zululu")
+TOKEN_SYMBOLS=("ALFA" "BRV" "CHAR" "DLT" "ECHO" "FOXT" "GOLF" "HOTL" "INDI" "JLT" "KILO" "LIMA" "MIKE" "NVMB" "OSCR" "PAPA" "QUEB" "ROME" "SRR" "TNGO" "UNIF" "VIC" "WKEY" "XRAY" "YANK" "ZULU")
+effective_index=$(( INDEX % ${#TOKEN_NAMES[@]} ))
+iteration=$(( INDEX / ${#TOKEN_NAMES[@]} ))
+TOKEN_SYMBOL=${TOKEN_SYMBOLS[$effective_index]}
+TOKEN_NAME=${TOKEN_NAMES[$effective_index]}
+if [ $iteration -gt 0 ]; then
+  # Use the iteration count to append a number to the TOKEN_NAME and TOKEN_SYMBOL
+  # if it is greater than 0 to have unique names.
+    TOKEN_SYMBOL="${TOKEN_SYMBOL}${iteration}"
+    TOKEN_NAME="${TOKEN_NAME}${iteration}"
+fi
 PRINCIPAL="$(dfx identity get-principal)"
 # For original controllers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
