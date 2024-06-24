@@ -18,18 +18,17 @@ clap.define long=index desc="Sns index that is used to differentiate between dif
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-
 TOKEN_NAMES=("Alfa Centauri" "Bravo" "Charlie" "Delta" "Echo Alot" "Foxtrot" "Golf Stream" "Hotel" "India" "Juliett" "Kilo Byte" "Lima Bean" "Mike Box" "November" "Oscar" "PapaYa" "Quebec" "Romeo" "Sierra" "Tango" "Uniform" "Victor" "Whiskey" "X and Ray" "Yankee" "Zululu")
 TOKEN_SYMBOLS=("ALFA" "BRV" "CHAR" "DLT" "ECHO" "FOXT" "GOLF" "HOTL" "INDI" "JLT" "KILO" "LIMA" "MIKE" "NVMB" "OSCR" "PAPA" "QUEB" "ROME" "SRR" "TNGO" "UNIF" "VIC" "WKEY" "XRAY" "YANK" "ZULU")
-effective_index=$(( INDEX % ${#TOKEN_NAMES[@]} ))
-iteration=$(( INDEX / ${#TOKEN_NAMES[@]} ))
+effective_index=$((INDEX % ${#TOKEN_NAMES[@]}))
+iteration=$((INDEX / ${#TOKEN_NAMES[@]}))
 TOKEN_SYMBOL=${TOKEN_SYMBOLS[$effective_index]}
 TOKEN_NAME=${TOKEN_NAMES[$effective_index]}
 if [ $iteration -gt 0 ]; then
   # Use the iteration count to append a number to the TOKEN_NAME and TOKEN_SYMBOL
   # if it is greater than 0 to have unique names.
-    TOKEN_SYMBOL="${TOKEN_SYMBOL}${iteration}"
-    TOKEN_NAME="${TOKEN_NAME}${iteration}"
+  TOKEN_SYMBOL="${TOKEN_SYMBOL}${iteration}"
+  TOKEN_NAME="${TOKEN_NAME}${iteration}"
 fi
 TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
 PRINCIPAL="$(dfx identity get-principal)"
