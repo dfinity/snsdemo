@@ -51,7 +51,7 @@ jobs:
       - name: Create lots of SNS
         if: matrix.os != 'macos-12'
         run: |
-          ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
+          ./bin/dfx-sns-demo-mksns-parallel -s 10 -o 1 -m snsdemo8
       - name: Save state
         if: matrix.os != 'macos-12'
         run: |
@@ -117,4 +117,4 @@ jobs:
       - name: Create lots of SNS
         if: matrix.os != 'macos-12'
         run: |
-          ./bin/dfx-sns-demo-mksns-parallel -s 10 -m snsdemo8
+          ./bin/dfx-sns-demo-mksns-parallel -s 10 -o 1 -m snsdemo8
