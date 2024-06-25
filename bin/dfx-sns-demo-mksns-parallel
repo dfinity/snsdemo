@@ -11,6 +11,7 @@ source "$SOURCE_DIR/clap.bash"
 clap.define short=s long=num_sns desc="The number of SNSs to create" variable=NUM_SNS_TO_MAKE default="1"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=m long=majority desc="A user representing the majority vote" variable=DFX_PROPOSER default=""
+clap.define short=o long=index-offset desc="The initial value for the dfx-sns-config-random index parameter" variable=INDEX_OFFSET default="0"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
@@ -70,7 +71,7 @@ become_user() {
 create_all_sns() {
   PROCESSES=()
   echo "I am $$"
-  for ((i = 1; i <= NUM_SNS_TO_MAKE; i++)); do
+  for ((i = INDEX_OFFSET; i <= NUM_SNS_TO_MAKE; i++)); do
     (
       echo "Starting $BASHPID"
       DEMO_USER="snsdemo_$i"

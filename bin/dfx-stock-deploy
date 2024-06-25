@@ -42,7 +42,7 @@ dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the c
 
 : Add some more finalized SNS projects.
 if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
-  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8
+  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --index-offset 1
 fi
 
 : Set up ckbtc canisters
