@@ -19,7 +19,7 @@ clap.define long=index desc="Sns index that is used to differentiate between dif
 source "$(clap.build)"
 
 TOKEN_NAMES=("Alfa Centauri" "Bravo" "Charlie" "Delta" "Echo Alot" "Foxtrot" "Golf Stream" "Hotel" "India" "Juliett" "Kilo Byte" "Lima Bean" "Mike Box" "November" "Oscar" "PapaYa" "Quebec" "Romeo" "Sierra" "Tango" "Uniform" "Victor" "Whiskey" "X and Ray" "Yankee" "Zululu")
-TOKEN_SYMBOLS=("ALFA" "BRV" "CHAR" "DLT" "ECHO" "FOXT" "GOLF" "HOTL" "INDI" "JLT" "KILO" "LIMA" "MIKE" "NVMB" "OSCR" "PAPA" "QUEB" "ROME" "SRR" "TNGO" "UNIF" "VIC" "WKEY" "XRAY" "YANK" "ZULU")
+TOKEN_SYMBOLS=("ALF" "BRV" "CHR" "DLT" "ECH" "FXT" "GLF" "HTL" "IND" "JLT" "KIO" "LIM" "MIK" "NVM" "OSC" "PAP" "QBC" "ROM" "SRR" "TNG" "UNF" "VIC" "WKE" "XAR" "YNK" "ZUL")
 effective_index=$((INDEX % ${#TOKEN_NAMES[@]}))
 iteration=$((INDEX / ${#TOKEN_NAMES[@]}))
 TOKEN_SYMBOL=${TOKEN_SYMBOLS[$effective_index]}
