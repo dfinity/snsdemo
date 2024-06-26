@@ -18,7 +18,7 @@ clap.define long=index desc="Sns index that is used to differentiate between dif
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-if [ -z "${INDEX+x}" ]; then
+if [ -z "${INDEX:-}" ]; then
   echo "Error: --index is required"
   exit 1
 fi
