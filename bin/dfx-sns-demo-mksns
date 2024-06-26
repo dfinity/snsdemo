@@ -15,13 +15,13 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define long=confirmation_text desc="A text that needs to be confirmed by the participants" variable=CONFIRMATION_TEXT default=""
-clap.define short=o long=index-offset desc="The initial value for the dfx-sns-config-random index parameter" variable=INDEX_OFFSET default="0"
+clap.define short=i long=index desc="The initial value for the dfx-sns-config-random index parameter" variable=INDEX default="0"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
 
 : Generate the sns.yml file.
-dfx-sns-config-random --confirmation_text "${CONFIRMATION_TEXT:-}" --index "$INDEX_OFFSET"
+dfx-sns-config-random --confirmation_text "${CONFIRMATION_TEXT:-}" --index "$INDEX"
 
 : Make sure we have enough resources.
 dfx ledger top-up --amount 2.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
