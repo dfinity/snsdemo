@@ -14,19 +14,19 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define long=template_file desc="The sns init template yaml file" variable=SNS_INIT_PATH default="$SOURCE_DIR/sns_init.yaml"
 clap.define long=confirmation_text desc="A text that needs to be confirmed by the swap participants" variable=CONFIRMATION_TEXT default=""
-clap.define long=index desc="Sns index that is used to differentiate between different Snses" variable=INDEX
+clap.define long=config_index desc="An index used to select different names and logos for Sns configuration." variable=CONFIG_INDEX
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-if [ -z "${INDEX:-}" ]; then
-  echo "Error: --index is required"
+if [ -z "${CONFIG_INDEX:-}" ]; then
+  echo "Error: --config_index is required"
   exit 1
 fi
 
 TOKEN_NAMES=("Alfa Centauri" "Bravo" "Charlie" "Delta" "Echo Alot" "Foxtrot" "Golf Stream" "Hotel" "India" "Juliett" "Kilo Byte" "Lima Bean" "Mike Box" "November" "Oscar" "PapaYa" "Quebec" "Romeo" "Sierra" "Tango" "Uniform" "Victor" "Whiskey" "X and Ray" "Yankee" "Zululu")
 TOKEN_SYMBOLS=("ALF" "BRV" "CHR" "DLT" "ECH" "FXT" "GLF" "HTL" "IND" "JLT" "KIO" "LIM" "MIK" "NVM" "OSC" "PAP" "QBC" "ROM" "SRR" "TNG" "UNF" "VIC" "WKE" "XAR" "YNK" "ZUL")
-effective_index=$((INDEX % ${#TOKEN_NAMES[@]}))
-iteration=$((INDEX / ${#TOKEN_NAMES[@]}))
+effective_index=$((CONFIG_INDEX % ${#TOKEN_NAMES[@]}))
+iteration=$((CONFIG_INDEX / ${#TOKEN_NAMES[@]}))
 TOKEN_SYMBOL=${TOKEN_SYMBOLS[$effective_index]}
 TOKEN_NAME=${TOKEN_NAMES[$effective_index]}
 if [ $iteration -gt 0 ]; then
