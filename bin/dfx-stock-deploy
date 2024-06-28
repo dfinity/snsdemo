@@ -38,11 +38,11 @@ dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC
 dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT"
 
 : Add 1 open SNS project.
-dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --index 0
+dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --index 1
 
 : Add some more finalized SNS projects.
 if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
-  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --index-offset 1
+  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --index-offset 2
 fi
 
 : Set up ckbtc canisters
