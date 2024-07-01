@@ -14,32 +14,36 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define long=template_file desc="The sns init template yaml file" variable=SNS_INIT_PATH default="$SOURCE_DIR/sns_init.yaml"
 clap.define long=confirmation_text desc="A text that needs to be confirmed by the swap participants" variable=CONFIRMATION_TEXT default=""
+clap.define long=config_index desc="An index used to select different names and logos for Sns configuration." variable=CONFIG_INDEX
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-consonant() {
-  openssl rand -base64 100 | tr -dc BCDFGHJKLMNPQRSTVWXZ | head -c 1
-}
-vowel() {
-  openssl rand -base64 100 | tr -dc AEIOUY | head -c 1
-}
+if [ -z "${CONFIG_INDEX:-}" ]; then
+  echo "Error: --config_index is required"
+  exit 1
+fi
 
-TOKEN_SYMBOL="$(
-  consonant
-  vowel
-  consonant
-  vowel
-  consonant
-  echo
-)"
-TOKEN_NAME="${USER}s awesome $TOKEN_SYMBOL"
+TOKEN_NAMES=("Alfa Centauri" "Bravo" "Charlie" "Delta" "Echo Alot" "Foxtrot" "Golf Stream" "Hotel" "India" "Juliett" "Kilo Byte" "Lima Bean" "Mike Box" "November" "Oscar" "PapaYa" "Quebec" "Romeo" "Sierra" "Tango" "Uniform" "Victor" "Whiskey" "X and Ray" "Yankee" "Zululu")
+TOKEN_SYMBOLS=("ALF" "BRV" "CHR" "DLT" "ECH" "FXT" "GLF" "HTL" "IND" "JLT" "KIO" "LIM" "MIK" "NVM" "OSC" "PAP" "QBC" "ROM" "SRR" "TNG" "UNF" "VIC" "WKE" "XAR" "YNK" "ZUL")
+effective_index=$((CONFIG_INDEX % ${#TOKEN_NAMES[@]}))
+iteration=$((CONFIG_INDEX / ${#TOKEN_NAMES[@]}))
+TOKEN_SYMBOL=${TOKEN_SYMBOLS[$effective_index]}
+TOKEN_NAME=${TOKEN_NAMES[$effective_index]}
+if [ $iteration -gt 0 ]; then
+  # Use the iteration count to append a number to the TOKEN_NAME and TOKEN_SYMBOL
+  # if it is greater than 0 to have unique names.
+  TOKEN_SYMBOL="${TOKEN_SYMBOL}${iteration}"
+  TOKEN_NAME="${TOKEN_NAME}${iteration}"
+fi
+TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
 PRINCIPAL="$(dfx identity get-principal)"
 # For original controllers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
 
-SED_COMMANDS="s/TOKEN_NAME/$TOKEN_NAME/g;
-              s/TOKEN_SYMBOL/$TOKEN_SYMBOL/g;
-              s/PRINCIPAL/$PRINCIPAL/g"
+SED_COMMANDS="s|TOKEN_NAME|$TOKEN_NAME|g;
+              s|TOKEN_SYMBOL|$TOKEN_SYMBOL|g;
+              s|TOKEN_LOGO|$TOKEN_LOGO|g;
+              s|PRINCIPAL|$PRINCIPAL|g"
 
 if [ "${CONFIRMATION_TEXT:-}" ]; then
   # Adds the confirmation_text by replacing the entire commented out line
