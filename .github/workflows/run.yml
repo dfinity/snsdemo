@@ -45,13 +45,13 @@ jobs:
         run: bin/dfx-sns-demo
       - name: Create and finalize an additional SNS
         run: |
-          ./bin/dfx-sns-demo-mksns -i 1
+          ./bin/dfx-sns-demo-mksns --config_index 1
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
       - name: Create lots of SNS
         if: matrix.os != 'macos-12'
         run: |
-          ./bin/dfx-sns-demo-mksns-parallel -s 10 -o 2 -m snsdemo8
+          ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
       - name: Save state
         if: matrix.os != 'macos-12'
         run: |
@@ -111,10 +111,10 @@ jobs:
         run: bin/dfx-sns-demo --ic_commit latest --ic_dir ic
       - name: Create and finalize an additional SNS
         run: |
-          ./bin/dfx-sns-demo-mksns -i 1
+          ./bin/dfx-sns-demo-mksns --config_index 1
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
       - name: Create lots of SNS
         if: matrix.os != 'macos-12'
         run: |
-          ./bin/dfx-sns-demo-mksns-parallel -s 10 -o 2 -m snsdemo8
+          ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
