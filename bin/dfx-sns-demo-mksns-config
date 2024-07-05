@@ -38,9 +38,8 @@ if [ $iteration -gt 0 ]; then
 fi
 TOKEN_LOGO="logo.png"
 if [ "$UNIQUE_LOGO" = true ]; then
-    TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
+  TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
 fi
-
 
 PRINCIPAL="$(dfx identity get-principal)"
 # For original controllers, use:
