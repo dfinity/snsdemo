@@ -14,7 +14,8 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define long=template_file desc="The sns init template yaml file" variable=SNS_INIT_PATH default="$SOURCE_DIR/sns_init.yaml"
 clap.define long=confirmation_text desc="A text that needs to be confirmed by the swap participants" variable=CONFIRMATION_TEXT default=""
-clap.define long=config_index desc="An index used to select different names and logos for Sns configuration." variable=CONFIG_INDEX
+clap.define long=config_index desc="An index used to select different names and/or logos for Sns configuration." variable=CONFIG_INDEX
+clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -35,7 +36,12 @@ if [ $iteration -gt 0 ]; then
   TOKEN_SYMBOL="${TOKEN_SYMBOL}${iteration}"
   TOKEN_NAME="${TOKEN_NAME}${iteration}"
 fi
-TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
+TOKEN_LOGO="logo.png"
+if [ "$UNIQUE_LOGO" = true ]; then
+    TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
+fi
+
+
 PRINCIPAL="$(dfx identity get-principal)"
 # For original controllers, use:
 # dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
