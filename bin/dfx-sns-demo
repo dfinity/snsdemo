@@ -13,6 +13,7 @@ clap.define short=c long=ic_commit desc="The IC commit to use" variable=DFX_IC_C
 clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 clap.define long=config_index desc="The value for the dfx-sns-demo-mksns-config --config_index parameter" variable=CONFIG_INDEX default="0"
+clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
@@ -80,7 +81,7 @@ sleep 1
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 sleep 1
 
-./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK" --config_index "$CONFIG_INDEX"
+./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK" --config_index "$CONFIG_INDEX" --unique_logo "$UNIQUE_LOGO"
 sleep 1
 ./bin/dfx-sns-sale-buy --network "$DFX_NETWORK"
 sleep 1
