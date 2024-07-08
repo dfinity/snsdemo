@@ -76,7 +76,7 @@ dfx-token-import --prefix ckred_ --commit "$DFX_IC_COMMIT"
 dfx-token-deploy \
   --prefix ckred_ \
   --token ckRED \
-  --decimals 6 \
+  --decimals 7 \
   --fee 4000 \
   --logo-svg-file "$SOURCE_DIR/../ckRED-logo.svg" \
   --network "$DFX_NETWORK" \
