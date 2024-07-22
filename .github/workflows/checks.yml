@@ -21,7 +21,7 @@ jobs:
           echo "has_pat=${{ secrets.GIX_CREATE_PR_PAT != '' }}" >> $GITHUB_OUTPUT
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GIX_CREATE_PR_PAT }}
 
