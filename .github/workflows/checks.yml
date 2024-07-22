@@ -15,7 +15,7 @@ jobs:
     # users. So on PRs where the token is not available, we don't commit
     # changes and instead just fail if the formatting is incorrect.
     steps:
-      - name: Check if personal access token is available
+      - name: Check if commits can be added
         id: check_can_add_commit
         run: |
           echo "can_add_commit=${{ secrets.GIX_CREATE_PR_PAT != '' && github.event_name == 'pull_request' }}" >> $GITHUB_OUTPUT
