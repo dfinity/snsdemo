@@ -29,20 +29,20 @@ test -d "$SHARE_DIR" || {
   exit 1
 } >&2
 
-: "... Get the local replica state checkpoints"
-REPLICA_CONFIG="${SHARE_DIR}/network/local/state/replicated_state/ic.json5"
-CHECKPOINT_DIR="$(jq -r .state_manager.state_root "$REPLICA_CONFIG")/checkpoints"
-test -d "$CHECKPOINT_DIR" || {
-  echo "ERROR: Checkpoint dir does not exist at: '$CHECKPOINT_DIR'"
-  exit 1
-} >&2
+get_checkpoints() {
+  # There might be mulitple state directories but only one will receive new
+  # checkpoints from the currently running replica. So we just use wild card
+  # expansion for convenience instead of figuring out which one is the right
+  # state directory.
+  ls "${SHARE_DIR}/network/local"/*/state/replicated_state/node-100/state/checkpoints || true
+}
 
 : "... Wait for the checkpoints to change."
 # Note: this needs to work on Mac as well as Linux, so basic polling is best.
-checkpoints_now="$(ls "$CHECKPOINT_DIR")"
+checkpoints_now="$(get_checkpoints)"
 SLEEP_TIME=5
 for ((countdown = DFX_TIMEOUT; countdown >= 0; countdown -= SLEEP_TIME)); do
-  checkpoints_later="$(ls "$CHECKPOINT_DIR" || true)"
+  checkpoints_later="$(get_checkpoints)"
   [[ "${checkpoints_now:-}" == "$checkpoints_later" ]] || break
   printf '\rTime remaining: % 8d seconds' "$countdown" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
   sleep "$SLEEP_TIME"
