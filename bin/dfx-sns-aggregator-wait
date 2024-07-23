@@ -13,7 +13,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=num_sns desc="The number of SNSs to wait for" variable=EXPECTED_NUM_SNS default="1"
+# There are no custom option but we use clap for --help.
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -75,6 +75,7 @@ get_sns_count() {
 }
 
 wait_for_sns_count() {
+  EXPECTED_NUM_SNS="$(dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq '.instances | length')"
   echo "Waiting for $EXPECTED_NUM_SNS SNSs"
   page_size=10
   required_page_count=$(((EXPECTED_NUM_SNS + page_size - 1) / page_size))
