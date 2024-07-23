@@ -13,7 +13,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-# There are no custom option but we use clap for --help.
+# There are no custom options but we use clap for --help.
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
