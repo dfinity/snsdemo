@@ -30,7 +30,7 @@ test -d "$SHARE_DIR" || {
 } >&2
 
 get_checkpoints() {
-  # There might be mulitple state directories but only one will receive new
+  # There might be multiple state directories but only one will receive new
   # checkpoints from the currently running replica. So we just use wild card
   # expansion for convenience instead of figuring out which one is the right
   # state directory.
