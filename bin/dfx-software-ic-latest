@@ -11,6 +11,8 @@ clap.define short=a long=after desc="First published commit after the given one"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+set -x
+
 function downloads_exist() {
   (
     set -euo pipefail
