@@ -34,8 +34,11 @@ function downloads_exist() {
     done
 
     # Syncing to the public repo may be slow
-    curl -fL --output /dev/null --silent --head --fail \
-      "https://raw.githubusercontent.com/dfinity/ic/${GIT_REVISION}/rs/nns/dfx.json" || exit 1
+    if ! curl -fL --output /dev/null --silent --head --fail \
+      "https://raw.githubusercontent.com/dfinity/ic/${GIT_REVISION}/rs/nns/dfx.json"; then
+      echo "Commit $GIT_REVISION does not have $file" >&2
+      exit 1
+    fi
   )
 }
 
