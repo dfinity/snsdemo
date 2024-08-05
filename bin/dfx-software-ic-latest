@@ -11,7 +11,7 @@ clap.define short=a long=after desc="First published commit after the given one"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-set -x
+#set -x
 
 function downloads_exist() {
   (
@@ -31,13 +31,17 @@ function downloads_exist() {
       "canisters/ic-icrc1-ledger.wasm.gz" \
       "canisters/sns-wasm-canister.wasm.gz"; do
 
-      curl --location --output /dev/null --silent --head --fail \
-        "https://download.dfinity.systems/ic/${GIT_REVISION}/$file" || exit 1
+      if ! curl --location --output /dev/null --silent --head --fail \
+        "https://download.dfinity.systems/ic/${GIT_REVISION}/$file"; then
+        echo "Commit $GIT_REVISION does not have $file" >&2
+        exit 1
+      fi
     done
 
     # Syncing to the public repo may be slow
+    file="rs/nns/dfx.json"
     if ! curl -fL --output /dev/null --silent --head --fail \
-      "https://raw.githubusercontent.com/dfinity/ic/${GIT_REVISION}/rs/nns/dfx.json"; then
+      "https://raw.githubusercontent.com/dfinity/ic/${GIT_REVISION}/$file"; then
       echo "Commit $GIT_REVISION does not have $file" >&2
       exit 1
     fi
@@ -70,4 +74,9 @@ fi
   else
     git log --format=format:%H "$IC_COMMIT"
   fi
-) | while read -r GIT_REVISION; do downloads_exist && echo "$GIT_REVISION" && break; done
+) | while read -r GIT_REVISION; do
+  if downloads_exist; then
+    echo "$GIT_REVISION"
+    break
+  fi
+done
