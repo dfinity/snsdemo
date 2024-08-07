@@ -62,7 +62,6 @@ sleep 1
 dfx-nns-import --network "$DFX_NETWORK"
 sleep 1
 dfx-software-dfx-extension-sns-install --if-not-installed
-dfx sns import
 sleep 1
 
 bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
