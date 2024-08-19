@@ -61,6 +61,10 @@ OLD_LIFELINE_FILE="${WASMS_DIR}/lifeline.wasm"
 # the error.
 curl --fail --location "$NEW_LIFELINE_WASM_URL" -o "$OLD_LIFELINE_FILE" || true
 
+# Starting with nns extension 0.4.1, we need to wait for the replica to be
+# healthy to avoid getting an error from 'dfx nns install'.
+dfx ping --wait-healthy
+
 export DFX_IC_COMMIT
 dfx nns install
 
