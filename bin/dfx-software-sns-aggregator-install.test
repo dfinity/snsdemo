@@ -24,6 +24,12 @@ for flavour in dev prod; do
       git checkout dfx.json
       dfx-network-stop
       dfx start --clean --background 2>/dev/null
+      jq '.canisters.sns_aggregator = {
+        "type": "custom",
+        "wasm": "",
+        "candid": "sns_aggregator.did"
+      }' dfx.json | sponge dfx.json
+      dfx canister create sns_aggregator
       : Install
       dfx-software-sns-aggregator-install --release "$release" --flavor "$flavour"
       : The downloaded wasm should be the pinned, production version, not called 'pinned' or some mutable alias:
