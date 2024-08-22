@@ -57,10 +57,9 @@ jq -e '.canisters.sns_aggregator' dfx.json >/dev/null || {
   jq -s '.[0] * .[1]' <(echo '{"canisters": { "sns_aggregator": { "type": "custom", "candid": "candid/sns_aggregator.did", "wasm": "'"${WASM_FILE}"'", "build": "true" }}}') dfx.json | sponge dfx.json
 }
 
-echo "Creating sns_aggregator canister..."
-dfx canister create sns_aggregator --network "${DFX_NETWORK}" || {
-  echo "Canister seems to exist already."
-}
+: "If the canister was remote, it isn't any more:"
+DFX_NETWORK="$DFX_NETWORK" jq 'del(.canisters.sns_aggregator.remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+
 echo "Installing sns_aggregator..."
 # Note: We specify the wasm file explicitly as an existing wasm path may not point to the requested wasm.
 dfx canister install sns_aggregator --wasm "$WASM_FILE" --upgrade-unchanged --mode "$DFX_MODE" --yes --network "${DFX_NETWORK}"

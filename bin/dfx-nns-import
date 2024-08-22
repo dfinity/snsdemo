@@ -89,11 +89,13 @@ case "${DFX_NETWORK}" in
 ic | mainnet)
   set_remote qoctq-giaaa-aaaaa-aaaea-cai nns-dapp
   set_remote rdmx6-jaaaa-aaaaa-aaadq-cai internet_identity
+  set_remote 3r4gx-wqaaa-aaaaq-aaaia-cai sns_aggregator
   ;;
 local)
   # `dfx nns install` installs canisters here:
   set_remote qhbym-qaaaa-aaaaa-aaafq-cai internet_identity
   set_remote qsgjb-riaaa-aaaaa-aaaga-cai nns-dapp
+  set_remote sgymv-uiaaa-aaaaa-aaaia-cai sns_aggregator
   ;;
 *)
   # Installation to other networks SHOULD be done in a way

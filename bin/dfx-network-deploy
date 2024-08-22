@@ -59,6 +59,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   dfx-nns-install --ic_commit "$DFX_IC_COMMIT"
   dfx-nns-import --network "$DFX_NETWORK"
   dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
+  dfx-canister-set-id --canister_name sns_aggregator --canister_id sgymv-uiaaa-aaaaa-aaaia-cai
   dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
   # Import and install ICP Index canister
   # TODO: Remove once the sdk team adds it to `dfx nns install`: https://dfinity.atlassian.net/browse/SDKTG-270
