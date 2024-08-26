@@ -42,7 +42,7 @@ jobs:
         # If a newer dfx is available, create a PR.
       - name: Create Pull Request
         if: ${{ steps.update.outputs.updated == '1' }}
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GIX_SNSDEMO_BOT_GH_TOKEN }}
           base: main
