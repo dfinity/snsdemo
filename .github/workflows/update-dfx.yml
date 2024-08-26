@@ -42,9 +42,9 @@ jobs:
         # If a newer dfx is available, create a PR.
       - name: Create Pull Request
         if: ${{ steps.update.outputs.updated == '1' }}
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.GIX_SNSDEMO_BOT_GH_TOKEN }}
+          token: ${{ secrets.GIX_CREATE_PR_PAT }}
           base: main
           add-paths: |
             dfx.json
