@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Sets the exchange rate for the given currency pair on the mock exchange rate canister.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=q long=base_asset desc="The base asset to use. In ICP/USD this is ICP" variable=BASE_ASSET default="ICP"
+clap.define short=q long=quote_asset desc="The quote asset to use. In ICP/USD this is USD" variable=QUOTE_ASSET default="USD"
+clap.define short=r long=rate_e8s desc="The price of the base asset expressed in e8s of the quote asset. For 9.00 USD per ICP this is 900_000_000" variable=RATE_E8S default=""
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+if [[ -z "${RATE_E8S}" ]]; then
+  echo "ERROR: --rate_e8s is required"
+  exit 1
+fi
+
+dfx canister call xrc set_exchange_rate "(record{base_asset=\"$BASE_ASSET\"; quote_asset=\"$QUOTE_ASSET\"; rate=$RATE_E8S:nat64})"
