@@ -1,5 +1,255 @@
 {
-  "canisters": {},
+  "canisters": {
+    "ckred_ledger": {
+      "build": "true",
+      "candid": "candid/ckred_ledger.did",
+      "wasm": "wasms/ckred_ledger.wasm",
+      "type": "custom"
+    },
+    "ckred_index": {
+      "build": "true",
+      "candid": "candid/ckred_index.did",
+      "wasm": "wasms/ckred_index.wasm",
+      "type": "custom"
+    },
+    "ckusdc_ledger": {
+      "build": "true",
+      "candid": "candid/ckusdc_ledger.did",
+      "wasm": "wasms/ckusdc_ledger.wasm",
+      "type": "custom"
+    },
+    "ckusdc_index": {
+      "build": "true",
+      "candid": "candid/ckusdc_index.did",
+      "wasm": "wasms/ckusdc_index.wasm",
+      "type": "custom"
+    },
+    "cketh_ledger": {
+      "build": "true",
+      "candid": "candid/cketh_ledger.did",
+      "wasm": "wasms/cketh_ledger.wasm",
+      "type": "custom"
+    },
+    "cketh_index": {
+      "build": "true",
+      "candid": "candid/cketh_index.did",
+      "wasm": "wasms/cketh_index.wasm",
+      "type": "custom"
+    },
+    "ckbtc_kyt": {
+      "build": "true",
+      "candid": "candid/ckbtc_kyt.did",
+      "wasm": "wasms/ckbtc_kyt.wasm",
+      "type": "custom",
+      "remote": {
+        "id": {
+          "mainnet": "pjihx-aaaaa-aaaar-qaaka-cai"
+        }
+      }
+    },
+    "ckbtc_ledger": {
+      "build": "true",
+      "candid": "candid/ckbtc_ledger.did",
+      "wasm": "wasms/ckbtc_ledger.wasm",
+      "type": "custom",
+      "remote": {
+        "id": {
+          "mainnet": "mxzaz-hqaaa-aaaar-qaada-cai"
+        }
+      }
+    },
+    "ckbtc_minter": {
+      "build": "true",
+      "candid": "candid/ckbtc_minter.did",
+      "wasm": "wasms/ckbtc_minter.wasm",
+      "type": "custom",
+      "remote": {
+        "id": {}
+      }
+    },
+    "ckbtc_index": {
+      "build": "true",
+      "candid": "candid/ckbtc_index.did",
+      "wasm": "wasms/ckbtc_index.wasm",
+      "type": "custom",
+      "remote": {
+        "id": {
+          "mainnet": "n5wcd-faaaa-aaaar-qaaea-cai"
+        }
+      }
+    },
+    "bitcoin": {
+      "type": "custom",
+      "candid": "candid/bitcoin_mock.did",
+      "wasm": "wasms/bitcoin-mock.wasm.gz",
+      "build": "true"
+    },
+    "xrc": {
+      "type": "custom",
+      "candid": "candid/xrc_mock.did",
+      "wasm": "wasms/xrc-mock.wasm.gz",
+      "build": "true"
+    },
+    "internet_identity": {
+      "type": "custom",
+      "wasm": "",
+      "candid": "internet_identity.did",
+      "remote": {
+        "id": {
+          "local": "qhbym-qaaaa-aaaaa-aaafq-cai"
+        }
+      }
+    },
+    "nns-cycles-minting": {
+      "build": "",
+      "candid": "candid/nns-cycles-minting.did",
+      "remote": {
+        "id": {
+          "local": "rkp4c-7iaaa-aaaaa-aaaca-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-dapp": {
+      "type": "custom",
+      "wasm": "",
+      "candid": "nns-dapp.did",
+      "remote": {
+        "id": {
+          "local": "qsgjb-riaaa-aaaaa-aaaga-cai"
+        }
+      }
+    },
+    "nns-genesis-token": {
+      "build": "",
+      "candid": "candid/nns-genesis-token.did",
+      "remote": {
+        "id": {
+          "local": "renrk-eyaaa-aaaaa-aaada-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-governance": {
+      "build": "",
+      "candid": "candid/nns-governance.did",
+      "remote": {
+        "id": {
+          "local": "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-index": {
+      "build": "",
+      "candid": "candid/nns-index.did",
+      "type": "custom",
+      "wasm": "wasms/nns-index.wasm"
+    },
+    "nns-ledger": {
+      "build": "",
+      "candid": "candid/nns-ledger.did",
+      "remote": {
+        "id": {
+          "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-lifeline": {
+      "build": "",
+      "candid": "candid/nns-lifeline.did",
+      "remote": {
+        "id": {
+          "local": "rno2w-sqaaa-aaaaa-aaacq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-registry": {
+      "build": "",
+      "candid": "candid/nns-registry.did",
+      "remote": {
+        "id": {
+          "local": "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-root": {
+      "build": "",
+      "candid": "candid/nns-root.did",
+      "remote": {
+        "id": {
+          "local": "r7inp-6aaaa-aaaaa-aaabq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "nns-sns-wasm": {
+      "build": "",
+      "candid": "candid/nns-sns-wasm.did",
+      "remote": {
+        "id": {
+          "local": "qaa6y-5yaaa-aaaaa-aaafa-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "sns_aggregator": {
+      "type": "custom",
+      "wasm": "",
+      "candid": "sns_aggregator.did",
+      "remote": {
+        "id": {
+          "local": "sgymv-uiaaa-aaaaa-aaaia-cai"
+        }
+      }
+    },
+    "sns_governance": {
+      "remote": {
+        "id": {
+          "local": "asrmz-lmaaa-aaaaa-qaaeq-cai"
+        }
+      }
+    },
+    "sns_index": {
+      "remote": {
+        "id": {
+          "local": "ajuq4-ruaaa-aaaaa-qaaga-cai"
+        }
+      }
+    },
+    "sns_ledger": {
+      "remote": {
+        "id": {
+          "local": "a3shf-5eaaa-aaaaa-qaafa-cai"
+        }
+      }
+    },
+    "sns_root": {
+      "remote": {
+        "id": {
+          "local": "avqkn-guaaa-aaaaa-qaaea-cai"
+        }
+      }
+    },
+    "sns_swap": {
+      "remote": {
+        "id": {
+          "local": "a4tbr-q4aaa-aaaaa-qaafq-cai"
+        }
+      }
+    }
+  },
   "defaults": {
     "build": {
       "args": "",

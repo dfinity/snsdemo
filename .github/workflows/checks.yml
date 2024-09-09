@@ -155,13 +155,6 @@ jobs:
           git clean -dfx
           bin/dfx-software-mock-bitcoin-install.test
           git clean -dfx
-      - name: Install mock exchange rate canister works
-        run: |
-          set -euxo pipefail
-          echo "This modifies files, so make sure the state is clean before and after"
-          git clean -dfx
-          bin/dfx-mock-exchange-rate-canister-install.test
-          git clean -dfx
   nns-dapp-canister-checks:
     needs: formatting
     name: NNS dapp tools
@@ -198,4 +191,20 @@ jobs:
           echo "This modifies files, so make sure the state is clean before and after"
           git clean -dfx
           bin/dfx-canister-url.test --verbose
+          git clean -dfx
+  other-tests:
+    name: Other tests
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dfx
+        uses: dfinity/setup-dfx@main
+      - name: Install idl2json
+        run: bin/dfx-software-idl2json-install
+      - name: Install mock exchange rate canister works
+        run: |
+          set -euxo pipefail
+          echo "This modifies files, so make sure the state is clean before and after"
+          git clean -dfx
+          bin/dfx-mock-exchange-rate-canister-install.test
           git clean -dfx
