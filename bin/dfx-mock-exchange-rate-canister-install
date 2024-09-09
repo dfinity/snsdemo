@@ -29,9 +29,7 @@ if [[ "${RELEASE}" ]]; then
   RELEASE="${EXCHANGE_RATE_CANISTER_RELEASE}"
 fi
 
-WASM_DIR="wasms"
 WASM_FILE="xrc_mock.wasm.gz"
-WASM_PATH="${WASM_DIR}/${WASM_FILE}"
 WASM_URL="https://github.com/dfinity/exchange-rate-canister/releases/download/${RELEASE}/${WASM_FILE}"
 CANISTER_NAME="xrc"
 CANISTER_ARG="(record{response=variant{Error=variant{CryptoBaseAssetNotFound=null}}})"

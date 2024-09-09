@@ -30,9 +30,7 @@ if [[ "${DFX_IC_COMMIT}" == "pinned" ]]; then
   DFX_IC_COMMIT="$(dfx-software-ic-current)"
 fi
 
-WASM_DIR="wasms"
 WASM_FILE="bitcoin-mock-canister.wasm.gz"
-WASM_PATH="${WASM_DIR}/${WASM_FILE}"
 WASM_URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/${WASM_FILE}"
 CANISTER_NAME="bitcoin"
 CANISTER_ARG="(variant { mainnet })"

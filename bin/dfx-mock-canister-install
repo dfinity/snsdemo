@@ -47,8 +47,7 @@ curl --retry 5 --fail --silent --show-error --location \
 echo "Add an entry for '${CANISTER_NAME}' in dfx.json if there isn't one already."
 if ! jq -e ".canisters.${CANISTER_NAME}" dfx.json >/dev/null; then
   echo "Adding ${CANISTER_NAME} to dfx.json..."
-  jq -s '.[0] * .[1]' <(echo '{"canisters": { "'$CANISTER_NAME'": { "type":
-  "custom", "candid": "candid/'$CANISTER_NAME'_mock.did", "wasm": "'"${WASM_PATH}"'", "build": "true" }}}') dfx.json | sponge dfx.json
+  jq -s '.[0] * .[1]' <(echo "{\"canisters\": { \"$CANISTER_NAME\": { \"type\": \"custom\", \"candid\": \"candid/${CANISTER_NAME}_mock.did\", \"wasm\": \"${WASM_PATH}\", \"build\": \"true\" }}}") dfx.json | sponge dfx.json
 fi
 
 DFX_CANISTER_CREATE_ARGS=()
@@ -57,7 +56,7 @@ if [[ -n "${SPECIFIED_CANISTER_ID:-}" ]]; then
 fi
 
 if ! dfx canister create "$CANISTER_NAME" --network "${DFX_NETWORK}" "${DFX_CANISTER_CREATE_ARGS[@]}"; then
-  echo "Failed to create "$CANISTER_NAME" canister." >&2
+  echo "Failed to create $CANISTER_NAME canister." >&2
   exit 1
 fi
 
@@ -65,4 +64,4 @@ dfx canister install "$CANISTER_NAME" --wasm "$WASM_PATH" --upgrade-unchanged --
 
 dfx-canister-check-wasm-hash --canister "$CANISTER_NAME" --network "$DFX_NETWORK" --wasm "${WASM_PATH}"
 
-echo "Installed mock "$CANISTER_NAME" canister."
+echo "Installed mock $CANISTER_NAME canister."
