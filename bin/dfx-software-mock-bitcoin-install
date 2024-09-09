@@ -34,26 +34,12 @@ WASM_DIR="wasms"
 WASM_FILE="bitcoin-mock-canister.wasm.gz"
 WASM_PATH="${WASM_DIR}/${WASM_FILE}"
 WASM_URL="https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/${WASM_FILE}"
+CANISTER_NAME="bitcoin"
+CANISTER_ARG="(variant { mainnet })"
 
-mkdir -p "${WASM_DIR}"
-
-echo "Downloading mock bitcoin wasm from ${WASM_URL}"
-curl --retry 5 --fail --silent --show-error --location \
-  "${WASM_URL}" >"${WASM_PATH}"
-
-echo "Add an entry for 'bitcoin' in dfx.json if there isn't one already."
-if ! jq -e '.canisters.bitcoin' dfx.json >/dev/null; then
-  echo "Adding bitcoin to dfx.json..."
-  jq -s '.[0] * .[1]' <(echo '{"canisters": { "bitcoin": { "type": "custom", "candid": "candid/bitcoin_mock.did", "wasm": "'"${WASM_PATH}"'", "build": "true" }}}') dfx.json | sponge dfx.json
-fi
-
-if ! dfx canister create bitcoin --network "${DFX_NETWORK}" --specified-id "$HARD_CODED_BITCOIN_CANISTER_ID"; then
-  echo "Failed to create bitcoin canister." >&2
-  exit 1
-fi
-
-dfx canister install bitcoin --wasm "$WASM_PATH" --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}" --argument '(variant { mainnet })'
-
-dfx-canister-check-wasm-hash --canister bitcoin --network "$DFX_NETWORK" --wasm "${WASM_PATH}"
-
-echo "Installed mock bitcoin canister."
+dfx-mock-canister-install \
+  --network "${DFX_NETWORK}" \
+  --wasm_url "${WASM_URL}" \
+  --canister_name "${CANISTER_NAME}" \
+  --specified_canister_id "${HARD_CODED_BITCOIN_CANISTER_ID}" \
+  --canister_arg "${CANISTER_ARG}"

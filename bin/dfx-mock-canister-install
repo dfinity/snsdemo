@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Fetches and installs a given mock canister:
+	* Downloads the wasm.
+	* Adds the canister to dfx.json, if not already present.
+	* Deploys the downloaded wasm to the specified network.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define long=wasm_url desc="The URL to download the wasm from" variable=WASM_URL default=""
+clap.define long=canister_name desc="The name of the non-mock version of the canister" variable=CANISTER_NAME default=""
+clap.define long=specified_canister_id desc="Use a specific canister ID instead of letting dfx pick one" variable=SPECIFIED_CANISTER_ID default=""
+clap.define long=canister_arg desc="Candid argument to pass to dfx install" variable=CANISTER_ARG default="(record{})"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+if [[ -z "${WASM_URL:-}" ]]; then
+  echo "The --wasm_url option is required." >&2
+  exit 1
+fi
+
+if [[ -z "${CANISTER_NAME:-}" ]]; then
+  echo "The --canister_name option is required." >&2
+  exit 1
+fi
+
+WASM_DIR="wasms"
+WASM_FILE="$CANISTER_NAME-mock.wasm.gz"
+WASM_PATH="${WASM_DIR}/${WASM_FILE}"
+
+mkdir -p "${WASM_DIR}"
+
+echo "Downloading mock ${CANISTER_NAME} wasm from ${WASM_URL}"
+curl --retry 5 --fail --silent --show-error --location \
+  "${WASM_URL}" >"${WASM_PATH}"
+
+echo "Add an entry for '${CANISTER_NAME}' in dfx.json if there isn't one already."
+if ! jq -e ".canisters.${CANISTER_NAME}" dfx.json >/dev/null; then
+  echo "Adding ${CANISTER_NAME} to dfx.json..."
+  jq -s '.[0] * .[1]' <(echo '{"canisters": { "'$CANISTER_NAME'": { "type":
+  "custom", "candid": "candid/'$CANISTER_NAME'_mock.did", "wasm": "'"${WASM_PATH}"'", "build": "true" }}}') dfx.json | sponge dfx.json
+fi
+
+DFX_CANISTER_CREATE_ARGS=()
+if [[ -n "${SPECIFIED_CANISTER_ID:-}" ]]; then
+  DFX_CANISTER_CREATE_ARGS=("--specified-id" "$SPECIFIED_CANISTER_ID")
+fi
+
+if ! dfx canister create "$CANISTER_NAME" --network "${DFX_NETWORK}" "${DFX_CANISTER_CREATE_ARGS[@]}"; then
+  echo "Failed to create "$CANISTER_NAME" canister." >&2
+  exit 1
+fi
+
+dfx canister install "$CANISTER_NAME" --wasm "$WASM_PATH" --upgrade-unchanged --mode reinstall --yes --network "${DFX_NETWORK}" --argument "$CANISTER_ARG"
+
+dfx-canister-check-wasm-hash --canister "$CANISTER_NAME" --network "$DFX_NETWORK" --wasm "${WASM_PATH}"
+
+echo "Installed mock "$CANISTER_NAME" canister."

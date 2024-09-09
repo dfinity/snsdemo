@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -xeuo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+# https://github.com/dfinity/ic/blob/ce350b79f34e5a8b57429cf6892c127195464984/rs/nns/constants/src/lib.rs#L114-L116
+HARD_CODED_EXCHANGE_RATE_CANISTER_ID="uf6dk-hyaaa-aaaaq-qaaaq-cai"
+
+git checkout dfx.json
+dfx-network-stop
+dfx start --clean --background
+
+trap 'dfx-network-stop' EXIT
+
+if dfx canister metadata "$HARD_CODED_EXCHANGE_RATE_CANISTER_ID" --network local candid:service; then
+  echo "ERROR: exchange rate canister should not exist before installing."
+  exit 1
+fi
+
+dfx-mock-exchange-rate-canister-install --network local
+
+# dfx-mock-exchange-rate-canister-install is a known method on the exchange rate canister.
+if ! dfx canister metadata "$HARD_CODED_EXCHANGE_RATE_CANISTER_ID" --network local candid:service | grep get_exchange_rate; then
+  echo "ERROR: mock exchange rate canister should have been installed."
+  exit 1
+fi
+
+echo "PASSED: dfx-mock-exchange-rate-canister-install.test"
