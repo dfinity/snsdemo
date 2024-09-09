@@ -197,10 +197,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - name: Install dfx
-        uses: dfinity/setup-dfx@main
+      - name: Install apt-dependencies
+        # Needed for sponge
+        run: sudo apt-get update && sudo apt-get install moreutils -yy
       - name: Install idl2json
         run: bin/dfx-software-idl2json-install
+      - name: Install dfx
+        uses: dfinity/setup-dfx@main
       - name: Install mock exchange rate canister works
         run: |
           set -euxo pipefail
