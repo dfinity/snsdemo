@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+# https://github.com/dfinity/ic/blob/ce350b79f34e5a8b57429cf6892c127195464984/rs/nns/constants/src/lib.rs#L114-L116
+HARD_CODED_EXCHANGE_RATE_CANISTER_ID="uf6dk-hyaaa-aaaaq-qaaaq-cai"
+
+git checkout dfx.json
+dfx-network-stop
+dfx start --clean --background
+
+trap 'dfx-network-stop' EXIT
+
+if dfx canister metadata "$HARD_CODED_EXCHANGE_RATE_CANISTER_ID" --network local candid:service; then
+  echo "ERROR: exchange rate canister should not exist before installing."
+  exit 1
+fi
+
+dfx-mock-exchange-rate-canister-install --network local
+
+# dfx-mock-exchange-rate-canister-install is a known method on the exchange rate canister.
+if ! dfx canister metadata "$HARD_CODED_EXCHANGE_RATE_CANISTER_ID" --network local candid:service | grep get_exchange_rate; then
+  echo "ERROR: mock exchange rate canister should have been installed."
+  exit 1
+fi
+
+EXPECTED_EXCHANGE_RATE=345000000
+
+bin/dfx-mock-exchange-rate-set --network local --base_asset ICP --quote_asset USD --rate_e8s "$EXPECTED_EXCHANGE_RATE"
+
+ACTUAL_EXCHANGE_RATE="$(dfx canister call xrc get_exchange_rate '(
+  record {
+    quote_asset = record { class = variant { FiatCurrency }; symbol = "USD" };
+    base_asset = record { class = variant { Cryptocurrency }; symbol = "ICP" };
+  }
+)' | idl2json | jq -r '.Ok.rate')"
+
+if [[ "$ACTUAL_EXCHANGE_RATE" != "$EXPECTED_EXCHANGE_RATE" ]]; then
+  echo "ERROR: exchange rate should have been set to $EXPECTED_EXCHANGE_RATE, but was $ACTUAL_EXCHANGE_RATE."
+  exit 1
+fi
+
+echo "PASSED: dfx-mock-exchange-rate-canister-install.test"

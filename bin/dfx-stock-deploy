@@ -36,6 +36,9 @@ fi
 : Set up SNS state and create one finalized SNS
 dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --unique_logo "$UNIQUE_LOGO"
 
+dfx-mock-exchange-rate-canister-install --network "$DFX_NETWORK" --release pinned
+dfx-mock-exchange-rate-set --network "$DFX_NETWORK" --base_asset ICP --quote_asset USD --rate_e8s 900_000_000
+
 dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT"
 
 : Add 1 open SNS project.

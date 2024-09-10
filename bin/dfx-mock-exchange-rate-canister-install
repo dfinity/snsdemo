@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Fetches and installs the mock exchange rate canister:
+	* Downloads the wasm.
+	* Adds the xrc canister to dfx.json, if not already present.
+	* Deploys the downloaded wasm to the specified network.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=r long=release desc="The release to download the wasm from" variable=RELEASE default="pinned"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+# https://github.com/dfinity/ic/blob/ce350b79f34e5a8b57429cf6892c127195464984/rs/nns/constants/src/lib.rs#L114-L116
+HARD_CODED_CANISTER_ID="uf6dk-hyaaa-aaaaq-qaaaq-cai"
+
+if [[ "${RELEASE}" ]]; then
+  . "$SOURCE_DIR/versions.bash"
+  RELEASE="${EXCHANGE_RATE_CANISTER_RELEASE}"
+fi
+
+WASM_FILE="xrc_mock.wasm.gz"
+WASM_URL="https://github.com/dfinity/exchange-rate-canister/releases/download/${RELEASE}/${WASM_FILE}"
+CANISTER_NAME="xrc"
+CANISTER_ARG="(record{response=variant{Error=variant{CryptoBaseAssetNotFound=null}}})"
+
+dfx-mock-canister-install \
+  --network "${DFX_NETWORK}" \
+  --wasm_url "${WASM_URL}" \
+  --canister_name "${CANISTER_NAME}" \
+  --specified_canister_id "${HARD_CODED_CANISTER_ID}" \
+  --canister_arg "${CANISTER_ARG}"
