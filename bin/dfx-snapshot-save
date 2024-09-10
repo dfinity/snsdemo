@@ -20,7 +20,7 @@ source "$(clap.build)"
 
 case "$(uname)" in
 Linux)
-  LOCAL_REPLICA_DATA_DIR=".local/share/dfx"
+  LOCAL_REPLICA_DATA_DIR=".local/share/dfx/network/local"
   ;;
 Darwin)
   LOCAL_REPLICA_DATA_DIR="Library/Application Support/org.dfinity.dfx/network/local"
