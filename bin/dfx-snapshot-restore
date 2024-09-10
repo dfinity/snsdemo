@@ -24,7 +24,7 @@ source "$(clap.build)"
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
 
 pushd "$HOME"
-rm -fr .local/share/dfx
+rm -fr .local/share/dfx/network/local
 tar --extract --xz --file "$DFX_SNAPSHOT_FILE"
 # Note: dfx start works here but not in the project dir.
 dfx start --background
