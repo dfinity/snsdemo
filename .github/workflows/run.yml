@@ -4,6 +4,7 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
@@ -113,7 +114,7 @@ jobs:
         run: |
           # Run from a different directory to test that this also work.
           # For example dfx-network-provider has some special logic for
-          # this case.
+          # this case and nns-dapp relies on this working.
           cd "$HOME/.."
           dfx-sns-demo-mksns --config_index 1
           dfx-sns-sale-buy
