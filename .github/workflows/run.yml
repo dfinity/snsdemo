@@ -42,18 +42,23 @@ jobs:
         uses: dfinity/setup-dfx@main
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
+      - name: Test dfx-network-provider
+        if: matrix.os != 'macos-12'
+        run: |
+          pushd "$HOME/.."
+          dfx start --background
+          popd
+          dfx ping --wait-healthy
+          # We don't care about the result as long as ic-admin doesn't fail.
+          ic-admin --nns-url "$(dfx-network-provider)" get-node-operator-list
+          dfx killall
       - name: Run the demo with the current default ic commits
         run: bin/dfx-sns-demo --config_index 0
       - name: Create and finalize an additional SNS
         run: |
-          echo hello
-          # Run from a different directory to test that this also work.
-          # For example dfx-network-provider has some special logic for
-          # this case and nns-dapp relies on this working.
-          cd "$HOME/.."
-          dfx-sns-demo-mksns --config_index 2
-          dfx-sns-sale-buy
-          dfx-sns-sale-finalize
+          ./bin/dfx-sns-demo-mksns --config_index 1
+          ./bin/dfx-sns-sale-buy
+          ./bin/dfx-sns-sale-finalize
       - name: Create lots of SNS
         if: matrix.os != 'macos-12'
         run: |
@@ -74,13 +79,6 @@ jobs:
           sleep 1
           echo "Saving state"
           bin/dfx-snapshot-save --verbose --snapshot state.tar.xz
-      - name: Upload state
-        if: matrix.os != 'macos-12'
-        uses: actions/upload-artifact@v3
-        with:
-          name: snsdemo
-          path: state.tar.xz
-          retention-days: 3
   demo_latest:
     if: true # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}
@@ -117,14 +115,9 @@ jobs:
         run: bin/dfx-sns-demo --ic_commit latest --ic_dir ic --config_index 0
       - name: Create and finalize an additional SNS
         run: |
-          echo hello
-          # Run from a different directory to test that this also work.
-          # For example dfx-network-provider has some special logic for
-          # this case and nns-dapp relies on this working.
-          cd "$HOME/.."
-          dfx-sns-demo-mksns --config_index 3
-          dfx-sns-sale-buy
-          dfx-sns-sale-finalize
+          ./bin/dfx-sns-demo-mksns --config_index 1
+          ./bin/dfx-sns-sale-buy
+          ./bin/dfx-sns-sale-finalize
       - name: Create lots of SNS
         if: matrix.os != 'macos-12'
         run: |
