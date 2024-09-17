@@ -21,6 +21,7 @@ clap.define long=save-proposal-id-to desc="Passed to sns propose --save-to" vari
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+set -x
 DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")}"
 DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 

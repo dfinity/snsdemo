@@ -111,9 +111,13 @@ jobs:
         run: bin/dfx-sns-demo --ic_commit latest --ic_dir ic --config_index 0
       - name: Create and finalize an additional SNS
         run: |
-          ./bin/dfx-sns-demo-mksns --config_index 1
-          ./bin/dfx-sns-sale-buy
-          ./bin/dfx-sns-sale-finalize
+          # Run from a different directory to test that this also work.
+          # For example dfx-network-provider has some special logic for
+          # this case.
+          cd "$HOME/.."
+          dfx-sns-demo-mksns --config_index 1
+          dfx-sns-sale-buy
+          dfx-sns-sale-finalize
       - name: Create lots of SNS
         if: matrix.os != 'macos-12'
         run: |
