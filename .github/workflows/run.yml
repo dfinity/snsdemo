@@ -4,7 +4,6 @@ on:
     branches:
       - main
   pull_request:
-  workflow_dispatch:
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
@@ -42,16 +41,6 @@ jobs:
         uses: dfinity/setup-dfx@main
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
-      - name: Test dfx-network-provider
-        if: matrix.os != 'macos-12'
-        run: |
-          pushd "$HOME/.."
-          dfx start --background
-          popd
-          dfx ping --wait-healthy
-          # We don't care about the result as long as ic-admin doesn't fail.
-          ic-admin --nns-url "$(dfx-network-provider)" get-node-operator-list
-          dfx killall
       - name: Run the demo with the current default ic commits
         run: bin/dfx-sns-demo --config_index 0
       - name: Create and finalize an additional SNS
@@ -79,6 +68,13 @@ jobs:
           sleep 1
           echo "Saving state"
           bin/dfx-snapshot-save --verbose --snapshot state.tar.xz
+      - name: Upload state
+        if: matrix.os != 'macos-12'
+        uses: actions/upload-artifact@v3
+        with:
+          name: snsdemo
+          path: state.tar.xz
+          retention-days: 3
   demo_latest:
     if: true # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}

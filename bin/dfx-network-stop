@@ -26,9 +26,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
 
   : "Make sure that it is dead."
   sleep 1
-  pkill -9 dfx || true
-  pkill -9 replica || true
-  pkill -9 icx-proxy || true
+  dfx killall
   sleep 1
 else
   echo "Not stopping remote network: $DFX_NETWORK"
