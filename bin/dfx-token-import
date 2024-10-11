@@ -66,8 +66,8 @@ token_import() {
     echo "Getting  $local_path from $url..."
     curl -sSLf --retry 5 "$url" -o "$local_path"
   }
-  get_did rs/rosetta-api/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
-  get_did rs/rosetta-api/icrc1/index-ng/index-ng.did "${LOCAL_PREFIX}index"
+  get_did rs/ledger_suite/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
+  get_did rs/ledger_suite/icrc1/index-ng/index-ng.did "${LOCAL_PREFIX}index"
 
   : "Token canister import complete."
 }

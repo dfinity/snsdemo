@@ -76,8 +76,8 @@ ckbtc_import() {
   }
   get_did rs/bitcoin/ckbtc/kyt/kyt.did "${LOCAL_PREFIX}kyt"
   get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
-  get_did rs/rosetta-api/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
-  get_did rs/rosetta-api/icrc1/index-ng/index-ng.did "${LOCAL_PREFIX}index"
+  get_did rs/ledger_suite/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
+  get_did rs/ledger_suite/icrc1/index-ng/index-ng.did "${LOCAL_PREFIX}index"
 
   : "Ckbtc canister import complete."
 }
