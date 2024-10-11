@@ -4,6 +4,8 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
 print_help() {
+  # ShellCheck somehow thinks this code is unreachable.
+  # shellcheck disable=SC2317
   cat <<-EOF
 
 	Wait up to 2 minutes for the current SNS to reach the given lifecycle.
@@ -30,6 +32,9 @@ clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_ID
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+# ShellCheck wants to remove the quotes to match on a regex. But the quote are
+# important to preserve the leading space.
+# shellcheck disable=SC2076
 if [[ ! "${LIFECYCLE_LIST}" =~ " ${LIFECYCLE:-}," ]]; then
   echo "ERROR: Unknown lifecycle '$LIFECYCLE'"
   echo "Please choose one of: $LIFECYCLE_LIST"
