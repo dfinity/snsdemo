@@ -16,6 +16,9 @@ clap.define short=b long=bin desc="Local directory for executables" variable=USE
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+# The swap must be committed before it can be finalized.
+dfx-sns-wait-for-lifecycle --lifecycle "committed" --network "$DFX_NETWORK" --identity "$DFX_IDENTITY"
+
 dfx canister --network "$DFX_NETWORK" call sns_swap finalize_swap '(record {})' | tee ,sns-sale-finalize.idl
 
 ERROR_MESSAGE="$(idl2json <,sns-sale-finalize.idl | jq -r '.error_message')"

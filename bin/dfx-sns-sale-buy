@@ -15,6 +15,9 @@ source "$(clap.build)"
 
 export DFX_NETWORK
 
+# The swap must be open before we can buy in.
+dfx-sns-wait-for-lifecycle --lifecycle "open" --network "$DFX_NETWORK" --identity "$DFX_IDENTITY"
+
 # Set the purchased amout to the maximum allowed, if requested.
 if [[ "${AMOUNT:-}" = "max" ]]; then
   SWAP_STATE="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK")"
