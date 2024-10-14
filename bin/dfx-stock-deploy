@@ -94,6 +94,9 @@ dfx canister call cketh_ledger icrc1_transfer "(record {to=record{owner=principa
 dfx canister call ckusdc_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000:nat})"
 dfx canister call ckred_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000:nat})"
 
+# Install nns-dapp last so all the canister IDs exist to pass as args.
+dfx-software-nns-dapp-install --network "$DFX_NETWORK" --release pinned
+
 : Add the nns root as a controller to the frontend canisters
 NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
 for canister in nns-dapp internet_identity; do
