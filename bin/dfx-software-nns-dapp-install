@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Fetches and installs the nns-dapp canister:
+	* Downloads the NNS dapp wasm.
+	* Adds the nns-dapp to dfx.json, if not already present.
+	* Deploys the downloaded wasm to the specified network.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=r long=release desc="The release name" variable=DFX_RELEASE default="pinned"
+clap.define short=m long=mode desc="The install mode: install, reinstall, upgrade" variable=DFX_MODE default="reinstall"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+: 'Convert aliases such as "pinned" into actual release names...'
+DFX_RELEASE="$(dfx-software-nns-dapp-version "${DFX_RELEASE}")"
+
+: 'Where to get the wasm from...'
+WASM_URL="$(dfx-software-nns-dapp-ci-wasm-url --release "${DFX_RELEASE}")"
+
+: 'Where to put the wasm...'
+# Note: We do NOT clobber the wasm pointed to by dfx.json.
+WASM_FILE="wasms/nns-dapp_${DFX_RELEASE}.wasm"
+
+: 'Get the wasm if it is not already there.'
+: 'We assume that releases are immutable, and the wasm filename contains the release and flavour.'
+test -e "$WASM_FILE" || {
+  echo "Downloading wasm from: $WASM_URL"
+  mkdir -p "$(dirname "$WASM_FILE")"
+  curl --retry 5 --fail -sSL "${WASM_URL}" >"${WASM_FILE}.tmp"
+  mv "${WASM_FILE}.tmp" "${WASM_FILE}"
+  echo "  saved wasm to: $WASM_FILE"
+}
+
+: 'We need at least a minimal entry in dfx.json'
+jq -e '.canisters."nns-dapp"' dfx.json >/dev/null || {
+  echo "Adding nns-dapp to dfx.json..."
+  # TODO: Include API declaration .did files in release, so that we can get the candid.
+  jq -s '.[0] * .[1]' <(echo '{"canisters": { "nns-dapp": { "type": "custom", "candid": "candid/nns-dapp.did", "wasm": "'"${WASM_FILE}"'", "build": "true" }}}') dfx.json | sponge dfx.json
+}
+
+: "If the canister was remote, it isn't any more:"
+DFX_NETWORK="$DFX_NETWORK" jq 'del(.canisters."nns-dapp".remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+
+canister_id() {
+  local canister_name="$1"
+  dfx canister id "$canister_name" --network "$DFX_NETWORK" || {
+    echo "Canister $canister_name not found on network $DFX_NETWORK." >&2
+    echo "not-found-canister-id"
+  }
+}
+
+# These args are specific to localhost. For other networks, the args should
+# still work for nns-dapp to be used as a backend but if you want to load the
+# frontend directly from the canister, you should upgrade nns-dapp with args
+# created by `config.sh` from the nns-dapp repo.
+CANISTER_ARG="(opt record{
+  args = vec {
+    record{ 0=\"API_HOST\"; 1=\"http://localhost:8080\" };
+    record{ 0=\"CKBTC_INDEX_CANISTER_ID\"; 1=\"$(canister_id ckbtc_index)\" };
+    record{ 0=\"CKBTC_LEDGER_CANISTER_ID\"; 1=\"$(canister_id ckbtc_ledger)\" };
+    record{ 0=\"CKBTC_MINTER_CANISTER_ID\"; 1=\"$(canister_id ckbtc_minter)\" };
+    record{ 0=\"CKETH_INDEX_CANISTER_ID\"; 1=\"$(canister_id cketh_index)\" };
+    record{ 0=\"CKETH_LEDGER_CANISTER_ID\"; 1=\"$(canister_id cketh_ledger)\" };
+    record{ 0=\"CKUSDC_INDEX_CANISTER_ID\"; 1=\"$(canister_id ckusdc_index)\" };
+    record{ 0=\"CKUSDC_LEDGER_CANISTER_ID\"; 1=\"$(canister_id ckusdc_ledger)\" };
+    record{ 0=\"CYCLES_MINTING_CANISTER_ID\"; 1=\"$(canister_id nns-cycles-minting)\" };
+    record{ 0=\"DFX_NETWORK\"; 1=\"$DFX_NETWORK\" };
+    record{ 0=\"FEATURE_FLAGS\"; 1=\"{\\\"ENABLE_CKBTC\\\":true,\\\"ENABLE_CKTESTBTC\\\":false}\" };
+    record{ 0=\"FETCH_ROOT_KEY\"; 1=\"true\" };
+    record{ 0=\"GOVERNANCE_CANISTER_ID\"; 1=\"$(canister_id nns-governance)\" };
+    record{ 0=\"HOST\"; 1=\"http://localhost:8080\" };
+    record{ 0=\"IDENTITY_SERVICE_URL\"; 1=\"http://$(canister_id internet_identity).localhost:8080\" };
+    record{ 0=\"INDEX_CANISTER_ID\"; 1=\"$(canister_id nns-icp-index)\" };
+    record{ 0=\"LEDGER_CANISTER_ID\"; 1=\"$(canister_id nns-ledger)\" };
+    record{ 0=\"OWN_CANISTER_ID\"; 1=\"$(canister_id nns-dapp)\" };
+    record{ 0=\"ROBOTS\"; 1=\"<meta name=\\\"robots\\\" content=\\\"noindex, nofollow\\\" />\" };
+    record{ 0=\"SNS_AGGREGATOR_URL\"; 1=\"http://$(canister_id sns_aggregator).localhost:8080\" };
+    record{ 0=\"STATIC_HOST\"; 1=\"http://localhost:8080\" };
+    record{ 0=\"TVL_CANISTER_ID\"; 1=\"$(canister_id nns-dapp)\" };
+    record{ 0=\"WASM_CANISTER_ID\"; 1=\"$(canister_id nns-sns-wasm)\" };
+  };
+})"
+
+echo "Installing nns-dapp..."
+# Note: We specify the wasm file explicitly as an existing wasm path may not point to the requested wasm.
+dfx canister install nns-dapp --wasm "$WASM_FILE" --upgrade-unchanged --mode "$DFX_MODE" --yes --network "${DFX_NETWORK}" --argument "$CANISTER_ARG"
+echo "Checking nns-dapp installation..."
+dfx-canister-check-wasm-hash --canister nns-dapp --network "$DFX_NETWORK" --wasm "${WASM_FILE}"
+echo "Finished installing nns-dapp.  Enjoy!"
