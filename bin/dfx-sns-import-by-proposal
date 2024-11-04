@@ -69,7 +69,7 @@ list_root_canister_id() {
 }
 
 echo "Current $(list_root_canister_id | wc -l) existing SNS root canister Ids:"
-list_deployed_snses
+list_root_canister_id
 
 if [[ "$SUCCESS" = "false" ]]; then
   echo "Failed to import SNS canisters for proposal $PROPOSAL_ID" >&2
