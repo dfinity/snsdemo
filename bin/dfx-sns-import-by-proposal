@@ -65,7 +65,7 @@ for ((try = 20; try > 0; try--)); do
 done
 
 list_root_canister_id() {
-dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances[] | .root_canister_id[0]'
+  dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances[] | .root_canister_id[0]'
 }
 
 echo "Current $(list_root_canister_id | wc -l) existing SNS root canister Ids:"
