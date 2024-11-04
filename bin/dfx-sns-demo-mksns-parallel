@@ -73,10 +73,14 @@ create_all_sns() {
   PROCESSES=()
   echo "I am $$"
   for ((i = 0; i < NUM_SNS_TO_MAKE; i++)); do
+    # Creating wallet canisters in parallel started occasionally failing with
+    # 0.24.1. When creating 10 in parallel, almost always at least 1 would fail.
+    # So we create the users outside the background process.
+    DEMO_USER="snsdemo_$i"
+    make_user "$DEMO_USER"
     (
       echo "Starting $BASHPID"
       DEMO_USER="snsdemo_$i"
-      make_user "$DEMO_USER"
       become_user "$DEMO_USER"
 
       ./bin/dfx-sns-demo-mksns-config --config_index $((CONFIG_INDEX_OFFSET + i)) --unique_logo "$UNIQUE_LOGO"

@@ -64,13 +64,6 @@ for ((try = 20; try > 0; try--)); do
   sleep 2
 done
 
-list_root_canister_id() {
-  dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances[] | .root_canister_id[0]'
-}
-
-echo "Current $(list_root_canister_id | wc -l) existing SNS root canister Ids:"
-list_root_canister_id
-
 if [[ "$SUCCESS" = "false" ]]; then
   echo "Failed to import SNS canisters for proposal $PROPOSAL_ID" >&2
   exit 1
