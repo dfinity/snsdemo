@@ -49,6 +49,13 @@ if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
   dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 2 --unique_logo "$UNIQUE_LOGO"
 fi
 
+SNS_COUNT="$(dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances | length')"
+EXPECTED_SNS_COUNT="$((2 + PARALLEL_SNS_COUNT))"
+if [[ "$SNS_COUNT" != "$EXPECTED_SNS_COUNT" ]]; then
+  echo "❌ Expected $EXPECTED_SNS_COUNT SNSes. Found $SNS_COUNT"
+  exit 1
+fi
+
 : Set up ckbtc canisters
 dfx-ckbtc-import --prefix ckbtc_
 dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes

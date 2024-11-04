@@ -12,7 +12,7 @@ jobs:
   #    strategy:
   #      fail-fast: false
   #      matrix:
-  #        os: [ macos-12, ubuntu-22.04 ]
+  #        os: [ macos-14, ubuntu-22.04 ]
   #    steps:
   #      - name: Checkout
   #        uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-12, ubuntu-22.04]
+        os: [macos-14, ubuntu-22.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,7 +32,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$PWD/bin" >> $GITHUB_PATH
       - name: Unbork mac
-        if: matrix.os == 'macos-12'
+        if: matrix.os == 'macos-14'
         run: |
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
@@ -49,11 +49,11 @@ jobs:
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
       - name: Create lots of SNS
-        if: matrix.os != 'macos-12'
+        if: matrix.os != 'macos-14'
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
       - name: Save state
-        if: matrix.os != 'macos-12'
+        if: matrix.os != 'macos-14'
         run: |
           # Stop the replica to let it persist all its state before we save the state.
           dfx stop
@@ -69,7 +69,7 @@ jobs:
           echo "Saving state"
           bin/dfx-snapshot-save --verbose --snapshot state.tar.xz
       - name: Upload state
-        if: matrix.os != 'macos-12'
+        if: matrix.os != 'macos-14'
         uses: actions/upload-artifact@v3
         with:
           name: snsdemo
@@ -81,7 +81,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-12, ubuntu-22.04]
+        os: [macos-14, ubuntu-22.04]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -90,7 +90,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$PWD/bin" >> $GITHUB_PATH
       - name: Unbork mac
-        if: matrix.os == 'macos-12'
+        if: matrix.os == 'macos-14'
         run: |
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
@@ -115,6 +115,6 @@ jobs:
           ./bin/dfx-sns-sale-buy
           ./bin/dfx-sns-sale-finalize
       - name: Create lots of SNS
-        if: matrix.os != 'macos-12'
+        if: matrix.os != 'macos-14'
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
