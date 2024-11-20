@@ -15,6 +15,12 @@ jobs:
   update-dfx:
     runs-on: ubuntu-latest
     steps:
+      - name: Create GitHub App Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.PR_AUTOMATION_BOT_PUBLIC_APP_ID }}
+          private-key: ${{ secrets.PR_AUTOMATION_BOT_PUBLIC_PRIVATE_KEY }}
       - uses: actions/checkout@v3
         # First, check dfx GitHub releases for a new version. We assume that the
         # latest version's tag name is the version.
@@ -44,7 +50,7 @@ jobs:
         if: ${{ steps.update.outputs.updated == '1' }}
         uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.GIX_CREATE_PR_PAT }}
+          token: ${{ steps.app-token.outputs.token }}
           base: main
           add-paths: |
             dfx.json
