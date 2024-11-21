@@ -32,7 +32,7 @@ FEE_E8S="$(dfx canister call "$LEDGER_CANISTER_ID" icrc1_fee '(record
 
 from_e8s() {
   amount_e8s="$1"
-  amount="$(awk "BEGIN {printf \"%.8f\", $amount_e8s * 0.00000001}")"
+  amount="$(LC_NUMERIC="C" awk "BEGIN {printf \"%.8f\", $amount_e8s * 0.00000001}")"
   echo "$amount"
 }
 
