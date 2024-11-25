@@ -58,7 +58,7 @@ ckbtc_import() {
     echo "Getting  $local_path from $url..."
     curl -fsSL "$url" | gunzip >"${local_path}"
   }
-  get_wasm ic-ckbtc-kyt.wasm "${LOCAL_PREFIX}kyt"
+  get_wasm ic-btc-kyt.wasm "${LOCAL_PREFIX}kyt"
   get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter"
   get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger"
   get_wasm ic-icrc1-index-ng.wasm "${LOCAL_PREFIX}index"
