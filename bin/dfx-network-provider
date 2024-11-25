@@ -30,14 +30,14 @@ get_home() {
 case "${FORMAT}" in
 url)
   if [[ "$DFX_NETWORK" == "local" ]]; then
-    REPLICA_PORT="$(dfx info replica-port 2>/dev/null || true)"
-    [[ "${REPLICA_PORT:-}" != "" ]] || {
+    WEBSERVER_PORT="$(dfx info webserver-port 2>/dev/null || true)"
+    [[ "${WEBSERVER_PORT:-}" != "" ]] || {
       # The above command can fail if not run in the same directory as the replica working directory.
-      DFX_EXEC_DIR="$(lsof -p $(pgrep pocket-ic) | grep cwd | awk '{print $NF}')"
+      DFX_EXEC_DIR="$(lsof -p "$(pgrep pocket-ic | head -1)" | grep cwd | awk '{print $NF}')"
       cd "$DFX_EXEC_DIR"
-      REPLICA_PORT="$(HOME="$(get_home)" dfx info replica-port)"
+      WEBSERVER_PORT="$(HOME="$(get_home)" dfx info webserver-port)"
     }
-    echo "http://localhost:$REPLICA_PORT"
+    echo "http://localhost:$WEBSERVER_PORT"
   elif [[ "${DFX_NETWORK:-}" =~ mainnet|ic ]]; then
     echo "https://ic0.app"
   else
