@@ -56,9 +56,8 @@ deploy_ckbtc() {
   DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
   dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(variant {
   InitArg = record {
-      minter_id = principal \"$MINTERID\";
-      maintainers = vec { principal \"$DFX_IDENTITY_PRINCIPAL\" };
-      mode = variant { AcceptAll };
+      btc_network = variant { mainnet };
+      kyt_mode = variant { AcceptAll };
   }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
