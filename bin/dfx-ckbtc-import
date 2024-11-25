@@ -74,7 +74,7 @@ ckbtc_import() {
     echo "Getting  $local_path from $url..."
     curl -sSLf --retry 5 "$url" -o "$local_path"
   }
-  get_did rs/bitcoin/ckbtc/kyt/kyt.did "${LOCAL_PREFIX}kyt"
+  get_did rs/bitcoin/kyt/btc_kyt_canister.did "${LOCAL_PREFIX}kyt"
   get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
   get_did rs/ledger_suite/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
   get_did rs/ledger_suite/icrc1/index-ng/index-ng.did "${LOCAL_PREFIX}index"
