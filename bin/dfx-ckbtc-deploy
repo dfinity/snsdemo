@@ -56,15 +56,10 @@ deploy_ckbtc() {
   DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
   dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(variant {
   InitArg = record {
-      minter_id = principal \"$MINTERID\";
-      maintainers = vec { principal \"$DFX_IDENTITY_PRINCIPAL\" };
-      mode = variant { AcceptAll };
+      btc_network = variant { mainnet };
+      kyt_mode = variant { AcceptAll };
   }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
-
-  # We use mode AcceptAll so the API key is not used, but without API key the
-  # KYT canister will refuse to accept any UTXOs.
-  dfx canister call "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" set_api_key '( record { api_key = "placeholder" } )'
 
   # echo "Step 2: deploying minter canister..."
   dfx deploy "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" --argument "(variant {
