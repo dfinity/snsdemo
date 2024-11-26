@@ -21,14 +21,16 @@ clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSH
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+set -x
+
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
 
 pushd "$HOME"
 rm -fr .local/share/dfx/network/local
 tar --extract --xz --file "$DFX_SNAPSHOT_FILE"
 # Note: dfx start works here but not in the project dir.
-dfx start --background
-num_canisters="$(curl -s "http://localhost:$(dfx info replica-port)/_/dashboard" | grep -c '<h3>Execution state</h3>')"
+dfx start --pocketic --background
+num_canisters="$(curl -s "http://localhost:$(dfx info webserver-port)/_/dashboard" | grep -c '<h3>Execution state</h3>')"
 echo "Approx num canisters: $num_canisters"
 popd
 rm -fr .dfx
