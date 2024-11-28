@@ -109,3 +109,9 @@ NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
 for canister in nns-dapp internet_identity; do
   dfx canister --network "$DFX_NETWORK" update-settings "$canister" --add-controller "$NNS_ROOT"
 done
+
+: "Wait for aggregator to get all SNSs"
+# 2 SNSes were created by dfx-sns-demo.
+dfx-sns-aggregator-wait
+
+dfx-mock-icp-swap-install --network "$DFX_NETWORK"

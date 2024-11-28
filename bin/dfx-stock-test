@@ -57,4 +57,14 @@ export DFX_NETWORK
   fi
 )
 
+(
+  # We expect 4 ck tokens + 10 SNSes (from the aggregator first page)
+  print_title "icp-swap should have 14 tickers"
+  icp_swap_url="http://$(dfx canister id icp-swap).localhost:8080/tickers"
+  if [ "$(curl -fsS "$icp_swap_url" | jq length)" != "14" ]; then
+    echo "ERROR: icp-swap should have 14 tickers." >&2
+    exit 1
+  fi
+)
+
 echo "$(basename "$0") PASSED"
