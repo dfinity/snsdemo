@@ -57,7 +57,7 @@ deploy_ckbtc() {
   dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(variant {
   InitArg = record {
       btc_network = variant { mainnet };
-      kyt_mode = variant { AcceptAll };
+      check_mode = variant { AcceptAll };
   }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
