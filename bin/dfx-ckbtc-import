@@ -24,7 +24,7 @@ clap.define long=candid_dir desc="Where to store the imported candid files" vari
 source "$(clap.build)"
 
 # TODO: Consider using ./bin/dfx-token-import for the ledger and index
-# canisters. KYT and minter are custom canisters, so they still need to be done
+# canisters. CHECKER and minter are custom canisters, so they still need to be done
 # here.
 
 # Imports wasm, candid and populate dfx.json
@@ -40,7 +40,7 @@ ckbtc_import() {
     WASM_DIR="${WASM_DIR:-}" \
     CANDID_DIR="${CANDID_DIR:-}" \
     jq -s '{canisters:
-      { "\(env.LOCAL_PREFIX)kyt" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)kyt.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)kyt.wasm",  type: "custom", remote: { id: {mainnet: "pjihx-aaaaa-aaaar-qaaka-cai"} }}
+      { "\(env.LOCAL_PREFIX)checker" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)checker.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)checker.wasm",  type: "custom", remote: { id: {mainnet: "pjihx-aaaaa-aaaar-qaaka-cai"} }}
       , "\(env.LOCAL_PREFIX)ledger": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)ledger.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)ledger.wasm", type: "custom", remote: { id: {mainnet: "mxzaz-hqaaa-aaaar-qaada-cai"} }}
       , "\(env.LOCAL_PREFIX)minter": { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)minter.did", wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)minter.wasm", type: "custom", remote: { id: {} }}
       , "\(env.LOCAL_PREFIX)index" : { build: "true", candid: "\(env.CANDID_DIR)/\(env.LOCAL_PREFIX)index.did",  wasm: "\(env.WASM_DIR)/\(env.LOCAL_PREFIX)index.wasm",  type: "custom", remote: { id: {mainnet: "n5wcd-faaaa-aaaar-qaaea-cai"} }}
@@ -58,7 +58,7 @@ ckbtc_import() {
     echo "Getting  $local_path from $url..."
     curl -fsSL "$url" | gunzip >"${local_path}"
   }
-  get_wasm ic-btc-kyt.wasm "${LOCAL_PREFIX}kyt"
+  get_wasm ic-btc-checker.wasm "${LOCAL_PREFIX}checker"
   get_wasm ic-ckbtc-minter.wasm "${LOCAL_PREFIX}minter"
   get_wasm ic-icrc1-ledger.wasm "${LOCAL_PREFIX}ledger"
   get_wasm ic-icrc1-index-ng.wasm "${LOCAL_PREFIX}index"
@@ -74,7 +74,7 @@ ckbtc_import() {
     echo "Getting  $local_path from $url..."
     curl -sSLf --retry 5 "$url" -o "$local_path"
   }
-  get_did rs/bitcoin/kyt/btc_kyt_canister.did "${LOCAL_PREFIX}kyt"
+  get_did rs/bitcoin/checker/btc_checker_canister.did "${LOCAL_PREFIX}checker"
   get_did rs/bitcoin/ckbtc/minter/ckbtc_minter.did "${LOCAL_PREFIX}minter"
   get_did rs/ledger_suite/icrc1/ledger/ledger.did "${LOCAL_PREFIX}ledger"
   get_did rs/ledger_suite/icrc1/index-ng/index-ng.did "${LOCAL_PREFIX}index"
@@ -85,7 +85,7 @@ ckbtc_import() {
 # Checks whether ckbtc canisters have already been installed.
 ckbtc_import_check() {
   : Verify that all file are present and correct
-  for canister in kyt minter ledger index; do
+  for canister in checker minter ledger index; do
     : "Check that the config is in dfx.json:"
     canister_config="$(n="$LOCAL_PREFIX$canister" jq '.canisters[env.n]' dfx.json)"
     [[ "$canister_config" != "null" ]] || {

@@ -26,7 +26,7 @@ clap.define short=m long=mode desc="Canister install mode." variable=DFX_MODE de
 source "$(clap.build)"
 
 # TODO: Consider using ./bin/dfx-token-deploy for the ledger and index
-# canisters. KYT and minter are custom canisters, so they still need to be done
+# canisters. CHECKER and minter are custom canisters, so they still need to be done
 # here.
 
 : Check preconditions. This is always run.
@@ -41,23 +41,23 @@ source "$(clap.build)"
 deploy_ckbtc() {
   # We create some canisters ahead of time because we need to know their IDs
   # before deploying. Remaining canisters will be created when deployed.
-  dfx canister create "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}kyt canister already exists"
+  dfx canister create "${LOCAL_PREFIX}checker" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}checker canister already exists"
   dfx canister create "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}ledger canister already exists"
   dfx canister create "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK" || echo "${LOCAL_PREFIX}minter canister already exists"
 
-  KYT_ID="$(dfx canister id "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK")"
-  echo "$KYT_ID"
+  CHECKER_ID="$(dfx canister id "${LOCAL_PREFIX}checker" --network "$DFX_NETWORK")"
+  echo "$CHECKER_ID"
   MINTERID="$(dfx canister id "${LOCAL_PREFIX}minter" --network "$DFX_NETWORK")"
   echo "$MINTERID"
   LEDGERID="$(dfx canister id "${LOCAL_PREFIX}ledger" --network "$DFX_NETWORK")"
   echo "$LEDGERID"
 
-  # echo "Step 1: deploying kyt canister..."
+  # echo "Step 1: deploying checker canister..."
   DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
-  dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(variant {
+  dfx deploy "${LOCAL_PREFIX}checker" --network "$DFX_NETWORK" --argument "(variant {
   InitArg = record {
       btc_network = variant { mainnet };
-      kyt_mode = variant { AcceptAll };
+      checker_mode = variant { AcceptAll };
   }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
@@ -71,8 +71,8 @@ deploy_ckbtc() {
        max_time_in_queue_nanos = 10_000_000_000;
        min_confirmations = opt 12;
        mode = variant { GeneralAvailability };
-       kyt_fee = opt 13_333;
-       kyt_principal = opt principal \"$KYT_ID\";
+       checker_fee = opt 13_333;
+       checker_principal = opt principal \"$CHECKER_ID\";
    }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
@@ -122,7 +122,7 @@ deploy_ckbtc() {
 }
 
 check_ckbtc_deployment() {
-  for canister in kyt ledger minter index; do
+  for canister in checker ledger minter index; do
     : "Verify that the deployed canister matches the local wasm"
     dfx-canister-check-wasm-hash --canister "${LOCAL_PREFIX}$canister" --network "$DFX_NETWORK"
   done
