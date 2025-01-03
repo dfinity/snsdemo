@@ -58,7 +58,7 @@ deploy_ckbtc() {
   InitArg = record {
       btc_network = variant { mainnet };
       check_mode = variant { AcceptAll };
-      num_subnet_nodes = opt 1;
+      num_subnet_nodes = 1;
   }
 })" --mode="${DFX_MODE}" ${DFX_YES:+--yes} --upgrade-unchanged
 
