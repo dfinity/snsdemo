@@ -27,11 +27,25 @@ if ! [[ -e dfx.json ]]; then
   exit 1
 fi
 
-get_random_price() {
-  # $RANDOM generates a random number between 0 and 32767.
-  # So we end up with a random number between 1 and ~17, with 4 digits behind
-  # the floating point.
-  echo "scale=4; $RANDOM / 2000 + 1" | bc
+# The price returned is the number of tokens in 1 ICP.
+get_price() {
+  ledger_canister="$1"
+  # While these prices are somewhat realistic at the time of implementation,
+  # they don't really matter and we just want some variety for testing.
+  case "$ledger_canister" in
+  ckusdc_ledger)
+    echo "9.00"
+    ;;
+  ckbtc_ledger)
+    echo "0.0001"
+    ;;
+  cketh_ledger)
+    echo "0.003"
+    ;;
+  *)
+    echo "50"
+    ;;
+  esac
 }
 
 generate_ticker_data() {
@@ -42,7 +56,7 @@ generate_ticker_data() {
     fi
     symbol="$(dfx canister call "$ledger_canister" icrc1_metadata | idl2json | jq -r '[ .[] | {key: .["0"], value: .["1"]} ] | from_entries | .["icrc1:symbol"].Text')"
     canister_id="$(dfx canister id "$ledger_canister")"
-    price="$(get_random_price)"
+    price="$(get_price "$ledger_canister")"
     echo "Adding mock ticker data for $symbol with price $price" >&2
     symbol=$symbol canister_id=$canister_id price=$price jq -n '{
       ticker_name: (env.symbol + "_ICP"),
