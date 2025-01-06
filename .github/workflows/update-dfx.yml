@@ -41,7 +41,7 @@ jobs:
             echo An update is available for dfx.
             git diff
             echo "updated=1" >> "$GITHUB_OUTPUT"
-            echo "title=Update dfx to version $latest_dfx_version" >> "$GITHUB_OUTPUT"
+            echo "title=bot: Update dfx to version $latest_dfx_version" >> "$GITHUB_OUTPUT"
           else
             echo "updated=0" >> "$GITHUB_OUTPUT"
           fi
