@@ -46,13 +46,12 @@ jobs:
             awk -v version="$latest_ic_commit" -F= 'BEGIN{IFS=OFS="="}($1=="DFX_IC_COMMIT"){$2=version}{print}' bin/versions.bash |  sponge bin/versions.bash
             echo An new IC commit is available.
             git diff
-            echo "updated=1" >> "$GITHUB_OUTPUT"
           else
-            echo "updated=0" >> "$GITHUB_OUTPUT"
+            echo "No new IC commit available since $current_ic_commit." >&2
+            exit 1
           fi
         # If a newer commit is available, create a PR.
       - name: Create Pull Request
-        if: ${{ steps.update.outputs.updated == '1' }}
         uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
