@@ -29,8 +29,11 @@ function downloads_exist() {
       "canisters/ic-icrc1-ledger.wasm.gz" \
       "canisters/sns-wasm-canister.wasm.gz"; do
 
-      curl --location --output /dev/null --silent --head --fail \
-        "https://download.dfinity.systems/ic/${GIT_REVISION}/$file" || exit 1
+      if ! curl --location --output /dev/null --silent --head --fail \
+        "https://download.dfinity.systems/ic/${GIT_REVISION}/$file"; then
+        echo "File $file does not exist for revision $GIT_REVISION" >&2
+        exit 1
+      fi
     done
 
     # Syncing to the public repo may be slow
