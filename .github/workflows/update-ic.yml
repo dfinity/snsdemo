@@ -62,6 +62,7 @@ jobs:
           committer: GitHub <noreply@github.com>
           author: gix-bot <gix-bot@users.noreply.github.com>
           branch: bot-ic-update
+          branch-suffix: timestamp
           delete-branch: true
           title: 'bot: Update IC commit'
           # Since the this is a scheduled job, a failure won't be shown on any
