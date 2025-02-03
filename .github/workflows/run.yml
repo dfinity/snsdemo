@@ -52,29 +52,6 @@ jobs:
         if: matrix.os != 'macos-14'
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
-      - name: Save state
-        if: matrix.os != 'macos-14'
-        run: |
-          # Stop the replica to let it persist all its state before we save the state.
-          dfx stop
-          echo "Waiting for replica to stop"
-          for (( i=100; i>0; i-- )); do
-              echo "$i"
-              pgrep replica || break
-              sleep 1
-          done
-          echo "Making sure the replica is dead"
-          ./bin/dfx-network-stop
-          sleep 1
-          echo "Saving state"
-          bin/dfx-snapshot-save --verbose --snapshot state.tar.xz
-      - name: Upload state
-        if: matrix.os != 'macos-14'
-        uses: actions/upload-artifact@v3
-        with:
-          name: snsdemo
-          path: state.tar.xz
-          retention-days: 3
   demo_latest:
     if: true # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}
