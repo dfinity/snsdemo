@@ -73,7 +73,7 @@ sleep 1
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 sleep 1
 
-#if false; then
+if false; then
 
 curl 'http://localhost:8080/_/topology' >topology.json
 SNS_SUBNET_ID="$(jq -r '.subnet_configs | to_entries[] | select(.value.subnet_kind == "SNS") | .key' topology.json)"
@@ -93,7 +93,7 @@ NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
   --sns-subnet-ids-to-add "$SNS_SUBNET_ID" \
   "${SUBNET_REMOVE_ARGS[@]}"
 
-#fi
+fi
 
 ./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
 sleep 1
