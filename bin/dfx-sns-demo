@@ -75,23 +75,23 @@ sleep 1
 
 if false; then
 
-curl 'http://localhost:8080/_/topology' >topology.json
-SNS_SUBNET_ID="$(jq -r '.subnet_configs | to_entries[] | select(.value.subnet_kind == "SNS") | .key' topology.json)"
-NEURON_ARGS=(--proposer "$(dfx-neuron-id --network "$DFX_NETWORK" --identity snsdemo8)")
-PEM_ARGS=("--secret-key-pem" "$(dfx-identity-pem --identity snsdemo8)")
+  curl 'http://localhost:8080/_/topology' >topology.json
+  SNS_SUBNET_ID="$(jq -r '.subnet_configs | to_entries[] | select(.value.subnet_kind == "SNS") | .key' topology.json)"
+  NEURON_ARGS=(--proposer "$(dfx-neuron-id --network "$DFX_NETWORK" --identity snsdemo8)")
+  PEM_ARGS=("--secret-key-pem" "$(dfx-identity-pem --identity snsdemo8)")
 
-SUBNET_REMOVE_ARGS=($(dfx canister call nns-sns-wasm get_sns_subnet_ids '(record{})' | idl2json | jq -r '.sns_subnet_ids | map("--sns-subnet-ids-to-remove " + . + " ") | .[]'))
+  SUBNET_REMOVE_ARGS=($(dfx canister call nns-sns-wasm get_sns_subnet_ids '(record{})' | idl2json | jq -r '.sns_subnet_ids | map("--sns-subnet-ids-to-remove " + . + " ") | .[]'))
 
-NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
+  NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
-"ic-admin" \
-  --nns-url "$NNS_URL" \
-  "${PEM_ARGS[@]}" \
-  propose-to-update-sns-subnet-ids-in-sns-wasm \
-  --summary "Deploy SNSes to SNS subnet" \
-  "${NEURON_ARGS[@]}" \
-  --sns-subnet-ids-to-add "$SNS_SUBNET_ID" \
-  "${SUBNET_REMOVE_ARGS[@]}"
+  "ic-admin" \
+    --nns-url "$NNS_URL" \
+    "${PEM_ARGS[@]}" \
+    propose-to-update-sns-subnet-ids-in-sns-wasm \
+    --summary "Deploy SNSes to SNS subnet" \
+    "${NEURON_ARGS[@]}" \
+    --sns-subnet-ids-to-add "$SNS_SUBNET_ID" \
+    "${SUBNET_REMOVE_ARGS[@]}"
 
 fi
 
