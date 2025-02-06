@@ -25,7 +25,7 @@ clap.define short=c long=ic_commit desc="The IC commit of the wasms" variable=DF
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-"$SOURCE_DIR/dfx-software-dfx-extension-nns-install" --if-not-installed
+"$SOURCE_DIR/dfx-software-dfx-extension-nns-install" --version pinned
 
 WASMS_DIR="$(dfx cache show)/wasms"
 mkdir -p "$WASMS_DIR"
