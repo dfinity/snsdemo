@@ -13,6 +13,7 @@ clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETW
 clap.define short=m long=majority desc="A user representing the majority vote" variable=DFX_PROPOSER default=""
 clap.define short=o long=config_index_offset desc="The start value for the dfx-sns-demo-mksns-config --config_index parameter" variable=CONFIG_INDEX_OFFSET default="0"
 clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
+clap.define long=add_controller desc="Principal of additional controller to add to the SNS canisters" variable=NEW_CONTROLLER
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
@@ -100,6 +101,14 @@ create_all_sns() {
       dfx canister id sns_ledger --network "$DFX_NETWORK"
       dfx canister id sns_index --network "$DFX_NETWORK"
       dfx canister id sns_swap --network "$DFX_NETWORK"
+
+      if [[ -n "${NEW_CONTROLLER:-}" ]]; then
+        dfx-add-controller --network "$DFX_NETWORK" --canister sns_root --principal "$NEW_CONTROLLER"
+        dfx-add-controller --network "$DFX_NETWORK" --canister sns_governance --principal "$NEW_CONTROLLER"
+        dfx-add-controller --network "$DFX_NETWORK" --canister sns_ledger --principal "$NEW_CONTROLLER"
+        dfx-add-controller --network "$DFX_NETWORK" --canister sns_index --principal "$NEW_CONTROLLER"
+        dfx-add-controller --network "$DFX_NETWORK" --canister sns_swap --principal "$NEW_CONTROLLER"
+      fi
 
       : hand over control of the dapp. Skipped...
 
