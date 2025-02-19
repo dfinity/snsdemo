@@ -54,7 +54,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
     tput setaf 0
   )"
   export NORMAL="$(tput sgr0)"
-  dfx start --clean --background 2>&1 | sed -e "s@.*@${DARK}&${NORMAL}@" &
+  dfx start --clean --pocketic --background 2>&1 | sed -e "s@.*@${DARK}&${NORMAL}@" &
 
   dfx-nns-install --ic_commit "$DFX_IC_COMMIT"
   dfx-nns-import --network "$DFX_NETWORK"
