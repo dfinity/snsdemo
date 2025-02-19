@@ -80,7 +80,7 @@ sleep 1
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 sleep 1
 
-./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK" --config_index "$CONFIG_INDEX" --unique_logo "$UNIQUE_LOGO"
+./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK" --config_index "$CONFIG_INDEX" --unique_logo "$UNIQUE_LOGO" --add_controller "$(dfx identity get-principal)"
 sleep 1
 ./bin/dfx-sns-sale-buy --network "$DFX_NETWORK"
 sleep 1

@@ -41,12 +41,14 @@ dfx-mock-exchange-rate-set --network "$DFX_NETWORK" --base_asset ICP --quote_ass
 
 dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT"
 
+NEW_SNS_CONTROLLER="$(dfx identity get-principal)"
+
 : Add 1 open SNS project.
-dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --config_index 1 --unique_logo "$UNIQUE_LOGO"
+dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --config_index 1 --unique_logo "$UNIQUE_LOGO" --add_controller "$NEW_SNS_CONTROLLER"
 
 : Add some more finalized SNS projects.
 if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
-  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 2 --unique_logo "$UNIQUE_LOGO"
+  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 2 --unique_logo "$UNIQUE_LOGO" --add_controller "$NEW_SNS_CONTROLLER"
 fi
 
 SNS_COUNT="$(dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances | length')"
