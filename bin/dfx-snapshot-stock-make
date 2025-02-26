@@ -21,7 +21,7 @@ clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-un
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-if pgrep -x replica; then
+if pgrep -x pocket-ic; then
   echo "❌ A replica is already running. Stop it before creating a snapshot."
   exit 1
 fi
