@@ -26,6 +26,7 @@ clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_I
 )"
 clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
+clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -54,7 +55,11 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
     tput setaf 0
   )"
   export NORMAL="$(tput sgr0)"
-  dfx start --clean --pocketic --background 2>&1 | sed -e "s@.*@${DARK}&${NORMAL}@" &
+  POCKET_IC_ARG=()
+  if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
+    POCKET_IC_ARG=(--pocketic)
+  fi
+  dfx start --clean "${POCKET_IC_ARG[@]}" --background 2>&1 | sed -e "s@.*@${DARK}&${NORMAL}@" &
 
   dfx-nns-install --ic_commit "$DFX_IC_COMMIT"
   dfx-nns-import --network "$DFX_NETWORK"

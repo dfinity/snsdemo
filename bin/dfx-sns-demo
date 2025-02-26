@@ -14,6 +14,7 @@ clap.define short=x long=ic_dir desc="Directory containing the ic source code" v
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 clap.define long=config_index desc="The value for the dfx-sns-demo-mksns-config --config_index parameter" variable=CONFIG_INDEX default="0"
 clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
+clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
@@ -54,7 +55,11 @@ fi
 dfx identity use snsdemo8
 
 sleep 1
-dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT"
+POCKET_IC_ARG=()
+if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
+  POCKET_IC_ARG=(--pocketic)
+fi
+dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT" "${POCKET_IC_ARG[@]}"
 # Make sure that we use snsdemo8, in case the network deployment needed to change that.
 dfx identity use snsdemo8
 
@@ -80,7 +85,13 @@ sleep 1
 ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
 sleep 1
 
-./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK" --config_index "$CONFIG_INDEX" --unique_logo "$UNIQUE_LOGO" --add_controller "$(dfx identity get-principal)"
+NEW_SNS_CONTROLLER="$(dfx identity get-principal)"
+ADD_CONTROLLER_ARG=()
+if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
+  ADD_CONTROLLER_ARG=(--add_controller "$NEW_SNS_CONTROLLER")
+fi
+
+./bin/dfx-sns-demo-mksns --network "$DFX_NETWORK" --config_index "$CONFIG_INDEX" --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
 sleep 1
 ./bin/dfx-sns-sale-buy --network "$DFX_NETWORK"
 sleep 1
