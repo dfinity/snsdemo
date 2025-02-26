@@ -33,7 +33,7 @@ url)
     WEBSERVER_PORT="$(dfx info webserver-port 2>/dev/null || true)"
     [[ "${WEBSERVER_PORT:-}" != "" ]] || {
       # The above command can fail if not run in the same directory as the replica working directory.
-      DFX_EXEC_DIR="$(lsof -p "$(pgrep pocket-ic | head -1)" | grep cwd | awk '{print $NF}')"
+      DFX_EXEC_DIR="$(lsof -p "$(pgrep -x pocket-ic || pgrep -x replica | head -1)" | grep cwd | awk '{print $NF}')"
       cd "$DFX_EXEC_DIR"
       WEBSERVER_PORT="$(HOME="$(get_home)" dfx info webserver-port)"
     }

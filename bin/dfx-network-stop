@@ -19,7 +19,7 @@ if [[ "$DFX_NETWORK" == "local" ]]; then
   echo "Waiting for replica to stop..."
   for ((i = 100; i > 0; i--)); do
     printf '\r % 4d' "$i"
-    pgrep -x pocket-ic 2>/dev/null || break
+    pgrep -x pocket-ic || pgrep -x replica 2>/dev/null || break
     sleep 1
   done
   printf "\n...stopped.\n"

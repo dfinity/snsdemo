@@ -24,6 +24,7 @@ clap.define short=x long=ic_dir desc="Directory containing the ic source code; n
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code; needed for deployments to static testnets" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 clap.define long=parallel_sns_count desc="Number of additional SNSes to create in parallel after dfx-sns-demo finishes" variable=PARALLEL_SNS_COUNT default="10"
 clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
+clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
@@ -34,21 +35,31 @@ if [[ "${DFX_IC_COMMIT:-}" == "latest" ]]; then
 fi
 
 : Set up SNS state and create one finalized SNS
-dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --unique_logo "$UNIQUE_LOGO"
+POCKET_IC_ARG=()
+if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
+  POCKET_IC_ARG=(--pocketic)
+fi
+dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --unique_logo "$UNIQUE_LOGO" "${POCKET_IC_ARG[@]}"
 
 dfx-mock-exchange-rate-canister-install --network "$DFX_NETWORK" --release pinned
 dfx-mock-exchange-rate-set --network "$DFX_NETWORK" --base_asset ICP --quote_asset USD --rate_e8s 900_000_000
 
 dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT"
 
+set -x
+
 NEW_SNS_CONTROLLER="$(dfx identity get-principal)"
+ADD_CONTROLLER_ARG=()
+if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
+  ADD_CONTROLLER_ARG=(--add_controller "$NEW_SNS_CONTROLLER")
+fi
 
 : Add 1 open SNS project.
-dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --config_index 1 --unique_logo "$UNIQUE_LOGO" --add_controller "$NEW_SNS_CONTROLLER"
+dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --config_index 1 --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
 
 : Add some more finalized SNS projects.
 if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
-  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 2 --unique_logo "$UNIQUE_LOGO" --add_controller "$NEW_SNS_CONTROLLER"
+  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 2 --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
 fi
 
 SNS_COUNT="$(dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances | length')"
