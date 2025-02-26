@@ -46,8 +46,6 @@ dfx-mock-exchange-rate-set --network "$DFX_NETWORK" --base_asset ICP --quote_ass
 
 dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT"
 
-set -x
-
 NEW_SNS_CONTROLLER="$(dfx identity get-principal)"
 ADD_CONTROLLER_ARG=()
 if [[ "${USE_POCKET_IC:-}" == "true" ]]; then

@@ -41,18 +41,20 @@ trap onSetupFailure EXIT
 : "Make sure the snapshot is used with the same version of dfx that created it."
 dfxvm default "$(jq -r .dfx dfx.json)"
 
-: Create stock state
 POCKET_IC_ARG=()
 if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
   POCKET_IC_ARG=(--pocketic)
 fi
+
+: Create stock state
 dfx-stock-deploy --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --parallel_sns_count "$PARALLEL_SNS_COUNT" --unique_logo "$UNIQUE_LOGO" "${POCKET_IC_ARG[@]}"
 
 if [[ "${USE_POCKET_IC:-}" == "false" ]]; then
   : "Wait for a checkpoint"
-  dfx-network-wait-for-checkpoint --timeout 600: "Stop the replica gently but forcefully.  It must be stopped and should ideally have a clean state."
+  dfx-network-wait-for-checkpoint --timeout 600
 fi
 
+: "Stop the replica gently but forcefully.  It must be stopped and should ideally have a clean state."
 dfx-network-stop
 
 : "We made it. Remove the trap."
