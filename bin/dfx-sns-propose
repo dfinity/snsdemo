@@ -16,7 +16,7 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=N long=neuron desc="The dfx network to use" variable=DFX_NEURON_ID default=""
+clap.define short=N long=neuron desc="The neuronId to use" variable=DFX_NEURON_ID default=""
 clap.define long=save-proposal-id-to desc="Passed to sns propose --save-to" variable=PROPOSAL_ID_FILE default=""
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
