@@ -39,6 +39,8 @@ POCKET_IC_ARG=()
 if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
   POCKET_IC_ARG=(--pocketic)
 fi
+
+# Creates Alfa
 dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --unique_logo "$UNIQUE_LOGO" "${POCKET_IC_ARG[@]}"
 
 dfx-mock-exchange-rate-canister-install --network "$DFX_NETWORK" --release pinned
@@ -52,16 +54,17 @@ if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
   ADD_CONTROLLER_ARG=(--add_controller "$NEW_SNS_CONTROLLER")
 fi
 
-: Add 1 open SNS project.
+: Add 2 open SNS project.
 dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --config_index 1 --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
+dfx-sns-demo-mksns --network "$DFX_NETWORK" --confirmation_text "I confirm the confirmation text" --config_index 2 --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
 
 : Add some more finalized SNS projects.
 if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
-  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 2 --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
+  dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 3 --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
 fi
 
 SNS_COUNT="$(dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances | length')"
-EXPECTED_SNS_COUNT="$((2 + PARALLEL_SNS_COUNT))"
+EXPECTED_SNS_COUNT="$((3 + PARALLEL_SNS_COUNT))"
 if [[ "$SNS_COUNT" != "$EXPECTED_SNS_COUNT" ]]; then
   echo "❌ Expected $EXPECTED_SNS_COUNT SNSes. Found $SNS_COUNT"
   exit 1
