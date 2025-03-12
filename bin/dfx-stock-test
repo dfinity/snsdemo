@@ -48,11 +48,11 @@ export DFX_NETWORK
 )
 
 (
-  print_title "sns_aggregator should have 12 SNSs"
-  # This means the second page should have 2 SNSs.
+  print_title "sns_aggregator should have 13 SNSs"
+  # This means the second page should have 3 SNSs.
   aggregator_url="http://$(dfx canister id sns_aggregator).localhost:8080/v1/sns/list/page/1/slow.json"
-  if [ "$(curl -fsS "$aggregator_url" | jq length)" != "2" ]; then
-    echo "ERROR: The aggragtor should have 12 SNSs." >&2
+  if [ "$(curl -fsS "$aggregator_url" | jq length)" != "3" ]; then
+    echo "ERROR: The aggragtor should have 13 SNSs." >&2
     exit 1
   fi
 )
