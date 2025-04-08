@@ -34,7 +34,6 @@ test -n "${MESSAGE:-}" || {
   echo "${command[*]}"
   exit 1
 } >&2
-
 command=(quill send --yes --insecure-local-dev-mode -)
 RESPONSE="$(echo "$MESSAGE" | "${command[@]}")"
 test -n "${RESPONSE:-}" || {
