@@ -45,7 +45,7 @@ test -n "${RESPONSE:-}" || {
   echo "${command[*]}"
   exit 1
 } >&2
-NEURON_TEXT="$(echo "$RESPONSE" | perl -e 'while($_ = <>){if (s/NeuronId = record \{ id = ([0-9_]+) : nat64 \}/\1/){ print $_ }}')"
+NEURON_TEXT="$(echo "$RESPONSE" | perl -e 'while($_ = <>){if (s/Successfully staked ICP in neuron ([0-9]+)/\1/){ print $_ }}')"
 test -n "${NEURON_TEXT:-}" || {
   echo "ERROR: Could not find neuron in response:"
   echo "$RESPONSE"
