@@ -9,6 +9,7 @@ clap.define short=s long=icp desc="The amount of ICP to icp" variable=ICP defaul
 clap.define short=i long=DFX_IDENTITY desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
 clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
 clap.define short=V long=verbose desc="Print progress" variable=DFX_VERBOSE nargs=0
+clap.define short=N long=name desc="The name of the neuron" variable=NEURON_NAME default="1"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 test -z "${DFX_VERBOSE:-}" || set -x
@@ -26,7 +27,7 @@ IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 export IC_URL
 # Note: Quill send puts a pile of junk on stdout and has no option to put just the response(s) somewhere safe such as a file.
 
-command=(quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --amount "$ICP" --name 1)
+command=(quill neuron-stake --insecure-local-dev-mode --pem-file "$PEM" --amount "$ICP" --name "$NEURON_NAME")
 MESSAGE="$("${command[@]}")"
 test -n "${MESSAGE:-}" || {
   echo "ERROR: Created an empty message."
