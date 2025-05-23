@@ -54,7 +54,7 @@ deploy_ckbtc() {
 
   # echo "Step 1: deploying kyt canister..."
   DFX_IDENTITY_PRINCIPAL="$(dfx identity get-principal)"
-  dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(variant {
+  dfx deploy "${LOCAL_PREFIX}kyt" --network "$DFX_NETWORK" --argument "(opt variant {
   InitArg = record {
       btc_network = variant { mainnet };
       check_mode = variant { AcceptAll };
