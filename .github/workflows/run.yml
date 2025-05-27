@@ -53,7 +53,7 @@ jobs:
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
   demo_latest:
-    if: true # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
+    if: false # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -76,7 +76,7 @@ jobs:
         uses: dfinity/setup-dfx@main
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
-      # Clone the ic repo so that we can find the latest published commit. 
+      # Clone the ic repo so that we can find the latest published commit.
       - name: Checkout ic repo
         uses: actions/checkout@v3
         with:
