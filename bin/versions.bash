@@ -2,7 +2,7 @@
 # shellcheck disable=SC2034 # Variables are expected to be unused in this file
 # Release from 2024-05-02 which includes nervous_system_parameters.
 SNS_AGGREGATOR_RELEASE=proposal-136008-agg
-DFX_IC_COMMIT=b62d0d52822cedbf981da7e77c0a540cf62ece52
+DFX_IC_COMMIT=fddff35e55a11a4302e0e25a35dcbde4724ea69a
 INTERNET_IDENTITY_RELEASE=release-2023-10-27
 NNS_DAPP_RELEASE=proposal-135420
 DIDC_VERSION=2023-07-25
