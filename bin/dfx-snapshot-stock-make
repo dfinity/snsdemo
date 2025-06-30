@@ -18,7 +18,7 @@ clap.define short=c long=ic_commit desc="The IC commit to use" variable=DFX_IC_C
 clap.define short=x long=ic_dir desc="Directory containing the ic source code; needed for deployments to static testnets" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define long=parallel_sns_count desc="Number of additional SNSes to create in parallel after dfx-sns-demo finishes" variable=PARALLEL_SNS_COUNT default="10"
 clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
-clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=false
+clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=true
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
