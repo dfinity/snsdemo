@@ -3,9 +3,9 @@ set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 
+# ShellCheck somehow thinks this code is unreachable.
+# shellcheck disable=SC2329
 print_help() {
-  # ShellCheck somehow thinks this code is unreachable.
-  # shellcheck disable=SC2317
   cat <<-EOF
 
 	Wait up to 2 minutes for the current SNS to reach the given lifecycle.
