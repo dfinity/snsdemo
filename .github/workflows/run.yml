@@ -53,7 +53,8 @@ jobs:
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
   demo_latest:
-    if: true # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
+    # TODO: Revert after the next IC release with the registry fix.
+    if: false # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
