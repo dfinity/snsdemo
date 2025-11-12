@@ -6,7 +6,7 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-EOF
 
-	Installs an asset canister which serves a JSON file at /tickers with fake
+	Installs an asset canister which serves a JSON file at /api/coingecko/tickers with fake
 	price data for some SNS tokens as well as ckBTC, ckETH, ckUSDC and ckRED.
 	The price data is intended to be in the same format as provided by
 	Kong Swap at https://api.kongswap.io/api/coingecko/tickers
@@ -34,16 +34,16 @@ get_price() {
   # they don't really matter and we just want some variety for testing.
   case "$ledger_canister" in
   ckusdc_ledger)
-    echo "9.00"
+    echo "0.16"
     ;;
   ckbtc_ledger)
-    echo "0.0001"
+    echo "16452.78"
     ;;
   cketh_ledger)
-    echo "0.003"
+    echo "333.12"
     ;;
   *)
-    echo "50"
+    echo "0.02"
     ;;
   esac
 }
@@ -57,13 +57,14 @@ generate_ticker_data() {
     symbol="$(dfx canister call "$ledger_canister" icrc1_metadata | idl2json | jq -r '[ .[] | {key: .["0"], value: .["1"]} ] | from_entries | .["icrc1:symbol"].Text')"
     canister_id="$(dfx canister id "$ledger_canister")"
     price="$(get_price "$ledger_canister")"
+    ticker="${canister_id}_ryjl3-tyaaa-aaaaa-aaaba-cai"
     echo "Adding mock ticker data for $symbol with price $price" >&2
-    symbol=$symbol canister_id=$canister_id price=$price jq -n '{
-    	ticker_id: env.canister_id,
+    symbol=$symbol canister_id=$canister_id price=$price ticker=$ticker jq -n '{
+    	ticker_id: env.ticker_id,
     	base_currency: env.canister_id,
+    	last_price: env.price,
     	target_currency: "ryjl3-tyaaa-aaaaa-aaaba-cai",
     	pool_id: "1",
-    	last_price: 6.51612880549512,
     	base_volume: 26066.89822986,
     	target_volume: 157007.913541,
     	liquidity_in_usd: 964696.897600141
@@ -77,10 +78,10 @@ aggregator_url="$(dfx-canister-url sns_aggregator)/v1/sns/list/page/0/slow.json"
 mapfile -t sns_ledger_canister_ids < <(curl -LsSf "$aggregator_url" | jq -r '.[] | .canister_ids.ledger_canister_id')
 
 ICP_KONG_DATA_DIR="kong-swap"
-ICP_KONG_DATA_FILE="kong-swap/tickers"
+ICP_KONG_DATA_FILE="kong-swap/api/coingecko/tickers"
 
 TOP_DIR="$(git rev-parse --show-toplevel)"
-mkdir -p "$TOP_DIR/$ICP_KONG_DATA_DIR"
+mkdir -p "$TOP_DIR/$(dirname "$ICP_KONG_DATA_FILE")"
 
 generate_ticker_data ckusdc_ledger ckbtc_ledger cketh_ledger ckred_ledger "${sns_ledger_canister_ids[@]}" | jq -s . >"$ICP_KONG_DATA_FILE"
 
