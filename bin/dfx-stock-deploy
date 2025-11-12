@@ -129,3 +129,4 @@ done
 dfx-sns-aggregator-wait
 
 dfx-mock-icp-swap-install --network "$DFX_NETWORK"
+dfx-mock-kong-swap-install --network "$DFX_NETWORK"
