@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Installs an asset canister which serves a JSON file at /tickers with fake
+	price data for some SNS tokens as well as ckBTC, ckETH, ckUSDC and ckRED.
+	The price data is intended to be in the same format as provided by
+	Kong Swap at https://api.kongswap.io/api/coingecko/tickers
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+
+if ! [[ -e dfx.json ]]; then
+  echo "ERROR: No dfx.json found.  Please run this from inside a dfx project." >&2
+  exit 1
+fi
+
+# The price returned is the number of tokens in 1 ICP.
+get_price() {
+  ledger_canister="$1"
+  # While these prices are somewhat realistic at the time of implementation,
+  # they don't really matter and we just want some variety for testing.
+  case "$ledger_canister" in
+  ckusdc_ledger)
+    echo "9.00"
+    ;;
+  ckbtc_ledger)
+    echo "0.0001"
+    ;;
+  cketh_ledger)
+    echo "0.003"
+    ;;
+  *)
+    echo "50"
+    ;;
+  esac
+}
+
+generate_ticker_data() {
+  for ledger_canister in "$@"; do
+    if ! dfx canister id "$ledger_canister" >/dev/null 2>&1; then
+      echo "Skipping canister $ledger_canister as it does not exist." >&2
+      continue
+    fi
+    symbol="$(dfx canister call "$ledger_canister" icrc1_metadata | idl2json | jq -r '[ .[] | {key: .["0"], value: .["1"]} ] | from_entries | .["icrc1:symbol"].Text')"
+    canister_id="$(dfx canister id "$ledger_canister")"
+    price="$(get_price "$ledger_canister")"
+    echo "Adding mock ticker data for $symbol with price $price" >&2
+    symbol=$symbol canister_id=$canister_id price=$price jq -n '{
+    	ticker_id: env.canister_id,
+    	base_currency: env.canister_id,
+    	target_currency: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+    	pool_id: "1",
+    	last_price: 6.51612880549512,
+    	base_volume: 26066.89822986,
+    	target_volume: 157007.913541,
+    	liquidity_in_usd: 964696.897600141
+    }'
+  done
+}
+
+# We only use the first page of the aggregator. So some SNS tokens will not
+# have price data, which is realistic anyway.
+aggregator_url="$(dfx-canister-url sns_aggregator)/v1/sns/list/page/0/slow.json"
+mapfile -t sns_ledger_canister_ids < <(curl -LsSf "$aggregator_url" | jq -r '.[] | .canister_ids.ledger_canister_id')
+
+ICP_KONG_DATA_DIR="kong-swap"
+ICP_KONG_DATA_FILE="kong-swap/tickers"
+
+TOP_DIR="$(git rev-parse --show-toplevel)"
+mkdir -p "$TOP_DIR/$ICP_KONG_DATA_DIR"
+
+generate_ticker_data ckusdc_ledger ckbtc_ledger cketh_ledger ckred_ledger "${sns_ledger_canister_ids[@]}" | jq -s . >"$ICP_KONG_DATA_FILE"
+
+ICP_KONG_DATA_DIR="$ICP_KONG_DATA_DIR" jq -s '{
+  canisters: {
+    "kong-swap": {
+      "source": [
+        env.ICP_KONG_DATA_DIR
+      ],
+      "build": "true",
+      "type": "assets",
+    }
+  }
+} * .[0]' dfx.json | sponge dfx.json
+
+# This deploys an assets canister with assets from directory 'kong-swap' as
+# defined in dfx.json.
+dfx deploy kong-swap
