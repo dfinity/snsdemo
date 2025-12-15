@@ -21,8 +21,8 @@ fi
 
 dfx-software-mock-bitcoin-install --network local
 
-# push_utxo_to_address is known method on the mock bitcoin canister.
-if ! dfx canister metadata "$HARD_CODED_BITCOIN_CANISTER_ID" --network local candid:service | grep push_utxo_to_address; then
+# push_utxos_to_address is known method on the mock bitcoin canister.
+if ! dfx canister metadata "$HARD_CODED_BITCOIN_CANISTER_ID" --network local candid:service | grep push_utxos_to_address; then
   echo "ERROR: mock bitcoin canister should have been installed."
   exit 1
 fi
