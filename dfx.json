@@ -1,11 +1,11 @@
 {
-	"canisters": {},
-	"defaults": {
-		"build": {
-			"args": "",
-			"packtool": ""
-		}
-	},
+  "canisters": {},
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
 	"dfx": "0.30.2-beta.2",
-	"version": 1
+  "version": 1
 }
