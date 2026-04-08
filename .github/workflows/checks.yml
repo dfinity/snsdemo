@@ -21,7 +21,7 @@ jobs:
           echo "can_add_commit=${{ secrets.PR_AUTOMATION_BOT_PUBLIC_PRIVATE_KEY != '' && github.event_name == 'pull_request' }}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
         id: app-token
         if: steps.check_can_add_commit.outputs.can_add_commit == 'true'
         with:
@@ -30,14 +30,14 @@ jobs:
 
       - name: Checkout
         if: steps.check_can_add_commit.outputs.can_add_commit == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ steps.app-token.outputs.token }}
       - name: Checkout
         if: steps.check_can_add_commit.outputs.can_add_commit == 'false'
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Install shfmt
         run: sudo snap install --classic shfmt
@@ -56,7 +56,7 @@ jobs:
           fi
       - name: Commit Formatting changes
         if: steps.check_can_add_commit.outputs.can_add_commit == 'true' && steps.check_format.outputs.formatting_needed == 'true'
-        uses: EndBug/add-and-commit@v9.1.4
+        uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
         with:
           add: .
           default_author: github_actions
@@ -77,9 +77,9 @@ jobs:
     steps:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@00b27aa7cb85167568cb48a3838b75f4265f2bca # master
         env:
           SHELLCHECK_OPTS: -e SC1090 -e SC2119 -e SC1091 -e SC2121 -e SC2155 -e SC2094 -e SC2015
   clap-checks:
@@ -87,7 +87,7 @@ jobs:
     name: Clap checks
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Clap works
         run: ./bin/clap.test
   sns-aggregator-canister-checks:
@@ -95,7 +95,7 @@ jobs:
     name: SNS aggregator tools
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
       - name: Install cargo binstall
@@ -113,7 +113,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Install dfx
-        uses: dfinity/setup-dfx@main
+        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
       - name: "Test the aggregator wasm install command"
         run: ./bin/dfx-software-sns-aggregator-install.test --verbose
         env:
@@ -125,9 +125,9 @@ jobs:
     steps:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Install dfx
-        uses: dfinity/setup-dfx@main
+        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
       - name: Import ckbtc works
         run: |
           set -euxo pipefail
@@ -168,7 +168,7 @@ jobs:
     name: NNS dapp tools
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: "Test the nns-dapp version command"
         run: ./bin/dfx-software-nns-dapp-version.test
         env:
@@ -190,9 +190,9 @@ jobs:
     steps:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Install dfx
-        uses: dfinity/setup-dfx@main
+        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
       - name: dfx-canister-url works
         run: |
           set -euxo pipefail
@@ -204,14 +204,14 @@ jobs:
     name: Other tests
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Install apt-dependencies
         # Needed for sponge
         run: sudo apt-get update && sudo apt-get install moreutils -yy
       - name: Install idl2json
         run: bin/dfx-software-idl2json-install
       - name: Install dfx
-        uses: dfinity/setup-dfx@main
+        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
       - name: Install mock exchange rate canister works
         run: |
           set -euxo pipefail
