@@ -16,8 +16,8 @@ function downloads_exist() {
     set -euo pipefail
 
     for file in \
-      "binaries/x86_64-darwin/ic-admin.gz" \
-      "binaries/x86_64-darwin/sns.gz" \
+      "binaries/arm64-darwin/ic-admin.gz" \
+      "binaries/arm64-darwin/sns.gz" \
       "binaries/x86_64-linux/ic-admin.gz" \
       "binaries/x86_64-linux/sns.gz" \
       "canisters/bitcoin-mock-canister.wasm.gz" \
