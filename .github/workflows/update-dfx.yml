@@ -16,12 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
         id: app-token
         with:
           app-id: ${{ vars.PR_AUTOMATION_BOT_PUBLIC_APP_ID }}
           private-key: ${{ secrets.PR_AUTOMATION_BOT_PUBLIC_PRIVATE_KEY }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         # First, check dfx GitHub releases for a new version. We assume that the
         # latest version's tag name is the version.
       - name: Check new dfx version
@@ -48,7 +48,7 @@ jobs:
         # If a newer dfx is available, create a PR.
       - name: Create Pull Request
         if: ${{ steps.update.outputs.updated == '1' }}
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@38e0b6e68b4c852a5500a94740f0e535e0d7ba54 # v4.2.4
         with:
           token: ${{ steps.app-token.outputs.token }}
           base: main
@@ -65,7 +65,7 @@ jobs:
           # Since the this is a scheduled job, a failure won't be shown on any
           # PR status. To notify the team, we send a message to our Slack channel on failure.
       - name: Notify Slack on failure
-        uses: dfinity/internet-identity/.github/actions/slack@release-2023-08-28
+        uses: dfinity/internet-identity/.github/actions/slack@b278eab440b6adfcb561f18fe24bdea66c1987c3 # release-2023-08-28
         if: ${{ failure() }}
         with:
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
