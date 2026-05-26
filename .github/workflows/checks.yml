@@ -6,7 +6,7 @@ on:
   pull_request:
 jobs:
   formatting:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       DFX_NETWORK: mainnet
 
@@ -73,7 +73,7 @@ jobs:
   shell-checks:
     needs: formatting
     name: ShellCheck
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
@@ -85,7 +85,7 @@ jobs:
   clap-checks:
     needs: formatting
     name: Clap checks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Clap works
@@ -93,7 +93,7 @@ jobs:
   sns-aggregator-canister-checks:
     needs: formatting
     name: SNS aggregator tools
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Install apt-dependencies
@@ -121,7 +121,7 @@ jobs:
   ckbtc-checks:
     needs: formatting
     name: CKBTC tools
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
@@ -166,7 +166,7 @@ jobs:
   nns-dapp-canister-checks:
     needs: formatting
     name: NNS dapp tools
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: "Test the nns-dapp version command"
@@ -186,7 +186,7 @@ jobs:
   dfx-canister-url-checks:
     needs: formatting
     name: Canister URL checks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
@@ -202,7 +202,7 @@ jobs:
           git clean -dfx
   other-tests:
     name: Other tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Install apt-dependencies
