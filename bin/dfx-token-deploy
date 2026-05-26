@@ -72,6 +72,7 @@ deploy_token() {
      };
      feature_flags = opt record {
          icrc2 = true;
+         icrc152 = false;
      };
  }
 })" --mode="$DFX_MODE" ${DFX_YES:+--yes} --upgrade-unchanged
