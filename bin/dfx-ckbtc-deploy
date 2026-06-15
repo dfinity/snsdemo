@@ -67,7 +67,7 @@ deploy_ckbtc() {
   Init = record {
        btc_network = variant { Mainnet };
        ledger_id = principal \"$LEDGERID\";
-       ecdsa_key_name = \"dfx_test_key\";
+       ecdsa_key_name = \"key_1\";
        retrieve_btc_min_amount = 13_333;
        max_time_in_queue_nanos = 10_000_000_000;
        min_confirmations = opt 12;
