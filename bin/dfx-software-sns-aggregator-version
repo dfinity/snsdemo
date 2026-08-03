@@ -33,7 +33,11 @@ pinned)
   echo "$SNS_AGGREGATOR_RELEASE"
   ;;
 latest)
-  gh release list --exclude-drafts --exclude-pre-releases --limit 300 --repo dfinity/nns-dapp | grep -wEo 'proposal-[0-9]+-agg' | head -1
+  # Aggregator releases happen a couple of times a year but nns-dapp publishes
+  # nightlies, so the aggregator tags fall out of any fixed `gh release list`
+  # window after a few months.  List the matching tags instead and take the
+  # highest proposal number.
+  git ls-remote --tags https://github.com/dfinity/nns-dapp.git 'refs/tags/proposal-*-agg' | grep -wEo 'proposal-[0-9]+-agg' | sort -t- -k2,2n -u | tail -1
   ;;
 *)
   {
