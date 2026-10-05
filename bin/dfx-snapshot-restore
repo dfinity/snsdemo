@@ -52,6 +52,8 @@ if test -d "$SNSDEMO_STATE_DIR/identities"; then
     test -e "$pem" || continue
     identity="$(basename "$pem" .pem)"
     if snsdemo_identity_exists "$identity"; then
+      # The default identity can't be deleted. The default is restored below.
+      [[ "$(icp identity default)" != "$identity" ]] || icp identity default anonymous
       icp identity delete "$identity"
     fi
     icp identity import "$identity" --from-pem "$pem" --storage plaintext
