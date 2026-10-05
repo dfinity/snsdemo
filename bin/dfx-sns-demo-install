@@ -7,6 +7,7 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-EOF
 	Installs the binaries needed for the SNS demo.
+	mise installs the tools in mise.toml.
 	EOF
 }
 
@@ -18,12 +19,18 @@ source "$SOURCE_DIR/clap.bash"
 source "$(clap.build)"
 set -e
 
+# The tools in mise.toml: icp-cli, the network launcher, quill, idl2json, didc and ic-wasm.
+if command -v mise >/dev/null; then
+  mise install
+else
+  echo "mise is not installed.  Please install it, see https://mise.jdx.dev, and run 'mise install'." >&2
+  exit 1
+fi
+
+# Tools that are not in mise.toml
 dfx-software-jq-install
 dfx-software-more-install
 dfx-software-openssl-install
-dfx-software-dfx-install --version "$(jq -r .dfx dfx.json)"
-dfx-software-dfx-extension-nns-install --version pinned
-dfx-software-dfx-extension-sns-install --version pinned
-dfx-software-idl2json-install --version pinned
-dfx-software-quill-install --version pinned
+
+# These come from a specific commit of the IC repo.
 dfx-software-ic-install-executable ic-admin sns

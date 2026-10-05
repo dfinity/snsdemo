@@ -11,6 +11,7 @@ on:
     - cron: '30 3 * * WED'
 env:
   GH_TOKEN: ${{ github.token }}
+  ICP_TELEMETRY_DISABLED: 1
   TEST_RELEASE_PROCESS: false # Set to true if you wish to exercise github triggers without spending time creating real artefacts.
 jobs:
   mk_snapshot:
@@ -24,8 +25,10 @@ jobs:
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
           fetch-depth: 0
-      - name: Install dfx
-        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: Create snapshot
         id: snapshot
         run: |
@@ -45,8 +48,8 @@ jobs:
       - name: "Verify that the stock state behaves as expected"
         id: test
         run: bin/dfx-stock-test
-      - name: Stop dfx
-        run: dfx stop
+      - name: Stop the network
+        run: bin/dfx-network-stop
       - name: Tag if release should be created
         if: ${{ (github.event_name == 'schedule') || (inputs.make_release)}}
         id: tag
