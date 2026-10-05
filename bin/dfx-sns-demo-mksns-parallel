@@ -24,6 +24,8 @@ DEMO_USER_DIR="$PWD/users"
 # The state of the user that runs this script, from which users inherit the proposer.
 MAIN_STATE_DIR="$SNSDEMO_STATE_DIR"
 MAIN_ICP_PROJECT_ROOT="$ICP_PROJECT_ROOT"
+# Where icp-cli records the ports of running networks, which users need to find the network.
+MAIN_PORT_DESCRIPTOR_DIR="$(snsdemo_icp_port_descriptor_dir)"
 PROPOSER_PEM=""
 
 # Creates an identity with their own icp-cli data directory and snsdemo state,
@@ -33,7 +35,8 @@ make_user() {
     DEMO_USER="$1"
     DEMODIR="$DEMO_USER_DIR/$1"
     rm -fr "$DEMODIR"
-    mkdir -p "$DEMODIR/.icp-home" "$DEMODIR/.snsdemo"
+    mkdir -p "$DEMODIR/.icp-home" "$DEMODIR/.snsdemo" "$MAIN_PORT_DESCRIPTOR_DIR"
+    ln -s "$MAIN_PORT_DESCRIPTOR_DIR" "$DEMODIR/.icp-home/port-descriptors"
     # Share some data:
     ln -s "$PWD/bin" "$DEMODIR/bin"
     ln -s "$PWD/logo.png" "$DEMODIR/logo.png"

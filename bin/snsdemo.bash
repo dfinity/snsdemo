@@ -220,6 +220,19 @@ snsdemo_network_descriptor() {
   echo "$ICP_PROJECT_ROOT/.icp/cache/networks/$(snsdemo_env_name "${1:-}")/descriptor.json"
 }
 
+# The directory in which icp-cli records the ports that running networks use.
+# icp-cli needs the record of a network's port to reach a network, so processes
+# that use a different ICP_HOME have to share this directory.
+snsdemo_icp_port_descriptor_dir() {
+  if [[ -n "${ICP_HOME:-}" ]]; then
+    echo "$ICP_HOME/port-descriptors"
+  elif [[ "$(uname -s)" == "Darwin" ]]; then
+    echo "$HOME/Library/Caches/org.dfinity.icp-cli/port-descriptors"
+  else
+    echo "${XDG_CACHE_HOME:-$HOME/.cache}/icp-cli/port-descriptors"
+  fi
+}
+
 # The port of the gateway of a local network.
 snsdemo_gateway_port() {
   local descriptor port=""
