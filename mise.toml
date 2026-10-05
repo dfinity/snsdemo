@@ -15,6 +15,8 @@ node = "22"
 "npm:@icp-sdk/icp-cli" = "1.6.0"
 
 # Wasm tooling: used by bin/wasm-nm and the scripts that fetch wasms from CI.
+# cargo-binstall makes mise download a prebuilt ic-wasm instead of compiling it.
+cargo-binstall = "1.3.0"
 "cargo:ic-wasm" = "0.6.0"
 
 # The network launcher is PocketIC with a thin wrapper that icp-cli drives.
@@ -51,3 +53,7 @@ rename_exe = "didc"
 platforms.linux-x64 = { url = "https://github.com/dfinity/candid/releases/download/{{version}}/didc-linux64" }
 platforms.macos-x64 = { url = "https://github.com/dfinity/candid/releases/download/{{version}}/didc-macos" }
 platforms.macos-arm64 = { url = "https://github.com/dfinity/candid/releases/download/{{version}}/didc-macos" }
+
+[settings]
+# Downloads from GitHub releases sometimes fail with a transient server error.
+http_retries = 6

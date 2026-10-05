@@ -28,6 +28,15 @@ DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
 export DFX_IDENTITY DFX_NETWORK
 
+# The sns command line tool reads identities from the dfx configuration directory.
+# Give it a temporary one with just the identity that we are using.
+DFX_CONFIG_ROOT="$(mktemp -d)"
+export DFX_CONFIG_ROOT
+trap 'rm -fr "$DFX_CONFIG_ROOT"' EXIT
+mkdir -p "$DFX_CONFIG_ROOT/.config/dfx/identity/$DFX_IDENTITY"
+cp "$(snsdemo_identity_pem "$DFX_IDENTITY")" "$DFX_CONFIG_ROOT/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
+printf '{"default": "%s"}\n' "$DFX_IDENTITY" >"$DFX_CONFIG_ROOT/.config/dfx/identity.json"
+
 # There needs to be a logo.png in the current directory. If there isn't, create
 # a symlink to the one in the snsdemo root directory.
 if [ ! -f logo.png ]; then

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # A minimal stand-in for the `dfx` command, implemented with icp-cli.
 #
-# Why: The `sns` command line tool from the IC repo calls `dfx` for the things
-# that it does on a network: it asks for the current identity and submits
-# proposals with `dfx canister call`.  This is not under our control and dfx is
-# deprecated.  So we put this directory in the PATH when we run `sns`, so that
-# `sns` gets the icp-cli identities and talks to the network through icp-cli.
+# Why: The `sns` command line tool from the IC repo calls `dfx` for some of the
+# things that it does on a network: it asks for the identity and for some
+# commands it calls `dfx canister call`.  This is not under our control and dfx
+# is deprecated.  So we put this directory in the PATH when we run `sns`, so
+# that `sns` gets the icp-cli identities and talks to the network through
+# icp-cli.  (The `sns` tool reads the identity for its own agent directly from
+# the dfx configuration directory, so dfx-sns-propose provides that as well.)
 #
 # Supported are exactly the commands that `sns` runs:
 #
