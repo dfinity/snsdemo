@@ -2,6 +2,7 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
@@ -9,10 +10,9 @@ source "$SOURCE_DIR/clap.bash"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-# We make changes to dfx.json.  Better undo any changes.
+# Don't leave a network running.
 function cleanup {
-  git checkout dfx.json
-  dfx stop
+  dfx-network-stop --network bare
 }
 trap cleanup EXIT
 
@@ -21,17 +21,10 @@ for flavour in dev prod; do
     (
       echo "Should install the $release $flavour sns_aggregator"
       : Clean up
-      git checkout dfx.json
-      dfx-network-stop
-      dfx start --clean --background 2>/dev/null
-      jq '.canisters.sns_aggregator = {
-        "type": "custom",
-        "wasm": "",
-        "candid": "sns_aggregator.did"
-      }' dfx.json | sponge dfx.json
-      dfx canister create sns_aggregator
+      snsdemo_test_network_start
+      dfx-canister-create --network bare --name sns_aggregator
       : Install
-      dfx-software-sns-aggregator-install --release "$release" --flavor "$flavour"
+      dfx-software-sns-aggregator-install --network bare --release "$release" --flavor "$flavour"
       : The downloaded wasm should be the pinned, production version, not called 'pinned' or some mutable alias:
       SNS_AGGREGATOR_RELEASE="$(. "$SOURCE_DIR/versions.bash" && echo "$SNS_AGGREGATOR_RELEASE")"
       [[ "$SNS_AGGREGATOR_RELEASE" =~ ^proposal-[0-9]+-agg$ ]] || {
@@ -55,7 +48,7 @@ for flavour in dev prod; do
         cat "${WASM_FILE}.symbols"
         exit 1
       } >&2
-      dfx-canister-check-wasm-hash --canister sns_aggregator --wasm "$WASM_FILE"
+      dfx-canister-check-wasm-hash --network bare --canister sns_aggregator --wasm "$WASM_FILE"
     )
   done
 done

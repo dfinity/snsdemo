@@ -2,13 +2,13 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
 
 	Fetches and installs the nns-dapp canister:
 	* Downloads the NNS dapp wasm.
-	* Adds the nns-dapp to dfx.json, if not already present.
 	* Deploys the downloaded wasm to the specified network.
 	EOF
 }
@@ -16,11 +16,13 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=r long=release desc="The release name" variable=DFX_RELEASE default="pinned"
 clap.define short=m long=mode desc="The install mode: install, reinstall, upgrade" variable=DFX_MODE default="reinstall"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
+
+export DFX_NETWORK
 
 : 'Convert aliases such as "pinned" into actual release names...'
 DFX_RELEASE="$(dfx-software-nns-dapp-version "${DFX_RELEASE}")"
@@ -29,7 +31,6 @@ DFX_RELEASE="$(dfx-software-nns-dapp-version "${DFX_RELEASE}")"
 WASM_URL="$(dfx-software-nns-dapp-ci-wasm-url --release "${DFX_RELEASE}")"
 
 : 'Where to put the wasm...'
-# Note: We do NOT clobber the wasm pointed to by dfx.json.
 WASM_FILE="wasms/nns-dapp_${DFX_RELEASE}.wasm"
 
 : 'Get the wasm if it is not already there.'
@@ -42,19 +43,15 @@ test -e "$WASM_FILE" || {
   echo "  saved wasm to: $WASM_FILE"
 }
 
-: 'We need at least a minimal entry in dfx.json'
-jq -e '.canisters."nns-dapp"' dfx.json >/dev/null || {
-  echo "Adding nns-dapp to dfx.json..."
-  # TODO: Include API declaration .did files in release, so that we can get the candid.
-  jq -s '.[0] * .[1]' <(echo '{"canisters": { "nns-dapp": { "type": "custom", "candid": "candid/nns-dapp.did", "wasm": "'"${WASM_FILE}"'", "build": "true" }}}') dfx.json | sponge dfx.json
-}
-
-: "If the canister was remote, it isn't any more:"
-DFX_NETWORK="$DFX_NETWORK" jq 'del(.canisters."nns-dapp".remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+: 'PocketIC has installed the nns-dapp in local networks, but it does not know the canisters that we added.'
+: 'To install it again, we need to be a controller.'
+if snsdemo_is_local "$DFX_NETWORK"; then
+  dfx-add-controller --network "$DFX_NETWORK" --canister nns-dapp --principal "$(icp identity principal)"
+fi
 
 canister_id() {
   local canister_name="$1"
-  dfx canister id "$canister_name" --network "$DFX_NETWORK" || {
+  snsdemo_canister_id "$canister_name" "$DFX_NETWORK" || {
     echo "Canister $canister_name not found on network $DFX_NETWORK." >&2
     echo "not-found-canister-id"
   }
@@ -80,7 +77,7 @@ CANISTER_ARG="(opt record{
     record{ 0=\"FETCH_ROOT_KEY\"; 1=\"true\" };
     record{ 0=\"GOVERNANCE_CANISTER_ID\"; 1=\"$(canister_id nns-governance)\" };
     record{ 0=\"HOST\"; 1=\"http://localhost:8080\" };
-    record{ 0=\"IDENTITY_SERVICE_URL\"; 1=\"http://$(canister_id internet_identity).localhost:8080\" };
+    record{ 0=\"IDENTITY_SERVICE_URL\"; 1=\"http://$(canister_id internet_identity_frontend).localhost:8080\" };
     record{ 0=\"INDEX_CANISTER_ID\"; 1=\"$(canister_id nns-icp-index)\" };
     record{ 0=\"LEDGER_CANISTER_ID\"; 1=\"$(canister_id nns-ledger)\" };
     record{ 0=\"OWN_CANISTER_ID\"; 1=\"$(canister_id nns-dapp)\" };
@@ -94,7 +91,7 @@ CANISTER_ARG="(opt record{
 
 echo "Installing nns-dapp..."
 # Note: We specify the wasm file explicitly as an existing wasm path may not point to the requested wasm.
-dfx canister install nns-dapp --wasm "$WASM_FILE" --upgrade-unchanged --mode "$DFX_MODE" --yes --network "${DFX_NETWORK}" --argument "$CANISTER_ARG"
+dfx-canister-install --network "$DFX_NETWORK" --name nns-dapp --wasm "$WASM_FILE" --mode "$DFX_MODE" --args "$CANISTER_ARG"
 echo "Checking nns-dapp installation..."
 dfx-canister-check-wasm-hash --canister nns-dapp --network "$DFX_NETWORK" --wasm "${WASM_FILE}"
 echo "Finished installing nns-dapp.  Enjoy!"

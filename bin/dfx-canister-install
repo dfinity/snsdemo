@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Installs a wasm file in a canister, which is created if it doesn't exist yet.
+
+	Note: icp-cli encodes the arguments without knowing the types, so numbers
+	      need type annotations if the canister expects anything but an
+	      integer, for example: 'opt (12 : nat32)'.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=N long=name desc="The name or ID of the canister" variable=CANISTER_NAME
+clap.define short=w long=wasm desc="The wasm file to install, optionally gzipped" variable=WASM_FILE
+clap.define short=a long=args desc="The Candid init or upgrade arguments" variable=CANISTER_ARG default=""
+clap.define short=m long=mode desc="The install mode: install, reinstall or upgrade" variable=INSTALL_MODE default="reinstall"
+clap.define short=i long=identity desc="The identity to use, if not the default identity" variable=DFX_IDENTITY default=""
+clap.define short=s long=specified_id desc="The ID of the canister, if it needs to be created" variable=SPECIFIED_ID default=""
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+test -n "${CANISTER_NAME:-}" || snsdemo_die "Please provide a canister name or ID with --name."
+test -e "${WASM_FILE:-}" || snsdemo_die "Wasm file not found: '${WASM_FILE:-}'."
+
+IDENTITY_ARGS=()
+[[ -z "${DFX_IDENTITY:-}" ]] || IDENTITY_ARGS=(--identity "$DFX_IDENTITY")
+CREATE_ARGS=()
+[[ -z "${SPECIFIED_ID:-}" ]] || CREATE_ARGS=(--specified_id "$SPECIFIED_ID")
+
+CANISTER_ID="$(dfx-canister-create --network "$DFX_NETWORK" --name "$CANISTER_NAME" "${CREATE_ARGS[@]}" "${IDENTITY_ARGS[@]}")"
+
+ARG_ARGS=()
+[[ -z "${CANISTER_ARG:-}" ]] || ARG_ARGS=(--args "$CANISTER_ARG")
+
+icp canister install "$CANISTER_ID" --wasm "$WASM_FILE" --mode "$INSTALL_MODE" --yes -e "$(snsdemo_env_name)" "${ARG_ARGS[@]}" "${IDENTITY_ARGS[@]}"

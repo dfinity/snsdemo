@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Creates a canister and records its ID under a name, unless a canister with
+	that name has already been recorded.  The ID is printed.
+
+	The canister is created on the application subnet by the current identity,
+	which is its controller.
+
+	With --specified_id the canister is created with the given ID.  This works
+	only with PocketIC and only for IDs in the ranges of its subnets.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=N long=name desc="The name under which to record the canister ID" variable=CANISTER_NAME
+clap.define short=s long=specified_id desc="The ID that the canister must have" variable=SPECIFIED_ID default=""
+clap.define short=i long=identity desc="The identity to use, if not the default identity" variable=DFX_IDENTITY default=""
+clap.define long=cycles desc="The cycles to create the canister with, for example 2T" variable=CYCLES default="2T"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+test -n "${CANISTER_NAME:-}" || snsdemo_die "Please provide a canister name with --name."
+
+if EXISTING_ID="$(snsdemo_canister_id "$CANISTER_NAME" "$DFX_NETWORK" 2>/dev/null)"; then
+  echo "$CANISTER_NAME canister already exists: $EXISTING_ID" >&2
+  echo "$EXISTING_ID"
+  exit 0
+fi
+
+IDENTITY_ARGS=()
+[[ -z "${DFX_IDENTITY:-}" ]] || IDENTITY_ARGS=(--identity "$DFX_IDENTITY")
+
+if [[ -n "${SPECIFIED_ID:-}" ]]; then
+  CONTROLLER="$(icp identity principal "${IDENTITY_ARGS[@]}")"
+  snsdemo_pocketic_update "2vxsx-fae" "aaaaa-aa" "$SPECIFIED_ID" provisional_create_canister_with_cycles "(record {
+    amount = opt (100_000_000_000_000 : nat);
+    settings = opt record { controllers = opt vec { principal \"$CONTROLLER\" } };
+    specified_id = opt principal \"$SPECIFIED_ID\";
+  })" >/dev/null
+  CANISTER_ID="$SPECIFIED_ID"
+else
+  CANISTER_ID="$(icp canister create --detached --quiet --cycles "$CYCLES" -e "$(snsdemo_env_name)" "${IDENTITY_ARGS[@]}")"
+fi
+
+snsdemo_set_canister_id "$CANISTER_NAME" "$CANISTER_ID" "$DFX_NETWORK"
+echo "$CANISTER_ID"
