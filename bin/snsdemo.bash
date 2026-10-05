@@ -141,12 +141,18 @@ snsdemo_canister_id() {
 ############
 
 # Calls a canister (given by name or ID) on the current network.
+# Without arguments, the method is called with an empty argument list, because
+# icp-cli would otherwise start an interactive prompt.
 # Usage: snsdemo_call CANISTER METHOD [ARGS] [icp canister call options]
 snsdemo_call() {
-  local id
+  local id method
   id="$(snsdemo_canister_id "$1")" || return 1
-  shift
-  icp canister call "$id" "$@" -e "$(snsdemo_env_name)"
+  method="$2"
+  shift 2
+  if (($# == 0)) || [[ "$1" == -* ]]; then
+    set -- "()" "$@"
+  fi
+  icp canister call "$id" "$method" "$@" -e "$(snsdemo_env_name)"
 }
 
 # Prints the controllers of a canister, one per line.
@@ -346,9 +352,9 @@ hex_to_base64() {
 #
 # Usage: snsdemo_pocketic_post URL JSON
 snsdemo_pocketic_post() {
-  local url="$1" body="$2" out code attempt
+  local url="$1" body="$2" out code
   out="$(mktemp)"
-  for attempt in $(seq 1 120); do
+  for _ in $(seq 1 120); do
     code="$(curl -sS -o "$out" -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$body" "$url")" ||
       {
         rm -f "$out"
