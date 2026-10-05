@@ -6,7 +6,7 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-EOF
 
-	Prints a list of the principals of all the DFX identities.
+	Prints a list of the principals of all the icp-cli identities.
 
 	Note: This is useful for users with multiple identities
 	      who struggle to remember which identity they used
@@ -24,9 +24,7 @@ clap.define short=p long=principal desc="The principal to find" variable=PRINCIP
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-export DFX_NETWORK
-
 dfx-identity-list | while read -r name; do
-  principal="$(echo "" | dfx identity get-principal --identity "$name" 2>/dev/null)"
+  principal="$(icp identity principal --identity "$name" 2>/dev/null)"
   echo "${principal:-                                                               } $name"
 done | grep -E "${PRINCIPAL:-}"

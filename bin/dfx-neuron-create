@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=s long=icp desc="The amount of ICP to icp" variable=ICP default=1
-clap.define short=i long=DFX_IDENTITY desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=DFX_IDENTITY desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=V long=verbose desc="Print progress" variable=DFX_VERBOSE nargs=0
 clap.define short=N long=name desc="The name of the neuron" variable=NEURON_NAME default="1"
 # Source the output file ----------------------------------------------------------
@@ -15,14 +16,9 @@ source "$(clap.build)"
 test -z "${DFX_VERBOSE:-}" || set -x
 
 # Create a neuron
-PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
-test -e "$PEM" || {
-  echo "ERROR: Pem file for user '$DFX_IDENTITY' does not exist at '$PEM'"
-  exit 1
-} >&2
-NEURONS_DIR="$HOME/.config/dfx/identity/$DFX_IDENTITY/neurons"
-mkdir -p "$NEURONS_DIR"
-NEURONS_FILE="$NEURONS_DIR/$DFX_NETWORK"
+PEM="$(snsdemo_identity_pem "$DFX_IDENTITY")"
+NEURONS_FILE="$(snsdemo_neurons_file "$DFX_IDENTITY" "$DFX_NETWORK")"
+mkdir -p "$(dirname "$NEURONS_FILE")"
 IC_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 export IC_URL
 # Note: Quill send puts a pile of junk on stdout and has no option to put just the response(s) somewhere safe such as a file.

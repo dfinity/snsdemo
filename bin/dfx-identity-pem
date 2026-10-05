@@ -2,15 +2,17 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 export PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
 
-	Returns the path to the PEM file for a dfx identity.
+	Returns the path to a PEM file for an identity.
 
-	Note: At a given time, a given identity may not have a PEM file.
-	      This command will return the path to where the PEM would
-	      be even if it does not exist.
+	Note: The PEM file is created by exporting the identity from icp-cli, in
+	      $SNSDEMO_STATE_DIR/pem/.  It is overwritten every time.  Direct
+	      use of the pem file is needed for ic-admin and quill but is
+	      generally deprecated.
 
 	EOF
 }
@@ -18,11 +20,10 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=i long=identity desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 : "Note:  Direct use of the pem file is needed for ic-admin but is generally deprecated"
-: "Note: It is not guaranteed that the pem file is present and unencrypted."
 
-echo "$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
+snsdemo_identity_pem "$DFX_IDENTITY"

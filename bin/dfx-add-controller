@@ -1,4 +1,8 @@
+#!/usr/bin/env bash
 set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -9,19 +13,36 @@ print_help() {
 	EOF
 }
 
-SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=c long=canister desc="Name or ID of the canister to control" variable=CANISTER default=""
-clap.define short=p long=principal desc="Principal of the controller to add" variable=PRINCIPAL_TO_ADD default="$(dfx identity get-principal)"
-clap.define long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=p long=principal desc="Principal of the controller to add" variable=PRINCIPAL_TO_ADD default="$(icp identity principal)"
+clap.define long=network desc="The network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 
-CURRENT_CONTROLLER="$(dfx canister info "$CANISTER" | grep '^Controllers:' | awk '{print $2}')"
+CANISTER_ID="$(snsdemo_canister_id "$CANISTER")"
+mapfile -t CONTROLLERS < <(snsdemo_controllers "$CANISTER")
+CURRENT_CONTROLLER="${CONTROLLERS[0]}"
 
-dfx canister update-settings "$CANISTER" --add-controller "$PRINCIPAL_TO_ADD" --impersonate "$CURRENT_CONTROLLER"
+for controller in "${CONTROLLERS[@]}"; do
+  if [[ "$controller" == "$PRINCIPAL_TO_ADD" ]]; then
+    echo "$PRINCIPAL_TO_ADD already controls $CANISTER."
+    exit 0
+  fi
+done
+
+# The new list of controllers has all the existing controllers and the new one.
+CONTROLLER_LIST=""
+for controller in "${CONTROLLERS[@]}" "$PRINCIPAL_TO_ADD"; do
+  CONTROLLER_LIST="$CONTROLLER_LIST principal \"$controller\";"
+done
+
+snsdemo_pocketic_update "$CURRENT_CONTROLLER" "aaaaa-aa" "$CANISTER_ID" update_settings "(record {
+  canister_id = principal \"$CANISTER_ID\";
+  settings = record { controllers = opt vec {$CONTROLLER_LIST} };
+})" >/dev/null
+echo "Added $PRINCIPAL_TO_ADD as a controller of $CANISTER ($CANISTER_ID)."
