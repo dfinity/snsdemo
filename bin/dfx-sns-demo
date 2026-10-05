@@ -4,90 +4,86 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DEMO_BIN="$(realpath "${SOURCE_DIR}/..")/bin-other"
 PATH="$SOURCE_DIR:$DEMO_BIN:$HOME/.local/bin:$PATH"
 export PATH
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=c long=ic_commit desc="The IC commit to use" variable=DFX_IC_COMMIT default=""
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=c long=ic_commit desc="The IC commit to use for ic-admin and sns" variable=DFX_IC_COMMIT default=""
 clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 clap.define long=config_index desc="The value for the dfx-sns-demo-mksns-config --config_index parameter" variable=CONFIG_INDEX default="0"
 clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
-clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=false
+clap.define long=pocketic desc="Deprecated and ignored: A local network always uses PocketIC" variable=USE_POCKET_IC nargs=0 default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
-cd "$(dirname "$(realpath "$0")")/.."
+cd "$SNSDEMO_ROOT"
 
 demo-cleanup
 
-# If ic-commit is specified, get execuables from there:
+# If ic-commit is specified, get executables from there:
 [[ "${DFX_IC_COMMIT:-}" != "latest" ]] || DFX_IC_COMMIT="$(dfx-software ic latest --ic_dir "$IC_REPO_DIR")"
 [[ "${DFX_IC_COMMIT:-}" != "" ]] || DFX_IC_COMMIT="$(dfx-software ic current)"
 rm -fr "$DEMO_BIN"
 dfx-software ic install-executable --commit "$DFX_IC_COMMIT" --bin "$DEMO_BIN" ic-admin sns
 echo "Using binaries from ic commit: $DFX_IC_COMMIT"
 
-./bin/demo-system-subnet
-
 export DFX_NETWORK
 export DFX_IC_COMMIT
 
 # Check that the network is known.
-[[ "$DFX_NETWORK" == "local" ]] || dfx-network-provider --network "$DFX_NETWORK" >/dev/null || {
+snsdemo_is_local "$DFX_NETWORK" || dfx-network-provider --network "$DFX_NETWORK" >/dev/null || {
   echo "ERROR: Unknown network '$DFX_NETWORK'"
-  echo "Please make sure that the network is defined in $(dfx info networks-json-path)"
+  echo "Please make sure that the network is defined in icp.yaml"
   exit 1
 } >&2
-[[ "$DFX_NETWORK" == "local" ]] || jq '.networks[env.DFX_NETWORK]' "$ND_REPO_DIR/dfx.json" | grep -q . || {
+snsdemo_is_local "$DFX_NETWORK" || jq '.networks[env.DFX_NETWORK]' "$ND_REPO_DIR/dfx.json" | grep -q . || {
   echo "ERROR: Network is not defined in the nns-dapp dfx.json"
   echo "Please add it to: $ND_REPO_DIR/dfx.json"
   exit 1
 } >&2
 
-sleep 1
-if dfx identity get-principal --identity snsdemo8; then
-  rm -fr "$HOME/.config/dfx/identity/snsdemo8/neurons/local"
-else
-  dfx identity new --storage-mode=plaintext snsdemo8
+# The identity needs to exist before the network is started, as a local
+# network gives ICP to the identities that exist at startup.
+if ! snsdemo_identity_exists snsdemo8; then
+  icp identity new snsdemo8 --storage plaintext
 fi
-dfx identity use snsdemo8
+icp identity default snsdemo8
 
 sleep 1
-POCKET_IC_ARG=()
-if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
-  POCKET_IC_ARG=(--pocketic)
-fi
-dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT" "${POCKET_IC_ARG[@]}"
+dfx-network-deploy --network "$DFX_NETWORK" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --commit "$DFX_IC_COMMIT"
 # Make sure that we use snsdemo8, in case the network deployment needed to change that.
-dfx identity use snsdemo8
+icp identity default snsdemo8
 
 sleep 1
 dfx-nns-import --network "$DFX_NETWORK"
 sleep 1
-dfx-software-dfx-extension-sns-install --if-not-installed
-sleep 1
 
+# The identity needs enough ICP to hold a voting majority in the NNS.
 bin/dfx-ledger-get-icp --icp 900000000 --network "$DFX_NETWORK"
 sleep 1
-dfx ledger balance --network "$DFX_NETWORK"
+icp token balance -e "$(snsdemo_env_name "$DFX_NETWORK")"
 sleep 1
 bin/dfx-neuron-create --icp 500000000 --network "$DFX_NETWORK"
 sleep 1
 bin/dfx-neuron-prolong --network "$DFX_NETWORK"
 sleep 1
 
-./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
-sleep 1
-./bin/dfx-sns-wasm-download --commit "$DFX_IC_COMMIT"
-sleep 1
-./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
-sleep 1
+if ! snsdemo_is_local "$DFX_NETWORK"; then
+  # PocketIC has installed the SNS wasms and authorized the subnets on local networks.
+  ./bin/dfx-sns-subnet-add --network "$DFX_NETWORK"
+  sleep 1
+  ./bin/dfx-sns-wasm-download --commit "$DFX_IC_COMMIT"
+  sleep 1
+  ./bin/dfx-sns-wasm-upload --network "$DFX_NETWORK"
+  sleep 1
+fi
 
-NEW_SNS_CONTROLLER="$(dfx identity get-principal)"
+NEW_SNS_CONTROLLER="$(icp identity principal)"
 ADD_CONTROLLER_ARG=()
-if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
+if snsdemo_is_local "$DFX_NETWORK"; then
   ADD_CONTROLLER_ARG=(--add_controller "$NEW_SNS_CONTROLLER")
 fi
 

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Starts the network launcher on a state directory that was restored from a
+# snapshot instead of the empty directory that icp-cli provides.
+#
+# Why: When icp-cli starts a network, it deletes the state directory of that
+# network and tells the launcher to use the empty directory.  There is no
+# option to keep the state.  icp-cli does let us choose the launcher, so
+# dfx-snapshot-restore selects this script as the launcher.  It passes all
+# arguments on to the real launcher, except for the state directory.
+#
+# Environment:
+# SNSDEMO_REAL_LAUNCHER:      The real network launcher.
+# SNSDEMO_RESTORE_STATE_DIR:  The directory with the state to start from.
+set -euo pipefail
+
+: "${SNSDEMO_REAL_LAUNCHER:?The real launcher is not set}"
+: "${SNSDEMO_RESTORE_STATE_DIR:?The restored state dir is not set}"
+
+args=()
+while (($# > 0)); do
+  case "$1" in
+  --state-dir)
+    args+=(--state-dir "$SNSDEMO_RESTORE_STATE_DIR")
+    shift 2
+    ;;
+  --state-dir=*)
+    args+=("--state-dir=$SNSDEMO_RESTORE_STATE_DIR")
+    shift
+    ;;
+  *)
+    args+=("$1")
+    shift
+    ;;
+  esac
+done
+
+# exec, so that icp-cli signals the real launcher when the network is stopped.
+exec "$SNSDEMO_REAL_LAUNCHER" "${args[@]}"

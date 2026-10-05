@@ -2,14 +2,15 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 . "$SOURCE_DIR/versions.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=I long=icp desc="The amount of ICP to swap" variable=AMOUNT default="max"
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=identity desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -20,7 +21,7 @@ dfx-sns-wait-for-lifecycle --lifecycle "open" --network "$DFX_NETWORK" --identit
 
 # Set the purchased amout to the maximum allowed, if requested.
 if [[ "${AMOUNT:-}" = "max" ]]; then
-  SWAP_STATE="$(dfx canister call sns_swap get_state '(record {})' --network "$DFX_NETWORK")"
+  SWAP_STATE="$(snsdemo_call sns_swap get_state '(record {})' --identity "$DFX_IDENTITY")"
   # Note: max_participant_icp_e8s may be null, so we wish to be careful to get just one integer value, if available.
   #       idl2json + jq may offer a cleaner way of extracting this value but at the time of writing different
   #       candid versions disagree about whether "0" may be parsed as a float, and this breaks parsing with idl2json.

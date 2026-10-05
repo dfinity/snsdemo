@@ -3,6 +3,8 @@
 set -euo pipefail
 
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -15,8 +17,8 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=identity desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
@@ -28,15 +30,17 @@ clean_up() {
 
 trap clean_up EXIT
 
-dfx identity export "$DFX_IDENTITY" | openssl ec -out "$IDENTITY_PUB_KEY_FILE" -pubout -outform der 2>/dev/null
+icp identity export "$DFX_IDENTITY" | openssl pkey -out "$IDENTITY_PUB_KEY_FILE" -pubout -outform der 2>/dev/null
+
+export DFX_NETWORK
 
 echo "Fetching captcha."
-CHALLENGE_KEY="$(dfx canister call internet_identity create_challenge --network "$DFX_NETWORK" | idl2json | jq -r .challenge_key)"
+CHALLENGE_KEY="$(snsdemo_call internet_identity create_challenge | idl2json | jq -r .challenge_key)"
 
 PUB_KEY_BLOB=$(hexdump -ve '1/1 "%.2x"' "$IDENTITY_PUB_KEY_FILE" | sed 's/../\\&/g')
 
 echo "Creating anchor."
-ANCHOR_CREATION_RESPONSE="$(dfx canister call internet_identity register "(record{pubkey=blob \"${PUB_KEY_BLOB}\";alias=\"dfx test key\";purpose=variant{authentication};key_type=variant{unknown};protection=variant{unprotected};},record{key=\"${CHALLENGE_KEY}\";chars=\"a\"},null)" --network "$DFX_NETWORK")"
+ANCHOR_CREATION_RESPONSE="$(snsdemo_call internet_identity register "(record{pubkey=blob \"${PUB_KEY_BLOB}\";alias=\"dfx test key\";purpose=variant{authentication};key_type=variant{unknown};protection=variant{unprotected};},record{key=\"${CHALLENGE_KEY}\";chars=\"a\"},null)")"
 ANCHOR="$(echo "$ANCHOR_CREATION_RESPONSE" | idl2json | jq -r .registered.user_number)"
 
 # Verify that the anchor is a number:
@@ -66,7 +70,7 @@ add_device() {
   DEVICE_KEY_TYPE="$2"
   DEVICE_PURPOSE="$3"
   local command
-  command=(dfx canister call internet_identity add "(${ANCHOR}, record { alias = \"\"; protection = variant { unprotected }; pubkey = blob \"${DEVICE_PUB_KEY_BLOB}\"; key_type = variant { ${DEVICE_KEY_TYPE} }; purpose = variant { ${DEVICE_PURPOSE} }; })" --network "$DFX_NETWORK")
+  command=(snsdemo_call internet_identity add "(${ANCHOR}, record { alias = \"\"; protection = variant { unprotected }; pubkey = blob \"${DEVICE_PUB_KEY_BLOB}\"; key_type = variant { ${DEVICE_KEY_TYPE} }; purpose = variant { ${DEVICE_PURPOSE} }; })")
   "${command[@]}" >/dev/null
 }
 

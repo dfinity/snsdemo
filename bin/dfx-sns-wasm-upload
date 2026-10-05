@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$SOURCE_DIR/dfx-shim:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
@@ -14,7 +16,9 @@ clap.define short=i long=id desc="The wasm canister id to upload to" variable=SN
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-SNS_WASM_CANISTER_ID="${SNS_WASM_CANISTER_ID:-$(dfx canister id nns-sns-wasm --network "$DFX_NETWORK" 2>/dev/null)}"
+SNS_WASM_CANISTER_ID="${SNS_WASM_CANISTER_ID:-$(snsdemo_canister_id nns-sns-wasm "$DFX_NETWORK")}"
+# The sns command line tool uses the network as a URL.
+NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
 jq <"$SOURCE_DIR/sns_dfx.json" -r '.canisters | to_entries | map("\(.value.config.nns_sns_wasm_name) \(.value.wasm)") | .[]' | while read -r line; do
   # shellcheck disable=SC2086 # We do actually want to split the line into fields.
@@ -22,7 +26,7 @@ jq <"$SOURCE_DIR/sns_dfx.json" -r '.canisters | to_entries | map("\(.value.confi
   UPLOAD_NAME="$1"
   WASM_FILE="wasms/$2"
   set "sns" add-sns-wasm-for-tests \
-    --network "$DFX_NETWORK" \
+    --network "$NNS_URL" \
     --override-sns-wasm-canister-id-for-tests "${SNS_WASM_CANISTER_ID}" \
     --wasm-file "$WASM_FILE" "$UPLOAD_NAME"
   echo "${@}"

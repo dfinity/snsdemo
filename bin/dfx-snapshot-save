@@ -2,11 +2,19 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
-	
-	Saves a snapshot of local state.
+
+	Saves a snapshot of the state of the local network, the canister IDs, the
+	neurons and some identities.
+
+	The network must have been stopped with dfx-network-stop, so that PocketIC
+	has written its state to disk.
+
+	Warning: The snapshot contains the private keys of the identities.
+
 	EOF
 }
 
@@ -15,52 +23,58 @@ source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="state.tar.xz"
 clap.define short=i long=identities desc="The identities to save" variable=DFX_IDENTITIES default="snsdemo8,ident-1"
+clap.define short=n long=network desc="The network to save" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-case "$(uname)" in
-Linux)
-  LOCAL_REPLICA_DATA_DIR=".local/share/dfx/network/local"
-  ;;
-Darwin)
-  LOCAL_REPLICA_DATA_DIR="Library/Application Support/org.dfinity.dfx/network/local"
-  ;;
-*)
-  {
-    echo "ERROR: Unsupported OS: $(uname)"
-    exit 1
-  }
-  ;;
-esac
+export DFX_NETWORK
+NETWORK="$(snsdemo_env_name "$DFX_NETWORK")"
+snsdemo_is_local "$NETWORK" || snsdemo_die "Only local networks can be saved."
+
+# Paths in the snapshot are relative to the project root.
+STATE_REL=".icp/cache/networks/$NETWORK/state"
+[[ "$SNSDEMO_STATE_DIR" == "$ICP_PROJECT_ROOT/"* ]] || snsdemo_die "The snsdemo state dir '$SNSDEMO_STATE_DIR' needs to be in the project '$ICP_PROJECT_ROOT'."
+SNSDEMO_REL="${SNSDEMO_STATE_DIR#"$ICP_PROJECT_ROOT"/}"
+
+test -s "$ICP_PROJECT_ROOT/$STATE_REL/topology.json" || {
+  echo "ERROR: There is no saved network state in '$ICP_PROJECT_ROOT/$STATE_REL'."
+  echo "       Please stop the network gracefully with dfx-network-stop first."
+  exit 1
+} >&2
 
 # Get the absolute path to the output file and make sure that the containing dir exists.
 DFX_SNAPSHOT_DIR="$(dirname "$DFX_SNAPSHOT_FILE")"
 mkdir -p "$DFX_SNAPSHOT_DIR"
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_DIR")/$(basename "$DFX_SNAPSHOT_FILE")"
 DFX_SNAPSHOT_TEMP_FILE="$(mktemp "${DFX_SNAPSHOT_FILE}.tmp.XXXX")"
-DFX_SNAPSHOT_TEMP_COMPRESSED="$(mktemp "${DFX_SNAPSHOT_FILE}.tmp.xz.XXXX")"
 
 # Put the identities to save into an array
 IFS=', ' read -r -a DFX_IDENTITIES <<<"$DFX_IDENTITIES"
 
-# Get global state
-pushd "$HOME"
-tar --create --file "$DFX_SNAPSHOT_TEMP_FILE" "$LOCAL_REPLICA_DATA_DIR" .config/dfx/networks.json
-for config_file in identity.json version-manager.json; do
-  config_path=".config/dfx/$config_file"
-  if [[ -f "$config_path" ]]; then
-    tar --append --file "$DFX_SNAPSHOT_TEMP_FILE" "$config_path"
+# Export the identities.  They are imported again, before the network starts, when
+# the snapshot is restored.
+mkdir -p "$SNSDEMO_STATE_DIR/identities"
+chmod 700 "$SNSDEMO_STATE_DIR/identities"
+rm -f "$SNSDEMO_STATE_DIR/identities/"*.pem
+for id in "${DFX_IDENTITIES[@]}"; do
+  if snsdemo_identity_exists "$id"; then
+    (
+      umask 077
+      icp identity export "$id" >"$SNSDEMO_STATE_DIR/identities/$id.pem"
+    )
+  else
+    echo "Not saving the identity '$id' because it doesn't exist."
   fi
 done
-for id in "${DFX_IDENTITIES[@]}"; do
-  tar --append --file "$DFX_SNAPSHOT_TEMP_FILE" ".config/dfx/identity/${id}"
+icp identity default >"$SNSDEMO_STATE_DIR/default-identity"
+
+CONTENT=("$STATE_REL" "$SNSDEMO_REL/identities" "$SNSDEMO_REL/default-identity")
+for dir in canister_ids neurons; do
+  if test -d "$SNSDEMO_STATE_DIR/$dir"; then
+    CONTENT+=("$SNSDEMO_REL/$dir")
+  fi
 done
 
-# Get local project state
-popd
-if test -d .dfx; then
-  tar --append --file "$DFX_SNAPSHOT_TEMP_FILE" .dfx
-fi
-xz <"$DFX_SNAPSHOT_TEMP_FILE" >"$DFX_SNAPSHOT_TEMP_COMPRESSED"
-rm "$DFX_SNAPSHOT_TEMP_FILE"
-mv "$DFX_SNAPSHOT_TEMP_COMPRESSED" "$DFX_SNAPSHOT_FILE"
+tar --create --directory "$ICP_PROJECT_ROOT" "${CONTENT[@]}" | xz >"$DFX_SNAPSHOT_TEMP_FILE"
+rm -fr "$SNSDEMO_STATE_DIR/identities"
+mv "$DFX_SNAPSHOT_TEMP_FILE" "$DFX_SNAPSHOT_FILE"

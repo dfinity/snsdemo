@@ -2,6 +2,7 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -13,15 +14,12 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-# There are no custom options but we use clap for --help.
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-: Make sure the candid is available and of the right version.
-DID_FILE="$(jq -r .canisters.sns_aggregator.candid dfx.json)"
-dfx canister metadata sns_aggregator candid:service >"$DID_FILE"
-
-# Sadly, the output of `dfx canister call sns_aggregator get_canister_config`
+export DFX_NETWORK
+# Sadly, the output of `icp canister call sns_aggregator get_canister_config`
 # which has format:
 # ```
 # (
@@ -31,7 +29,7 @@ dfx canister metadata sns_aggregator candid:service >"$DID_FILE"
 #   },
 # )
 # ```
-# can not be used as input to `dfx canister call sns_aggregator reconfigure`
+# can not be used as input to `icp canister call sns_aggregator reconfigure`
 # which should have format (note the `opt`):
 # ```
 # (
@@ -44,14 +42,14 @@ dfx canister metadata sns_aggregator candid:service >"$DID_FILE"
 # So we convert to JSON and back to Candid.
 
 save_aggregator_config() {
-  SAVED_CONFIG="$(dfx canister call sns_aggregator get_canister_config | idl2json)"
+  SAVED_CONFIG="$(snsdemo_call sns_aggregator get_canister_config | idl2json)"
 }
 
 set_aggregator_config() {
   config="$1"
   fast_interval_ms="$(jq -r .fast_interval_ms <<<"$config")"
   update_interval_ms="$(jq -r .update_interval_ms <<<"$config")"
-  dfx canister call sns_aggregator reconfigure "(opt record { update_interval_ms = $update_interval_ms; fast_interval_ms = $fast_interval_ms; })"
+  snsdemo_call sns_aggregator reconfigure "(opt record { update_interval_ms = $update_interval_ms; fast_interval_ms = $fast_interval_ms; })"
 }
 
 restore_aggregator_config() {
@@ -68,14 +66,14 @@ speed_up_aggregator() {
 get_sns_count() {
   for ((page = 0; page < required_page_count; page++)); do
     {
-      aggregator_url="http://$(dfx canister id sns_aggregator).localhost:8080/v1/sns/list/page/$page/slow.json"
+      aggregator_url="$(dfx-canister-url --network "$DFX_NETWORK" sns_aggregator)/v1/sns/list/page/$page/slow.json"
       curl -fsS "$aggregator_url" 2>/dev/null | jq length
     } || true
   done | awk 'BEGIN{i=0}{i+=$1}END{print i}'
 }
 
 wait_for_sns_count() {
-  EXPECTED_NUM_SNS="$(dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq '.instances | length')"
+  EXPECTED_NUM_SNS="$(snsdemo_call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq '.instances | length')"
   echo "Waiting for $EXPECTED_NUM_SNS SNSs"
   page_size=10
   required_page_count=$(((EXPECTED_NUM_SNS + page_size - 1) / page_size))
