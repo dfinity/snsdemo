@@ -68,7 +68,7 @@ if [[ "$SNS_COUNT" != "$EXPECTED_SNS_COUNT" ]]; then
 fi
 
 : Set up ckbtc canisters
-dfx-ckbtc-import --prefix ckbtc_ --network "$DFX_NETWORK"
+dfx-ckbtc-import --prefix ckbtc_
 dfx-ckbtc-deploy --prefix ckbtc_ --network "$DFX_NETWORK" --yes
 
 : Set up cketh canisters
