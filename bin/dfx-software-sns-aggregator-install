@@ -49,7 +49,7 @@ WASM_FILE="wasms/sns_aggregator_${DFX_RELEASE}_${DFX_FLAVOR}.wasm"
 test -e "$WASM_FILE" || {
   echo "Downloading wasm from: $WASM_URL"
   mkdir -p "$(dirname "$WASM_FILE")"
-  curl --retry 5 --fail -sSL "${WASM_URL}" >"${WASM_FILE}.tmp"
+  curl --retry 5 --retry-all-errors --retry-delay 3 --fail -sSL "${WASM_URL}" >"${WASM_FILE}.tmp"
   mv "${WASM_FILE}.tmp" "${WASM_FILE}"
   echo "  saved wasm to: $WASM_FILE"
 }

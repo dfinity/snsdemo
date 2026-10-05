@@ -41,7 +41,7 @@ WASM_PATH="${WASM_DIR}/${WASM_FILE}"
 mkdir -p "${WASM_DIR}"
 
 echo "Downloading mock ${CANISTER_NAME} wasm from ${WASM_URL}"
-curl --retry 5 --fail --silent --show-error --location \
+curl --retry 5 --retry-all-errors --retry-delay 3 --fail --silent --show-error --location \
   "${WASM_URL}" >"${WASM_PATH}"
 
 DFX_CANISTER_CREATE_ARGS=()

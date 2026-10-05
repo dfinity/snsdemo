@@ -246,7 +246,7 @@ snsdemo_download_wasm() {
   url="https://download.dfinity.systems/ic/$commit/canisters/${remote_name}.gz"
   echo "Getting  $local_path from $url..."
   mkdir -p "$(dirname "$local_path")"
-  curl -fsSL --retry 5 "$url" | gunzip >"$local_path"
+  curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 "$url" | gunzip >"$local_path"
 }
 
 # Downloads a candid file from the IC repo.
@@ -256,7 +256,7 @@ snsdemo_download_did() {
   url="https://raw.githubusercontent.com/dfinity/ic/$commit/${remote_path}"
   echo "Getting  $local_path from $url..."
   mkdir -p "$(dirname "$local_path")"
-  curl -sSLf --retry 5 "$url" -o "$local_path"
+  curl -sSLf --retry 5 --retry-all-errors --retry-delay 3 "$url" -o "$local_path"
 }
 
 # Checks that the wasm and candid files of canisters are present and plausible.
@@ -339,6 +339,40 @@ hex_to_base64() {
   perl -e 'print pack("H*", $ARGV[0])' "$1" | openssl base64 -A
 }
 
+# POSTs JSON to the PocketIC REST API and prints the response body.
+# PocketIC answers 409 (the instance is busy with another operation, for example
+# a block that auto-progress is producing) or 202 (the operation is still
+# running) in which case the same request is repeated.
+#
+# Usage: snsdemo_pocketic_post URL JSON
+snsdemo_pocketic_post() {
+  local url="$1" body="$2" out code attempt
+  out="$(mktemp)"
+  for attempt in $(seq 1 120); do
+    code="$(curl -sS -o "$out" -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$body" "$url")" ||
+      {
+        rm -f "$out"
+        return 1
+      }
+    case "$code" in
+      200)
+        cat "$out"
+        rm -f "$out"
+        return 0
+        ;;
+      202 | 409 | 429) sleep 0.5 ;;
+      *)
+        echo "PocketIC returned HTTP $code for $url: $(cat "$out")" >&2
+        rm -f "$out"
+        return 1
+        ;;
+    esac
+  done
+  echo "PocketIC stayed busy (HTTP $code) for $url" >&2
+  rm -f "$out"
+  return 1
+}
+
 # Calls a canister on a local network on behalf of any principal, without a
 # signature.  This works only with PocketIC.
 #
@@ -363,10 +397,10 @@ snsdemo_pocketic_update() {
     --arg method "$method" \
     --arg payload "$(hex_to_base64 "$payload_hex")" \
     '{sender: $sender, canister_id: $canister, effective_principal: {CanisterId: $effective}, method: $method, payload: $payload}')"
-  response="$(curl -fsS -X POST -H 'Content-Type: application/json' -d "$body" "http://127.0.0.1:$config_port/instances/$instance_id/update/submit_ingress_message")"
+  response="$(snsdemo_pocketic_post "http://127.0.0.1:$config_port/instances/$instance_id/update/submit_ingress_message" "$body")" || snsdemo_die "The call to $canister.$method could not be submitted."
   message_id="$(jq -ec '.Ok // empty' <<<"$response")" || snsdemo_die "PocketIC rejected the call to $canister.$method: $response"
   [[ -n "$message_id" ]] || snsdemo_die "PocketIC rejected the call to $canister.$method: $response"
-  response="$(curl -fsS -X POST -H 'Content-Type: application/json' -d "$message_id" "http://127.0.0.1:$config_port/instances/$instance_id/update/await_ingress_message")"
+  response="$(snsdemo_pocketic_post "http://127.0.0.1:$config_port/instances/$instance_id/update/await_ingress_message" "$message_id")" || snsdemo_die "The call to $canister.$method could not be awaited."
   result="$(jq -r '.Ok // empty' <<<"$response")"
   [[ -n "$result" ]] || snsdemo_die "The call to $canister.$method failed: $response"
   openssl base64 -d -A <<<"$result" | od -An -tx1 | tr -d ' \n'

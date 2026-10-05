@@ -31,7 +31,7 @@ export DFX_NETWORK
 II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE}" --flavor "${DFX_II_FLAVOR}")"
 
 # The URL might point to a .gz file, but icp-cli can install gzipped wasms directly.
-curl --retry 5 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
+curl --retry 5 --retry-all-errors --retry-delay 3 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
 
 : "Install the canister:"
 dfx-canister-install --network "$DFX_NETWORK" --name internet_identity --wasm internet_identity_dev.wasm --mode "${DFX_INSTALL_MODE}"
