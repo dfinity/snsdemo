@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/dfinity/icp-cli/main/docs/schemas/icp-yaml-schema.json
+#
+# The icp-cli project for the snsdemo.  It defines the local networks that the
+# scripts in bin/ start, and the canisters that icp-cli deploys itself.  The
+# version of icp-cli and of the network launcher (which contains PocketIC) are
+# pinned in mise.toml.
+networks:
+  # The local network with the NNS and SNS, including Internet Identity, the
+  # NNS dapp and the SNS aggregator.  PocketIC installs these canisters with the
+  # same IDs that they have on the IC mainnet, and with matching registry data
+  # and wasms.  The wasms are compiled into the network launcher.
+  - name: local
+    mode: managed
+    nns: true
+    gateway:
+      bind: 127.0.0.1
+      port: 8080
+    # Note: Listing subnets replaces the default application subnet.
+    # The bitcoin subnet is where the mock bitcoin canister is installed.
+    subnets:
+      - application
+      - bitcoin
+
+  # A local network without the NNS and SNS, used to test the scripts that
+  # install individual canisters.  Internet Identity is installed because that
+  # adds the subnet that has the IDs of the mock exchange rate canister.
+  - name: bare
+    mode: managed
+    ii: true
+    gateway:
+      bind: 127.0.0.1
+      port: 8080
+    subnets:
+      - application
+      - bitcoin
+
+environments:
+  - name: bare
+    network: bare
+
+# Canisters that serve mock data, deployed by bin/dfx-mock-icp-swap-install and
+# bin/dfx-mock-kong-swap-install.  They are asset canisters, defined without a
+# recipe so that icp-cli does not need to fetch anything just to load this file.
+canisters:
+  - name: icp-swap
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/sdk/releases/download/0.32.0/assetstorage.wasm.gz
+    sync:
+      steps:
+        - type: plugin
+          url: https://github.com/dfinity/certified-assets/releases/download/migration-v2.2.1-6b48585/sync_plugin.wasm
+          sha256: ca7cb5666c30d2875f8d5e10535f8a53f97a86c79c263f7d5bdac2fdd1bbf83c
+          dirs:
+            - icp-swap
+  - name: kong-swap
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/sdk/releases/download/0.32.0/assetstorage.wasm.gz
+    sync:
+      steps:
+        - type: plugin
+          url: https://github.com/dfinity/certified-assets/releases/download/migration-v2.2.1-6b48585/sync_plugin.wasm
+          sha256: ca7cb5666c30d2875f8d5e10535f8a53f97a86c79c263f7d5bdac2fdd1bbf83c
+          dirs:
+            - kong-swap

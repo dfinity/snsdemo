@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
-	
+
 	Provides the address of a server that can be used for NNS proposals.
 
 	EOF
@@ -13,42 +14,29 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=f long=format desc="The format: url or ip" variable=FORMAT default="url"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 
-# Work-around required to be able to run `dfx info`.
-# A proper fix is in dfx 0.14.0.
-# TODO: Remove this once we use dfx 0.14.0.
-get_home() {
-  eval echo "~$USER"
-}
-
 case "${FORMAT}" in
 url)
-  if [[ "$DFX_NETWORK" == "local" ]]; then
-    WEBSERVER_PORT="$(dfx info webserver-port 2>/dev/null || true)"
-    [[ "${WEBSERVER_PORT:-}" != "" ]] || {
-      # The above command can fail if not run in the same directory as the replica working directory.
-      DFX_EXEC_DIR="$(lsof -p "$(pgrep -x pocket-ic || pgrep -x replica | head -1)" | grep cwd | awk '{print $NF}')"
-      cd "$DFX_EXEC_DIR"
-      WEBSERVER_PORT="$(HOME="$(get_home)" dfx info webserver-port)"
-    }
-    echo "http://localhost:$WEBSERVER_PORT"
-  elif [[ "${DFX_NETWORK:-}" =~ mainnet|ic ]]; then
+  if snsdemo_is_local "$DFX_NETWORK"; then
+    echo "http://localhost:$(snsdemo_gateway_port "$DFX_NETWORK")"
+  elif [[ "$(snsdemo_env_name "$DFX_NETWORK")" == "ic" ]]; then
     echo "https://ic0.app"
   else
-    jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)"
+    snsdemo_api_url "$DFX_NETWORK"
   fi
   ;;
 ip)
-  if [[ "$DFX_NETWORK" == "local" ]]; then
+  if snsdemo_is_local "$DFX_NETWORK"; then
     echo localhost
   else
-    jq -er '.[env.DFX_NETWORK].providers[0] | select (.!=null)' "$(dfx info networks-json-path)" | sed 's/.*\[//g;s/\].*//g'
+    # The host of the URL, without the brackets of an IPv6 address.
+    snsdemo_api_url "$DFX_NETWORK" | sed -E 's,^[a-z]+://,,;s,/.*,,;s,:[0-9]+$,,;s/.*\[//g;s/\].*//g'
   fi
   ;;
 *)

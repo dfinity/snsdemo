@@ -7,11 +7,13 @@ source "$SOURCE_DIR/snsdemo.bash"
 print_help() {
   cat <<-EOF
 
-	Records the ID of a canister in the snsdemo state.
+	Prints the ID of a canister, given its name.
 
-	After this command has completed, this will return the specified ID:
+	The IDs come from, in this order:
+	- The IDs that snsdemo has recorded in $SNSDEMO_STATE_DIR/canister_ids/
+	- The NNS canisters and other canisters that have the same ID on all networks.
 
-	dfx-canister-id --network <DFX_NETWORK> <CANISTER_NAME>
+	Usage: $(basename "$0") [--network NETWORK] CANISTER_NAME
 
 	EOF
 }
@@ -20,9 +22,12 @@ print_help() {
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
-clap.define short=i long=canister_id desc="The ID of the canister" variable=DFX_CANISTER_ID
-clap.define short=N long=canister_name desc="The name of the canister" variable=DFX_CANISTER_NAME
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-snsdemo_set_canister_id "$DFX_CANISTER_NAME" "$DFX_CANISTER_ID" "$DFX_NETWORK"
+(($# == 1)) || {
+  echo "ERROR: Please provide exactly one canister name." >&2
+  exit 1
+}
+
+snsdemo_canister_id "$1" "$DFX_NETWORK"

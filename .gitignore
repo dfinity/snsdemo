@@ -7,11 +7,16 @@
 .DS_Store
 **/.DS_Store
 
-# dfx temporary files
-.dfx
-canister_ids.*
+# Downloaded wasm and candid files
 wasms
 candid
+
+# Files that the scripts generate: mock data for the swap canisters, users for
+# creating SNSes in parallel and executables from the IC repo.
+/icp-swap/
+/kong-swap/
+/users/
+/bin-other/
 
 # other temporary files
 ,*
@@ -19,6 +24,7 @@ candid
 # Configuration files in the root, unless explicitly committed
 /*.yml
 /*.yaml
+!/icp.yaml
 
 # generated files
 src/declarations/

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Calls a canister given its name or ID, using icp-cli.
+
+	Usage: $(basename "$0") [--network NETWORK] [--identity IDENTITY] CANISTER_NAME METHOD [ARGS] [ICP_OPTIONS]
+
+	Options that follow the canister name are passed on to 'icp canister call'.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=identity desc="The identity to use, if not the default identity" variable=DFX_IDENTITY default=""
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+(($# >= 2)) || {
+  echo "ERROR: Please provide a canister and a method." >&2
+  exit 1
+}
+
+export DFX_NETWORK
+canister="$1"
+shift 1
+IDENTITY_ARGS=()
+[[ -z "${DFX_IDENTITY:-}" ]] || IDENTITY_ARGS=(--identity "$DFX_IDENTITY")
+snsdemo_call "$canister" "$@" "${IDENTITY_ARGS[@]}"

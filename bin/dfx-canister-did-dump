@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Prints out the candid for a canister interface.
-set -euxo pipefail
+# Prints out the candid for a canister interface, as published by the canister.
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 CANISTER_NAME="$1"
-export CANISTER_NAME
-DID_PATH="$(jq -r '.canisters[env.CANISTER_NAME].candid' dfx.json)"
-cat "$DID_PATH"
+CANISTER_ID="$(snsdemo_canister_id "$CANISTER_NAME")"
+icp canister metadata "$CANISTER_ID" candid:service -e "$(snsdemo_env_name)"

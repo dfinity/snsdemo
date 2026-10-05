@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Starts a local network in the background, using icp-cli and the network
+	launcher that is pinned in mise.toml.
+
+	The networks are defined in icp.yaml:
+	* local: With the NNS and SNS, installed by PocketIC.
+	* bare:  Without the NNS and SNS.
+
+	Identities are funded with ICP and cycles when the network starts, so please
+	create the identities that you need before starting the network.
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The network to start" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+export DFX_NETWORK
+
+snsdemo_is_local "$DFX_NETWORK" || snsdemo_die "Only local networks can be started.  '$DFX_NETWORK' is not one."
+snsdemo_require icp
+
+# Use the network launcher that is pinned in mise.toml, if it is installed.
+# Otherwise icp-cli downloads a launcher by itself.
+if [[ -z "${ICP_CLI_NETWORK_LAUNCHER_PATH:-}" ]] && command -v icp-cli-network-launcher >/dev/null; then
+  ICP_CLI_NETWORK_LAUNCHER_PATH="$(command -v icp-cli-network-launcher)"
+  export ICP_CLI_NETWORK_LAUNCHER_PATH
+fi
+
+snsdemo_forget_ids "$DFX_NETWORK"
+
+# Output of the network is redirected to log files in .icp/cache/networks/$DFX_NETWORK/network-launcher/
+icp network start "$(snsdemo_env_name "$DFX_NETWORK")" --background
+icp network ping "$(snsdemo_env_name "$DFX_NETWORK")" --wait-healthy
