@@ -97,6 +97,16 @@ snsdemo_well_known_canister_id() {
   esac
 }
 
+# Prints the ID of a canister that snsdemo has recorded, if any.  Unlike
+# snsdemo_canister_id, this does not know the canisters that always exist.
+# Usage: snsdemo_recorded_canister_id NAME [NETWORK]
+snsdemo_recorded_canister_id() {
+  local file
+  file="$(snsdemo_ids_file "${2:-}")"
+  [[ -s "$file" ]] || return 1
+  jq -er --arg name "$1" '.[$name] // empty' "$file"
+}
+
 # True if the argument looks like the ID of a canister.
 snsdemo_is_canister_id() {
   [[ "$1" =~ ^[a-z2-7]{5}(-[a-z2-7]{5}){3}-cai$ ]]
@@ -118,10 +128,12 @@ snsdemo_canister_id() {
       return 0
     fi
   fi
-  snsdemo_well_known_canister_id "$name" || {
-    echo "ERROR: Cannot find canister id for '$name' on network '$(snsdemo_env_name "${2:-}")'." >&2
-    return 1
-  }
+  # The bare network has no NNS.
+  if [[ "$(snsdemo_env_name "${2:-}")" != "bare" ]]; then
+    snsdemo_well_known_canister_id "$name" && return 0
+  fi
+  echo "ERROR: Cannot find canister id for '$name' on network '$(snsdemo_env_name "${2:-}")'." >&2
+  return 1
 }
 
 ############
@@ -167,15 +179,23 @@ snsdemo_identity_exists() {
 }
 
 # Prints the path of a file with the PEM of an identity.
-# Note: Direct use of the pem file is needed for ic-admin and quill.
+# Note: Direct use of the pem file is needed for ic-admin and quill.  They read
+#       secp256k1 keys only in the SEC1 format ("EC PRIVATE KEY") that dfx used,
+#       while icp-cli exports PKCS#8 ("PRIVATE KEY"), so the key is converted.
 snsdemo_identity_pem() {
-  local identity="$1" dir
+  local identity="$1" dir exported
   dir="$SNSDEMO_STATE_DIR/pem"
   mkdir -p "$dir"
   chmod 700 "$dir"
   (
     umask 077
-    icp identity export "$identity" >"$dir/$identity.pem"
+    exported="$(mktemp "$dir/export.XXXXXX")"
+    icp identity export "$identity" >"$exported"
+    if ! openssl ec -in "$exported" -out "$dir/$identity.pem" 2>/dev/null; then
+      # Not a secp256k1 key.  Other keys are accepted as they are.
+      cp "$exported" "$dir/$identity.pem"
+    fi
+    rm -f "$exported"
   )
   echo "$dir/$identity.pem"
 }

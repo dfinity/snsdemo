@@ -38,7 +38,10 @@ IDENTITY_ARGS=()
 CREATE_ARGS=()
 [[ -z "${SPECIFIED_ID:-}" ]] || CREATE_ARGS=(--specified_id "$SPECIFIED_ID")
 
-CANISTER_ID="$(dfx-canister-create --network "$DFX_NETWORK" --name "$CANISTER_NAME" "${CREATE_ARGS[@]}" "${IDENTITY_ARGS[@]}")"
+# Install in an existing canister, such as the nns-dapp that PocketIC created, or create one.
+if ! CANISTER_ID="$(snsdemo_canister_id "$CANISTER_NAME" "$DFX_NETWORK" 2>/dev/null)"; then
+  CANISTER_ID="$(dfx-canister-create --network "$DFX_NETWORK" --name "$CANISTER_NAME" "${CREATE_ARGS[@]}" "${IDENTITY_ARGS[@]}")"
+fi
 
 ARG_ARGS=()
 [[ -z "${CANISTER_ARG:-}" ]] || ARG_ARGS=(--args "$CANISTER_ARG")

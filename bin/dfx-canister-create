@@ -33,7 +33,7 @@ source "$(clap.build)"
 export DFX_NETWORK
 test -n "${CANISTER_NAME:-}" || snsdemo_die "Please provide a canister name with --name."
 
-if EXISTING_ID="$(snsdemo_canister_id "$CANISTER_NAME" "$DFX_NETWORK" 2>/dev/null)"; then
+if EXISTING_ID="$(snsdemo_recorded_canister_id "$CANISTER_NAME" "$DFX_NETWORK")"; then
   echo "$CANISTER_NAME canister already exists: $EXISTING_ID" >&2
   echo "$EXISTING_ID"
   exit 0
