@@ -66,11 +66,12 @@ fi
 # We make changes to the README.  Better undo any changes.
 function cleanup {
   git checkout README.md
-  dfx stop
+  bin/dfx-network-stop
 }
 trap cleanup EXIT
 
-command -v dfx || sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+command -v mise || sh -ci "$(curl -fsSL https://mise.run)"
+mise install
 
 # We really do want backticks.
 # shellcheck disable=SC2016
