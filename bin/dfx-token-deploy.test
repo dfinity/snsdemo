@@ -2,18 +2,18 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 (
   printf "\n\n===================================\n"
   echo "Should fail if token canisters have not been imported"
-  git checkout dfx.json
   error_log="$(mktemp ,test_log.XXXXXXXX)"
-  if dfx-token-deploy --check 2>"$error_log"; then
-    echo "ERROR: Should fail if token canisters are not in dfx.json"
+  if dfx-token-deploy --network bare --check 2>"$error_log"; then
+    echo "ERROR: Should fail if token canisters are not imported"
     exit 1
   fi
   grep 'MyToken canister data and files are not all present and correct' "$error_log" || {
-    echo "The check should complain about token canisters missing in dfx.json"
+    echo "The check should complain about token canisters missing"
     exit 1
   }
   rm "$error_log"
@@ -21,13 +21,11 @@ PATH="$SOURCE_DIR:$PATH"
 (
   printf "\n\n===================================\n"
   echo "Should fail if token canisters have not been created"
-  dfx-network-stop
-  dfx start --clean --background
-  git checkout dfx.json
+  snsdemo_test_network_start
   dfx-token-import
   error_log="$(mktemp ,test_log.XXXXXXXX)"
-  if dfx-token-deploy --check 2>"$error_log"; then
-    echo "ERROR: Should fail if token canisters are not in dfx.json"
+  if dfx-token-deploy --network bare --check 2>"$error_log"; then
+    echo "ERROR: Should fail if token canisters are not imported"
   fi
   grep 'Cannot find canister id' "$error_log" || {
     echo "The check should complain about missing canisters:"
@@ -36,18 +34,16 @@ PATH="$SOURCE_DIR:$PATH"
     exit 1
   }
   rm "$error_log"
-  dfx-network-stop
+  dfx-network-stop --network bare
 )
 (
   printf "\n\n===================================\n"
   echo "Should fail if token canisters have not been populated"
-  dfx-network-stop
-  dfx start --clean --background
-  git checkout dfx.json
+  snsdemo_test_network_start
   dfx-token-import
-  dfx canister create "mytoken_ledger" --no-wallet
+  dfx-canister-create --network bare --name mytoken_ledger
   error_log="$(mktemp ,test_log.XXXXXXXX)"
-  if dfx-token-deploy --check 2>"$error_log"; then
+  if dfx-token-deploy --network bare --check 2>"$error_log"; then
     echo "ERROR: Should fail if token canisters have the incorrect or no hash"
   fi
   grep 'ERROR: Deployed mytoken_ledger hash does not match.' "$error_log" || {
@@ -57,18 +53,16 @@ PATH="$SOURCE_DIR:$PATH"
     exit 1
   }
   rm "$error_log"
-  dfx-network-stop
+  dfx-network-stop --network bare
 )
 (
   printf "\n\n===================================\n"
   echo "Should succeed if canisters have been deployed"
-  dfx-network-stop
-  dfx start --clean --background
-  git checkout dfx.json
+  snsdemo_test_network_start
   dfx-token-import
-  dfx-token-deploy --yes
-  dfx-token-deploy --check
-  dfx-network-stop
+  dfx-token-deploy --network bare --yes
+  dfx-token-deploy --network bare --check
+  dfx-network-stop --network bare
 )
 
 printf "\n\n\ntoken tests passed.\n"

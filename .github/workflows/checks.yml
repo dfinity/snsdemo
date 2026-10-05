@@ -4,6 +4,8 @@ on:
     branches:
       - main
   pull_request:
+env:
+  ICP_TELEMETRY_DISABLED: 1
 jobs:
   formatting:
     runs-on: ubuntu-24.04
@@ -44,8 +46,6 @@ jobs:
       - name: Format shell scripts
         run: ./scripts/fmt-sh
 
-      - name: Restore dfx.json
-        run: cp dfx.json.original dfx.json
       - name: Check formatting changes
         id: check_format
         run: |
@@ -98,12 +98,10 @@ jobs:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
-      - name: Install cargo binstall
-        uses: ./.github/actions/install_binstall
-      - name: Install tools
-        run: |
-          . bin/versions.bash
-          cargo binstall --force --no-confirm "ic-wasm@${IC_WASM_VERSION}"
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: "Test the sns aggregator version command"
         run: ./bin/dfx-software-sns-aggregator-version.test
         env:
@@ -112,8 +110,6 @@ jobs:
         run: ./bin/dfx-software-sns-aggregator-ci-wasm-url.test --verbose
         env:
           GH_TOKEN: ${{ github.token }}
-      - name: Install dfx
-        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
       - name: "Test the aggregator wasm install command"
         run: ./bin/dfx-software-sns-aggregator-install.test --verbose
         env:
@@ -126,8 +122,10 @@ jobs:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-      - name: Install dfx
-        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: Import ckbtc works
         run: |
           set -euxo pipefail
@@ -173,12 +171,10 @@ jobs:
         run: ./bin/dfx-software-nns-dapp-version.test
         env:
           GH_TOKEN: ${{ github.token }}
-      - name: Install cargo binstall
-        uses: ./.github/actions/install_binstall
-      - name: Install tools
-        run: |
-          . bin/versions.bash
-          cargo binstall --force --no-confirm "ic-wasm@${IC_WASM_VERSION}"
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: "Test the nns-dapp url command"
         run: ./bin/dfx-software-nns-dapp-ci-wasm-url.test
         env:
@@ -191,8 +187,10 @@ jobs:
       - name: Install apt-dependencies
         run: sudo apt-get update && sudo apt-get install moreutils -yy && command -v more
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-      - name: Install dfx
-        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: dfx-canister-url works
         run: |
           set -euxo pipefail
@@ -208,10 +206,10 @@ jobs:
       - name: Install apt-dependencies
         # Needed for sponge
         run: sudo apt-get update && sudo apt-get install moreutils -yy
-      - name: Install idl2json
-        run: bin/dfx-software-idl2json-install
-      - name: Install dfx
-        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: Install mock exchange rate canister works
         run: |
           set -euxo pipefail

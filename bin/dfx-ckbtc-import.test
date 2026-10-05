@@ -7,7 +7,11 @@ indent() {
 
 test_install() {
   (
-    local flags=("${@}")
+    # Import into a fresh directory, so that the test doesn't depend on earlier imports.
+    local dir
+    dir="$(mktemp -d)"
+    trap 'rm -fr "$dir"' EXIT
+    local flags=("${@}" --wasm_dir "$dir/wasms" --candid_dir "$dir/candid")
     echo "Before importing, checking for ckBTC should fail:"
     if bin/dfx-ckbtc-import --check "${flags[@]}"; then
       echo "ERROR: Check should fail without ckBTC canisters"

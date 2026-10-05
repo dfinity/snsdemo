@@ -2,103 +2,36 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
 
-	Import NNS canister definitions, including:
-	- Entries in dfx.json
-	- Candid files
-	- Canister IDs for mainnet and local
+	Records the IDs of the NNS canisters of a network, so that they can be used
+	by name, for example:
 
-	Note: This is a polyfill for dfx nns import.  Upstream provides most of
-	the data correctly now but still lacks some details.
+	  dfx-canister-id --network local nns-governance
 
-	Note: The dfx config supports only one .did file even though different
-	canister versions may be deployed to different networks.  This code
-	assumes that the canister versions are as defined in the
-	snsdemo/bin/versions file.  After a canister has been deployed, the most
-	reliable way of getting a did file is from the canister itself, _if_
-	it has populated the corresponding metadata accurately and completely.
+	The canisters have the same IDs on the IC mainnet and in the local network
+	that PocketIC provides.  Candid interfaces are not imported: icp-cli reads
+	them from the metadata of the canisters.
+
+	Names: nns-registry nns-governance nns-ledger nns-root nns-cycles-minting
+	nns-lifeline nns-genesis-token nns-sns-wasm nns-icp-index nns-cycles-ledger
+	nns-dapp (also known as nns-ui) internet_identity (also known as
+	nns-identity) internet_identity_frontend sns_aggregator
 	EOF
 }
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=c long=ic_commit desc="The git ref of the core NNS canisters" variable=DFX_IC_COMMIT default="$(
-  . "$SOURCE_DIR/versions.bash"
-  echo "$DFX_IC_COMMIT"
-)"
-clap.define short=c long=ii_commit desc="The git ref of the internet_identity canister" variable=INTERNET_IDENTITY_RELEASE default="$(
-  . "$SOURCE_DIR/versions.bash"
-  echo "$INTERNET_IDENTITY_RELEASE"
-)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 
-# Populates dfx.json and gets the did files
-# Note: dfx uses the DFX_IC_COMMIT env var to get the nns .did files.  This
-# works as long as the .did files are not moved in the ic repo.
-DFX_IC_COMMIT="$DFX_IC_COMMIT" dfx nns import --network-mapping "$DFX_NETWORK=mainnet"
-
-# Install II candid
-# Note:
-# - In `dfx v0.14` `dfx nns import` provides the candid for II, but we update the canister and have to update the candid to  match.
-# - In `dfx v0.15.1` `dfx nns import` no longer provides a candid for II and doesn't create an entry for the candid path in `dfx.json`.  This is possibly a bug.
-
-# ... Make sure that there is an entry for the `internet_identity` cainster in `dfx.json`
-jq '.canisters.internet_identity //= {
-    "build": "",
-    "candid": "candid/internet_identity.did",
-    "type": "custom",
-    "wasm": ""
-  }' dfx.json | sponge dfx.json
-# ... Make sure that the internet_identity candid path is declared
-II_CANDID_PATH="$(jq -r .canisters.internet_identity.candid dfx.json)"
-test -n "${II_CANDID_PATH:-}" || {
-  II_CANDID_PATH="candid/internet_identity.did"
-  mkdir -p "$(dirname "$II_CANDID_PATH")"
-  II_CANDID_PATH="$II_CANDID_PATH" jq '.canisters.internet_identity.candid = (env.II_CANDID_PATH)' dfx.json | sponge dfx.json
-}
-# ... Get the updated candid
-curl -sSL --fail --retry 5 "https://raw.githubusercontent.com/dfinity/internet-identity/${INTERNET_IDENTITY_RELEASE}/src/internet_identity/internet_identity.did" -o "$II_CANDID_PATH"
-
-# Provide the correct frontend canister IDs
-set_remote() {
-  (
-    id="$1"
-    canister="$2"
-    export id canister
-    jq '.canisters[env.canister] = {
-      "type": "custom",
-      "wasm": "",
-      "candid": (env.canister + ".did"),
-      "remote": {
-        "id": {
-          (env.DFX_NETWORK): (env.id)
-        }
-      }
-    }' dfx.json | sponge dfx.json
-  )
-}
-case "${DFX_NETWORK}" in
-ic | mainnet)
-  set_remote qoctq-giaaa-aaaaa-aaaea-cai nns-dapp
-  set_remote rdmx6-jaaaa-aaaaa-aaadq-cai internet_identity
-  set_remote 3r4gx-wqaaa-aaaaq-aaaia-cai sns_aggregator
-  ;;
-local)
-  # `dfx nns install` installs canisters here:
-  set_remote qhbym-qaaaa-aaaaa-aaafq-cai internet_identity
-  set_remote qsgjb-riaaa-aaaaa-aaaga-cai nns-dapp
-  set_remote sgymv-uiaaa-aaaaa-aaaia-cai sns_aggregator
-  ;;
-*)
-  # Installation to other networks SHOULD be done in a way
-  # that also saves the canister IDs.
-  ;;
-esac
+for name in nns-registry nns-governance nns-ledger nns-root nns-cycles-minting nns-lifeline nns-genesis-token nns-sns-wasm nns-icp-index nns-cycles-ledger nns-dapp nns-ui internet_identity nns-identity internet_identity_frontend sns_aggregator; do
+  snsdemo_set_canister_id "$name" "$(snsdemo_well_known_canister_id "$name")" "$DFX_NETWORK"
+done

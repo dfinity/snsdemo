@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=identity desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=t long=time desc="By how long to extend the dissolve delay" variable=DISSOLVE_DELAY default="$((60 * 60 * 24 * 360))"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 # Create a neuron
-PEM="$HOME/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
+PEM="$(snsdemo_identity_pem "$DFX_IDENTITY")"
 NEURON_ID="$("$SOURCE_DIR/dfx-neuron-id" --network "$DFX_NETWORK" --identity "$DFX_IDENTITY")"
 NETWORK_URL="$("$SOURCE_DIR/dfx-network-url" --network "$DFX_NETWORK")"
 

@@ -3,6 +3,7 @@ set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
 . "$SOURCE_DIR/versions.bash"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -10,8 +11,8 @@ print_help() {
 	Tests that the stock deployment has the expected state.
 
 	The test may be applied to any stock deployment:
-	- To local dfx
-	- To a local dfx that has been frozen and reincarnated
+	- To a local network
+	- To a local network that has been frozen and reincarnated
 	- Remote testnets
 	EOF
 }
@@ -19,7 +20,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 source "$SOURCE_DIR/test_utils.bash"
@@ -29,7 +30,7 @@ export DFX_NETWORK
 (
   print_title "sns_aggregator should be installed"
   index_html="$(mktemp index_XXXX)"
-  curl --silent --retry 5 --fail "$(dfx-canister-url sns_aggregator)" >"$index_html" || {
+  curl --silent --retry 5 --fail "$(dfx-canister-url --network "$DFX_NETWORK" sns_aggregator)" >"$index_html" || {
     echo "ERROR: Should be able to get sns_aggregator home page."
     exit 1
   } >&2
@@ -50,7 +51,7 @@ export DFX_NETWORK
 (
   print_title "sns_aggregator should have 13 SNSs"
   # This means the second page should have 3 SNSs.
-  aggregator_url="http://$(dfx canister id sns_aggregator).localhost:8080/v1/sns/list/page/1/slow.json"
+  aggregator_url="$(dfx-canister-url --network "$DFX_NETWORK" sns_aggregator)/v1/sns/list/page/1/slow.json"
   if [ "$(curl -fsS "$aggregator_url" | jq length)" != "3" ]; then
     echo "ERROR: The aggragtor should have 13 SNSs." >&2
     exit 1
@@ -60,7 +61,7 @@ export DFX_NETWORK
 (
   # We expect 4 ck tokens + 10 SNSes (from the aggregator first page)
   print_title "icp-swap should have 14 tickers"
-  icp_swap_url="http://$(dfx canister id icp-swap).localhost:8080/tickers"
+  icp_swap_url="$(dfx-canister-url --network "$DFX_NETWORK" icp-swap)/tickers"
   if [ "$(curl -fsS "$icp_swap_url" | jq length)" != "14" ]; then
     echo "ERROR: icp-swap should have 14 tickers." >&2
     exit 1

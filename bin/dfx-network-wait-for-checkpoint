@@ -6,51 +6,19 @@ PATH="$SOURCE_DIR:$PATH"
 print_help() {
   cat <<-EOF
 
-	Waits for a the local replica to create a checkpoint.
+	Used to wait for the local replica to create a checkpoint.
+
+	This is not needed any more: PocketIC writes its state when icp-cli stops
+	the network gracefully (dfx-network-stop).  This command remains so that
+	scripts that call it keep working, and does nothing.
 	EOF
 }
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=t long=timeout desc="The maximum number of seconds to wait" variable=DFX_TIMEOUT default=600
+clap.define short=t long=timeout desc="Ignored" variable=DFX_TIMEOUT default=600
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
-: "Wait for a checkpoint"
-
-: "... Get directory with the shared dfx state"
-case "$(uname)" in
-Darwin) SHARE_DIR="$HOME/Library/Application Support/org.dfinity.dfx" ;;
-*) SHARE_DIR="$HOME/.local/share/dfx" ;;
-esac
-test -d "$SHARE_DIR" || {
-  echo "ERROR: Share dir does not exist at: '${SHARE_DIR:-}'"
-  exit 1
-} >&2
-
-get_checkpoints() {
-  # There might be multiple state directories but only one will receive new
-  # checkpoints from the currently running replica. So we just use wild card
-  # expansion for convenience instead of figuring out which one is the right
-  # state directory.
-  ls "${SHARE_DIR}/network/local"/*/state/replicated_state/node-100/state/checkpoints || true
-}
-
-: "... Wait for the checkpoints to change."
-# Note: this needs to work on Mac as well as Linux, so basic polling is best.
-checkpoints_now="$(get_checkpoints)"
-SLEEP_TIME=5
-for ((countdown = DFX_TIMEOUT; countdown >= 0; countdown -= SLEEP_TIME)); do
-  checkpoints_later="$(get_checkpoints)"
-  [[ "${checkpoints_now:-}" == "$checkpoints_later" ]] || break
-  printf '\rTime remaining: % 8d seconds' "$countdown" # Line is rewritten in an interactive terminal.  \r == carriage return == move the typewriter to the start of the current line.  Except on Mac.
-  sleep "$SLEEP_TIME"
-done
-printf '\n' # \n == newline == advance the paper in the typewriter.  Finishes the countdown.
-
-echo "Checkpoint change (if any):"
-if diff <(echo "${checkpoints_now:-}") <(echo "${checkpoints_later:-}"); then
-  echo "No change"
-fi
-sleep 5 # Make sure the checkpoint is fully populated.  It _may_ be atomic, so the directory is created only when it is fully populated; I don't know.
+echo "Nothing to wait for: PocketIC writes a checkpoint when the network is stopped."

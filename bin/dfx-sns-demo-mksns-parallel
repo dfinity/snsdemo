@@ -4,12 +4,13 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DEMO_BIN="$(realpath "${SOURCE_DIR}/../bin-other")"
 PATH="$DEMO_BIN:$SOURCE_DIR:$PATH"
 export PATH="$PATH:$HOME/.local/bin"
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=s long=num_sns desc="The number of SNSs to create" variable=NUM_SNS_TO_MAKE default="1"
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=m long=majority desc="A user representing the majority vote" variable=DFX_PROPOSER default=""
 clap.define short=o long=config_index_offset desc="The start value for the dfx-sns-demo-mksns-config --config_index parameter" variable=CONFIG_INDEX_OFFSET default="0"
 clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
@@ -20,52 +21,58 @@ set -x
 cd "$(dirname "$(realpath "$0")")/.."
 DEMO_USER_DIR="$PWD/users"
 
-# Creates an identity with their own home directory, their own project in that home dir, a neuron and some ICP.
+# The state of the user that runs this script, from which users inherit the proposer.
+MAIN_STATE_DIR="$SNSDEMO_STATE_DIR"
+MAIN_ICP_PROJECT_ROOT="$ICP_PROJECT_ROOT"
+# Where icp-cli records the ports of running networks, which users need to find the network.
+MAIN_PORT_DESCRIPTOR_DIR="$(snsdemo_icp_port_descriptor_dir)"
+PROPOSER_PEM=""
+
+# Creates an identity with their own icp-cli data directory and snsdemo state,
+# a neuron and some ICP.  All users share the project and the running network.
 make_user() {
   (
     DEMO_USER="$1"
     DEMODIR="$DEMO_USER_DIR/$1"
-    if [[ "$(uname)" == "Darwin" ]]; then
-      RELATIVE_DFX_DIR="Library/Application Support/org.dfinity.dfx"
-    else
-      RELATIVE_DFX_DIR=".local/share/dfx"
-    fi
     rm -fr "$DEMODIR"
-    mkdir -p "$DEMODIR/.config" "$(dirname "$DEMODIR/$RELATIVE_DFX_DIR")"
+    mkdir -p "$DEMODIR/.icp-home" "$DEMODIR/.snsdemo" "$MAIN_PORT_DESCRIPTOR_DIR"
+    ln -s "$MAIN_PORT_DESCRIPTOR_DIR" "$DEMODIR/.icp-home/port-descriptors"
     # Share some data:
     ln -s "$PWD/bin" "$DEMODIR/bin"
     ln -s "$PWD/logo.png" "$DEMODIR/logo.png"
     ln -s "$PWD/logos" "$DEMODIR/logos"
     ln -s "$PWD/candid" "$DEMODIR/candid"
     ln -s "$PWD/bin-other" "$DEMODIR/bin-other"
-    ln -s "$HOME/$RELATIVE_DFX_DIR" "$DEMODIR/$RELATIVE_DFX_DIR"
-    # Copy dfx.json and the user config
-    cp dfx.json "$DEMODIR/"
-    cp -R "$HOME/.config/dfx" "$DEMODIR/.config/dfx"
-    cp -R .dfx "$DEMODIR/.dfx"
+    # Copy what is known about the network, including the neurons of the proposer.
+    cp -R "$MAIN_STATE_DIR/." "$DEMODIR/.snsdemo/" 2>/dev/null || true
+    rm -fr "$DEMODIR/.snsdemo/pem"
     # Enter the directory
     become_user "$DEMO_USER"
-    dfx identity remove --quiet "$DEMO_USER" --drop-wallets 2>/dev/null || true
-    dfx identity new --storage-mode=plaintext "$DEMO_USER"
-    dfx identity use "$DEMO_USER"
-    dfx wallet balance --network "$DFX_NETWORK"
+    if [[ -n "${DFX_PROPOSER:-}" ]]; then
+      icp identity import "$DFX_PROPOSER" --from-pem "$PROPOSER_PEM" --storage plaintext
+    fi
+    icp identity new "$DEMO_USER" --storage plaintext
+    icp identity default "$DEMO_USER"
+    icp token balance -e "$(snsdemo_env_name "$DFX_NETWORK")"
     bin/dfx-ledger-get-icp --icp 5000 --network "$DFX_NETWORK"
-    dfx ledger balance --network "$DFX_NETWORK"
+    icp token balance -e "$(snsdemo_env_name "$DFX_NETWORK")"
     bin/dfx-neuron-create --icp 10 --network "$DFX_NETWORK"
     bin/dfx-neuron-prolong --network "$DFX_NETWORK"
   )
 }
 
-# Enters an identity's home dir and gets them ready to interact with the replica.
+# Enters an identity's directory and gets them ready to interact with the network.
 become_user() {
   DEMO_USER="$1"
-  DEMODIR="users/$1"
+  DEMODIR="$DEMO_USER_DIR/$1"
   cd "$DEMODIR"
   export PATH="$PWD/bin:$PWD/bin-other:$PATH"
-  export HOME="$PWD"
+  export ICP_HOME="$PWD/.icp-home"
+  export SNSDEMO_STATE_DIR="$PWD/.snsdemo"
+  export ICP_PROJECT_ROOT="$MAIN_ICP_PROJECT_ROOT"
   # If the identity has been created, use it:
-  if dfx identity get-principal --identity "$DEMO_USER" 2>/dev/null; then
-    dfx identity use "$DEMO_USER" || true
+  if snsdemo_identity_exists "$DEMO_USER"; then
+    icp identity default "$DEMO_USER" || true
   fi
 }
 
@@ -74,9 +81,8 @@ create_all_sns() {
   PROCESSES=()
   echo "I am $$"
   for ((i = 0; i < NUM_SNS_TO_MAKE; i++)); do
-    # Creating wallet canisters in parallel started occasionally failing with
-    # 0.24.1. When creating 10 in parallel, almost always at least 1 would fail.
-    # So we create the users outside the background process.
+    # We create the users outside the background process, as creating them in
+    # parallel used to fail occasionally.
     DEMO_USER="snsdemo_$i"
     make_user "$DEMO_USER"
     (
@@ -85,9 +91,7 @@ create_all_sns() {
       become_user "$DEMO_USER"
 
       ./bin/dfx-sns-demo-mksns-config --config_index $((CONFIG_INDEX_OFFSET + i)) --unique_logo "$UNIQUE_LOGO"
-      dfx ledger top-up --amount 4.0 --network "$DFX_NETWORK" "$(dfx identity get-wallet --network "$DFX_NETWORK")"
-      dfx wallet balance --network "$DFX_NETWORK"
-      dfx canister deposit-cycles 180000000000000 --network "$DFX_NETWORK" "$(dfx canister id nns-sns-wasm --network "$DFX_NETWORK")"
+      snsdemo_fund_sns_wasm "$DFX_NETWORK"
 
       PROPOSAL_ID_FILE="$(mktemp)"
       dfx-sns-propose --network "$DFX_NETWORK" --identity "$DFX_PROPOSER" --save-proposal-id-to "$PROPOSAL_ID_FILE"
@@ -96,11 +100,11 @@ create_all_sns() {
 
       dfx-sns-import-by-proposal --proposal_id "$PROPOSAL_ID" --network "$DFX_NETWORK"
 
-      dfx canister id sns_root --network "$DFX_NETWORK"
-      dfx canister id sns_governance --network "$DFX_NETWORK"
-      dfx canister id sns_ledger --network "$DFX_NETWORK"
-      dfx canister id sns_index --network "$DFX_NETWORK"
-      dfx canister id sns_swap --network "$DFX_NETWORK"
+      dfx-canister-id --network "$DFX_NETWORK" sns_root
+      dfx-canister-id --network "$DFX_NETWORK" sns_governance
+      dfx-canister-id --network "$DFX_NETWORK" sns_ledger
+      dfx-canister-id --network "$DFX_NETWORK" sns_index
+      dfx-canister-id --network "$DFX_NETWORK" sns_swap
 
       if [[ -n "${NEW_CONTROLLER:-}" ]]; then
         dfx-add-controller --network "$DFX_NETWORK" --canister sns_root --principal "$NEW_CONTROLLER"
@@ -139,8 +143,9 @@ swap_all_sns() {
 # MAIN
 test -z "${DFX_PROPOSER:-}" || {
   echo "Details of p[roposer '${DFX_PROPOSER}':"
-  dfx identity get-principal --identity "$DFX_PROPOSER"
+  icp identity principal --identity "$DFX_PROPOSER"
   echo
+  PROPOSER_PEM="$(snsdemo_identity_pem "$DFX_PROPOSER")"
 }
 create_all_sns
 swap_all_sns

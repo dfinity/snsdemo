@@ -6,6 +6,7 @@ on:
   pull_request:
 env:
   GH_TOKEN: ${{ github.token }}
+  ICP_TELEMETRY_DISABLED: 1
 jobs:
   #  readme:
   #    runs-on: ${{ matrix.os }}
@@ -37,12 +38,14 @@ jobs:
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-      - name: Install dfx
-        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
       - name: Run the demo with the current default ic commits
-        run: bin/dfx-sns-demo --config_index 0 --pocketic
+        run: bin/dfx-sns-demo --config_index 0
       - name: Create and finalize an additional SNS
         run: |
           ./bin/dfx-sns-demo-mksns --config_index 1
@@ -72,8 +75,10 @@ jobs:
           brew install bash
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "$(brew --prefix)/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
-      - name: Install dfx
-        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
+      - name: Install tools with mise
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          cache: false
       - name: Install dependencies
         run: ./bin/dfx-sns-demo-install --verbose
       # Clone the ic repo so that we can find the latest published commit.
@@ -85,7 +90,7 @@ jobs:
           fetch-depth: 100
           path: ic
       - name: Run the demo with the latest repo
-        run: bin/dfx-sns-demo --ic_commit latest --ic_dir ic --config_index 0 --pocketic
+        run: bin/dfx-sns-demo --ic_commit latest --ic_dir ic --config_index 0
       - name: Create and finalize an additional SNS
         run: |
           ./bin/dfx-sns-demo-mksns --config_index 1

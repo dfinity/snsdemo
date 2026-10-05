@@ -1,5 +1,3 @@
-
-
-
-# Very annoyingly, dfx identity list doesn't print a list of identities to stdout, when used in a script.
-ls "$HOME/.config/dfx/identity"
+#!/usr/bin/env bash
+# Lists the names of the identities.
+icp identity list --quiet

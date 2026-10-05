@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 set -ueo pipefail
-case "${1:-${DFX_NETWORK:-local}}" in
-local)
-  protoc --decode_raw <.dfx/state/replicated_state/ic_registry_local_store/0000000000/00/00/01.pb | sed -nE 's/.*"subnet_record_(.*)".*/\1/g;ta;b;:a;p'
-  ;;
-*)
-  ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r '. | join("\n")'
-  ;;
-esac
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+DFX_NETWORK="${1:-${DFX_NETWORK:-local}}"
+NNS_URL="${NNS_URL:-$(dfx-network-provider --network "$DFX_NETWORK")}"
+ic-admin --nns-url "$NNS_URL" get-subnet-list | jq -r '. | join("\n")'

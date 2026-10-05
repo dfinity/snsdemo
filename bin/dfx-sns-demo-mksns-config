@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -41,9 +42,9 @@ if [ "$UNIQUE_LOGO" = true ]; then
   TOKEN_LOGO="logos/$(echo "$TOKEN_NAME" | cut -c1).png"
 fi
 
-PRINCIPAL="$(dfx identity get-principal)"
+PRINCIPAL="$(icp identity principal)"
 # For original controllers, use:
-# dfx canister info smiley_dapp --network "$DFX_NETWORK" | perl -e 'while($_ = <>){ if (s/^Controllers: *//){s/ +/, /g;print $_} }'
+# snsdemo_controllers smiley_dapp | paste -sd, -
 
 SED_COMMANDS="s|TOKEN_NAME|$TOKEN_NAME|g;
               s|TOKEN_SYMBOL|$TOKEN_SYMBOL|g;

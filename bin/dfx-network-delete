@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
 
-	Deletes a network from the local dfx state, including:
-	* Canister IDs
-	* Wallet IDs.
+	Forgets a network:
+	* Canister IDs that snsdemo recorded for the network
+	* IDs of the neurons that snsdemo recorded for the network.
+
+	The canisters themselves are not touched.
 
 	EOF
 }
@@ -15,39 +18,24 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 
-DELETE_CANISTER_IDS="true"
-DELETE_WALLET="true"
+IDS_FILE="$(snsdemo_ids_file "$DFX_NETWORK")"
+if test -e "$IDS_FILE"; then
+  : Back up the canister IDs
+  cp "$IDS_FILE" "$IDS_FILE.$(perl -e 'print time()')"
+  echo "Deleting the canister IDs for $DFX_NETWORK in $IDS_FILE ..."
+  rm "$IDS_FILE"
+fi
 
-if [[ "$DELETE_CANISTER_IDS" == "true" ]]; then
-  if [[ "$DFX_NETWORK" == "local" ]]; then
-    rm -f .dfx/local/canister_ids.json
-  elif test -e canister_ids.json; then
-    : Back up the canister_ids.json
-    cp canister_ids.json "canister_ids.json.$(perl -e 'print time()')"
-    echo "Deleting the entries for $DFX_NETWORK in canister_ids.json ..."
-    DFX_NETWORK="$DFX_NETWORK" jq 'to_entries | map(del(.value[env.DFX_NETWORK])) | from_entries' <canister_ids.json >canister_ids.json.new
-    mv canister_ids.json.new canister_ids.json
+NETWORK_NAME="$(snsdemo_env_name "$DFX_NETWORK")"
+for neurons_file in "$SNSDEMO_STATE_DIR/neurons"/*."$NETWORK_NAME"; do
+  if test -e "$neurons_file"; then
+    echo "Deleting the neurons in $neurons_file ..."
+    rm "$neurons_file"
   fi
-fi
-
-if [[ "$DELETE_WALLET" == "true" ]]; then
-  # Note: "list" puts a '*' printed next to the current ID, but it is on stderr
-  #       so we discard it on dev/null leaving just the user's identities, one per line.
-  dfx identity list 2>/dev/null |
-    while read -r DFX_ID; do
-      WALLET_FILE="${HOME}/.config/dfx/identity/$DFX_ID/wallets.json"
-      if test -e "$WALLET_FILE"; then
-        : Back up wallet
-        cp "${WALLET_FILE}" "${WALLET_FILE}.$(perl -e 'print time()')"
-        echo "Deleting the wallet for $DFX_NETWORK in $WALLET_FILE ..."
-        DFX_NETWORK="$DFX_NETWORK" DFX_ID="$DFX_ID" jq 'del(.identities[env.DFX_ID][env.DFX_NETWORK])' "${WALLET_FILE}" | jq -s first >"${WALLET_FILE}.new"
-        mv "${WALLET_FILE}.new" "${WALLET_FILE}"
-      fi
-    done
-fi
+done

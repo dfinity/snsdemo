@@ -2,11 +2,12 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
@@ -19,10 +20,9 @@ source "$(clap.build)"
 export DFX_NETWORK
 
 if [[ "$DFX_NETWORK" == "local" ]]; then
-  # Run locally; can be configured by e.g. chnaging the wasm files in the cache
+  # Run locally.  The NNS is configured by PocketIC.
   dfx-network-stop --network "$DFX_NETWORK"
-  dfx start --clean
-  dfx nns deploy
+  dfx-network-start --network "$DFX_NETWORK"
 else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
@@ -36,10 +36,12 @@ else
   (
     set -euxo pipefail
     echo "Configuring NNS..."
-    DFX_IDENTITY="$(dfx identity whoami)"
-    dfx identity use ident-1
+    ICP_IDENTITY="$(icp identity default)"
+    # The identity ident-1 has the ICP of the NNS.
+    dfx-identity-moneybags
+    icp identity default ident-1
     dfx-nns-propose to-set-authorized-subnetworks --network "$DFX_NETWORK"
     dfx-sns-subnet-add --network "$DFX_NETWORK" --identity test
-    dfx identity use "$DFX_IDENTITY"
+    icp identity default "$ICP_IDENTITY"
   )
 fi

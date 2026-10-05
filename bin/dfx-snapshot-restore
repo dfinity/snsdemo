@@ -2,14 +2,20 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
-help_text() {
+print_help() {
   cat <<-EOF
 
-	Restores a local dfx server state and releted identities from a saved ZIP file.
+	Restores the state of a local network, the canister IDs, the neurons and some
+	identities from a snapshot that was made by dfx-snapshot-save.  Then starts the
+	network.
 
 	Warning: This is recommended only for CI, as there is limited protection against
-	local identities being clobbered by those in the zip file.
+	local identities being clobbered by those in the snapshot.
+
+	Note: Snapshots can be restored only with the same version of the network
+	launcher that created them.
 
 	EOF
 }
@@ -17,22 +23,63 @@ help_text() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="state.tar.xz"
+clap.define short=s long=snapshot desc="The file to restore from" variable=DFX_SNAPSHOT_FILE default="state.tar.xz"
+clap.define short=n long=network desc="The network to restore" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+export DFX_NETWORK
+NETWORK="$(snsdemo_env_name "$DFX_NETWORK")"
+snsdemo_is_local "$NETWORK" || snsdemo_die "Only local networks can be restored."
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
 
-pushd "$HOME"
-rm -fr .local/share/dfx/network/local
-tar --extract --xz --file "$DFX_SNAPSHOT_FILE"
+# The network needs to be stopped, so that its state can be replaced.
+dfx-network-stop --network "$NETWORK"
 
-# Note: dfx start works here but not in the project dir.
-dfx start --background
-sleep 10 # wait for dfx to start
-num_canisters="$(curl -s "http://localhost:$(dfx info webserver-port)/_/dashboard" | grep -c '<h3>Execution state</h3>')"
-echo "Approx num canisters: $num_canisters"
-popd
-rm -fr .dfx
-mv "$HOME/.dfx" .
-dfx-sns-demo-healthcheck
+NETWORK_DIR="$ICP_PROJECT_ROOT/.icp/cache/networks/$NETWORK"
+STATE_DIR="$NETWORK_DIR/state"
+RESTORED_STATE_DIR="$NETWORK_DIR/state-restored"
+
+rm -fr "$STATE_DIR" "$RESTORED_STATE_DIR" "$SNSDEMO_STATE_DIR/canister_ids" "$SNSDEMO_STATE_DIR/neurons" "$SNSDEMO_STATE_DIR/identities"
+mkdir -p "$ICP_PROJECT_ROOT"
+tar --extract --xz --directory "$ICP_PROJECT_ROOT" --file "$DFX_SNAPSHOT_FILE"
+# icp-cli deletes the state directory when it starts the network, so we move the state.
+mv "$STATE_DIR" "$RESTORED_STATE_DIR"
+
+# Import the identities before starting the network, so that icp-cli can fund them.
+if test -d "$SNSDEMO_STATE_DIR/identities"; then
+  for pem in "$SNSDEMO_STATE_DIR/identities/"*.pem; do
+    test -e "$pem" || continue
+    identity="$(basename "$pem" .pem)"
+    if snsdemo_identity_exists "$identity"; then
+      # The default identity can't be deleted. The default is restored below.
+      [[ "$(icp identity default)" != "$identity" ]] || icp identity default anonymous
+      icp identity delete "$identity"
+    fi
+    icp identity import "$identity" --from-pem "$pem" --storage plaintext
+  done
+  rm -fr "$SNSDEMO_STATE_DIR/identities"
+fi
+if test -s "$SNSDEMO_STATE_DIR/default-identity"; then
+  icp identity default "$(cat "$SNSDEMO_STATE_DIR/default-identity")"
+fi
+rm -f "$SNSDEMO_STATE_DIR/default-identity"
+
+# Start the network from the restored state.
+if [[ -z "${ICP_CLI_NETWORK_LAUNCHER_PATH:-}" ]]; then
+  snsdemo_require icp-cli-network-launcher
+  SNSDEMO_REAL_LAUNCHER="$(command -v icp-cli-network-launcher)"
+else
+  SNSDEMO_REAL_LAUNCHER="$ICP_CLI_NETWORK_LAUNCHER_PATH"
+fi
+export SNSDEMO_REAL_LAUNCHER
+export SNSDEMO_RESTORE_STATE_DIR="$RESTORED_STATE_DIR"
+(
+  ICP_CLI_NETWORK_LAUNCHER_PATH="$SOURCE_DIR/dfx-snapshot-launcher"
+  export ICP_CLI_NETWORK_LAUNCHER_PATH
+  # Note: dfx-network-start would forget the canister IDs, so we start the network ourselves.
+  icp network start "$NETWORK" --background
+  icp network ping "$NETWORK" --wait-healthy
+)
+
+dfx-sns-demo-healthcheck --network "$NETWORK"

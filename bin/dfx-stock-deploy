@@ -4,6 +4,7 @@ SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 DEMO_BIN="$(realpath "${SOURCE_DIR}/..")/bin-other"
 PATH="$SOURCE_DIR:$DEMO_BIN:$HOME/.local/bin:$PATH"
 export PATH
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -18,39 +19,35 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=c long=ic_commit desc="The IC commit to use" variable=DFX_IC_COMMIT default="$(dfx-software ic current)"
 clap.define short=x long=ic_dir desc="Directory containing the ic source code; needed for deployments to static testnets" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code; needed for deployments to static testnets" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
 clap.define long=parallel_sns_count desc="Number of additional SNSes to create in parallel after dfx-sns-demo finishes" variable=PARALLEL_SNS_COUNT default="10"
 clap.define long=unique_logo desc="A flag to use an config-index-based pseudo-unique logo instead of the default logo." variable=UNIQUE_LOGO default=false
-clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=false
+clap.define long=pocketic desc="Deprecated and ignored: A local network always uses PocketIC" variable=USE_POCKET_IC nargs=0 default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 set -x
 cd "$(dirname "$(realpath "$0")")/.."
+export DFX_NETWORK
 
 if [[ "${DFX_IC_COMMIT:-}" == "latest" ]]; then
   DFX_IC_COMMIT="$(dfx-software ic latest --ic_dir "$IC_REPO_DIR")"
 fi
 
 : Set up SNS state and create one finalized SNS
-POCKET_IC_ARG=()
-if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
-  POCKET_IC_ARG=(--pocketic)
-fi
-
 # Creates Alfa
-dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --unique_logo "$UNIQUE_LOGO" "${POCKET_IC_ARG[@]}"
+dfx-sns-demo --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT" --ic_dir "$IC_REPO_DIR" --nd_dir "$ND_REPO_DIR" --unique_logo "$UNIQUE_LOGO"
 
 dfx-mock-exchange-rate-canister-install --network "$DFX_NETWORK" --release pinned
 dfx-mock-exchange-rate-set --network "$DFX_NETWORK" --base_asset ICP --quote_asset USD --rate_e8s 900_000_000
 
 dfx-software-mock-bitcoin-install --network "$DFX_NETWORK" --ic_commit "$DFX_IC_COMMIT"
 
-NEW_SNS_CONTROLLER="$(dfx identity get-principal)"
+NEW_SNS_CONTROLLER="$(icp identity principal)"
 ADD_CONTROLLER_ARG=()
-if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
+if snsdemo_is_local "$DFX_NETWORK"; then
   ADD_CONTROLLER_ARG=(--add_controller "$NEW_SNS_CONTROLLER")
 fi
 
@@ -63,7 +60,7 @@ if [ "${PARALLEL_SNS_COUNT:-0}" -gt 0 ]; then
   dfx-sns-demo-mksns-parallel --network "$DFX_NETWORK" --num_sns "$PARALLEL_SNS_COUNT" --majority snsdemo8 --config_index_offset 3 --unique_logo "$UNIQUE_LOGO" "${ADD_CONTROLLER_ARG[@]}"
 fi
 
-SNS_COUNT="$(dfx canister call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances | length')"
+SNS_COUNT="$(snsdemo_call nns-sns-wasm list_deployed_snses '(record{})' | idl2json | jq -r '.instances | length')"
 EXPECTED_SNS_COUNT="$((3 + PARALLEL_SNS_COUNT))"
 if [[ "$SNS_COUNT" != "$EXPECTED_SNS_COUNT" ]]; then
   echo "❌ Expected $EXPECTED_SNS_COUNT SNSes. Found $SNS_COUNT"
@@ -111,22 +108,22 @@ dfx-token-deploy \
 FAUCET_ADDRESS="jg6qm-uw64t-m6ppo-oluwn-ogr5j-dc5pm-lgy2p-eh6px-hebcd-5v73i-nqe"
 # The current identity was set as minting account and minting is done by
 # transferring from the minting account.
-dfx canister call cketh_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000_000_000_000_000:nat})"
-dfx canister call ckusdc_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000:nat})"
-dfx canister call ckred_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000:nat})"
+snsdemo_call cketh_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000_000_000_000_000:nat})"
+snsdemo_call ckusdc_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000:nat})"
+snsdemo_call ckred_ledger icrc1_transfer "(record {to=record{owner=principal \"$FAUCET_ADDRESS\"}; amount=10_000_000_000_000:nat})"
 
 # Install nns-dapp last so all the canister IDs exist to pass as args.
 dfx-software-nns-dapp-install --network "$DFX_NETWORK" --release pinned
 
 : Add the nns root as a controller to the frontend canisters
-NNS_ROOT="$(dfx canister id nns-root --network "$DFX_NETWORK")"
+NNS_ROOT="$(dfx-canister-id --network "$DFX_NETWORK" nns-root)"
 for canister in nns-dapp internet_identity; do
-  dfx canister --network "$DFX_NETWORK" update-settings "$canister" --add-controller "$NNS_ROOT"
+  dfx-add-controller --network "$DFX_NETWORK" --canister "$canister" --principal "$NNS_ROOT"
 done
 
 : "Wait for aggregator to get all SNSs"
 # 2 SNSes were created by dfx-sns-demo.
-dfx-sns-aggregator-wait
+dfx-sns-aggregator-wait --network "$DFX_NETWORK"
 
 dfx-mock-icp-swap-install --network "$DFX_NETWORK"
 dfx-mock-kong-swap-install --network "$DFX_NETWORK"

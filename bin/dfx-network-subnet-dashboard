@@ -6,11 +6,13 @@ set -euo pipefail
 # shellcheck disable=SC2209
 command=echo
 testnet=""
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
 ic_repo="$HOME/dfn/ic"
 
 print_help() {
   cat <<-EOF
-		Prints the NNS URL of a testnet or local dfx.
+		Prints the NNS URL of a testnet or the local network.
 
 		This is useful for:
 		- Examining the dashboard.
@@ -30,10 +32,10 @@ print_help() {
 
 		--testnet
 		  The name of the ic testnet.
-		  Default: dfx running locally.
+		  Default: The local network.
 
 		--dfx-network
-		  The name of a network in dfx.json
+		  The name of a network in icp.yaml
 	EOF
 }
 
@@ -83,7 +85,7 @@ test -n "${DFX_NETWORK:-}" || test -n "${testnet:-}" || {
 }
 
 if test -n "${DFX_NETWORK:-}" && [[ "$DFX_NETWORK" != "local" ]]; then
-  DFX_NETWORK="$DFX_NETWORK" jq -er '.networks[env.DFX_NETWORK].providers[0]' dfx.json
+  "$command" "$(dfx-network-provider --network "$DFX_NETWORK")"
 elif test -n "${testnet:-}"; then
   testnet_config_dir="${ic_repo}/testnet/env/$testnet/"
   test -d "$ic_repo" || {
@@ -96,14 +98,9 @@ elif test -n "${testnet:-}"; then
   } >&2
   "$command" "http://[$(cd "$testnet_config_dir" && ./hosts --nns-nodes | awk '{print $2 ; exit 0}')]:8080"
 else
-  local_dfx_port_file="$PWD/.dfx/replica-configuration/replica-1.port"
-  port="$(cat "$local_dfx_port_file" || true)"
-  url="http://localhost:${port}"
-  # Yes, shell does not bind logical operators like some other languages.  That is fine.
-  # Thank you, shellcheck, for making sure that we are aware.
-  # shellcheck disable=SC2015
-  test -e "$local_dfx_port_file" && curl -sL "$url" >/dev/null || {
-    printf "ERROR: %s\n" "dfx does not appear to be running in this repo"
+  url="$(dfx-network-provider --network local)"
+  curl -sL "$url" >/dev/null || {
+    printf "ERROR: %s\n" "The local network does not appear to be running"
     exit 1
   } >&2
   "$command" "$url"

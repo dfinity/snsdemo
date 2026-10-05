@@ -2,6 +2,7 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 . "$SOURCE_DIR/versions.bash"
 
 export DFX_NETWORK=""
@@ -50,7 +51,7 @@ mainnet)
   dfx-software-internet-identity-version --network ic --canister rdmx6-jaaaa-aaaaa-aaadq-cai
   ;;
 network)
-  HASH="$(dfx canister info --network "$DFX_NETWORK" "$CANISTER" | awk -F: '/Module hash/{print $2}' | tr -d '[:space:]')"
+  HASH="$(icp canister status "$CANISTER" --public --json -e "$(snsdemo_env_name "$DFX_NETWORK")" | jq -r '.module_hash // empty')"
   dfx-software-internet-identity-version --hash "$HASH"
   ;;
 hash)

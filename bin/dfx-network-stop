@@ -1,32 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to stop" variable=DFX_NETWORK default="local"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 
-if [[ "$DFX_NETWORK" == "local" ]]; then
-  dfx stop || true
-  : "Send the equivalent of ctrl-c"
-  # This regex doesn't work on Mac but `dfx stop` above should work just fine.
-  pgrep -f '\<dfx\>.*\<start\>' | xargs -n 1 kill || true
+if snsdemo_is_local "$DFX_NETWORK"; then
+  # This fails if the network is not running, which is fine.
+  icp network stop "$(snsdemo_env_name "$DFX_NETWORK")" || true
   echo "Waiting for replica to stop..."
   for ((i = 100; i > 0; i--)); do
     printf '\r % 4d' "$i"
-    pgrep -x pocket-ic || pgrep -x replica 2>/dev/null || break
+    pgrep -x pocket-ic || break
     sleep 1
   done
   printf "\n...stopped.\n"
 
   : "Make sure that it is dead."
-  sleep 1
-  dfx killall
+  pkill -x pocket-ic || true
   sleep 1
 else
   echo "Not stopping remote network: $DFX_NETWORK"

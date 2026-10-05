@@ -2,13 +2,18 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
 
-	Deploys a testnet with:
-	* NNS canisters
-	* An empty placeholder for the sns_aggregator canister.
+	Deploys a network with:
+	* NNS canisters, including the NNS dapp, Internet Identity and the SNS wasm canister.
+	* The SNS aggregator canister.
+
+	For local networks, the canisters are installed by PocketIC, which is started
+	by icp-cli.  The versions of these canisters are those of the network
+	launcher that is pinned in mise.toml.
 
 	EOF
 }
@@ -16,59 +21,29 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=p long=prodlike desc="Make it like prod (experimental)" variable=DFX_PRODLIKE nargs=0
-clap.define short=I long=ii_release desc="The release of II to use" variable=DFX_II_RELEASE default=""
-clap.define short=A long=aggregator_release desc="The release of sns_aggregator to use" variable=DFX_AGGREGATOR_RELEASE default=""
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=p long=prodlike desc="Deprecated and ignored" variable=DFX_PRODLIKE nargs=0
+clap.define short=I long=ii_release desc="Deprecated and ignored: Internet Identity is installed by PocketIC" variable=DFX_II_RELEASE default=""
+clap.define short=A long=aggregator_release desc="The release of sns_aggregator to use on remote networks" variable=DFX_AGGREGATOR_RELEASE default=""
 clap.define short=c long=commit desc="The IC commit of the wasms" variable=DFX_IC_COMMIT default="$(
   . "$SOURCE_DIR/versions.bash"
   echo "$DFX_IC_COMMIT"
 )"
 clap.define short=x long=ic_dir desc="Directory containing the ic source code" variable=IC_REPO_DIR default="$HOME/dfn/ic"
 clap.define short=y long=nd_dir desc="Directory containing the nns-dapp source code" variable=ND_REPO_DIR default="$HOME/dfn/nns-dapp"
-clap.define long=pocketic desc="Whether to start dfx with --pocketic" variable=USE_POCKET_IC nargs=0 default=false
+clap.define long=pocketic desc="Deprecated and ignored: A local network always uses PocketIC" variable=USE_POCKET_IC nargs=0 default=false
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 export DFX_IC_COMMIT
 
-: If asked to make the release production-like, get the corresponding software versions
-if [[ "${DFX_PRODLIKE:-}" == "true" ]]; then
-  DFX_II_RELEASE="$(dfx-software-internet-identity-version --mainnet)"
-fi
-
 if [[ "$DFX_NETWORK" == "local" ]]; then
-  # Run locally; can be configured by e.g. changing the wasm files in the cache
   dfx-network-stop --network "$DFX_NETWORK"
-  export DFX_IC_COMMIT
-  WASM_DIR="$(dfx cache show)/wasms"
-  test -d "$(dfx cache show)" || dfx cache install
-  mkdir -p "$WASM_DIR"
-  : "Get the specified version of the nns-sns-wasm.wasm"
-  curl "https://download.dfinity.systems/ic/${DFX_IC_COMMIT}/canisters/sns-wasm-canister.wasm.gz" | gunzip >"${WASM_DIR}/sns-wasm-canister.wasm"
-
-  # Output background replica output in a different color to make it easier to
-  # distinguish from the output of foreground processes.
-  export DARK="$(
-    tput setab 8
-    tput setaf 0
-  )"
-  export NORMAL="$(tput sgr0)"
-  POCKET_IC_ARG=()
-  if [[ "${USE_POCKET_IC:-}" == "true" ]]; then
-    POCKET_IC_ARG=(--pocketic)
-  fi
-  dfx start --clean "${POCKET_IC_ARG[@]}" --background 2>&1 | sed -e "s@.*@${DARK}&${NORMAL}@" &
-
-  dfx-nns-install --ic_commit "$DFX_IC_COMMIT"
+  dfx-network-start --network "$DFX_NETWORK"
+  # PocketIC has installed the NNS canisters, Internet Identity, the NNS dapp
+  # and the SNS aggregator.
   dfx-nns-import --network "$DFX_NETWORK"
-  dfx-canister-set-id --canister_name nns-icp-index --canister_id q3fc5-haaaa-aaaaa-aaahq-cai
-  dfx-canister-set-id --canister_name nns-dapp --canister_id qsgjb-riaaa-aaaaa-aaaga-cai
-  dfx-canister-set-id --canister_name sns_aggregator --canister_id sgymv-uiaaa-aaaaa-aaaia-cai
-  dfx-canister-set-id --canister_name internet_identity --canister_id qhbym-qaaaa-aaaaa-aaafq-cai
-
-  dfx-software-internet-identity-install --release "${DFX_II_RELEASE:-pinned}" --flavor "dev" --network local
 else
   # Run remotely with one of the predefined configurations.
   # Note: This is still relatively slow and error prone.  Points of friction need to be ironed
@@ -78,7 +53,6 @@ else
   dfx-network-deploy-testnet --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}"
   dfx-network-deploy-config --network "$DFX_NETWORK" --ic_dir "${IC_REPO_DIR}" --nd_dir "${ND_REPO_DIR}"
   dfx-network-deploy-frontends --network "$DFX_NETWORK" --nd_dir "${ND_REPO_DIR}"
+  # A remote network needs an aggregator canister.
+  dfx-software-sns-aggregator-install --network "$DFX_NETWORK" --release "${DFX_AGGREGATOR_RELEASE:-pinned}" --flavor dev
 fi
-
-# However the network is deloyed, we also need an aggregator canister.
-dfx-software-sns-aggregator-install --network "$DFX_NETWORK" --release "${DFX_AGGREGATOR_RELEASE:-pinned}" --flavor dev

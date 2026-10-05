@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-PATH="$SOURCE_DIR:$PATH"
+# The sns command line tool needs dfx.  Give it a stand-in that uses icp-cli.
+PATH="$SOURCE_DIR:$SOURCE_DIR/dfx-shim:$PATH"
 export PATH
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -14,8 +16,8 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=identity desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=N long=neuron desc="The neuronId to use" variable=DFX_NEURON_ID default=""
 clap.define long=save-proposal-id-to desc="Passed to sns propose --save-to" variable=PROPOSAL_ID_FILE default=""
 # Source the output file ----------------------------------------------------------
@@ -24,7 +26,16 @@ source "$(clap.build)"
 DFX_NEURON_ID="${DFX_NEURON_ID:-$(dfx-neuron-id --identity "$DFX_IDENTITY" --network "$DFX_NETWORK")}"
 DFX_NNS_URL="$(dfx-network-provider --network "$DFX_NETWORK")"
 
-export DFX_IDENTITY
+export DFX_IDENTITY DFX_NETWORK
+
+# The sns command line tool reads identities from the dfx configuration directory.
+# Give it a temporary one with just the identity that we are using.
+DFX_CONFIG_ROOT="$(mktemp -d)"
+export DFX_CONFIG_ROOT
+trap 'rm -fr "$DFX_CONFIG_ROOT"' EXIT
+mkdir -p "$DFX_CONFIG_ROOT/.config/dfx/identity/$DFX_IDENTITY"
+cp "$(snsdemo_identity_pem "$DFX_IDENTITY")" "$DFX_CONFIG_ROOT/.config/dfx/identity/$DFX_IDENTITY/identity.pem"
+printf '{"default": "%s"}\n' "$DFX_IDENTITY" >"$DFX_CONFIG_ROOT/.config/dfx/identity.json"
 
 # There needs to be a logo.png in the current directory. If there isn't, create
 # a symlink to the one in the snsdemo root directory.

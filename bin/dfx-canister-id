@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
+
+print_help() {
+  cat <<-EOF
+
+	Prints the ID of a canister, given its name.
+
+	The IDs come from, in this order:
+	- The IDs that snsdemo has recorded in $SNSDEMO_STATE_DIR/canister_ids/
+	- The NNS canisters and other canisters that have the same ID on all networks.
+
+	Usage: $(basename "$0") [--network NETWORK] CANISTER_NAME
+
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+(($# == 1)) || {
+  echo "ERROR: Please provide exactly one canister name." >&2
+  exit 1
+}
+
+snsdemo_canister_id "$1" "$DFX_NETWORK"

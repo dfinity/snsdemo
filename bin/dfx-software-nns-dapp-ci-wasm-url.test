@@ -22,7 +22,7 @@ canister_url_is_plausible() {
   local URL WASM_FILE
   URL="${1:-}"
   WASM_FILE="$(mktemp nns-dapp-XXXXX --suffix=.wasm)"
-  curl -sSLf "$URL" >"$WASM_FILE"
+  curl -sSLf --retry 5 --retry-all-errors --retry-delay 3 "$URL" >"$WASM_FILE"
   dfx-canister-nm "$WASM_FILE" >"${WASM_FILE}.symbols"
   grep -q canister_query "${WASM_FILE}.symbols" || {
     echo "ERROR: The downloaded file should be a canister wasm file but doesn't appear to be."

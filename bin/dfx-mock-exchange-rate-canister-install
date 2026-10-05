@@ -8,7 +8,6 @@ print_help() {
 
 	Fetches and installs the mock exchange rate canister:
 	* Downloads the wasm.
-	* Adds the xrc canister to dfx.json, if not already present.
 	* Deploys the downloaded wasm to the specified network.
 	EOF
 }
@@ -16,7 +15,7 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=r long=release desc="The release to download the wasm from" variable=RELEASE default="pinned"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
@@ -21,14 +23,14 @@ declare -A LIFECYCLE_MAP=(
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=identity desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
 export DFX_NETWORK
 export DFX_IDENTITY
 
-LIFECYCLE_ID="$(dfx canister call sns_swap get_lifecycle '(record{})' | idl2json | jq -r '.lifecycle[0]')"
+LIFECYCLE_ID="$(snsdemo_call sns_swap get_lifecycle '(record{})' --identity "$DFX_IDENTITY" | idl2json | jq -r '.lifecycle[0]')"
 
 echo "${LIFECYCLE_MAP[$LIFECYCLE_ID]}"

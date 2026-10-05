@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
 : "Back up state after running a demo, in case we need to access the deployment again in future."
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
 backup_dir=",backup-$(date +%Y-%m-%d--%H-%M-%S)"
 mkdir -p "$backup_dir/identity"
-for user in ident-1 snsdemo8; do
-  rsync -avzr "$HOME/.config/dfx/identity/$user/" "$backup_dir/identity/$user"
-done
+(
+  umask 077
+  for user in ident-1 snsdemo8; do
+    if snsdemo_identity_exists "$user"; then
+      icp identity export "$user" >"$backup_dir/identity/$user.pem"
+    fi
+  done
+)
 
-for file in dfx.json canister_ids.json .dfx/local/canister_ids.json; do
+# The canister IDs and neurons, without the exported pem files.
+for file in icp.yaml "$SNSDEMO_STATE_DIR/canister_ids" "$SNSDEMO_STATE_DIR/neurons"; do
   if test -e "$file"; then
     echo "Backing up: $file"
-    mkdir -p "$backup_dir/$(dirname "$file")"
-    cp "$file" "$backup_dir/$file"
+    cp -R "$file" "$backup_dir/"
   fi
 done

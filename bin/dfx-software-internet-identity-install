@@ -2,11 +2,15 @@
 set -euo pipefail
 SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 PATH="$SOURCE_DIR:$PATH"
+source "$SOURCE_DIR/snsdemo.bash"
 
 print_help() {
   cat <<-EOF
 
 	Fetches and installs the internet-identity canister wasm file.
+
+	Local networks have Internet Identity installed by PocketIC; this is for
+	other networks.
 
 	EOF
 }
@@ -14,21 +18,20 @@ print_help() {
 # Source the clap.bash file ---------------------------------------------------
 source "$SOURCE_DIR/clap.bash"
 # Define options
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
 clap.define short=r long=release desc="The release name" variable=DFX_II_RELEASE default="pinned"
 # See https://github.com/dfinity/internet-identity#flavors
 clap.define short=f long=flavor desc="production, test, or dev" variable=DFX_II_FLAVOR default="dev"
-clap.define short=m long=mode desc="Canister install mode.  See dfx canister install --help for details." variable=DFX_INSTALL_MODE default="reinstall"
+clap.define short=m long=mode desc="Canister install mode.  See icp canister install --help for details." variable=DFX_INSTALL_MODE default="reinstall"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
+export DFX_NETWORK
+
 II_WASM_URL="$(dfx-software-internet-identity-ci-wasm-url --release "${DFX_II_RELEASE}" --flavor "${DFX_II_FLAVOR}")"
 
-# The URL might point to a .gz file, but dfx can install gzipped wasms directly.
-curl --retry 5 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
-
-: "If the canister was remote, it isn't any more:"
-DFX_NETWORK="$DFX_NETWORK" jq 'del(.canisters.internet_identity.remote.id[env.DFX_NETWORK])' dfx.json | sponge dfx.json
+# The URL might point to a .gz file, but icp-cli can install gzipped wasms directly.
+curl --retry 5 --retry-all-errors --retry-delay 3 --fail -sSL "${II_WASM_URL}" >internet_identity_dev.wasm
 
 : "Install the canister:"
-dfx canister install internet_identity --wasm internet_identity_dev.wasm --upgrade-unchanged --mode "${DFX_INSTALL_MODE}" --yes --network "${DFX_NETWORK}"
+dfx-canister-install --network "$DFX_NETWORK" --name internet_identity --wasm internet_identity_dev.wasm --mode "${DFX_INSTALL_MODE}"

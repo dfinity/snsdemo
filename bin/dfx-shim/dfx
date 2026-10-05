@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# A minimal stand-in for the `dfx` command, implemented with icp-cli.
+#
+# Why: The `sns` command line tool from the IC repo calls `dfx` for some of the
+# things that it does on a network: it asks for the identity and for some
+# commands it calls `dfx canister call`.  This is not under our control and dfx
+# is deprecated.  So we put this directory in the PATH when we run `sns`, so
+# that `sns` gets the icp-cli identities and talks to the network through
+# icp-cli.  (The `sns` tool reads the identity for its own agent directly from
+# the dfx configuration directory, so dfx-sns-propose provides that as well.)
+#
+# Supported are exactly the commands that `sns` runs:
+#
+#   dfx identity whoami
+#   dfx identity use NAME
+#   dfx identity [--network NETWORK] get-principal
+#   dfx identity import [--force] [--storage-mode=plaintext] NAME PEM_FILE
+#   dfx canister --network NETWORK call [--argument-file FILE] CANISTER METHOD [--argument-file FILE] [--output=raw]
+#   dfx canister --network NETWORK info CANISTER
+#
+# NETWORK is local, ic, a network in icp.yaml, or a URL.
+set -euo pipefail
+
+die() {
+  echo "dfx shim: $*" >&2
+  exit 1
+}
+
+# The identity can be selected with DFX_IDENTITY, as with dfx.
+IDENTITY_ARGS=()
+[[ -z "${DFX_IDENTITY:-}" ]] || IDENTITY_ARGS=(--identity "$DFX_IDENTITY")
+
+# Sets NETWORK_ARGS to the icp-cli options that select the network.
+select_network() {
+  local network="$1"
+  case "$network" in
+  http://* | https://*)
+    case "$network" in
+    https://ic0.app* | https://icp0.io* | https://icp-api.io* | https://*.icp0.io* | https://*.ic0.app*)
+      NETWORK_ARGS=(--network "$network" --root-key mainnet)
+      ;;
+    *)
+      NETWORK_ARGS=(--network "$network" --root-key fetch)
+      ;;
+    esac
+    ;;
+  mainnet) NETWORK_ARGS=(--environment ic) ;;
+  *) NETWORK_ARGS=(--environment "$network") ;;
+  esac
+}
+
+identity() {
+  # Options that we can ignore, such as --network, go before the command.
+  local network="local"
+  while (($# > 0)); do
+    case "$1" in
+    --network)
+      network="$2"
+      shift 2
+      ;;
+    --network=*)
+      network="${1#--network=}"
+      shift
+      ;;
+    *) break ;;
+    esac
+  done
+  local command="${1:-}"
+  shift || true
+  case "$command" in
+  whoami) echo "${DFX_IDENTITY:-$(icp identity default)}" ;;
+  use) icp identity default "$1" ;;
+  get-principal) icp identity principal "${IDENTITY_ARGS[@]}" ;;
+  import)
+    local force="" name="" pem=""
+    while (($# > 0)); do
+      case "$1" in
+      --force) force=1 ;;
+      --storage-mode=*) ;;
+      --storage-mode) shift ;;
+      *)
+        if [[ -z "$name" ]]; then name="$1"; else pem="$1"; fi
+        ;;
+      esac
+      shift
+    done
+    [[ -z "$force" ]] || icp identity delete "$name" 2>/dev/null || true
+    icp identity import "$name" --from-pem "$pem" --storage plaintext
+    ;;
+  *) die "Unsupported identity command: '$command'" ;;
+  esac
+}
+
+canister() {
+  local network="local"
+  while (($# > 0)); do
+    case "$1" in
+    --network)
+      network="$2"
+      shift 2
+      ;;
+    --network=*)
+      network="${1#--network=}"
+      shift
+      ;;
+    *) break ;;
+    esac
+  done
+  local command="${1:-}"
+  shift || true
+  NETWORK_ARGS=()
+  select_network "$network"
+  case "$command" in
+  call)
+    local argument_file="" output="" positional=()
+    while (($# > 0)); do
+      case "$1" in
+      --argument-file)
+        argument_file="$2"
+        shift 2
+        ;;
+      --argument-file=*)
+        argument_file="${1#--argument-file=}"
+        shift
+        ;;
+      --output)
+        output="$2"
+        shift 2
+        ;;
+      --output=*)
+        output="${1#--output=}"
+        shift
+        ;;
+      *)
+        positional+=("$1")
+        shift
+        ;;
+      esac
+    done
+    local call_args=()
+    [[ -z "$argument_file" ]] || call_args+=(--args-file "$argument_file")
+    case "$output" in
+    raw) call_args+=(--output hex) ;;
+    "") ;;
+    *) die "Unsupported output format: '$output'" ;;
+    esac
+    exec icp canister call "${positional[@]}" "${call_args[@]}" "${NETWORK_ARGS[@]}" "${IDENTITY_ARGS[@]}"
+    ;;
+  info)
+    local canister_id="$1"
+    local status
+    status="$(icp canister status "$canister_id" --public --json "${NETWORK_ARGS[@]}")"
+    # The format is the same as that of `dfx canister info`.
+    echo "Controllers: $(jq -r '.controllers | join(" ")' <<<"$status")"
+    echo "Module hash: $(jq -r '.module_hash // "None"' <<<"$status")"
+    ;;
+  *) die "Unsupported canister command: '$command'" ;;
+  esac
+}
+
+command="${1:-}"
+shift || true
+case "$command" in
+identity) identity "$@" ;;
+canister) canister "$@" ;;
+*) die "Unsupported command: '$command'.  This is not dfx but a shim around icp-cli, see $0" ;;
+esac

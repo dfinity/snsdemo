@@ -1,1 +1,8 @@
-jq -r '.canisters | keys[]' dfx.json
+#!/usr/bin/env bash
+# Lists the canisters that snsdemo has recorded by name on a network.
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+source "$SOURCE_DIR/snsdemo.bash"
+FILE="$(snsdemo_ids_file "${1:-${DFX_NETWORK:-local}}")"
+if test -s "$FILE"; then
+  jq -r 'keys[]' "$FILE"
+fi

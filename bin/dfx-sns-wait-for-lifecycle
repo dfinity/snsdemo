@@ -27,8 +27,8 @@ LIFECYCLE_LIST=${LIFECYCLE_LIST%,*}
 source "$SOURCE_DIR/clap.bash"
 # Define options
 clap.define short=l long=lifecycle desc="One of $LIFECYCLE_LIST" variable=LIFECYCLE default="open"
-clap.define short=n long=network desc="The dfx network to use" variable=DFX_NETWORK default="local"
-clap.define short=i long=identity desc="The dfx identity to use" variable=DFX_IDENTITY default="$(dfx identity whoami)"
+clap.define short=n long=network desc="The network to use" variable=DFX_NETWORK default="local"
+clap.define short=i long=identity desc="The icp-cli identity to use" variable=DFX_IDENTITY default="$(icp identity default)"
 # Source the output file ----------------------------------------------------------
 source "$(clap.build)"
 
