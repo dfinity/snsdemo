@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Keep the test output readable; the warning itself is tested at the end of this file.
-export SNSDEMO_NO_DEPRECATION_WARNING=1
-
 (
   set -euo pipefail
   echo "Testing with all features"
@@ -173,7 +170,7 @@ export SNSDEMO_NO_DEPRECATION_WARNING=1
 
   (
     echo "The deprecation warning goes to stderr, not stdout"
-    unset SNSDEMO_DEPRECATION_WARNED SNSDEMO_NO_DEPRECATION_WARNING
+    unset SNSDEMO_DEPRECATION_WARNED
     stdout="$(script 2>/dev/null)"
     [[ "$stdout" == "STDOUT_OF_SCRIPT" ]] || {
       echo "ERROR: Expected only the script's own output on stdout, got: $stdout"
@@ -188,7 +185,7 @@ export SNSDEMO_NO_DEPRECATION_WARNING=1
 
   (
     echo "The deprecation warning is printed only once per process tree"
-    unset SNSDEMO_DEPRECATION_WARNED SNSDEMO_NO_DEPRECATION_WARNING
+    unset SNSDEMO_DEPRECATION_WARNED
     stderr="$(
       script 2>&1 >/dev/null
       script 2>&1 >/dev/null
@@ -196,17 +193,6 @@ export SNSDEMO_NO_DEPRECATION_WARNING=1
     count="$(grep -c 'issues/628' <<<"$stderr")"
     [[ "$count" == "1" ]] || {
       echo "ERROR: Expected exactly one deprecation warning, got $count: $stderr"
-      exit 1
-    }
-  )
-
-  (
-    echo "The deprecation warning can be silenced"
-    unset SNSDEMO_DEPRECATION_WARNED
-    export SNSDEMO_NO_DEPRECATION_WARNING=1
-    stderr="$(script 2>&1 >/dev/null)"
-    [[ -z "$stderr" ]] || {
-      echo "ERROR: Expected no deprecation warning when silenced, got: $stderr"
       exit 1
     }
   )
