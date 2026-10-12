@@ -1,5 +1,15 @@
 # SNS DEMO
 
+> **Planned shutdown**
+>
+> snsdemo is built on `dfx`, which is deprecated in favour of `icp-cli` and no
+> longer receives PocketIC updates, so snsdemo can no longer follow new IC
+> commits. Its only known user, [nns-dapp](https://github.com/dfinity/nns-dapp),
+> is moving to `icp-cli` and will stop depending on snsdemo. We therefore plan to
+> archive this repository. If you use snsdemo (its scripts or its snapshot
+> releases), please tell us in
+> [issue #628](https://github.com/dfinity/snsdemo/issues/628).
+
 This repository has a collection of tools to make it easier to manage
 environments with SNS projects and other dependencies. If this sounds vague it's
 because it's a bit of a kitchen sink. Some of them are described below.
