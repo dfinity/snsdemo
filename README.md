@@ -48,6 +48,21 @@ and checking the "Make release" box.
 This will cause GitHub actions to create a new snapshot, which can be found
 [here](https://github.com/dfinity/snsdemo/tags).
 
+#### Notice-only releases (shutdown)
+
+As part of the planned shutdown, releases can be switched to "notice-only": the
+release asset keeps its usual name (`snsdemo_snapshot_ubuntu-24.04.tar.xz`), but
+contains only `SNSDEMO_NOTICE_OF_DEPRECATION.md` (see
+`bin/SNSDEMO_NOTICE_OF_DEPRECATION.md`), so that any remaining automated
+consumer fails loudly, with an explanation. `bin/dfx-snapshot-restore` detects
+such a tarball, prints the notice and exits non-zero.
+
+- Scheduled releases: flip `SNSDEMO_NOTICE_ONLY_RELEASE` to `true` in
+  `bin/versions.bash` (a one-line PR). Flip it back to `false` to resume real
+  snapshot releases.
+- Manual runs: tick "Notice only" when running the workflow to exercise the
+  notice-only path regardless of the constant.
+
 
 
 ## Creating an SNS in GitHub CI

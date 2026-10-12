@@ -7,6 +7,10 @@ on:
         description: 'Make release'
         default: false
         type: boolean
+      notice_only:
+        description: 'Notice only: publish a tarball containing only SNSDEMO_NOTICE_OF_DEPRECATION.md instead of a real snapshot'
+        default: false
+        type: boolean
   schedule:
     - cron: '30 3 * * WED'
 env:
@@ -26,10 +30,24 @@ jobs:
           fetch-depth: 0
       - name: Install dfx
         uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
+      - name: Determine whether to make a real snapshot or a notice-only one
+        # SNSDEMO_NOTICE_ONLY_RELEASE is set in bin/versions.bash; see the comment there.
+        # The "Notice only" input allows a manual run to exercise the notice-only path.
+        run: |
+          set -euxo pipefail
+          . bin/versions.bash
+          if [[ "${{ inputs.notice_only }}" == true ]]; then
+            SNSDEMO_NOTICE_ONLY_RELEASE=true
+          fi
+          echo "SNSDEMO_NOTICE_ONLY_RELEASE=${SNSDEMO_NOTICE_ONLY_RELEASE}" >> "$GITHUB_ENV"
       - name: Create snapshot
         id: snapshot
         run: |
-          if [[ "${TEST_RELEASE_PROCESS}" == true ]]
+          if [[ "${SNSDEMO_NOTICE_ONLY_RELEASE}" == true ]]
+          then
+               snapshot_path="snsdemo_snapshot_${{ matrix.os }}.tar.xz"
+               bin/dfx-snapshot-notice-make --snapshot "$snapshot_path"
+          elif [[ "${TEST_RELEASE_PROCESS}" == true ]]
           then
                snapshot_path="snsdemo_snapshot_${{ matrix.os }}.test"
                echo "Guess what.  The file called test has test content.  Miracles will never cease." > "$snapshot_path"
@@ -39,13 +57,25 @@ jobs:
                time bin/dfx-snapshot-stock-make --snapshot "$snapshot_path" --verbose
           fi
           echo "path=$snapshot_path" >> "$GITHUB_OUTPUT"
+      - name: "Verify that the notice-only snapshot is refused with an explanation"
+        if: ${{ env.SNSDEMO_NOTICE_ONLY_RELEASE == 'true' }}
+        run: |
+          set -euxo pipefail
+          if bin/dfx-snapshot-restore --snapshot "${{ steps.snapshot.outputs.path }}" 2>restore-stderr.txt
+          then
+            echo "ERROR: dfx-snapshot-restore should have refused the notice-only snapshot"
+            exit 1
+          fi
+          grep -q "Greetings, snsdemo user!" restore-stderr.txt
       - name: Time snapshot start # See GitHub for the duration of this step.
-        if: ${{ env.TEST_RELEASE_PROCESS != 'true' }}
+        if: ${{ env.TEST_RELEASE_PROCESS != 'true' && env.SNSDEMO_NOTICE_ONLY_RELEASE != 'true' }}
         run: bin/dfx-snapshot-restore --snapshot "${{ steps.snapshot.outputs.path }}"
       - name: "Verify that the stock state behaves as expected"
+        if: ${{ env.SNSDEMO_NOTICE_ONLY_RELEASE != 'true' }}
         id: test
         run: bin/dfx-stock-test
       - name: Stop dfx
+        if: ${{ env.SNSDEMO_NOTICE_ONLY_RELEASE != 'true' }}
         run: dfx stop
       - name: Tag if release should be created
         if: ${{ (github.event_name == 'schedule') || (inputs.make_release)}}

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+NOTICE_FILENAME="SNSDEMO_NOTICE_OF_DEPRECATION.md"
+WORK_DIR="$(mktemp -d)"
+trap 'rm -fr "$WORK_DIR"' EXIT
+SNAPSHOT_FILE="$WORK_DIR/snsdemo_snapshot_test.tar.xz"
+
+(
+  printf "\n=====================================\n\n"
+  echo "dfx-snapshot-notice-make creates a tarball containing only the notice"
+  dfx-snapshot-notice-make --snapshot "$SNAPSHOT_FILE"
+  members="$(tar --list --xz --file "$SNAPSHOT_FILE")"
+  [[ "$members" == "$NOTICE_FILENAME" ]] || {
+    echo "ERROR: Expected the tarball to contain only '$NOTICE_FILENAME' but it contains:"
+    echo "$members"
+    exit 1
+  }
+  diff <(tar --extract --xz --to-stdout --file "$SNAPSHOT_FILE" "$NOTICE_FILENAME") "$SOURCE_DIR/$NOTICE_FILENAME" || {
+    echo "ERROR: The notice in the tarball differs from $SOURCE_DIR/$NOTICE_FILENAME"
+    exit 1
+  }
+  echo "Check passed"
+)
+
+(
+  printf "\n=====================================\n\n"
+  echo "dfx-snapshot-restore refuses a notice-only tarball and prints the notice"
+  cd "$WORK_DIR"
+  # Run with a throwaway HOME, so that even if the check fails, nothing real is clobbered.
+  if HOME="$WORK_DIR/home" dfx-snapshot-restore --snapshot "$SNAPSHOT_FILE" >stdout.txt 2>stderr.txt; then
+    echo "ERROR: dfx-snapshot-restore should have failed"
+    exit 1
+  fi
+  grep -q "Greetings, snsdemo user!" stderr.txt || {
+    echo "ERROR: The notice was not printed to stderr.  stderr was:"
+    cat stderr.txt
+    exit 1
+  }
+  grep -q "not a snsdemo snapshot" stderr.txt || {
+    echo "ERROR: The explanation was not printed to stderr.  stderr was:"
+    cat stderr.txt
+    exit 1
+  }
+  [[ ! -e "$WORK_DIR/home" ]] || {
+    echo "ERROR: dfx-snapshot-restore should not have touched HOME"
+    exit 1
+  }
+  echo "Check passed"
+)
