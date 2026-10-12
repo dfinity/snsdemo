@@ -1,3 +1,7 @@
+# 🚨🚨🚨 PLANNED SHUTDOWN 🚨🚨🚨
+
+> snsdemo is built on `dfx`, which is deprecated in favour of `icp-cli`. As a result, snsdemo can no longer use newer commits from [dfinity/ic](https://github.com/dfinity/ic), and we plan to archive this repository. If you use snsdemo (its scripts or its snapshot releases), please tell us in [issue #628](https://github.com/dfinity/snsdemo/issues/628).
+
 # SNS DEMO
 
 This repository has a collection of tools to make it easier to manage
