@@ -26,12 +26,12 @@ DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
 # A "notice-only" snapshot (see dfx-snapshot-notice-make) is not a snapshot at all:
 # it contains only a notice of deprecation.  Print the notice and refuse to proceed,
 # rather than failing later with a cryptic dfx error.
-# Only tiny archives are inspected: a notice-only tarball is a few KiB, whereas listing a
-# real snapshot would mean decompressing hundreds of MiB just to find out that it is real.
+# A notice-only tarball has exactly one member, the notice, so only the first member is
+# inspected; for a real snapshot this stops decompressing after a few KiB.
 NOTICE_FILENAME="SNSDEMO_NOTICE_OF_DEPRECATION.md"
-NOTICE_MAX_BYTES=1048576
-if [[ "$(wc -c <"$DFX_SNAPSHOT_FILE")" -le "$NOTICE_MAX_BYTES" ]] &&
-  tar --list --xz --file "$DFX_SNAPSHOT_FILE" | grep -qxE "(\./)?${NOTICE_FILENAME}"; then
+# "|| true": with pipefail, tar exits 141 (SIGPIPE) when head closes the pipe early.
+first_member="$(tar --list --xz --file "$DFX_SNAPSHOT_FILE" | head -n 1 || true)"
+if [[ "$first_member" == "$NOTICE_FILENAME" ]]; then
   {
     echo
     echo "ERROR: '$DFX_SNAPSHOT_FILE' is not a snsdemo snapshot."

@@ -18,7 +18,11 @@ SNAPSHOT_FILE="$WORK_DIR/snsdemo_snapshot_test.tar.xz"
     echo "$members"
     exit 1
   fi
-  if ! diff <(tar --extract --xz --to-stdout --file "$SNAPSHOT_FILE" "$NOTICE_FILENAME") "$SOURCE_DIR/$NOTICE_FILENAME"; then
+  tar --extract --xz \
+    --file "$SNAPSHOT_FILE" \
+    --directory "$WORK_DIR" \
+    "$NOTICE_FILENAME"
+  if ! diff "$WORK_DIR/$NOTICE_FILENAME" "$SOURCE_DIR/$NOTICE_FILENAME"; then
     echo "ERROR: The notice in the tarball differs from $SOURCE_DIR/$NOTICE_FILENAME"
     exit 1
   fi
