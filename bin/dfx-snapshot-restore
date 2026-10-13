@@ -29,7 +29,7 @@ DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
 # A notice-only tarball has exactly one member, the notice, so only the first member is
 # inspected; for a real snapshot this stops decompressing after a few KiB.
 NOTICE_FILENAME="SNSDEMO_NOTICE_OF_DEPRECATION.md"
-# "|| true": with pipefail, tar exits 141 (SIGPIPE) when head closes the pipe early.
+# Why "|| true": with head, tar might exit nonzero (SIGPIPE) (and pipefail is enabled).
 first_member="$(tar --list --xz --file "$DFX_SNAPSHOT_FILE" | head -n 1 || true)"
 if [[ "$first_member" == "$NOTICE_FILENAME" ]]; then
   {
