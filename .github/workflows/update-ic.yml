@@ -2,10 +2,11 @@
 # the IC commit to the latest published commit.
 name: Update IC
 on:
-  # The weekly schedule is disabled: IC commit bumps can no longer pass CI,
-  # because dfx's bundled PocketIC cannot run IC commits newer than edcce4f4
-  # (2026-10-01). Re-enable the schedule once that is resolved.
-  # See https://github.com/dfinity/snsdemo/issues/628
+  # The weekly schedule is disabled. This is because dfx is no longer updated,
+  # and has gotten out of sync with the ic repo in ways that break us (Registry
+  # has new invariant, specifically on the new cup_type field). This could be
+  # re-enabled if it ever starts working again somehow, but that is super unlikely.
+  # Deprecation is being tracked at https://github.com/dfinity/snsdemo/issues/628
   #
   # schedule:
   #   # check for new IC commit weekly
