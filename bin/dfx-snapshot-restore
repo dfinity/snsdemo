@@ -30,7 +30,8 @@ DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
 # real snapshot would mean decompressing hundreds of MiB just to find out that it is real.
 NOTICE_FILENAME="SNSDEMO_NOTICE_OF_DEPRECATION.md"
 NOTICE_MAX_BYTES=1048576
-if [[ "$(wc -c <"$DFX_SNAPSHOT_FILE")" -le "$NOTICE_MAX_BYTES" ]] && tar --list --xz --file "$DFX_SNAPSHOT_FILE" | grep -qxE "(\./)?${NOTICE_FILENAME}"; then
+if [[ "$(wc -c <"$DFX_SNAPSHOT_FILE")" -le "$NOTICE_MAX_BYTES" ]] &&
+  tar --list --xz --file "$DFX_SNAPSHOT_FILE" | grep -qxE "(\./)?${NOTICE_FILENAME}"; then
   {
     echo
     echo "ERROR: '$DFX_SNAPSHOT_FILE' is not a snsdemo snapshot."

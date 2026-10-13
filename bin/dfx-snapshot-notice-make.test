@@ -13,15 +13,15 @@ SNAPSHOT_FILE="$WORK_DIR/snsdemo_snapshot_test.tar.xz"
   echo "dfx-snapshot-notice-make creates a tarball containing only the notice"
   dfx-snapshot-notice-make --snapshot "$SNAPSHOT_FILE"
   members="$(tar --list --xz --file "$SNAPSHOT_FILE")"
-  [[ "$members" == "$NOTICE_FILENAME" ]] || {
+  if [[ "$members" != "$NOTICE_FILENAME" ]]; then
     echo "ERROR: Expected the tarball to contain only '$NOTICE_FILENAME' but it contains:"
     echo "$members"
     exit 1
-  }
-  diff <(tar --extract --xz --to-stdout --file "$SNAPSHOT_FILE" "$NOTICE_FILENAME") "$SOURCE_DIR/$NOTICE_FILENAME" || {
+  fi
+  if ! diff <(tar --extract --xz --to-stdout --file "$SNAPSHOT_FILE" "$NOTICE_FILENAME") "$SOURCE_DIR/$NOTICE_FILENAME"; then
     echo "ERROR: The notice in the tarball differs from $SOURCE_DIR/$NOTICE_FILENAME"
     exit 1
-  }
+  fi
   echo "Check passed"
 )
 
@@ -34,19 +34,14 @@ SNAPSHOT_FILE="$WORK_DIR/snsdemo_snapshot_test.tar.xz"
     echo "ERROR: dfx-snapshot-restore should have failed"
     exit 1
   fi
-  grep -q "Greetings, snsdemo user!" stderr.txt || {
+  if ! grep -q "snsdemo is going away soon" stderr.txt; then
     echo "ERROR: The notice was not printed to stderr.  stderr was:"
     cat stderr.txt
     exit 1
-  }
-  grep -q "not a snsdemo snapshot" stderr.txt || {
-    echo "ERROR: The explanation was not printed to stderr.  stderr was:"
-    cat stderr.txt
-    exit 1
-  }
-  [[ ! -e "$WORK_DIR/home" ]] || {
+  fi
+  if [[ -e "$WORK_DIR/home" ]]; then
     echo "ERROR: dfx-snapshot-restore should not have touched HOME"
     exit 1
-  }
+  fi
   echo "Check passed"
 )

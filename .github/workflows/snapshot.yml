@@ -31,8 +31,12 @@ jobs:
       - name: Install dfx
         uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
       - name: Determine whether to make a real snapshot or a notice-only one
-        # SNSDEMO_NOTICE_ONLY_RELEASE is set in bin/versions.bash; see the comment there.
-        # The "Notice only" input allows a manual run to exercise the notice-only path.
+        # This step translates the "Notice only" workflow input into SNSDEMO_NOTICE_ONLY_RELEASE,
+        # the environment variable that controls how the snapshot tarball is created in the
+        # steps below (a real snapshot, or a tarball containing only the notice).
+        # The default value of SNSDEMO_NOTICE_ONLY_RELEASE comes from bin/versions.bash (see the
+        # comment there); the input lets a manual run override it, e.g. to exercise the
+        # notice-only path before flipping the constant.
         run: |
           set -euxo pipefail
           . bin/versions.bash

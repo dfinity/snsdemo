@@ -27,14 +27,9 @@ source "$(clap.build)"
 
 NOTICE_FILENAME="SNSDEMO_NOTICE_OF_DEPRECATION.md"
 
-# Get the absolute path to the output file and make sure that the containing dir exists.
-DFX_SNAPSHOT_DIR="$(dirname "$DFX_SNAPSHOT_FILE")"
-mkdir -p "$DFX_SNAPSHOT_DIR"
-DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_DIR")/$(basename "$DFX_SNAPSHOT_FILE")"
-DFX_SNAPSHOT_TEMP_COMPRESSED="$(mktemp "${DFX_SNAPSHOT_FILE}.tmp.xz.XXXX")"
+mkdir -p "$(dirname "$DFX_SNAPSHOT_FILE")"
 
 # The notice is the only member of the archive, stored at the top level under its own name.
-tar --create --xz --file "$DFX_SNAPSHOT_TEMP_COMPRESSED" --directory "$SOURCE_DIR" "$NOTICE_FILENAME"
-mv "$DFX_SNAPSHOT_TEMP_COMPRESSED" "$DFX_SNAPSHOT_FILE"
+tar --create --xz --file "$DFX_SNAPSHOT_FILE" --directory "$SOURCE_DIR" "$NOTICE_FILENAME"
 
 echo "Notice-only snapshot saved to $DFX_SNAPSHOT_FILE"
