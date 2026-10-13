@@ -157,4 +157,45 @@ set -euo pipefail
   )
 )
 
+(
+  set -euo pipefail
+  echo "Testing the deprecation warning"
+  script() {
+    set -euo pipefail
+    SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    source "$SOURCE_DIR/clap.bash"
+    source "$(clap.build)"
+    echo "STDOUT_OF_SCRIPT"
+  }
+
+  (
+    echo "The deprecation warning goes to stderr, not stdout"
+    unset SNSDEMO_DEPRECATION_WARNED
+    stdout="$(script 2>/dev/null)"
+    [[ "$stdout" == "STDOUT_OF_SCRIPT" ]] || {
+      echo "ERROR: Expected only the script's own output on stdout, got: $stdout"
+      exit 1
+    }
+    stderr="$(script 2>&1 >/dev/null)"
+    grep -q 'issues/628' <<<"$stderr" || {
+      echo "ERROR: Expected the deprecation warning on stderr, got: $stderr"
+      exit 1
+    }
+  )
+
+  (
+    echo "The deprecation warning is printed only once per process tree"
+    unset SNSDEMO_DEPRECATION_WARNED
+    stderr="$(
+      script 2>&1 >/dev/null
+      script 2>&1 >/dev/null
+    )"
+    count="$(grep -c 'issues/628' <<<"$stderr")"
+    [[ "$count" == "1" ]] || {
+      echo "ERROR: Expected exactly one deprecation warning, got $count: $stderr"
+      exit 1
+    }
+  )
+)
+
 echo SUCCESS

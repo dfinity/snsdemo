@@ -52,7 +52,14 @@ jobs:
         if: matrix.os != 'macos-14'
         run: |
           ./bin/dfx-sns-demo-mksns-parallel -s 10 --config_index_offset 2 -m snsdemo8
+  # EXPECTED TO FAIL: since IC commit edcce4f4 (2026-10-01), dfx's bundled
+  # PocketIC produces registry data that the newer registry canister rejects
+  # ("cup contents ... has no cup_type set"), so the demo cannot run against
+  # the latest dfinity/ic master commit. The job is kept so that we notice when
+  # it starts passing again, but its red status can be ignored when deciding
+  # whether to merge a PR. See https://github.com/dfinity/snsdemo/issues/628
   demo_latest:
+    name: "demo_latest (EXPECTED TO FAIL: dfx cannot run newer IC commits, see issue #628) (${{ matrix.os }})"
     if: true # Claim that snsdemo works with the latest IC repo commit (true) or acknowledge that it doesn't (false).
     runs-on: ${{ matrix.os }}
     strategy:
