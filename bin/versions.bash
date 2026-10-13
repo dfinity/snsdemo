@@ -20,4 +20,4 @@ EXCHANGE_RATE_CANISTER_RELEASE=2024.09.05
 # releases fails loudly, with an explanation (see README, "Notice-only releases").
 # Flipping this to true is the final step of the shutdown plan; flip it back to false to
 # resume real snapshot releases.
-SNSDEMO_NOTICE_ONLY_RELEASE=false
+SNSDEMO_NOTICE_ONLY_RELEASE=true
