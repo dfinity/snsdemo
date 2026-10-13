@@ -23,6 +23,27 @@ source "$(clap.build)"
 
 DFX_SNAPSHOT_FILE="$(realpath "$DFX_SNAPSHOT_FILE")"
 
+# A "notice-only" snapshot (see dfx-snapshot-notice-make) is not a snapshot at all:
+# it contains only a notice of deprecation.  Print the notice and refuse to proceed,
+# rather than failing later with a cryptic dfx error.
+# A notice-only tarball has exactly one member, the notice, so only the first member is
+# inspected; for a real snapshot this stops decompressing after a few KiB.
+NOTICE_FILENAME="SNSDEMO_NOTICE_OF_DEPRECATION.md"
+# Why "|| true": with head, tar might exit nonzero (SIGPIPE) (and pipefail is enabled).
+first_member="$(tar --list --xz --file "$DFX_SNAPSHOT_FILE" | head -n 1 || true)"
+if [[ "$first_member" == "$NOTICE_FILENAME" ]]; then
+  {
+    echo
+    echo "ERROR: '$DFX_SNAPSHOT_FILE' is not a snsdemo snapshot."
+    echo "ERROR: It contains only the following notice of deprecation:"
+    echo
+    tar --extract --xz --to-stdout --file "$DFX_SNAPSHOT_FILE" --wildcards "*${NOTICE_FILENAME}"
+    echo
+    echo "ERROR: Refusing to restore.  Please see the notice above."
+  } >&2
+  exit 1
+fi
+
 pushd "$HOME"
 rm -fr .local/share/dfx/network/local
 tar --extract --xz --file "$DFX_SNAPSHOT_FILE"

@@ -219,3 +219,5 @@ jobs:
           git clean -dfx
           bin/dfx-mock-exchange-rate-canister-install.test
           git clean -dfx
+      - name: Notice-only snapshots are created and refused as expected
+        run: bin/dfx-snapshot-notice-make.test

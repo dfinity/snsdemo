@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SOURCE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+PATH="$SOURCE_DIR:$PATH"
+
+print_help() {
+  cat <<-EOF
+
+	Creates a "notice-only" snapshot: a .tar.xz with the same name as a real
+	snapshot, but containing only SNSDEMO_NOTICE_OF_DEPRECATION.md.
+
+	This is used by the snapshot release workflow once snsdemo is being wound
+	down, so that any remaining automated consumer of the snapshot releases
+	fails loudly, with an explanation, rather than silently using stale state.
+
+	dfx-snapshot-restore recognises such a tarball, prints the notice and refuses
+	to restore it.
+	EOF
+}
+
+# Source the clap.bash file ---------------------------------------------------
+source "$SOURCE_DIR/clap.bash"
+# Define options
+clap.define short=s long=snapshot desc="The file to save to" variable=DFX_SNAPSHOT_FILE default="stock-snsdemo-snapshot.tar.xz"
+# Source the output file ----------------------------------------------------------
+source "$(clap.build)"
+
+NOTICE_FILENAME="SNSDEMO_NOTICE_OF_DEPRECATION.md"
+
+mkdir -p "$(dirname "$DFX_SNAPSHOT_FILE")"
+
+# The notice is the only member of the archive, stored at the top level under its own name.
+tar --create --xz --file "$DFX_SNAPSHOT_FILE" --directory "$SOURCE_DIR" "$NOTICE_FILENAME"
+
+echo "Notice-only snapshot saved to $DFX_SNAPSHOT_FILE"

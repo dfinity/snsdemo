@@ -13,3 +13,11 @@ IC_WASM_VERSION=0.6.0
 DFX_NNS_EXTENSION_VERSION=0.9.0
 DFX_SNS_EXTENSION_VERSION=0.9.0
 EXCHANGE_RATE_CANISTER_RELEASE=2024.09.05
+
+# Snapshot releases: set to true to make the "Create a snapshot image" workflow release a
+# tarball (with the usual asset name) that contains only SNSDEMO_NOTICE_OF_DEPRECATION.md
+# instead of a real snapshot, so that any remaining automated consumer of the snapshot
+# releases fails loudly, with an explanation (see README, "Notice-only releases").
+# Flipping this to true is the final step of the shutdown plan; flip it back to false to
+# resume real snapshot releases.
+SNSDEMO_NOTICE_ONLY_RELEASE=false
