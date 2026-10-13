@@ -1,6 +1,9 @@
 # clap - a BASH argument parser
 # This parser aims to have similar parsing semantics as Rust's clap parser; if it doesn't look anything like clap it's not just you.
 
+# snsdemo is being shut down; every script that uses clap warns about this (on stderr, once).
+. "$(dirname "${BASH_SOURCE[0]}")/deprecation.bash"
+
 clap_usage=""
 clap_flag_match=""
 clap_defaults=""
