@@ -1,6 +1,8 @@
-# 🚨🚨🚨 SHUTTING DOWN 🚨🚨🚨
+# 🚨🚨🚨 OBSOLETE 🚨🚨🚨
 
-> snsdemo is being shut down. It is built on `dfx`, which is deprecated in favour of `icp-cli`, so snsdemo can no longer use newer commits from [dfinity/ic](https://github.com/dfinity/ic). Since 2026-11-20, the weekly releases no longer contain a snapshot: the release asset contains only a notice, `SNSDEMO_NOTICE_OF_DEPRECATION.md`, and `bin/dfx-snapshot-restore` refuses it. This repository will be archived soon. If you depend on snsdemo, please say so in [issue #628](https://github.com/dfinity/snsdemo/issues/628).
+> snsdemo has been shut down. If you still use this, please, reply to issue #628.
+>
+> **Why**: It is built on `dfx`, which has been obsoleted by `icp-cli`. As a result, snsdemo can no longer use newer commits from [dfinity/ic](https://github.com/dfinity/ic).
 
 # SNS DEMO
 
