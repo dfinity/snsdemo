@@ -1,6 +1,8 @@
-# 🚨🚨🚨 PLANNED SHUTDOWN 🚨🚨🚨
+# 🚨🚨🚨 OBSOLETE 🚨🚨🚨
 
-> snsdemo is built on `dfx`, which is deprecated in favour of `icp-cli`. As a result, snsdemo can no longer use newer commits from [dfinity/ic](https://github.com/dfinity/ic), and we plan to archive this repository. If you use snsdemo (its scripts or its snapshot releases), please tell us in [issue #628](https://github.com/dfinity/snsdemo/issues/628).
+> snsdemo has been shut down. If you still use this, please, reply to issue #628.
+>
+> **Why**: It is built on `dfx`, which has been obsoleted by `icp-cli`. As a result, snsdemo can no longer use newer commits from [dfinity/ic](https://github.com/dfinity/ic).
 
 # SNS DEMO
 
@@ -50,16 +52,16 @@ This will cause GitHub actions to create a new snapshot, which can be found
 
 #### Notice-only releases (shutdown)
 
-As part of the planned shutdown, releases can be switched to "notice-only": the
+As part of the shutdown, releases are "notice-only" since 2026-11-20: the
 release asset keeps its usual name (`snsdemo_snapshot_ubuntu-24.04.tar.xz`), but
 contains only `SNSDEMO_NOTICE_OF_DEPRECATION.md` (see
 `bin/SNSDEMO_NOTICE_OF_DEPRECATION.md`), so that any remaining automated
 consumer fails loudly, with an explanation. `bin/dfx-snapshot-restore` detects
 such a tarball, prints the notice and exits non-zero.
 
-- Scheduled releases: flip `SNSDEMO_NOTICE_ONLY_RELEASE` to `true` in
-  `bin/versions.bash` (a one-line PR). Flip it back to `false` to resume real
-  snapshot releases.
+- Scheduled releases: these are notice-only because `SNSDEMO_NOTICE_ONLY_RELEASE`
+  is `true` in `bin/versions.bash`. Flipping it back to `false` would resume
+  real snapshot releases.
 - Manual runs: tick "Notice only" when running the workflow to exercise the
   notice-only path regardless of the constant.
 
